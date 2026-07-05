@@ -171,7 +171,6 @@ section>.wrap{position:relative;z-index:1}
 .aob3-media video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .aob3-ext{position:absolute;inset:0;background:transparent}
 .aob3-frame{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:100vw;height:56.25vw;min-width:88.9vh;min-height:50vh;border:0;pointer-events:none}
-.aob3-frame-v{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:max(46vw,29vh);height:calc(max(46vw,29vh)*1.7778);border:0;pointer-events:none}
 .aob3-stage:hover .aob3-media{filter:grayscale(.45) brightness(.5) contrast(1.03);transform:scale(1.12)}
 .aob3-stage:hover .aob3-panel:hover .aob3-media{filter:none;transform:scale(1.18)}
 .aob3-ov{position:absolute;inset:0;z-index:1;transition:background .6s ease;background:linear-gradient(0deg,rgba(5,4,1,.94) 0%,rgba(205,153,37,.34) 46%,rgba(205,153,37,.08) 74%,transparent 100%)}
@@ -198,7 +197,6 @@ div.aob3-panel{cursor:default}
 .aob3-panel,.aob3-free,.aob3-arm,.aob3-train{flex:0 0 auto!important;min-height:50svh!important}
 .aob3-panel + .aob3-panel{border-left:0;border-top:1px solid rgba(200,170,110,.14)}
 .aob3-media,.aob3-stage:hover .aob3-media{filter:none!important;transform:scale(1.06)!important}
-.aob3-frame-v{width:max(100vw,29vh);height:calc(max(100vw,29vh)*1.7778)}
 .aob3-full{padding:26px 26px 32px;max-width:none}
 .aob3-root .aob3-title{font-size:clamp(36px,9vw,52px)!important}
 .aob3-sub{margin-bottom:24px;font-size:19px;max-width:none}
@@ -471,14 +469,10 @@ footer{background:var(--foot);border-top:1px solid rgba(225,182,104,.35);padding
   <div class="aob3-root">
     <div class="aob3-stage">
 
-      <!-- 01 · FREE BREATHWORK — BREATHE THE WORLD (YouTube Short) -->
+      <!-- 01 · FREE BREATHWORK — BREATHE THE WORLD (local video) -->
       <a class="aob3-panel aob3-free" href="https://alchemyofbreath.com/free-breathwork-sessions/" target="_blank" rel="noopener" aria-label="Free breathwork every Sunday — Breathe The World">
         <div class="aob3-media"><div class="aob3-media-inner">
-          <div class="aob3-ext">
-            <iframe class="aob3-frame-v" loading="lazy"
-              src="https://www.youtube-nocookie.com/embed/_AEbkCjTBow?autoplay=1&amp;mute=1&amp;loop=1&amp;playlist=_AEbkCjTBow&amp;controls=0&amp;playsinline=1&amp;rel=0&amp;modestbranding=1&amp;iv_load_policy=3&amp;disablekb=1"
-              allow="autoplay; fullscreen; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" title="Breathe The World — free Sunday breathwork"></iframe>
-          </div>
+          <video src="/assets/breathe-the-world.mp4" autoplay muted loop playsinline preload="metadata" aria-hidden="true"></video>
         </div></div>
         <div class="aob3-ov"></div><div class="aob3-grain"></div>
         <div class="aob3-full">
