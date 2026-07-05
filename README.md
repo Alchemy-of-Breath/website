@@ -11,6 +11,7 @@ Each page lives in its own folder as an `index.html`, so URLs stay clean (`/faci
 | `/` | Homepage — school overview, programs router, free Sunday sessions CTA |
 | `/facilitator-training/` | 8-month Facilitator Training landing page |
 | `/live-residential-breathwork-facilitator-training/` | 4-month Live Residential Facilitator Training (ASHA, Tuscany) landing page |
+| `/breathcamps/` | BreathCamp Tuscany — 7-day retreats, 2026 dates, rooms & pricing |
 
 ## Working on the site
 
