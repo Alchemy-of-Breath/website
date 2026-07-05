@@ -165,7 +165,8 @@ section>.wrap{position:relative;z-index:1}
 .aob3-root{--cream:#f5f0e8;--gold:#8c6d3f;--gold-lt:#c49a5e;--gold-ul:#e8d5b0;--ink:#070604;--charcoal:#1a1612;font-family:'Jost',sans-serif;font-weight:300;background:var(--ink);position:relative;overflow:hidden;width:100vw;max-width:100vw;margin-left:calc(50% - 50vw);margin-right:calc(50% - 50vw)}
 .aob3-stage{position:relative;display:flex;width:100%;height:50vh;height:50svh;box-shadow:inset 0 0 0 1px rgba(200,170,110,.08)}
 .aob3-panel{position:relative;flex:1 1 0;min-width:0;overflow:hidden;display:block;cursor:pointer;transition:flex-grow .85s cubic-bezier(.22,1,.36,1);animation:aob3-reveal 1.15s cubic-bezier(.76,0,.24,1) both;background:#0e0c09 url('https://alchemyofbreath.com/wp-content/uploads/aob-logo-small.png') no-repeat center;background-size:clamp(90px,10vw,150px) auto}
-.aob3-train{animation-delay:.05s}.aob3-camps{animation-delay:.22s}.aob3-arm{animation-delay:.36s}
+.aob3-free{animation-delay:.05s}.aob3-arm{animation-delay:.22s}.aob3-train{animation-delay:.36s}
+.aob3-free{background-position:center 42%}
 .aob3-panel + .aob3-panel{border-left:1px solid rgba(200,170,110,.14)}
 .aob3-stage:hover .aob3-panel:hover{flex-grow:1.5}
 @keyframes aob3-reveal{from{clip-path:inset(100% 0 0 0)}to{clip-path:inset(0 0 0 0)}}
@@ -184,39 +185,39 @@ section>.wrap{position:relative;z-index:1}
 .aob3-title em{font-style:italic;font-weight:600;color:var(--gold-ul)}
 .aob3-rule{width:50px;height:3px;background:linear-gradient(90deg,var(--gold),transparent);margin-bottom:18px}
 .aob3-sub{font-weight:500;font-size:clamp(16px,1.4vw,21px);letter-spacing:.01em;color:rgba(255,255,255,.92);line-height:1.5;margin-bottom:0;max-width:420px;text-shadow:0 1px 14px rgba(0,0,0,.55)}
-.aob3-cta{display:inline-flex;align-items:center;gap:12px;font-weight:600;font-size:15px;letter-spacing:.12em;text-transform:uppercase;color:#fff;border:2px solid rgba(245,240,232,.6);padding:18px 36px;position:relative;overflow:hidden;opacity:0;transform:translateY(10px);transition:border-color .5s,opacity .45s ease,transform .45s cubic-bezier(.22,1,.36,1)}
-.aob3-cta::before{content:'';position:absolute;inset:0;background:var(--gold);transform:scaleX(0);transform-origin:left;transition:transform .55s cubic-bezier(.22,1,.36,1)}
-.aob3-cta:hover{border-color:var(--gold)}.aob3-cta:hover::before{transform:scaleX(1)}
-.aob3-cta>span{position:relative;z-index:1}.aob3-cta .ar{position:relative;z-index:1;transition:transform .4s}
+.aob3-cta{display:inline-flex;align-items:center;gap:12px;font-family:'Roboto','Jost',sans-serif;font-weight:500;font-size:.95rem;letter-spacing:.04em;color:#221F20;background:linear-gradient(135deg,#E1B668 0%,#D6A652 100%);padding:16px 32px;border-radius:999px;box-shadow:0 10px 28px rgba(214,166,82,.42);opacity:0;transform:translateY(10px);transition:opacity .45s ease,transform .45s cubic-bezier(.22,1,.36,1),filter .25s,box-shadow .25s}
+.aob3-cta:hover{filter:brightness(1.06);box-shadow:0 16px 38px rgba(214,166,82,.55)}
+.aob3-cta .ar{transition:transform .4s}
 .aob3-cta:hover .ar{transform:translateX(6px)}
 .aob3-ctawrap{max-height:0;overflow:hidden;margin-top:0;transition:max-height .55s cubic-bezier(.22,1,.36,1),margin-top .55s cubic-bezier(.22,1,.36,1)}
 .aob3-panel:hover .aob3-ctawrap{max-height:90px;margin-top:22px}
 .aob3-panel:hover .aob3-cta{opacity:1;transform:translateY(0)}
 @media(max-width:820px){
 .aob3-stage{flex-direction:column;height:auto}
-.aob3-panel,.aob3-arm,.aob3-camps,.aob3-train{flex:0 0 auto!important;min-height:50svh!important}
+.aob3-panel,.aob3-free,.aob3-arm,.aob3-train{flex:0 0 auto!important;min-height:50svh!important}
 .aob3-panel + .aob3-panel{border-left:0;border-top:1px solid rgba(200,170,110,.14)}
 .aob3-media,.aob3-stage:hover .aob3-media{filter:none!important;transform:scale(1.06)!important}
 .aob3-full{padding:26px 26px 32px;max-width:none}
 .aob3-root .aob3-title{font-size:clamp(36px,9vw,52px)!important}
 .aob3-sub{margin-bottom:24px;font-size:19px;max-width:none}
 .aob3-ctawrap{max-height:none!important;margin-top:20px!important}
-.aob3-cta{padding:16px 30px;font-size:15px;opacity:1!important;transform:none!important}
+.aob3-cta{padding:15px 28px;font-size:.9rem;opacity:1!important;transform:none!important}
 }
 @media(prefers-reduced-motion:reduce){.aob3-panel,.aob3-media,.aob3-media-inner,.aob3-full{animation:none!important;transition:opacity .3s ease!important}}
 
-/* 2026 events carousel — full-bleed */
+/* 2026 events carousel — full-bleed infinite drift */
 .ev-bleed{position:relative;width:100vw;max-width:100vw;margin:74px 0 0 calc(50% - 50vw)}
 .ev-head{max-width:1016px;margin:0 auto 20px;padding:0 28px;display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap}
 .ev-head h3{font-size:1.45rem}
 .ev-head .ev-sub{font-size:.82rem;color:var(--slate);margin-top:4px}
-.ev-nav{display:flex;gap:10px}
-.ev-nav button{width:44px;height:44px;border-radius:50%;border:1px solid rgba(214,166,82,.55);background:#fff;color:var(--gold-deep);font-size:1rem;cursor:pointer;transition:background .25s,border-color .25s}
-.ev-nav button:hover{background:var(--gold-wash);border-color:var(--gold-deep)}
-.ev-track{display:flex;gap:18px;overflow-x:auto;scroll-snap-type:x mandatory;padding:8px max(28px,calc(50vw - 480px)) 18px;scroll-padding-left:max(28px,calc(50vw - 480px));scrollbar-width:none;-webkit-overflow-scrolling:touch;scroll-behavior:smooth;list-style:none;margin:0}
-.ev-track::-webkit-scrollbar{display:none}
-.ev-card{flex:0 0 300px;scroll-snap-align:start;background:#fff;border:1px solid rgba(225,182,104,.3);border-radius:16px;overflow:hidden;box-shadow:var(--shadow-soft);display:flex;flex-direction:column;transition:transform .3s,box-shadow .3s,border-color .3s}
-.ev-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lift);border-color:rgba(225,182,104,.6)}
+.ev-marquee{display:flex;gap:18px;overflow:hidden;padding:10px 0 20px}
+.ev-track{display:flex;gap:18px;flex:none;list-style:none;margin:0;animation:ev-scroll 90s linear infinite}
+.ev-marquee:hover .ev-track,.ev-marquee:focus-within .ev-track{animation-play-state:paused}
+@keyframes ev-scroll{from{transform:translateX(0)}to{transform:translateX(calc(-100% - 18px))}}
+.ev-card{flex:0 0 300px;background:#fff;border:1px solid rgba(225,182,104,.28);border-radius:18px;overflow:hidden;box-shadow:var(--shadow-soft);display:flex;flex-direction:column;transition:transform .35s,box-shadow .35s,border-color .35s}
+.ev-track li:nth-child(odd){transform:rotate(-.5deg)}
+.ev-track li:nth-child(even){transform:rotate(.4deg)}
+.ev-track .ev-card:hover{transform:translateY(-5px) rotate(0);box-shadow:var(--shadow-lift);border-color:rgba(225,182,104,.6)}
 .ev-img{width:100%;aspect-ratio:3/2;object-fit:cover;display:block;border-bottom:1px solid rgba(225,182,104,.2)}
 .ev-body{padding:18px 22px 20px;display:flex;flex-direction:column;flex:1}
 .ev-tag{font-size:.6rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--teal);margin-bottom:9px}
@@ -226,8 +227,11 @@ section>.wrap{position:relative;z-index:1}
 .ev-card p{font-size:.8rem;color:var(--slate);line-height:1.55;flex:1}
 .ev-card .ev-go{margin-top:14px;align-self:flex-start;font-size:.7rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;color:var(--ink);border:1px solid rgba(34,31,32,.3);border-radius:999px;padding:9px 18px;transition:background .25s,border-color .25s}
 .ev-card .ev-go:hover{background:var(--grad-gold);border-color:var(--gold-deep)}
-.ev-bleed::after{content:"";position:absolute;top:64px;right:0;bottom:0;width:64px;background:linear-gradient(90deg,rgba(251,247,239,0),var(--paper-2));pointer-events:none}
-@media(max-width:560px){.ev-card{flex-basis:248px}.ev-bleed::after{display:none}}
+.ev-bleed::before,.ev-bleed::after{content:"";position:absolute;top:64px;bottom:0;width:64px;z-index:2;pointer-events:none}
+.ev-bleed::before{left:0;background:linear-gradient(90deg,var(--paper-2),rgba(251,247,239,0))}
+.ev-bleed::after{right:0;background:linear-gradient(90deg,rgba(251,247,239,0),var(--paper-2))}
+@media(max-width:560px){.ev-card{flex-basis:250px}.ev-bleed::before,.ev-bleed::after{display:none}}
+@media(prefers-reduced-motion:reduce){.ev-track{animation:none}.ev-marquee{overflow-x:auto}}
 
 /* founder letter */
 .letter{background:linear-gradient(180deg,var(--paper) 0%,var(--paper-2) 100%)}
@@ -468,43 +472,18 @@ footer{background:var(--foot);border-top:1px solid rgba(225,182,104,.35);padding
   <div class="aob3-root">
     <div class="aob3-stage">
 
-      <!-- 01 · FACILITATOR TRAINING (Vimeo) -->
-      <a class="aob3-panel aob3-train" href="/facilitator-training/" aria-label="Facilitator Training">
-        <div class="aob3-media"><div class="aob3-media-inner">
-          <div class="aob3-ext">
-            <iframe class="aob3-frame" loading="lazy"
-              src="https://player.vimeo.com/video/1069104961?background=1&amp;autoplay=1&amp;loop=1&amp;muted=1&amp;autopause=0&amp;dnt=1"
-              allow="autoplay; fullscreen; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" title="Facilitator Training"></iframe>
-          </div>
-        </div></div>
+      <!-- 01 · FREE BREATHWORK — BREATHE THE WORLD (logo, no video) -->
+      <a class="aob3-panel aob3-free" href="https://alchemyofbreath.com/free-breathwork-sessions/" target="_blank" rel="noopener" aria-label="Free breathwork every Sunday — Breathe The World">
         <div class="aob3-ov"></div><div class="aob3-grain"></div>
         <div class="aob3-full">
-          <h3 class="aob3-title">Facilitator <em>Training</em></h3>
+          <h3 class="aob3-title">Breathe <em>The World</em></h3>
           <div class="aob3-rule"></div>
-          <p class="aob3-sub">4-month &amp; 8-month programmes</p>
-          <div class="aob3-ctawrap"><span class="aob3-cta"><span>Explore Training</span><span class="ar">&rarr;</span></span></div>
+          <p class="aob3-sub">Free breathwork every Sunday &middot; live online, open to everyone</p>
+          <div class="aob3-ctawrap"><span class="aob3-cta"><span>Breathe with us — free</span><span class="ar">&rarr;</span></span></div>
         </div>
       </a>
 
-      <!-- 02 · BREATHCAMPS (Vimeo) -->
-      <a class="aob3-panel aob3-camps" href="https://alchemyofbreath.com/breathcamps/" target="_blank" rel="noopener" aria-label="BreathCamps">
-        <div class="aob3-media"><div class="aob3-media-inner">
-          <div class="aob3-ext">
-            <iframe class="aob3-frame" loading="lazy"
-              src="https://player.vimeo.com/video/932256056?background=1&amp;autoplay=1&amp;loop=1&amp;muted=1&amp;autopause=0&amp;dnt=1"
-              allow="autoplay; fullscreen; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" title="BreathCamps in Tuscany"></iframe>
-          </div>
-        </div></div>
-        <div class="aob3-ov"></div><div class="aob3-grain"></div>
-        <div class="aob3-full">
-          <h3 class="aob3-title">Breath<em>Camps</em></h3>
-          <div class="aob3-rule"></div>
-          <p class="aob3-sub">Tuscany, Italy</p>
-          <div class="aob3-ctawrap"><span class="aob3-cta"><span>Explore BreathCamps</span><span class="ar">&rarr;</span></span></div>
-        </div>
-      </a>
-
-      <!-- 03 · ALCHEMY REGULATION METHOD -->
+      <!-- 02 · ALCHEMY REGULATION METHOD (Vimeo) -->
       <a class="aob3-panel aob3-arm" href="https://go.alchemyofbreath.com/alchemy-regulation-method" target="_blank" rel="noopener" aria-label="Alchemy Regulation Method">
         <div class="aob3-media"><div class="aob3-media-inner">
           <div class="aob3-ext">
@@ -518,7 +497,25 @@ footer{background:var(--foot);border-top:1px solid rgba(225,182,104,.35);padding
           <h3 class="aob3-title">Alchemy <em>Regulation</em> Method</h3>
           <div class="aob3-rule"></div>
           <p class="aob3-sub">Become a certified Alchemy Regulation Method Coach</p>
-          <div class="aob3-ctawrap"><span class="aob3-cta"><span>Begin Your Journey</span><span class="ar">&rarr;</span></span></div>
+          <div class="aob3-ctawrap"><span class="aob3-cta"><span>Begin your journey</span><span class="ar">&rarr;</span></span></div>
+        </div>
+      </a>
+
+      <!-- 03 · FACILITATOR TRAINING (Vimeo) -->
+      <a class="aob3-panel aob3-train" href="/facilitator-training/" aria-label="Facilitator Training">
+        <div class="aob3-media"><div class="aob3-media-inner">
+          <div class="aob3-ext">
+            <iframe class="aob3-frame" loading="lazy"
+              src="https://player.vimeo.com/video/1069104961?background=1&amp;autoplay=1&amp;loop=1&amp;muted=1&amp;autopause=0&amp;dnt=1"
+              allow="autoplay; fullscreen; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" title="Facilitator Training"></iframe>
+          </div>
+        </div></div>
+        <div class="aob3-ov"></div><div class="aob3-grain"></div>
+        <div class="aob3-full">
+          <h3 class="aob3-title">Facilitator <em>Training</em></h3>
+          <div class="aob3-rule"></div>
+          <p class="aob3-sub">4-month &amp; 8-month programmes</p>
+          <div class="aob3-ctawrap"><span class="aob3-cta"><span>Explore the training</span><span class="ar">&rarr;</span></span></div>
         </div>
       </a>
 
@@ -530,14 +527,11 @@ footer{background:var(--foot);border-top:1px solid rgba(225,182,104,.35);padding
     <div class="ev-head">
       <div>
         <h3>BreathCamps &amp; retreats at ASHA, <em class="em-i">2026</em></h3>
-        <p class="ev-sub">Live in Tuscany &middot; scroll the season &rarr;</p>
-      </div>
-      <div class="ev-nav">
-        <button type="button" id="evPrev" aria-label="Scroll events back">&larr;</button>
-        <button type="button" id="evNext" aria-label="Scroll events forward">&rarr;</button>
+        <p class="ev-sub">Live in Tuscany &middot; hover to pause the drift</p>
       </div>
     </div>
-    <ul class="ev-track" id="evTrack" aria-label="ASHA 2026 events">
+    <div class="ev-marquee">
+      <ul class="ev-track" aria-label="ASHA 2026 events">
       <li class="ev-card"><img class="ev-img" src="https://alchemyofbreath.com/wp-content/uploads/elementor/thumbs/5F8A1159-1-rhx8e36rv5deq6ygkdwpj761gg95xsmkyqqy6by79g.jpg" alt="Community gathered at ASHA" width="250" height="250" loading="lazy" decoding="async"><div class="ev-body"><span class="ev-tag">Community</span><span class="ev-date">May &ndash; Nov 1</span><h4>ARC &middot; Alchemy Residential Club</h4><p>Co-live, work, and play with kindred visionaries on ancient Tuscan land.</p><a class="ev-go" href="https://www.asha.global/arc">Details</a></div></li>
       <li class="ev-card"><img class="ev-img" src="https://alchemyofbreath.com/wp-content/uploads/elementor/thumbs/WhatsApp-Image-2026-02-19-at-20.15.11-rjdtvqq8qd0hwuji0v5ebc0kpmf82sjqjekle81zyc.jpeg" alt="Retreat space at ASHA" width="250" height="250" loading="lazy" decoding="async"><div class="ev-body"><span class="ev-tag">Host your retreat</span><span class="ev-date">Jun 7 &ndash; Aug 1</span><h4>Co-Residential Retreats</h4><p>Lead your own retreat, with the venue, meals, and community handled.</p><a class="ev-go" href="https://alchemyofbreath.com/asha-hybrid-retreats/">Details</a></div></li>
       <li class="ev-card"><img class="ev-img" src="https://alchemyofbreath.com/wp-content/uploads/elementor/thumbs/Rectangle-58-1-rettb583hm3rvmh8z5cm5rp9zg9lyitxabwkrdpav8.jpg" alt="Alchemy Regulation Method practice" width="250" height="250" loading="lazy" decoding="async"><div class="ev-body"><span class="ev-tag">Training</span><span class="ev-date">Jul 19 &ndash; 25</span><h4>Alchemy Regulation Method</h4><p>Certify as an ARM coach — taught live at ASHA by Anthony &amp; Amy.</p><a class="ev-go" href="https://go.alchemyofbreath.com/alchemy-regulation-method">Details</a></div></li>
@@ -549,7 +543,21 @@ footer{background:var(--foot);border-top:1px solid rgba(225,182,104,.35);padding
       <li class="ev-card bc"><img class="ev-img" src="https://alchemyofbreath.com/wp-content/uploads/DSC00695-1-1-1-300x200.jpg" alt="BreathCamp on the land at ASHA" width="300" height="200" loading="lazy" decoding="async"><div class="ev-body"><span class="ev-tag">BreathCamp</span><span class="ev-date">Sep 20 &ndash; 26</span><h4>BreathCamp 4</h4><p>A seven-day breathwork immersion on the land — all welcome.</p><a class="ev-go" href="https://alchemyofbreath.com/breathcamps/">Details</a></div></li>
       <li class="ev-card"><img class="ev-img" src="https://alchemyofbreath.com/wp-content/uploads/elementor/thumbs/people-image-rjbn88mj9uwe85gh0fkmrcqcf8jfyioewrlsq8cpj8.png" alt="Facilitator training circle at ASHA" width="250" height="250" loading="lazy" decoding="async"><div class="ev-body"><span class="ev-tag">Training</span><span class="ev-date">Sep 27 &ndash; Oct 17</span><h4>Live Residential Facilitator Training</h4><p>Twenty-one days in person, then online — graduate certified.</p><a class="ev-go" href="/live-residential-breathwork-facilitator-training/">Details</a></div></li>
       <li class="ev-card bc"><img class="ev-img" src="https://alchemyofbreath.com/wp-content/uploads/DSCF5832-300x200.jpg" alt="Sunset breathwork at BreathCamp" width="300" height="200" loading="lazy" decoding="async"><div class="ev-body"><span class="ev-tag">BreathCamp</span><span class="ev-date">Oct 25 &ndash; 31</span><h4>BreathCamp 5</h4><p>A seven-day breathwork immersion on the land — all welcome.</p><a class="ev-go" href="https://alchemyofbreath.com/breathcamps/">Details</a></div></li>
-    </ul>
+      </ul>
+      <ul class="ev-track" aria-hidden="true">
+      <li class="ev-card"><img class="ev-img" src="https://alchemyofbreath.com/wp-content/uploads/elementor/thumbs/5F8A1159-1-rhx8e36rv5deq6ygkdwpj761gg95xsmkyqqy6by79g.jpg" alt="Community gathered at ASHA" width="250" height="250" loading="lazy" decoding="async"><div class="ev-body"><span class="ev-tag">Community</span><span class="ev-date">May &ndash; Nov 1</span><h4>ARC &middot; Alchemy Residential Club</h4><p>Co-live, work, and play with kindred visionaries on ancient Tuscan land.</p><a class="ev-go" href="https://www.asha.global/arc">Details</a></div></li>
+      <li class="ev-card"><img class="ev-img" src="https://alchemyofbreath.com/wp-content/uploads/elementor/thumbs/WhatsApp-Image-2026-02-19-at-20.15.11-rjdtvqq8qd0hwuji0v5ebc0kpmf82sjqjekle81zyc.jpeg" alt="Retreat space at ASHA" width="250" height="250" loading="lazy" decoding="async"><div class="ev-body"><span class="ev-tag">Host your retreat</span><span class="ev-date">Jun 7 &ndash; Aug 1</span><h4>Co-Residential Retreats</h4><p>Lead your own retreat, with the venue, meals, and community handled.</p><a class="ev-go" href="https://alchemyofbreath.com/asha-hybrid-retreats/">Details</a></div></li>
+      <li class="ev-card"><img class="ev-img" src="https://alchemyofbreath.com/wp-content/uploads/elementor/thumbs/Rectangle-58-1-rettb583hm3rvmh8z5cm5rp9zg9lyitxabwkrdpav8.jpg" alt="Alchemy Regulation Method practice" width="250" height="250" loading="lazy" decoding="async"><div class="ev-body"><span class="ev-tag">Training</span><span class="ev-date">Jul 19 &ndash; 25</span><h4>Alchemy Regulation Method</h4><p>Certify as an ARM coach — taught live at ASHA by Anthony &amp; Amy.</p><a class="ev-go" href="https://go.alchemyofbreath.com/alchemy-regulation-method">Details</a></div></li>
+      <li class="ev-card"><img class="ev-img" src="https://alchemyofbreath.com/wp-content/uploads/elementor/thumbs/asha-campus-7-rbk1je6nj0qsekm378fvtuyvoaqnopcxpaxigubkuc.jpg" alt="The ASHA campus in Tuscany" width="250" height="250" loading="lazy" decoding="async"><div class="ev-body"><span class="ev-tag">Celebration</span><span class="ev-date">Jul 25 &ndash; 26</span><h4>ASHA 6th Anniversary</h4><p>Six years of sanctuary — come celebrate, and stay the night.</p><a class="ev-go" href="https://alchemyofbreath.com/asha-6th-anniversary-celebration/">Details</a></div></li>
+      <li class="ev-card"><img class="ev-img" src="https://alchemyofbreath.com/wp-content/uploads/elementor/thumbs/Amy-cropped-photo-2-rbk1ipqulbtc0pll5xvl114w8a344knwxxyvznbtc4.png" alt="Amy Rachelle, ASHA co-founder" width="250" height="250" loading="lazy" decoding="async"><div class="ev-body"><span class="ev-tag">Retreat</span><span class="ev-date">Jul 26 &ndash; Aug 1</span><h4>Intuition Retreat</h4><p>Discover your natural gifts with co-founder Amy Rachelle.</p><a class="ev-go" href="https://alchemyofbreath.com/intuition-retreat">Details</a></div></li>
+      <li class="ev-card bc"><img class="ev-img" src="https://alchemyofbreath.com/wp-content/uploads/elementor/thumbs/Rectangle-54-2-rett9yxcy2hvd66ou52ejkdj9423c5604ijq5xg0n8.jpg" alt="Breathwork circle at BreathCamp" width="250" height="250" loading="lazy" decoding="async"><div class="ev-body"><span class="ev-tag">BreathCamp</span><span class="ev-date">Aug 16 &ndash; 22</span><h4>BreathCamp 1</h4><p>A seven-day breathwork immersion on the land — all welcome.</p><a class="ev-go" href="https://alchemyofbreath.com/breathcamps/">Details</a></div></li>
+      <li class="ev-card bc"><img class="ev-img" src="https://alchemyofbreath.com/wp-content/uploads/asha-breathcamp-gallery-17-300x169.jpg" alt="BreathCamp gathering at ASHA" width="300" height="169" loading="lazy" decoding="async"><div class="ev-body"><span class="ev-tag">BreathCamp</span><span class="ev-date">Aug 30 &ndash; Sep 5</span><h4>BreathCamp 2</h4><p>A seven-day breathwork immersion on the land — all welcome.</p><a class="ev-go" href="https://alchemyofbreath.com/breathcamps/">Details</a></div></li>
+      <li class="ev-card bc"><img class="ev-img" src="https://alchemyofbreath.com/wp-content/uploads/elementor/thumbs/DSCF0574-1-rbk1iti7cnyhb5g4jzi3b06qltkkzd2uagktwr68n8.jpg" alt="Breathwork session at BreathCamp" width="250" height="250" loading="lazy" decoding="async"><div class="ev-body"><span class="ev-tag">BreathCamp</span><span class="ev-date">Sep 6 &ndash; 12</span><h4>BreathCamp 3</h4><p>A seven-day breathwork immersion on the land — all welcome.</p><a class="ev-go" href="https://alchemyofbreath.com/breathcamps/">Details</a></div></li>
+      <li class="ev-card bc"><img class="ev-img" src="https://alchemyofbreath.com/wp-content/uploads/DSC00695-1-1-1-300x200.jpg" alt="BreathCamp on the land at ASHA" width="300" height="200" loading="lazy" decoding="async"><div class="ev-body"><span class="ev-tag">BreathCamp</span><span class="ev-date">Sep 20 &ndash; 26</span><h4>BreathCamp 4</h4><p>A seven-day breathwork immersion on the land — all welcome.</p><a class="ev-go" href="https://alchemyofbreath.com/breathcamps/">Details</a></div></li>
+      <li class="ev-card"><img class="ev-img" src="https://alchemyofbreath.com/wp-content/uploads/elementor/thumbs/people-image-rjbn88mj9uwe85gh0fkmrcqcf8jfyioewrlsq8cpj8.png" alt="Facilitator training circle at ASHA" width="250" height="250" loading="lazy" decoding="async"><div class="ev-body"><span class="ev-tag">Training</span><span class="ev-date">Sep 27 &ndash; Oct 17</span><h4>Live Residential Facilitator Training</h4><p>Twenty-one days in person, then online — graduate certified.</p><a class="ev-go" href="/live-residential-breathwork-facilitator-training/">Details</a></div></li>
+      <li class="ev-card bc"><img class="ev-img" src="https://alchemyofbreath.com/wp-content/uploads/DSCF5832-300x200.jpg" alt="Sunset breathwork at BreathCamp" width="300" height="200" loading="lazy" decoding="async"><div class="ev-body"><span class="ev-tag">BreathCamp</span><span class="ev-date">Oct 25 &ndash; 31</span><h4>BreathCamp 5</h4><p>A seven-day breathwork immersion on the land — all welcome.</p><a class="ev-go" href="https://alchemyofbreath.com/breathcamps/">Details</a></div></li>
+      </ul>
+    </div>
   </div>
 </section>
 
@@ -853,14 +861,6 @@ footer{background:var(--foot);border-top:1px solid rgba(225,182,104,.35);padding
     if(inx) inx.addEventListener('click',function(){ renderLevel(pCur+1); });
   }
 
-  // 2026 events carousel
-  var evTrack=document.getElementById('evTrack');
-  var evPrev=document.getElementById('evPrev'), evNext=document.getElementById('evNext');
-  if(evTrack&&evPrev&&evNext){
-    var evBy=function(dir){ evTrack.scrollBy({left:dir*Math.min(evTrack.clientWidth*0.8,954),behavior:reduce?'auto':'smooth'}); };
-    evPrev.addEventListener('click',function(){ evBy(-1); });
-    evNext.addEventListener('click',function(){ evBy(1); });
-  }
 
   // in-page anchors: force-render .cv sections first, else Chrome cancels the
   // smooth scroll when their heights re-resolve mid-flight
