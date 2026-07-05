@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Live Residential Breathwork Facilitator Training (ASHA, Tuscany) | Alchemy of Breath</title>
-<meta name="description" content="Become a certified breathwork facilitator. A four-month accelerated training: 21 days live and residential at ASHA in Tuscany, plus three months of online study and mentorship. Led by Anthony Abbagnano, Amy Rachelle, and Pablo Castro. Book a call.">
+<meta name="description" content="Become a certified breathwork facilitator in 4 months: 21 days live at ASHA in Tuscany, then online study and mentorship. Triple accredited. Book a free call.">
 <meta name="robots" content="index, follow, max-image-preview:large">
 <link rel="canonical" href="https://alchemyofbreath.com/live-residential-breathwork-facilitator-training/">
 <meta property="og:type" content="website">
@@ -17,10 +17,15 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Live Residential Breathwork Facilitator Training | Alchemy of Breath">
 <meta name="twitter:description" content="21 days live at ASHA, Tuscany. Triple accredited. Book a call.">
+<meta name="twitter:image" content="https://alchemyofbreath.com/wp-content/uploads/breath-outside.png">
 <meta name="theme-color" content="#FBF7EF">
+<link rel="icon" type="image/png" href="https://alchemyofbreath.com/wp-content/uploads/AOB-Gold-Black-Transparant-symbol.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Roboto:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+<!-- fonts load async so they never block first paint; display=swap shows text immediately -->
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Roboto:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Roboto:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Roboto:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap"></noscript>
 <style>
 :root{
   --paper:#FFFFFF;
@@ -58,6 +63,9 @@ h3{font-size:1.32rem}
 section{position:relative;padding:110px 0}
 @media(max-width:760px){section{padding:74px 0}}
 .alt{background:var(--paper-2)}
+
+/* below-the-fold sections skip layout+paint until scrolled near */
+.cv{content-visibility:auto;contain-intrinsic-size:auto 900px}
 
 /* paper grain */
 body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opacity:.05;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E")}
@@ -179,14 +187,6 @@ section>.wrap{position:relative;z-index:1}
 .hook .lead.bridge{color:var(--ink);font-family:var(--serif);font-style:italic;font-size:1.34rem;margin-top:30px;max-width:24em}
 .hook .lead.bridge em{color:var(--gold-deep)}
 
-/* is this for you / agitation */
-.iyo-grid{display:grid;grid-template-columns:.85fr 1.15fr;gap:60px;align-items:center}
-@media(max-width:900px){.iyo-grid{grid-template-columns:1fr;gap:36px}}
-.iyo-list{list-style:none;display:grid;gap:14px;margin-top:30px}
-.iyo-list li{background:#FFFFFF;border:1px solid rgba(225,182,104,.25);border-radius:14px;padding:18px 22px;font-size:.96rem;line-height:1.55;display:flex;gap:14px;align-items:flex-start;box-shadow:0 1px 3px rgba(34,31,32,.04);transition:box-shadow .3s,transform .3s,border-color .3s}
-.iyo-list li:hover{transform:translateY(-3px);box-shadow:var(--shadow-soft);border-color:rgba(225,182,104,.5)}
-.iyo-list li::before{content:"";width:18px;height:18px;border-radius:50%;border:1px solid var(--gold);flex-shrink:0;margin-top:4px}
-
 /* solution split */
 .sol-grid{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center}
 @media(max-width:900px){.sol-grid{grid-template-columns:1fr;gap:40px}}
@@ -287,17 +287,6 @@ section>.wrap{position:relative;z-index:1}
 .stats-grid .stat .lbl{font-size:.72rem;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--slate);margin-top:12px;display:block;line-height:1.5}
 @media(max-width:680px){.stats-grid{grid-template-columns:1fr 1fr;gap:32px 20px}.stats-grid .stat:not(:last-child)::after{display:none}}
 
-/* price / investment */
-.price-card{background:#FFFFFF;border:1px solid var(--gold);border-radius:22px;padding:48px 42px;max-width:560px;margin:0 auto;box-shadow:var(--shadow-lift);position:relative;transform:rotate(.4deg)}
-.pc-ribbon{position:absolute;top:24px;right:-13px;background:var(--ink);color:var(--gold);font-size:.66rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;padding:9px 16px;white-space:nowrap}
-.pc-ribbon::after{content:"";position:absolute;top:100%;right:0;border:6px solid var(--ink);border-bottom-color:transparent;border-right-color:transparent}
-.price-plan{font-family:var(--serif);font-size:2rem;color:var(--ink);line-height:1.2;margin-top:4px}
-.price-plan em{color:var(--gold-deep)}
-.price-note{font-size:.86rem;color:var(--slate);margin-top:12px;line-height:1.55}
-.price-list{list-style:none;border-top:1px solid rgba(225,182,104,.3);margin-top:26px;padding-top:22px}
-.price-list li{display:flex;gap:12px;font-size:.95rem;padding:8px 0;align-items:flex-start;line-height:1.5}
-.price-list li::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--gold);flex-shrink:0;margin-top:9px}
-
 /* about */
 .about-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:60px;align-items:center}
 @media(max-width:900px){.about-grid{grid-template-columns:1fr;gap:40px}}
@@ -327,7 +316,7 @@ section>.wrap{position:relative;z-index:1}
 .path-detail p{font-size:.95rem;color:#C9BFA9;line-height:1.65}
 .path-detail .pd-here{display:inline-block;margin-top:16px;font-size:.66rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--ink);background:var(--grad-gold);border-radius:999px;padding:7px 16px}
 .path-nav{display:flex;justify-content:center;gap:16px;margin-top:24px}
-.path-nav button{background:none;border:1px solid rgba(225,182,104,.4);width:38px;height:38px;border-radius:50%;color:var(--gold);cursor:pointer;font-size:1rem;transition:background .25s,border-color .25s}
+.path-nav button{background:none;border:1px solid rgba(225,182,104,.4);width:44px;height:44px;border-radius:50%;color:var(--gold);cursor:pointer;font-size:1rem;transition:background .25s,border-color .25s}
 .path-nav button:hover{background:rgba(225,182,104,.15);border-color:var(--gold)}
 @media(max-width:900px){.path-node{width:104px}.path-node .pn-label{font-size:.58rem;letter-spacing:.06em}}
 
@@ -401,6 +390,35 @@ footer{background:var(--foot);border-top:1px solid rgba(225,182,104,.35);padding
 @media(max-width:560px){.pill{right:16px;bottom:16px}}
 :focus-visible{outline:2px solid var(--gold-deep);outline-offset:3px;border-radius:6px}
 </style>
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Course",
+  "name":"Live Residential Breathwork Facilitator Training (4 Month Accelerated)",
+  "description":"A four-month accelerated breathwork facilitator training: 21 days live and residential at ASHA in Tuscany, Italy, followed by roughly three months of online study and mentorship. Led by Anthony Abbagnano, Amy Rachelle, and Pablo Castro.",
+  "provider":{"@type":"Organization","name":"Alchemy of Breath","url":"https://alchemyofbreath.com/","logo":"https://alchemyofbreath.com/wp-content/uploads/AOB-Gold-Black-Transparant.png","sameAs":["https://www.facebook.com/AOB.Breathwork/","https://www.instagram.com/alchemyofbreath/"]},
+  "offers":{"@type":"Offer","price":"5040","priceCurrency":"USD","url":"https://calendly.com/d/cs9x-xk6-2kb/facilitator-training","availability":"https://schema.org/InStock","category":"Paid"},
+  "hasCourseInstance":{"@type":"CourseInstance","courseMode":"Blended","startDate":"2026-09-27","endDate":"2026-10-17","location":{"@type":"Place","name":"ASHA Retreat & Community Centre","address":{"@type":"PostalAddress","addressRegion":"Tuscany","addressCountry":"IT"}}},
+  "timeRequired":"P4M",
+  "educationalCredentialAwarded":"Alchemy of Breath Facilitator Certification"
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"FAQPage",
+  "mainEntity":[
+    {"@type":"Question","name":"Is this a real, credible facilitator training, or essentially a retreat?","acceptedAnswer":{"@type":"Answer","text":"It is a full facilitator training. Over four months, you learn to guide breathwork for individuals and groups, grounded in anatomy, ethics, neuroscience, and supervised practice. You graduate with a triple accredited, globally recognized Alchemy of Breath certification. The residential setting in Tuscany is the container for the learning, not the point of it."}},
+    {"@type":"Question","name":"I do not have much experience. Am I experienced enough to belong here?","acceptedAnswer":{"@type":"Answer","text":"You are welcome exactly where you are. You will be held and supported from your very first session, in a small group built for close attention. If you are unsure about readiness, that is one of the things the discovery call is for."}},
+    {"@type":"Question","name":"How long is the training, and how is it structured?","acceptedAnswer":{"@type":"Answer","text":"It is a four-month accelerated training. It opens with twenty-one days live and residential at ASHA in Tuscany, then continues for roughly three months online with study, mentorship, and continued support, until you graduate as a certified facilitator."}},
+    {"@type":"Question","name":"Is the certification globally recognized?","acceptedAnswer":{"@type":"Answer","text":"Yes. The training is triple accredited by the Federation of Holistic Therapists, the Global Professional Breathwork Alliance, and the American Association of Drugless Practitioners, and Alchemy of Breath is a member of the International Breathwork Foundation. Your certification is recognized internationally and lets you practice both in person and online."}},
+    {"@type":"Question","name":"Can I really leave my life for three weeks to travel to Italy?","acceptedAnswer":{"@type":"Answer","text":"Many people ask this, and most find that stepping fully out of ordinary life is exactly what makes the work possible. Twenty-one undivided days, away from the noise, held in one place, is the gift, not the obstacle."}},
+    {"@type":"Question","name":"What does the discovery call cover?","acceptedAnswer":{"@type":"Answer","text":"It is an honest, no-pressure conversation, usually around thirty minutes. We learn where you are, answer your questions about the training, the dates, the certification, and the investment, and help you sense whether this is the right step."}},
+    {"@type":"Question","name":"Which airport should I fly into?","acceptedAnswer":{"@type":"Answer","text":"Most participants fly into Rome Fiumicino (FCO). From there you can reach ASHA by car, train, or a pre-arranged taxi. Full travel notes are sent once you are enrolled."}},
+    {"@type":"Question","name":"Can my dietary needs be met?","acceptedAnswer":{"@type":"Answer","text":"We do our best to accommodate most dietary requirements. Please share yours on your intake form once you enroll, so the ASHA kitchen can prepare for you."}}
+  ]
+}
+</script>
 </head>
 <body>
 
@@ -416,7 +434,7 @@ footer{background:var(--foot);border-top:1px solid rgba(225,182,104,.35);padding
 <header class="nav" id="nav">
   <div class="nav-in">
     <a class="nav-logo" href="https://alchemyofbreath.com/" aria-label="Alchemy of Breath">
-      <img src="https://alchemyofbreath.com/wp-content/uploads/AOB-Gold-Black-Transparant.png" alt="Alchemy of Breath">
+      <img src="https://alchemyofbreath.com/wp-content/uploads/AOB-Gold-Black-Transparant.png" alt="Alchemy of Breath" width="252" height="72" decoding="async">
     </a>
     <a class="nav-cta" href="https://calendly.com/d/cs9x-xk6-2kb/facilitator-training">Book a call</a>
   </div>
@@ -437,7 +455,7 @@ footer{background:var(--foot);border-top:1px solid rgba(225,182,104,.35);padding
         </div>
         <p class="cta-note reveal d3">An honest conversation about where you are. The call is free and carries no obligation.</p>
         <div class="hero-proof reveal d3">
-          <img class="avatars" src="https://alchemyofbreath.com/wp-content/uploads/people-updated.png" alt="Alchemy of Breath community">
+          <img class="avatars" src="https://alchemyofbreath.com/wp-content/uploads/people-updated.png" alt="Alchemy of Breath community" width="686" height="78" decoding="async">
           <p><strong>2,000+ certified facilitators</strong> have trained with us, from nurses and therapists to yoga teachers, coaches, and people who simply felt called.</p>
         </div>
       </div>
@@ -457,12 +475,12 @@ footer{background:var(--foot);border-top:1px solid rgba(225,182,104,.35);padding
 </section>
 
 <!-- FOUNDER LETTER -->
-<section class="letter">
+<section class="letter cv">
   <div class="wrap">
     <div class="letter-grid">
       <div class="letter-photo reveal">
         <div class="portrait-frame">
-          <img src="https://alchemyofbreath.com/wp-content/uploads/anthony-abbagnano-2-1.jpg" alt="Anthony Abbagnano, founder of Alchemy of Breath">
+          <img src="https://alchemyofbreath.com/wp-content/uploads/anthony-abbagnano-2-1.jpg" alt="Anthony Abbagnano, founder of Alchemy of Breath" width="500" height="500" loading="lazy" decoding="async">
         </div>
         <div class="portrait-ring" aria-hidden="true"></div>
         <div class="letter-caption">
@@ -483,7 +501,7 @@ footer{background:var(--foot);border-top:1px solid rgba(225,182,104,.35);padding
 </section>
 
 <!-- PROBLEM / AGITATION (the one dark band) -->
-<section class="hook">
+<section class="hook cv">
   <div class="orb t" style="width:520px;height:520px;bottom:-200px;right:-160px"></div>
   <div class="wrap">
     <span class="eyebrow reveal">The quiet ache</span>
@@ -495,7 +513,7 @@ footer{background:var(--foot);border-top:1px solid rgba(225,182,104,.35);padding
 </section>
 
 <!-- SOLUTION / WHAT THIS IS -->
-<section>
+<section class="cv">
   <div class="orb g" style="width:480px;height:480px;top:-160px;left:-180px"></div>
   <div class="wrap">
     <div class="sol-grid">
@@ -519,7 +537,7 @@ footer{background:var(--foot);border-top:1px solid rgba(225,182,104,.35);padding
 </section>
 
 <!-- WHAT MAKES IT SPECIAL / DIFFERENTIATORS -->
-<section class="alt">
+<section class="alt cv">
   <div class="wrap">
     <div class="sec-intro">
       <span class="eyebrow reveal" style="justify-content:center">Why this one</span>
@@ -541,7 +559,7 @@ footer{background:var(--foot);border-top:1px solid rgba(225,182,104,.35);padding
 </section>
 
 <!-- YOUR JOURNEY TO MASTERY -->
-<section>
+<section class="cv">
   <div class="orb t" style="width:520px;height:520px;bottom:-200px;right:-180px"></div>
   <div class="wrap">
     <div class="sec-intro">
@@ -557,7 +575,7 @@ footer{background:var(--foot);border-top:1px solid rgba(225,182,104,.35);padding
 </section>
 
 <!-- WHAT THE DAYS HOLD / CURRICULUM -->
-<section id="days" class="alt">
+<section id="days" class="alt cv">
   <div class="wrap">
     <div class="sec-intro">
       <span class="eyebrow reveal" style="justify-content:center">What you will come to know</span>
@@ -576,7 +594,7 @@ footer{background:var(--foot);border-top:1px solid rgba(225,182,104,.35);padding
 </section>
 
 <!-- PULL QUOTE -->
-<section class="legacy">
+<section class="legacy cv">
   <div class="wrap reveal">
     <span class="mark">&ldquo;</span>
     <blockquote>You cannot lead another person anywhere you have not been willing to go yourself. So we start with you.</blockquote>
@@ -585,7 +603,7 @@ footer{background:var(--foot);border-top:1px solid rgba(225,182,104,.35);padding
 </section>
 
 <!-- MEET YOUR FACILITATORS -->
-<section>
+<section class="cv">
   <div class="orb g" style="width:460px;height:460px;top:-160px;left:-160px"></div>
   <div class="wrap">
     <div class="people-intro">
@@ -594,19 +612,19 @@ footer{background:var(--foot);border-top:1px solid rgba(225,182,104,.35);padding
     </div>
     <div class="people-grid">
       <div class="person reveal">
-        <div class="pf"><div class="pf-frame"><img src="https://alchemyofbreath.com/wp-content/uploads/anthony-abbagnano-2-1.jpg" alt="Anthony Abbagnano"></div></div>
+        <div class="pf"><div class="pf-frame"><img src="https://alchemyofbreath.com/wp-content/uploads/anthony-abbagnano-2-1.jpg" alt="Anthony Abbagnano" width="500" height="500" loading="lazy" decoding="async"></div></div>
         <h3>Anthony Abbagnano</h3>
         <span class="role">Founder, breathwork pioneer</span>
         <p>More than fifty years with the breath, and author of <em>Outer Chaos, Inner Calm</em>. His life's work and methods shape everything taught in this training.</p>
       </div>
       <div class="person reveal d1">
-        <div class="pf"><div class="pf-frame"><img src="https://alchemyofbreath.com/wp-content/uploads/amy-rachelle-1.jpg" alt="Amy Rachelle"></div></div>
+        <div class="pf"><div class="pf-frame"><img src="https://alchemyofbreath.com/wp-content/uploads/amy-rachelle-1.jpg" alt="Amy Rachelle" width="500" height="500" loading="lazy" decoding="async"></div></div>
         <h3>Amy Rachelle, ND</h3>
         <span class="role">Co-founder, naturopath</span>
         <p>Naturopath and medical medium who blends breathwork, intuition, the body, and voice into a joyful, grounded approach to healing.</p>
       </div>
       <div class="person reveal d2">
-        <div class="pf"><div class="pf-frame"><img src="https://alchemyofbreath.com/wp-content/uploads/pablo-castro.jpg" alt="Pablo Castro"></div></div>
+        <div class="pf"><div class="pf-frame"><img src="https://alchemyofbreath.com/wp-content/uploads/pablo-castro.jpg" alt="Pablo Castro" width="501" height="501" loading="lazy" decoding="async"></div></div>
         <h3>Pablo Castro</h3>
         <span class="role">Master trainer</span>
         <p>A senior trainer of many years, steady and deeply experienced, who has held countless circles through this work and will support you closely throughout.</p>
@@ -616,7 +634,7 @@ footer{background:var(--foot);border-top:1px solid rgba(225,182,104,.35);padding
 </section>
 
 <!-- SOCIAL PROOF / TESTIMONIALS -->
-<section class="alt faq">
+<section class="alt faq cv">
   <div class="orb g" style="width:420px;height:420px;top:60px;right:-180px"></div>
   <div class="wrap">
     <div style="text-align:center;max-width:38em;margin:0 auto">
@@ -627,24 +645,24 @@ footer{background:var(--foot);border-top:1px solid rgba(225,182,104,.35);padding
       <div class="t-card">
         <span class="q">&ldquo;</span>
         <p>It creates the space for deep insight, connection, and transformation in a safe and loving container. I deeply recommend Alchemy of Breath as an incredible experience to harness the power of true presence.</p>
-        <div class="t-who"><img src="https://alchemyofbreath.com/wp-content/uploads/tanya.jpg" alt="Tanya Lopez"><div><strong>Tanya Lopez</strong><span>Facilitator Training</span></div></div>
+        <div class="t-who"><img src="https://alchemyofbreath.com/wp-content/uploads/tanya.jpg" alt="Tanya Lopez" width="724" height="240" loading="lazy" decoding="async"><div><strong>Tanya Lopez</strong><span>Facilitator Training</span></div></div>
       </div>
       <div class="t-card">
         <span class="q">&ldquo;</span>
         <p>An hour later, I knew this had just turned my life around. I feel like my heart has opened up again for the first time in decades, and the training group has become a new little community for all of us.</p>
-        <div class="t-who"><img src="https://alchemyofbreath.com/wp-content/uploads/Nick.jpg" alt="Nick"><div><strong>Nick</strong><span>Facilitator Training</span></div></div>
+        <div class="t-who"><img src="https://alchemyofbreath.com/wp-content/uploads/Nick.jpg" alt="Nick" width="300" height="300" loading="lazy" decoding="async"><div><strong>Nick</strong><span>Facilitator Training</span></div></div>
       </div>
       <div class="t-card">
         <span class="q">&ldquo;</span>
         <p>Breathwork continues to open doors, and the training allows me to fully investigate and be supported in my experiences. I feel like I am growing and opening toward life's untapped potential.</p>
-        <div class="t-who"><img src="https://alchemyofbreath.com/wp-content/uploads/hannah-2.jpg" alt="Hannah Goodman"><div><strong>Hannah Goodman</strong><span>Facilitator Training</span></div></div>
+        <div class="t-who"><img src="https://alchemyofbreath.com/wp-content/uploads/hannah-2.jpg" alt="Hannah Goodman" width="724" height="240" loading="lazy" decoding="async"><div><strong>Hannah Goodman</strong><span>Facilitator Training</span></div></div>
       </div>
     </div>
   </div>
 </section>
 
 <!-- A PERSONAL MESSAGE FROM ANTHONY -->
-<section>
+<section class="cv">
   <div class="orb t" style="width:460px;height:460px;top:-140px;right:-160px"></div>
   <div class="wrap">
     <div class="sec-intro" style="margin-bottom:42px">
@@ -666,7 +684,7 @@ footer{background:var(--foot);border-top:1px solid rgba(225,182,104,.35);padding
 </section>
 
 <!-- REST & THE PLACE / ASHA -->
-<section class="alt">
+<section class="alt cv">
   <div class="wrap">
     <div class="place-grid">
       <div class="reveal">
@@ -682,14 +700,14 @@ footer{background:var(--foot);border-top:1px solid rgba(225,182,104,.35);padding
         </ul>
       </div>
       <div class="place-photo reveal d1">
-        <img src="https://alchemyofbreath.com/wp-content/uploads/breath-outside.png" alt="Breathwork outside in the Tuscan landscape at ASHA">
+        <img src="https://alchemyofbreath.com/wp-content/uploads/breath-outside.png" alt="Breathwork outside in the Tuscan landscape at ASHA" width="551" height="319" loading="lazy" decoding="async">
       </div>
     </div>
   </div>
 </section>
 
 <!-- ACCREDITATION -->
-<section style="text-align:center">
+<section class="cv" style="text-align:center">
   <div class="wrap">
     <span class="eyebrow reveal" style="justify-content:center">The gold standard</span>
     <h2 class="reveal d1" style="max-width:20em;margin:0 auto">A triple accredited breathwork school, held to the <em>highest standards</em>.</h2>
@@ -700,7 +718,7 @@ footer{background:var(--foot);border-top:1px solid rgba(225,182,104,.35);padding
 </section>
 
 <!-- STATS BAND -->
-<section class="stats">
+<section class="stats cv">
   <div class="wrap">
     <div class="stats-grid">
       <div class="stat reveal"><span class="num">50<sup>+</sup></span><span class="lbl">Years with the breath</span></div>
@@ -712,35 +730,37 @@ footer{background:var(--foot);border-top:1px solid rgba(225,182,104,.35);padding
 </section>
 
 <!-- THE ALCHEMY PATHWAY: 7 LEVELS (the one dark band) -->
-<section class="pathway">
+<section class="pathway cv">
   <div class="wrap">
     <div style="text-align:center;max-width:38em;margin:0 auto 50px;position:relative;z-index:1">
       <span class="eyebrow reveal" style="justify-content:center">Your path does not end at certification</span>
       <h2 class="reveal d1">The Alchemy pathway: seven levels, <em>one lifelong journey</em>.</h2>
       <p class="reveal d2" style="margin-top:16px;color:#C9BFA9;font-size:1rem">This training is level three of seven. From your first regulated breath to your own licensed school, here is where it can lead. Tap a level to explore it.</p>
     </div>
-    <div class="path-track reveal d2" id="pathTrack">
-      <button class="path-node" data-i="0" type="button"><span class="pn-ph">1</span><span class="pn-label">Regulation<br>method</span></button>
-      <button class="path-node" data-i="1" type="button"><span class="pn-ph">2</span><span class="pn-label">Inner<br>journey</span></button>
-      <button class="path-node active" data-i="2" type="button"><span class="pn-ph">3</span><span class="pn-label">Facilitator<br>training</span></button>
-      <button class="path-node" data-i="3" type="button"><span class="pn-ph">4</span><span class="pn-label">Graduation</span></button>
-      <button class="path-node" data-i="4" type="button"><span class="pn-ph">5</span><span class="pn-label">Business<br>in a box</span></button>
-      <button class="path-node" data-i="5" type="button"><span class="pn-ph">6</span><span class="pn-label">Junior<br>trainer</span></button>
-      <button class="path-node" data-i="6" type="button"><span class="pn-ph">7</span><span class="pn-label">Your own<br>school</span></button>
+    <div class="path-track reveal d2" id="pathTrack" role="tablist" aria-label="The Alchemy pathway levels">
+      <button class="path-node" data-i="0" type="button" role="tab" aria-selected="false"><span class="pn-ph">1</span><span class="pn-label">Regulation<br>method</span></button>
+      <button class="path-node" data-i="1" type="button" role="tab" aria-selected="false"><span class="pn-ph">2</span><span class="pn-label">Inner<br>journey</span></button>
+      <button class="path-node active" data-i="2" type="button" role="tab" aria-selected="true"><span class="pn-ph">3</span><span class="pn-label">Facilitator<br>training</span></button>
+      <button class="path-node" data-i="3" type="button" role="tab" aria-selected="false"><span class="pn-ph">4</span><span class="pn-label">Graduation</span></button>
+      <button class="path-node" data-i="4" type="button" role="tab" aria-selected="false"><span class="pn-ph">5</span><span class="pn-label">Business<br>in a box</span></button>
+      <button class="path-node" data-i="5" type="button" role="tab" aria-selected="false"><span class="pn-ph">6</span><span class="pn-label">Junior<br>trainer</span></button>
+      <button class="path-node" data-i="6" type="button" role="tab" aria-selected="false"><span class="pn-ph">7</span><span class="pn-label">Your own<br>school</span></button>
     </div>
     <div class="path-detail reveal d2" id="pathDetail">
-      <div class="pd-eb">Student to facilitator</div>
-      <div class="pd-level">Level 3 of 7</div>
-      <h3>The Facilitator Training</h3>
-      <p>The triple accredited heart of the pathway, and the training on this page. Here you learn to guide others with safety, ethics, and integrity. You can walk it two ways: the 8-month online training, or the 4-month live residential at ASHA.</p>
-      <span class="pd-here">You are here</span>
+      <div class="pd-body" id="pdBody" role="tabpanel" aria-live="polite">
+        <div class="pd-eb">Student to facilitator</div>
+        <div class="pd-level">Level 3 of 7</div>
+        <h3>The Facilitator Training</h3>
+        <p>The triple accredited heart of the pathway, and the training on this page. Here you learn to guide others with safety, ethics, and integrity. You can walk it two ways: the 8-month online training, or the 4-month live residential at ASHA.</p>
+        <span class="pd-here">You are here</span>
+      </div>
       <div class="path-nav"><button aria-label="Previous level" id="pathPrev" type="button">&larr;</button><button aria-label="Next level" id="pathNext" type="button">&rarr;</button></div>
     </div>
   </div>
 </section>
 
 <!-- TWO PATHWAYS + INVESTMENT (risk reversal, scarcity, payment plan) -->
-<section id="pathways" style="scroll-margin-top:120px">
+<section id="pathways" class="cv" style="scroll-margin-top:120px">
   <div class="orb g" style="width:480px;height:480px;top:-160px;right:-160px"></div>
   <div class="wrap">
     <div class="sec-intro" style="margin-bottom:50px">
@@ -763,7 +783,7 @@ footer{background:var(--foot);border-top:1px solid rgba(225,182,104,.35);padding
           <li>A graduation retreat at ASHA, Tuscany</li>
           <li>A lasting place in the Alchemy of Breath community</li>
         </ul>
-        <a class="btn btn-ghost" href="https://go.alchemyofbreath.com/breathwork-facilitator-training">Explore the online training <span class="arr">&rarr;</span></a>
+        <a class="btn btn-ghost" href="/facilitator-training/">Explore the online training <span class="arr">&rarr;</span></a>
       </div>
       <div class="path-card feat">
         <span class="path-ribbon">Birthday gift &middot; 30% off</span>
@@ -787,11 +807,11 @@ footer{background:var(--foot);border-top:1px solid rgba(225,182,104,.35);padding
 </section>
 
 <!-- ABOUT -->
-<section class="alt">
+<section class="alt cv">
   <div class="wrap">
     <div class="about-grid">
       <div class="about-photo reveal">
-        <img src="https://alchemyofbreath.com/wp-content/uploads/glow-head-578x600.jpg" alt="A person in conscious connected breathwork">
+        <img src="https://alchemyofbreath.com/wp-content/uploads/glow-head-578x600.jpg" alt="A person in conscious connected breathwork" width="578" height="600" loading="lazy" decoding="async">
       </div>
       <div class="reveal d1">
         <span class="eyebrow">About Alchemy of Breath</span>
@@ -806,7 +826,7 @@ footer{background:var(--foot);border-top:1px solid rgba(225,182,104,.35);padding
 </section>
 
 <!-- FAQ -->
-<section class="faq">
+<section class="faq cv">
   <div class="orb g" style="width:420px;height:420px;top:80px;right:-180px"></div>
   <div class="wrap">
     <div style="text-align:center;max-width:38em;margin:0 auto">
@@ -926,7 +946,7 @@ footer{background:var(--foot);border-top:1px solid rgba(225,182,104,.35);padding
 </section>
 
 <!-- FINAL CTA -->
-<section class="final">
+<section class="final cv">
   <div class="wrap">
     <span class="eyebrow reveal" style="justify-content:center">The path is open</span>
     <h2 class="reveal d1">Become a certified breathwork facilitator, and guide others <em>home to themselves</em>.</h2>
@@ -935,14 +955,14 @@ footer{background:var(--foot);border-top:1px solid rgba(225,182,104,.35);padding
       <a class="btn btn-primary" href="https://calendly.com/d/cs9x-xk6-2kb/facilitator-training">Book a call <span class="arr">&rarr;</span></a>
       <a class="btn btn-ghost" href="#days">See what the days hold</a>
     </div>
-    <img class="avatars reveal d3" src="https://alchemyofbreath.com/wp-content/uploads/people-updated.png" alt="Alchemy of Breath community">
+    <img class="avatars reveal d3" src="https://alchemyofbreath.com/wp-content/uploads/people-updated.png" alt="Alchemy of Breath community" width="686" height="78" loading="lazy" decoding="async">
   </div>
 </section>
 
 <!-- FOOTER -->
-<footer>
+<footer class="cv">
   <div class="foot-in">
-    <img src="https://alchemyofbreath.com/wp-content/uploads/AoB-emblem-web-white.png" alt="Alchemy of Breath">
+    <img src="https://alchemyofbreath.com/wp-content/uploads/AoB-emblem-web-white.png" alt="Alchemy of Breath" width="300" height="300" loading="lazy" decoding="async">
     <p>All Rights Reserved &copy; Alchemy of Breath</p>
     <div class="foot-links">
       <a href="https://alchemyofbreath.com/waiver-and-release/">Disclaimer</a>
@@ -1014,16 +1034,16 @@ footer{background:var(--foot);border-top:1px solid rgba(225,182,104,.35);padding
     {lvl:'Level 7 of 7',phase:'Facilitator to founder',title:'Your Own Licensed School',text:'Launch your own breathwork school under the Alchemy brand: full brand license, full curriculum access, and ongoing support from Anthony and Amy. You can even host your retreats at ASHA.',here:false}
   ];
   var pNodes=[].slice.call(document.querySelectorAll('#pathTrack .path-node'));
-  var pDetail=document.getElementById('pathDetail'), pCur=2;
+  var pBody=document.getElementById('pdBody'), pCur=2;
   function renderLevel(i){
     pCur=(i+LV.length)%LV.length;
     var d=LV[pCur];
-    pNodes.forEach(function(n,idx){ n.classList.toggle('active',idx===pCur); });
-    if(pDetail){
-      pDetail.innerHTML='<div class="pd-eb">'+d.phase+'</div><div class="pd-level">'+d.lvl+'</div><h3>'+d.title+'</h3><p>'+d.text+'</p>'+(d.here?'<span class="pd-here">You are here</span>':'')+'<div class="path-nav"><button aria-label="Previous level" id="pathPrev" type="button">&larr;</button><button aria-label="Next level" id="pathNext" type="button">&rarr;</button></div>';
-      var pp=document.getElementById('pathPrev'), pn=document.getElementById('pathNext');
-      if(pp) pp.addEventListener('click',function(){ renderLevel(pCur-1); });
-      if(pn) pn.addEventListener('click',function(){ renderLevel(pCur+1); });
+    pNodes.forEach(function(n,idx){
+      n.classList.toggle('active',idx===pCur);
+      n.setAttribute('aria-selected',idx===pCur?'true':'false');
+    });
+    if(pBody){
+      pBody.innerHTML='<div class="pd-eb">'+d.phase+'</div><div class="pd-level">'+d.lvl+'</div><h3>'+d.title+'</h3><p>'+d.text+'</p>'+(d.here?'<span class="pd-here">You are here</span>':'');
     }
   }
   if(pNodes.length){
