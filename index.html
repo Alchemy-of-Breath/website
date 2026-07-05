@@ -3,50 +3,800 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Alchemy of Breath</title>
-<meta name="robots" content="noindex">
+<title>Breathwork Training, Courses & Events | Alchemy of Breath</title>
+<meta name="description" content="The world's first online breathwork school: free weekly breathwork sessions, certified facilitator training, BreathCamps, and the Alchemy Regulation Method.">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<link rel="canonical" href="https://alchemyofbreath.com/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Alchemy of Breath">
+<meta property="og:title" content="Alchemy of Breath — Breathwork Training, Courses & Events">
+<meta property="og:description" content="Breathe with the world's first online breathwork school. Free weekly sessions, certified facilitator trainings, and BreathCamps at ASHA in Tuscany.">
+<meta property="og:url" content="https://alchemyofbreath.com/">
+<meta property="og:image" content="https://alchemyofbreath.com/wp-content/uploads/Aob-thumbnail.png">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Alchemy of Breath — Breathwork Training, Courses & Events">
+<meta name="twitter:description" content="Breathe with the world's first online breathwork school. Free weekly sessions, certified trainings, BreathCamps in Tuscany.">
+<meta name="twitter:image" content="https://alchemyofbreath.com/wp-content/uploads/Aob-thumbnail.png">
 <meta name="theme-color" content="#FBF7EF">
+<link rel="icon" type="image/png" href="https://alchemyofbreath.com/wp-content/uploads/AOB-Gold-Black-Transparant-symbol.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Roboto:wght@300;400;500&display=swap">
+<!-- fonts load async so they never block first paint; display=swap shows text immediately -->
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Roboto:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Roboto:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Roboto:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap"></noscript>
 <style>
 :root{
-  --paper:#FFFFFF;--paper-2:#FBF7EF;--cream:#FDF6E9;
-  --gold:#E1B668;--gold-deep:#D6A652;--slate:#5B7889;--ink:#221F20;
+  --paper:#FFFFFF;
+  --paper-2:#FBF7EF;
+  --paper-3:#FFFFFF;
+  --cream:#FDF6E9;
+  --gold:#E1B668;
+  --gold-deep:#D6A652;
+  --gold-soft:#EFDCB6;
+  --gold-wash:#F7EBD2;
+  --teal:#00A5B2;
+  --slate:#5B7889;
+  --ink:#221F20;
+  --foot:#191617;
   --grad-gold:linear-gradient(135deg,#E1B668 0%,#D6A652 100%);
-  --serif:'Marcellus',Georgia,serif;--sans:'Roboto',-apple-system,sans-serif;
+  --shadow-soft:0 1px 2px rgba(34,31,32,.04), 0 8px 24px rgba(34,31,32,.06), 0 24px 64px rgba(34,31,32,.07);
+  --shadow-lift:0 2px 4px rgba(34,31,32,.05), 0 14px 34px rgba(34,31,32,.10), 0 34px 80px rgba(34,31,32,.10);
+  --serif:'Marcellus', Georgia, 'Times New Roman', serif;
+  --sans:'Roboto', -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
 }
 *{margin:0;padding:0;box-sizing:border-box}
-body{
-  font-family:var(--sans);font-weight:300;color:var(--ink);
-  background:radial-gradient(120% 90% at 50% 0%,var(--cream) 0%,var(--paper) 62%);
-  min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px 24px;
-}
-.card{max-width:560px;text-align:center}
-.card img{height:44px;width:auto;margin:0 auto 34px;display:block}
-h1{font-family:var(--serif);font-weight:400;font-size:2.2rem;line-height:1.2;margin-bottom:14px}
-.tag{font-size:.74rem;font-weight:500;letter-spacing:.26em;text-transform:uppercase;color:var(--slate);margin-bottom:34px}
-.pages{list-style:none;text-align:left;border-top:1px solid rgba(225,182,104,.35)}
-.pages li{border-bottom:1px solid rgba(225,182,104,.35)}
-.pages a{
-  display:flex;justify-content:space-between;align-items:center;gap:16px;
-  padding:18px 8px;text-decoration:none;color:var(--ink);font-size:1.02rem;transition:background .25s,padding-left .25s;
-}
-.pages a:hover{background:rgba(253,246,233,.6);padding-left:16px}
-.pages .arr{color:var(--gold-deep)}
-.note{font-size:.8rem;color:var(--slate);margin-top:30px}
+html{scroll-behavior:smooth;overflow-x:clip}
+body{font-family:var(--sans);font-weight:300;font-size:18px;line-height:1.7;color:var(--ink);background:var(--paper);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+::selection{background:var(--gold-wash);color:var(--ink)}
+img{max-width:100%;display:block}
+a{color:var(--ink)}
+em,.em-i{color:var(--gold-deep);font-style:italic}
+h1,h2,h3{font-family:var(--serif);font-weight:400;color:var(--ink);line-height:1.14}
+h1{font-size:clamp(2.4rem,5.2vw,3.95rem);letter-spacing:-.01em}
+h2{font-size:clamp(1.9rem,3.6vw,2.7rem)}
+h3{font-size:1.32rem}
+.wrap{max-width:1140px;margin:0 auto;padding:0 28px}
+.eyebrow{font-family:var(--sans);font-size:.74rem;font-weight:500;letter-spacing:.26em;text-transform:uppercase;color:var(--slate);display:inline-flex;align-items:center;gap:14px;margin-bottom:20px}
+.eyebrow::before{content:"";width:34px;height:1px;background:var(--gold)}
+section{position:relative;padding:110px 0}
+@media(max-width:760px){section{padding:74px 0}}
+.alt{background:var(--paper-2)}
+
+/* below-the-fold sections skip layout+paint until scrolled near */
+.cv{content-visibility:auto;contain-intrinsic-size:auto 900px}
+
+/* paper grain */
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opacity:.05;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E")}
+
+/* orbs */
+.orb{position:absolute;border-radius:50%;pointer-events:none;z-index:0}
+.orb.g{background:radial-gradient(circle,rgba(225,182,104,.22) 0%,rgba(225,182,104,0) 70%)}
+.orb.t{background:radial-gradient(circle,rgba(0,165,178,.12) 0%,rgba(0,165,178,0) 70%)}
+section>.wrap{position:relative;z-index:1}
+
+/* reveal */
+.reveal{opacity:0;transform:translateY(26px);transition:opacity .9s cubic-bezier(.22,.61,.36,1),transform .9s cubic-bezier(.22,.61,.36,1)}
+.reveal.in{opacity:1;transform:none}
+.reveal.d1{transition-delay:.12s}.reveal.d2{transition-delay:.24s}.reveal.d3{transition-delay:.36s}
+@media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}*{animation-duration:.001s !important;animation-iteration-count:1 !important}html{scroll-behavior:auto}}
+
+/* nav */
+.nav{position:fixed;top:0;left:0;right:0;z-index:50;background:rgba(255,255,255,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid rgba(225,182,104,.18);transition:box-shadow .3s}
+.nav.scrolled{box-shadow:0 6px 30px rgba(34,31,32,.07)}
+.nav-in{max-width:1140px;margin:0 auto;padding:14px 28px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.nav-logo img{height:34px;width:auto}
+.nav-cta{font-family:var(--sans);font-size:.82rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--ink);background:var(--grad-gold);text-decoration:none;padding:12px 24px;border-radius:999px;white-space:nowrap;transition:filter .25s,transform .25s,box-shadow .25s;box-shadow:0 6px 18px rgba(214,166,82,.4)}
+.nav-cta:hover{filter:brightness(1.06);transform:translateY(-1px);box-shadow:0 10px 26px rgba(214,166,82,.5)}
+@media(max-width:560px){.nav-cta{padding:10px 16px;font-size:.72rem}}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;gap:12px;text-decoration:none;font-family:var(--sans);font-weight:500;font-size:.95rem;letter-spacing:.04em;cursor:pointer;padding:18px 36px;border-radius:999px;border:none;transition:transform .25s,box-shadow .25s,filter .25s,background .25s}
+.btn-primary{background:var(--grad-gold);color:var(--ink);box-shadow:0 10px 28px rgba(214,166,82,.42)}
+.btn-primary:hover{filter:brightness(1.06);transform:translateY(-2px);box-shadow:0 16px 38px rgba(214,166,82,.55)}
+.btn .arr{transition:transform .25s}
+.btn-primary:hover .arr{transform:translateX(4px)}
+.btn-ghost{color:var(--ink);border:1px solid rgba(34,31,32,.28);background:transparent}
+.btn-ghost:hover{border-color:var(--ink);background:rgba(34,31,32,.04);transform:translateY(-2px)}
+.cta-note{font-size:.82rem;color:var(--slate);margin-top:14px;letter-spacing:.02em}
+.mid-cta{text-align:center;margin-top:62px;position:relative;z-index:1}
+.mid-cta .cta-note{max-width:30em;margin-left:auto;margin-right:auto}
+
+/* hero */
+.hero{padding:170px 0 96px;overflow:hidden;background:radial-gradient(120% 90% at 50% 0%,var(--cream) 0%,var(--paper) 62%)}
+.hero::before{content:"";position:absolute;top:-220px;left:-180px;width:640px;height:640px;border-radius:50%;background:radial-gradient(circle,rgba(225,182,104,.26) 0%,rgba(225,182,104,0) 68%);pointer-events:none}
+.hero::after{content:"";position:absolute;bottom:-260px;right:-200px;width:720px;height:720px;border-radius:50%;background:radial-gradient(circle,rgba(0,165,178,.13) 0%,rgba(0,165,178,0) 68%);pointer-events:none}
+.hero-grid{display:grid;grid-template-columns:1.08fr .92fr;gap:64px;align-items:center;position:relative;z-index:1}
+@media(max-width:960px){.hero-grid{grid-template-columns:1fr;gap:56px}}
+.hero-sub{font-size:1.16rem;line-height:1.7;max-width:33em;margin:26px 0 8px}
+.hero-byline{font-family:var(--sans);font-size:.76rem;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--slate);margin-top:18px}
+.hero-actions{display:flex;align-items:center;flex-wrap:wrap;gap:18px;margin-top:34px}
+.hero-proof{display:flex;align-items:center;gap:18px;margin-top:40px;flex-wrap:wrap}
+.hero-proof img.avatars{height:46px;width:auto;border-radius:999px}
+.hero-proof p{font-size:.88rem;line-height:1.5;color:var(--slate);max-width:22em}
+.hero-proof p strong{color:var(--ink);font-weight:500}
+
+/* breathing rings */
+.breath-stage{position:relative;display:flex;align-items:center;justify-content:center;min-height:480px}
+.ring{position:absolute;border-radius:50%;border:1px solid rgba(225,182,104,.55)}
+.ring.r1{width:200px;height:200px;background:radial-gradient(circle,#FDF6E9 0%,rgba(253,246,233,.55) 70%,rgba(253,246,233,0) 100%);border:none;animation:breathe 12s ease-in-out infinite}
+.ring.r2{width:290px;height:290px;animation:breathe 12s ease-in-out infinite;animation-delay:.18s;opacity:.85}
+.ring.r3{width:380px;height:380px;animation:breathe 12s ease-in-out infinite;animation-delay:.36s;opacity:.6}
+.ring.r4{width:470px;height:470px;animation:breathe 12s ease-in-out infinite;animation-delay:.54s;opacity:.38}
+.ring.r5{width:560px;height:560px;animation:breathe 12s ease-in-out infinite;animation-delay:.72s;opacity:.3;border-color:rgba(0,165,178,.4)}
+@keyframes breathe{0%{transform:scale(.86)}33.33%{transform:scale(1.06)}66.66%{transform:scale(1.06)}100%{transform:scale(.86)}}
+.breath-core{position:relative;z-index:2;text-align:center}
+.breath-core .word-stack{position:relative;height:2.2rem}
+.breath-core .word{position:absolute;left:50%;transform:translateX(-50%);white-space:nowrap;font-family:var(--serif);font-size:1.5rem;color:var(--ink);letter-spacing:.04em;transition:opacity .9s ease;opacity:0}
+.breath-core .w-a{opacity:1}
+.breath-core .tiny{font-size:.7rem;letter-spacing:.3em;text-transform:uppercase;color:var(--slate);font-weight:500;margin-top:8px}
+.chip{position:absolute;background:var(--paper-3);border:1px solid rgba(225,182,104,.3);border-radius:14px;padding:13px 18px;box-shadow:var(--shadow-soft);font-size:.8rem;line-height:1.45;color:var(--ink);z-index:3}
+.chip strong{display:block;font-family:var(--serif);font-size:1.02rem;color:var(--ink);font-weight:400}
+.chip.c1{top:5%;left:0;transform:rotate(-2.2deg);animation:float 7s ease-in-out infinite}
+.chip.c2{top:30%;right:-3%;transform:rotate(1.6deg);animation:float 8s 1.2s ease-in-out infinite}
+.chip.c3{bottom:9%;left:-3%;transform:rotate(-1deg);animation:float 9s .5s ease-in-out infinite}
+.chip.c4{bottom:-1%;right:6%;transform:rotate(1.4deg);background:var(--grad-gold);animation:float 7.6s .8s ease-in-out infinite}
+.chip.c4 strong{display:inline}
+@keyframes float{0%,100%{translate:0 0}50%{translate:0 -9px}}
+@media(max-width:960px){.breath-stage{min-height:430px}.ring.r5{display:none}.chip.c1{left:2%}}
+@media(max-width:560px){.hero{padding-top:140px}.ring.r4{display:none}.chip{font-size:.72rem;padding:10px 13px}.chip.c2{right:0}.breath-stage{min-height:380px}.btn{padding:16px 26px;font-size:.88rem;width:100%;justify-content:center}.hero-actions{flex-direction:column;align-items:stretch}}
+
+/* logo strip */
+.logos{padding:72px 0;border-top:1px solid rgba(225,182,104,.3);border-bottom:1px solid rgba(225,182,104,.3);background:var(--paper-2);position:relative;overflow:hidden}
+.logos p{text-align:center;font-size:.72rem;font-weight:500;letter-spacing:.28em;text-transform:uppercase;color:var(--slate);margin-bottom:38px}
+.logo-half{flex:1;aspect-ratio:1024/118;background-color:var(--paper-2);background-blend-mode:multiply;background-size:100% 200%;background-repeat:no-repeat;opacity:.92}
+.logo-half.bg-in{background-image:url('https://alchemyofbreath.com/wp-content/uploads/logos-desktop-1024x236.jpg')}
+.logo-line{display:flex;justify-content:center;align-items:center;gap:0;max-width:1060px;margin:0 auto;position:relative;z-index:1}
+.logo-half.top{background-position:0 0}
+.logo-half.bottom{background-position:0 100%}
+@media(max-width:860px){.logo-line{flex-direction:column;gap:26px;max-width:480px}.logo-half{width:100%;flex:none}}
+
+/* why breathwork */
+.why-grid{display:grid;grid-template-columns:.85fr 1.15fr;gap:60px;align-items:center}
+@media(max-width:900px){.why-grid{grid-template-columns:1fr;gap:40px}}
+.arch-photo{position:relative;border-radius:280px 280px 16px 16px;overflow:hidden;outline:1px solid rgba(225,182,104,.5);outline-offset:9px;box-shadow:var(--shadow-lift);transform:rotate(-.6deg)}
+.arch-photo img{width:100%;height:100%;object-fit:cover;aspect-ratio:4/4.6}
+@media(max-width:900px){.arch-photo{max-width:380px;margin:0 auto}}
+.why-list{list-style:none;margin-top:26px;display:grid;gap:14px}
+.why-list li{display:flex;gap:14px;align-items:flex-start;font-size:.98rem;line-height:1.55}
+.why-list li::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--grad-gold);flex-shrink:0;margin-top:9px}
+.oxygen-note{margin-top:30px;background:linear-gradient(120deg,#fff 0%,var(--gold-wash) 140%);border-left:3px solid var(--gold);border-radius:0 12px 12px 0;padding:20px 24px;box-shadow:var(--shadow-soft);font-size:.95rem;line-height:1.6}
+.oxygen-note b{font-family:var(--serif);font-weight:400;font-size:1.05rem}
+
+/* programs */
+.sec-intro{text-align:center;max-width:38em;margin:0 auto 60px}
+.paths-grid{display:grid;grid-template-columns:1fr 1fr;gap:36px;align-items:stretch;max-width:960px;margin:0 auto}
+@media(max-width:900px){.paths-grid{grid-template-columns:1fr;max-width:520px}}
+.path-card{background:#FFFFFF;border:1px solid rgba(225,182,104,.3);border-radius:22px;box-shadow:var(--shadow-soft);padding:44px 40px;display:flex;flex-direction:column;position:relative;transition:transform .35s,box-shadow .35s}
+.path-card:hover{transform:translateY(-6px);box-shadow:var(--shadow-lift)}
+.path-card.feat{background:linear-gradient(165deg,#fff 0%,#fff 60%,var(--gold-wash) 180%);border-color:var(--gold);transform:rotate(.4deg)}
+.path-card.feat:hover{transform:translateY(-6px) rotate(0)}
+.path-card .tag{display:inline-block;font-size:.68rem;font-weight:500;letter-spacing:.24em;text-transform:uppercase;color:var(--slate);border:1px solid rgba(91,120,137,.4);border-radius:999px;padding:6px 14px;margin-bottom:18px;align-self:flex-start}
+.path-card.feat .tag{color:var(--ink);border-color:var(--gold-deep);background:var(--grad-gold)}
+.path-card h3{font-size:1.7rem;margin-bottom:8px}
+.path-card .lede{font-size:.92rem;color:var(--slate);line-height:1.6}
+.path-list{list-style:none;flex:1;margin:18px 0 28px;border-top:1px solid rgba(225,182,104,.25);padding-top:20px}
+.path-list li{display:flex;gap:12px;font-size:.92rem;padding:8px 0;align-items:flex-start;line-height:1.5}
+.path-list li::before{content:"";width:14px;height:14px;border-radius:50%;background:var(--grad-gold);flex-shrink:0;margin-top:5px;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 14 14' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3 7.5 L6 10.5 L11 4.5' fill='none' stroke='%23221F20' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-size:100% 100%}
+.path-card .btn{justify-content:center;width:100%}
+.cards-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;max-width:960px;margin:36px auto 0}
+@media(max-width:900px){.cards-grid{grid-template-columns:1fr;max-width:520px}}
+.fcard{background:#FFFFFF;border:1px solid rgba(225,182,104,.28);border-radius:18px;padding:32px 28px;position:relative;box-shadow:var(--shadow-soft);transition:transform .35s,box-shadow .35s;display:flex;flex-direction:column}
+.fcard:nth-child(odd){transform:rotate(-.3deg)}
+.fcard:nth-child(even){transform:rotate(.3deg)}
+.fcard:hover{transform:translateY(-5px) rotate(0);box-shadow:var(--shadow-lift)}
+.fcard .num{font-family:var(--serif);font-style:italic;font-size:1.6rem;color:var(--gold-deep);line-height:1;margin-bottom:14px}
+.fcard h3{font-size:1.18rem;margin-bottom:8px}
+.fcard p{font-size:.92rem;color:var(--slate);line-height:1.6;flex:1}
+.fcard .go{margin-top:18px;font-size:.85rem;font-weight:500;letter-spacing:.04em;text-decoration:none;color:var(--ink)}
+.fcard .go .arr{color:var(--gold-deep);transition:transform .25s;display:inline-block}
+.fcard .go:hover .arr{transform:translateX(4px)}
+
+/* founder letter */
+.letter{background:linear-gradient(180deg,var(--paper) 0%,var(--paper-2) 100%)}
+.letter-grid{display:grid;grid-template-columns:.85fr 1.15fr;gap:64px;align-items:center}
+@media(max-width:900px){.letter-grid{grid-template-columns:1fr;gap:44px}}
+.letter-photo{position:relative;padding:24px 26px 0 0}
+@media(max-width:900px){.letter-photo{max-width:380px;margin:0 auto;padding:24px 0 0}}
+.portrait-frame{border-radius:280px 280px 18px 18px;overflow:hidden;box-shadow:var(--shadow-lift);outline:1px solid rgba(225,182,104,.5);outline-offset:9px;transform:rotate(-.6deg);aspect-ratio:4/4.7}
+.portrait-frame img{width:100%;height:100%;object-fit:cover;object-position:50% 18%}
+.portrait-ring{position:absolute;top:-22px;right:-14px;width:140px;height:140px;border-radius:50%;border:1px solid rgba(0,165,178,.4);z-index:-1}
+.portrait-ring::after{content:"";position:absolute;inset:22px;border-radius:50%;border:1px solid rgba(225,182,104,.55)}
+.letter-caption{margin-top:20px;text-align:center}
+.letter-caption strong{display:block;font-family:var(--serif);font-weight:400;font-size:1.12rem;color:var(--ink)}
+.letter-caption span{font-size:.72rem;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--slate)}
+.letter-card{background:#FFFFFF;border:1px solid rgba(225,182,104,.28);border-radius:6px;padding:50px 52px;box-shadow:var(--shadow-soft);position:relative;transform:rotate(.4deg)}
+.letter-card::before{content:"";position:absolute;top:-14px;left:50%;transform:translateX(-50%) rotate(-2deg);width:120px;height:28px;background:rgba(239,220,182,.6);border:1px solid rgba(225,182,104,.3)}
+.letter-card .dropcap::first-letter{font-family:var(--serif);font-size:3.6em;color:var(--ink);float:left;line-height:.82;padding:6px 12px 0 0}
+.letter-card p{margin-bottom:1.1em;font-size:1.02rem}
+.letter-card .sig{font-family:var(--serif);font-size:1.5rem;color:var(--ink);margin-top:24px;display:inline-block}
+.letter-card .sig-role{font-size:.78rem;letter-spacing:.18em;text-transform:uppercase;color:var(--slate);font-weight:500;margin-top:2px}
+@media(max-width:560px){.letter-card{padding:34px 26px}}
+
+/* pull quote */
+.legacy{background:linear-gradient(180deg,var(--paper-2),var(--paper));text-align:center;overflow:hidden}
+.legacy .mark{font-family:var(--serif);font-size:5rem;line-height:.4;color:var(--gold);display:block;margin-bottom:26px}
+.legacy blockquote{font-family:var(--serif);font-size:clamp(1.6rem,3.2vw,2.3rem);line-height:1.32;color:var(--ink);max-width:24em;margin:0 auto}
+.legacy cite{display:block;font-family:var(--sans);font-style:normal;font-size:.78rem;font-weight:500;letter-spacing:.24em;text-transform:uppercase;color:var(--slate);margin-top:30px}
+
+/* alchemy pathway (the one dark band) */
+.pathway{background:linear-gradient(165deg,#2b2627 0%,var(--ink) 60%,#0d0b0c 100%);color:#FBF7EF;overflow:hidden;position:relative}
+.pathway::before{content:"";position:absolute;top:-200px;left:50%;transform:translateX(-50%);width:800px;height:400px;background:radial-gradient(ellipse,rgba(225,182,104,.18) 0%,rgba(225,182,104,0) 70%);pointer-events:none}
+.pathway h2{color:#FBF7EF}
+.pathway .eyebrow{color:var(--gold);justify-content:center}
+.pathway .eyebrow::before{background:var(--gold)}
+.path-track{display:flex;justify-content:space-between;align-items:center;max-width:1000px;margin:0 auto;position:relative;padding:40px 0;gap:0;overflow-x:auto;scroll-snap-type:x mandatory}
+.path-track::before{content:"";position:absolute;top:50%;left:0;right:0;height:1px;background:linear-gradient(90deg,rgba(225,182,104,0),rgba(225,182,104,.6),rgba(225,182,104,0));pointer-events:none;z-index:0}
+.path-node{flex:none;width:120px;text-align:center;cursor:pointer;position:relative;z-index:1;scroll-snap-align:center;padding:0 4px;background:none;border:none;font-family:var(--sans)}
+.pn-ph{width:74px;height:74px;border-radius:50%;margin:0 auto;background:#3a3536;outline:1px solid rgba(225,182,104,.4);outline-offset:4px;display:flex;align-items:center;justify-content:center;color:var(--gold);font-family:var(--serif);font-size:1.3rem;transition:outline-color .3s,transform .3s,background .3s,color .3s}
+.path-node:hover .pn-ph{outline-color:var(--gold);transform:scale(1.05)}
+.path-node.active .pn-ph{outline-color:var(--gold);background:var(--grad-gold);color:var(--ink)}
+.pn-label{display:block;margin-top:18px;font-size:.64rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:#8d8276;transition:color .35s;line-height:1.45}
+.path-node.active .pn-label{color:var(--gold)}
+.path-detail{max-width:680px;margin:48px auto 0;background:rgba(255,255,255,.04);border:1px solid rgba(225,182,104,.3);border-radius:16px;padding:32px 36px;text-align:center}
+.path-detail .pd-eb{font-size:.7rem;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--teal);margin-bottom:12px}
+.path-detail h3{font-family:var(--serif);font-size:1.5rem;color:#FBF7EF;margin-bottom:6px}
+.path-detail .pd-level{font-family:var(--serif);font-size:1rem;color:var(--gold);margin-bottom:18px}
+.path-detail p{font-size:.95rem;color:#C9BFA9;line-height:1.65}
+.path-nav{display:flex;justify-content:center;gap:16px;margin-top:24px}
+.path-nav button{background:none;border:1px solid rgba(225,182,104,.4);width:44px;height:44px;border-radius:50%;color:var(--gold);cursor:pointer;font-size:1rem;transition:background .25s,border-color .25s}
+.path-nav button:hover{background:rgba(225,182,104,.15);border-color:var(--gold)}
+.pathway .curr-foot{text-align:center;margin-top:50px}
+.pathway .curr-foot .cta-note{color:#B9AE99}
+@media(max-width:900px){.path-node{width:104px}.path-node .pn-label{font-size:.58rem;letter-spacing:.06em}}
+
+/* testimonials */
+.testi-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;margin-top:54px;align-items:start}
+@media(max-width:900px){.testi-grid{grid-template-columns:1fr;max-width:620px;margin-left:auto;margin-right:auto}}
+.t-card{background:#FFFFFF;border:1px solid rgba(225,182,104,.28);border-radius:18px;padding:32px 30px;box-shadow:var(--shadow-soft);position:relative;transition:transform .35s,box-shadow .35s}
+.t-card:nth-child(1){transform:rotate(-.5deg)}
+.t-card:nth-child(2){transform:rotate(.3deg)}
+.t-card:nth-child(3){transform:rotate(-.3deg)}
+.t-card:hover{transform:translateY(-5px) rotate(0);box-shadow:var(--shadow-lift)}
+.t-card .q{font-family:var(--serif);font-size:2.6rem;line-height:0;color:var(--gold);display:block;margin:14px 0 22px}
+.t-card p{font-size:.92rem;font-style:italic;margin-bottom:22px;line-height:1.6}
+.t-who{display:flex;align-items:center;gap:14px}
+.t-who img{width:46px;height:46px;border-radius:50%;object-fit:cover;outline:1px solid rgba(225,182,104,.45);outline-offset:3px;flex-shrink:0}
+.t-who strong{display:block;font-family:var(--serif);font-weight:400;color:var(--ink);font-size:.98rem}
+.t-who span{font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--slate);font-weight:500}
+
+/* accreditation + stats */
+.badges-crop{width:100%;max-width:540px;aspect-ratio:655/195;margin:46px auto 30px;background-size:156.4% auto;background-position:left center;background-repeat:no-repeat;background-color:var(--paper);background-blend-mode:multiply}
+.badges-crop.bg-in{background-image:url('https://alchemyofbreath.com/wp-content/uploads/badges-1024x195.jpg')}
+.ibf-line{display:inline-flex;align-items:center;gap:10px;margin-top:34px;font-size:.78rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--slate);border:1px solid rgba(225,182,104,.4);border-radius:999px;padding:10px 22px;background:rgba(255,255,255,.7)}
+.ibf-line::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--teal)}
+.stats{background:linear-gradient(180deg,var(--paper) 0%,var(--paper-2) 100%);padding:74px 0;border-top:1px solid rgba(225,182,104,.18);border-bottom:1px solid rgba(225,182,104,.18);position:relative;overflow:hidden}
+.stats::before{content:"";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:min(800px,90vw);height:300px;background:radial-gradient(ellipse,rgba(225,182,104,.08) 0%,rgba(225,182,104,0) 70%);pointer-events:none}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:30px;text-align:center;max-width:980px;margin:0 auto;position:relative;z-index:1}
+.stats-grid .stat{padding:14px 8px;position:relative}
+.stats-grid .stat:not(:last-child)::after{content:"";position:absolute;right:-15px;top:14px;bottom:14px;width:1px;background:linear-gradient(180deg,rgba(225,182,104,0),rgba(225,182,104,.45),rgba(225,182,104,0))}
+.stats-grid .stat .num{font-family:var(--serif);font-size:clamp(2.2rem,4.2vw,3.2rem);color:var(--gold-deep);line-height:1;display:block;letter-spacing:-.01em}
+.stats-grid .stat .num sup{font-size:.42em;font-style:italic;color:var(--gold);top:-.7em}
+.stats-grid .stat .lbl{font-size:.72rem;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--slate);margin-top:12px;display:block;line-height:1.5}
+@media(max-width:680px){.stats-grid{grid-template-columns:1fr 1fr;gap:32px 20px}.stats-grid .stat:not(:last-child)::after{display:none}}
+
+/* faq */
+.faq{overflow:hidden}
+.faq-list{max-width:780px;margin:50px auto 0}
+.faq-list details{background:#FFFFFF;border:1px solid rgba(225,182,104,.26);border-radius:14px;margin-bottom:14px;overflow:hidden;transition:box-shadow .3s,border-color .3s}
+.faq-list details[open]{box-shadow:var(--shadow-soft);border-color:rgba(225,182,104,.55)}
+.faq-list summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:20px;padding:23px 28px;font-family:var(--serif);font-size:1.1rem;color:var(--ink)}
+.faq-list summary::-webkit-details-marker{display:none}
+.faq-list summary .pm{font-family:var(--sans);color:var(--gold-deep);font-size:1.4rem;font-weight:300;line-height:1;transition:transform .35s;min-width:18px;text-align:center}
+.faq-list details[open] summary .pm{transform:rotate(45deg)}
+.faq-a{padding:0 28px 26px;font-size:.95rem;color:var(--ink);line-height:1.65}
+.faq-a p{margin-bottom:.8em}
+.faq-a p:last-child{margin-bottom:0}
+
+/* final */
+.final{overflow:hidden;text-align:center;background:linear-gradient(180deg,var(--paper-2),var(--paper) 60%);position:relative}
+.final::before{content:"";position:absolute;top:-160px;right:-160px;width:560px;height:560px;border-radius:50%;background:radial-gradient(circle,rgba(0,165,178,.12) 0%,rgba(0,165,178,0) 70%);pointer-events:none}
+.final::after{content:"";position:absolute;bottom:-200px;left:-160px;width:620px;height:620px;border-radius:50%;background:radial-gradient(circle,rgba(225,182,104,.22) 0%,rgba(225,182,104,0) 70%);pointer-events:none}
+.final h2{max-width:16em;margin:0 auto 22px;font-size:clamp(2rem,4.4vw,3rem)}
+.final .lead{position:relative;z-index:1;max-width:30em;margin:0 auto 38px;font-size:1.06rem}
+.final .actions{display:flex;gap:18px;justify-content:center;flex-wrap:wrap;position:relative;z-index:1}
+.final .avatars{height:46px;width:auto;margin:42px auto 0;border-radius:999px;position:relative;z-index:1}
+
+/* footer */
+footer{background:var(--foot);border-top:1px solid rgba(225,182,104,.35);padding:64px 0 42px}
+.foot-grid{max-width:1140px;margin:0 auto;padding:0 28px;display:grid;grid-template-columns:1.2fr 1fr 1fr 1fr;gap:40px}
+@media(max-width:860px){.foot-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:540px){.foot-grid{grid-template-columns:1fr}}
+.foot-brand img{height:52px;width:auto;margin-bottom:18px}
+.foot-brand p{font-size:.82rem;color:#C9BFA9;line-height:1.65;max-width:22em}
+.foot-col h4{font-family:var(--serif);font-weight:400;font-size:.95rem;color:var(--gold);letter-spacing:.08em;margin-bottom:16px}
+.foot-col ul{list-style:none;display:grid;gap:9px}
+.foot-col a{color:#9AAEBB;text-decoration:none;font-size:.84rem;transition:color .25s}
+.foot-col a:hover{color:var(--gold)}
+.foot-base{max-width:1140px;margin:44px auto 0;padding:22px 28px 0;border-top:1px solid rgba(225,182,104,.18);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.foot-base p{font-size:.74rem;color:#7d7468}
+.foot-note{max-width:1140px;margin:14px auto 0;padding:0 28px}
+.foot-note p{font-size:.72rem;color:#7d7468;line-height:1.6}
+
+/* sticky pill */
+.pill{position:fixed;right:26px;bottom:26px;z-index:55;display:flex;align-items:center;gap:0;text-decoration:none;opacity:0;pointer-events:none;transform:translateY(14px);transition:opacity .4s,transform .4s}
+.pill.show{opacity:1;pointer-events:auto;transform:none}
+.pill-ring{width:62px;height:62px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:conic-gradient(var(--gold-deep) calc(var(--p,0)*1%), rgba(91,120,137,.22) 0);box-shadow:0 12px 30px rgba(34,31,32,.22);flex-shrink:0}
+.pill-ring .inner{width:52px;height:52px;border-radius:50%;background:var(--grad-gold);display:flex;align-items:center;justify-content:center}
+.pill-ring svg{width:22px;height:22px;stroke:var(--ink);fill:none;stroke-width:1.6;stroke-linecap:round}
+.pill-label{max-width:0;overflow:hidden;white-space:nowrap;transition:max-width .45s ease,padding .45s ease;background:var(--ink);color:var(--gold);border-radius:999px;font-size:.82rem;font-weight:500;letter-spacing:.06em;padding:14px 0;margin-right:-31px;padding-right:31px}
+.pill:hover .pill-label,.pill:focus .pill-label{max-width:260px;padding-left:24px;padding-right:48px}
+@media(max-width:560px){.pill{right:16px;bottom:16px}}
+:focus-visible{outline:2px solid var(--gold-deep);outline-offset:3px;border-radius:6px}
 </style>
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "name":"Alchemy of Breath",
+  "url":"https://alchemyofbreath.com/",
+  "logo":"https://alchemyofbreath.com/wp-content/uploads/AOB-Gold-Black-Transparant.png",
+  "description":"The world's first online breathwork school: free weekly breathwork sessions, certified facilitator training, BreathCamps, and the Alchemy Regulation Method.",
+  "founder":{"@type":"Person","name":"Anthony Abbagnano"},
+  "sameAs":["https://www.facebook.com/AOB.Breathwork/","https://www.instagram.com/alchemyofbreath/"]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "name":"Alchemy of Breath",
+  "url":"https://alchemyofbreath.com/"
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"FAQPage",
+  "mainEntity":[
+    {"@type":"Question","name":"What is breathwork?","acceptedAnswer":{"@type":"Answer","text":"Breathwork is the conscious use of your breathing to shift how you feel, think, and heal. At Alchemy of Breath we practice Conscious Connected Breathwork, where inhalation and exhalation flow seamlessly without pauses, calming the nervous system and creating space for deep emotional release."}},
+    {"@type":"Question","name":"What can breathwork help with?","acceptedAnswer":{"@type":"Answer","text":"Studies have shown breathwork can help reduce symptoms associated with stress, anxiety, depression, insomnia, and PTSD. Beyond the biological effects, practitioners report greater self-awareness, emotional freedom, and a deeper sense of connection and peace. Breathwork is not a substitute for medical or psychological treatment."}},
+    {"@type":"Question","name":"I am completely new. Where do I start?","acceptedAnswer":{"@type":"Answer","text":"Start by breathing with us. We host free live online breathwork sessions every Sunday, open to everyone, and they are the gentlest way to experience the work first-hand before choosing a program."}},
+    {"@type":"Question","name":"Do I need experience to join a training?","acceptedAnswer":{"@type":"Answer","text":"No. Our trainings are designed for all levels, from complete newcomers to experienced practitioners, and meet you exactly where you are. Many students join purely for their own growth and healing."}},
+    {"@type":"Question","name":"What is the Alchemy Regulation Method?","acceptedAnswer":{"@type":"Answer","text":"The Alchemy Regulation Method is our nervous system regulation methodology. You graduate with a daily practice and a framework to regulate your own nervous system, and can qualify to practice as a nervous system regulation coach."}},
+    {"@type":"Question","name":"How do I become a certified breathwork facilitator?","acceptedAnswer":{"@type":"Answer","text":"Through the Alchemy of Breath Facilitator Training, a triple accredited certification you can walk two ways: an 8 month online training with weekly live calls, or a 4 month accelerated path that begins with 21 days live and residential at ASHA in Tuscany."}}
+  ]
+}
+</script>
 </head>
 <body>
-<main class="card">
-  <img src="https://alchemyofbreath.com/wp-content/uploads/AOB-Gold-Black-Transparant.png" alt="Alchemy of Breath">
-  <h1>Alchemy of Breath — Website 2026</h1>
-  <p class="tag">Development index · not a public page</p>
-  <ul class="pages">
-    <li><a href="facilitator-training/">Facilitator Training <span class="arr">&rarr;</span></a></li>
-    <li><a href="live-residential-breathwork-facilitator-training/">Live Residential Facilitator Training <span class="arr">&rarr;</span></a></li>
-  </ul>
-  <p class="note">New pages will be listed here as they are added to the project.</p>
-</main>
+
+<!-- NAV -->
+<header class="nav" id="nav">
+  <div class="nav-in">
+    <a class="nav-logo" href="/" aria-label="Alchemy of Breath">
+      <img src="https://alchemyofbreath.com/wp-content/uploads/AOB-Gold-Black-Transparant.png" alt="Alchemy of Breath" width="252" height="72" decoding="async">
+    </a>
+    <a class="nav-cta" href="https://alchemyofbreath.com/free-breathwork-sessions/">Breathe with us — free</a>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-grid">
+      <div>
+        <span class="eyebrow reveal">The world's first online breathwork school</span>
+        <h1 class="reveal d1">Breathwork that brings you <em>home to yourself</em>.</h1>
+        <p class="hero-sub reveal d2">Alchemy of Breath is a school of Conscious Connected Breathwork, blending modern neuroscience with traditional healing methods. A natural way to meet stress and anxiety, and to find the clarity, connection, and peace that already live inside you — from wherever you are in the world.</p>
+        <p class="hero-byline reveal d2">Founded by breathwork pioneer Anthony Abbagnano</p>
+        <div class="hero-actions reveal d3">
+          <a class="btn btn-primary" href="https://alchemyofbreath.com/free-breathwork-sessions/">Breathe with us — free <span class="arr">&rarr;</span></a>
+          <a class="btn btn-ghost" href="#programs">Explore the programs</a>
+        </div>
+        <p class="cta-note reveal d3">Free live sessions every Sunday. No experience needed — just you, and your breath.</p>
+        <div class="hero-proof reveal d3">
+          <img class="avatars" src="https://alchemyofbreath.com/wp-content/uploads/people-updated.png" alt="Alchemy of Breath community" width="686" height="78" decoding="async">
+          <p><strong>2,000+ certified facilitators</strong> trained over 12 years — and a community breathing with us on every continent.</p>
+        </div>
+      </div>
+      <div class="breath-stage reveal d2">
+        <div class="ring r5"></div><div class="ring r4"></div><div class="ring r3"></div><div class="ring r2"></div><div class="ring r1"></div>
+        <div class="breath-core">
+          <div class="word-stack"><span class="word w-a" id="breathA">Breathe in</span><span class="word w-b" id="breathB"></span></div>
+          <div class="tiny">Breathe with us</div>
+        </div>
+        <div class="chip c1"><strong>50+ years</strong>Anthony's lifetime with the breath</div>
+        <div class="chip c2"><strong>Triple accredited</strong>FHT, GPBA, AADP</div>
+        <div class="chip c3"><strong>2,000+ facilitators</strong>Certified worldwide</div>
+        <div class="chip c4"><strong>Free Sunday sessions</strong></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRESS / LOGOS -->
+<div class="logos">
+  <div class="orb t" style="width:380px;height:380px;top:-180px;right:8%" aria-hidden="true"></div>
+  <div class="wrap reveal" style="position:relative;z-index:1">
+    <p>We have worked with</p>
+    <div class="logo-line" aria-label="Organizations Alchemy of Breath has worked with">
+      <div class="logo-half top lazy-bg" role="img"></div>
+      <div class="logo-half bottom lazy-bg" role="img"></div>
+    </div>
+  </div>
+</div>
+
+<!-- WHY BREATHWORK -->
+<section class="cv">
+  <div class="orb g" style="width:480px;height:480px;top:-160px;right:-180px" aria-hidden="true"></div>
+  <div class="wrap">
+    <div class="why-grid">
+      <div class="arch-photo reveal">
+        <img src="https://alchemyofbreath.com/wp-content/uploads/glow-head-578x600.jpg" alt="A person in conscious connected breathwork" width="578" height="600" loading="lazy" decoding="async">
+      </div>
+      <div>
+        <span class="eyebrow reveal">Why breathwork</span>
+        <h2 class="reveal d1">The medicine you were <em>born breathing</em>.</h2>
+        <p class="reveal d2" style="margin-top:18px;color:var(--slate)">Your breath is the only part of the nervous system you can steer at will. Learn to work with it consciously, and it becomes a doorway: to calm, to buried emotion, and to the parts of yourself that talking cannot reach.</p>
+        <ul class="why-list reveal d2">
+          <li>Studies have shown breathwork can help reduce symptoms associated with stress, anxiety, depression, insomnia, and PTSD</li>
+          <li>Conscious Connected Breathwork calms the nervous system and activates the parasympathetic response</li>
+          <li>Emotional blockages and limiting beliefs surface gently, and release</li>
+          <li>Practiced live online or in person — all you need is a quiet place to lie down</li>
+        </ul>
+        <div class="oxygen-note reveal d2"><b>Your brain runs on breath.</b> It uses roughly a fifth of your oxygen supply — yet modern life keeps most of us shallow-breathing through our days. Breathwork gives that nourishment back.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROGRAMS -->
+<section id="programs" class="alt cv" style="scroll-margin-top:90px">
+  <div class="wrap">
+    <div class="sec-intro">
+      <span class="eyebrow reveal" style="justify-content:center">Trainings &amp; programs</span>
+      <h2 class="reveal d1">One breath, <em>many doorways</em>.</h2>
+      <p class="reveal d2" style="margin-top:16px;font-size:1.04rem">Every program works with the mental, emotional, spiritual, and physical bodies — online and in person. Start free, or step onto the facilitator path.</p>
+    </div>
+    <div class="paths-grid reveal d1">
+      <div class="path-card feat">
+        <span class="tag">8-month online</span>
+        <h3>Facilitator Training</h3>
+        <p class="lede">The world's top rated breathwork facilitator training: 400 hours, triple accredited, with weekly live calls and graduation in Tuscany.</p>
+        <ul class="path-list">
+          <li>400 hour, triple accredited certification</li>
+          <li>Weekly live calls with expert coaching</li>
+          <li>Train from anywhere in the world</li>
+        </ul>
+        <a class="btn btn-primary" href="/facilitator-training/">Explore the online training <span class="arr">&rarr;</span></a>
+      </div>
+      <div class="path-card">
+        <span class="tag">4-month residential</span>
+        <h3>Live Residential Training</h3>
+        <p class="lede">The accelerated path: twenty-one days living the practice at ASHA, our sanctuary in the Tuscan hills, then three months online.</p>
+        <ul class="path-list">
+          <li>21 days live and residential at ASHA, Tuscany</li>
+          <li>An intentionally small, held circle</li>
+          <li>The same triple accredited certification</li>
+        </ul>
+        <a class="btn btn-ghost" href="/live-residential-breathwork-facilitator-training/">Explore the residential <span class="arr">&rarr;</span></a>
+      </div>
+    </div>
+    <div class="cards-grid">
+      <div class="fcard reveal"><div class="num">i.</div><h3>Free breathwork sessions</h3><p>Breathe The World: live online sessions every Sunday, open to everyone. The gentlest way to experience the breath — and completely free.</p><a class="go" href="https://alchemyofbreath.com/free-breathwork-sessions/">Join a free session <span class="arr">&rarr;</span></a></div>
+      <div class="fcard reveal d1"><div class="num">ii.</div><h3>BreathCamps</h3><p>Immersive in-person breathwork retreats at ASHA in Tuscany: days of deep practice, rest, and community on the land.</p><a class="go" href="https://alchemyofbreath.com/breathcamps/">Discover BreathCamps <span class="arr">&rarr;</span></a></div>
+      <div class="fcard reveal d2"><div class="num">iii.</div><h3>Alchemy Regulation Method</h3><p>Our nervous system regulation methodology. Build a daily practice, and qualify to coach it — the first level of the pathway.</p><a class="go" href="https://go.alchemyofbreath.com/alchemy-regulation-method">Learn the method <span class="arr">&rarr;</span></a></div>
+    </div>
+  </div>
+</section>
+
+<!-- FOUNDER LETTER -->
+<section class="letter cv">
+  <div class="wrap">
+    <div class="letter-grid">
+      <div class="letter-photo reveal">
+        <div class="portrait-frame">
+          <img src="https://alchemyofbreath.com/wp-content/uploads/anthony-abbagnano-2-1.jpg" alt="Anthony Abbagnano, founder of Alchemy of Breath" width="500" height="500" loading="lazy" decoding="async">
+        </div>
+        <div class="portrait-ring" aria-hidden="true"></div>
+        <div class="letter-caption">
+          <strong>Anthony Abbagnano</strong>
+          <span>Founder, Alchemy of Breath</span>
+        </div>
+      </div>
+      <div class="letter-card reveal d1">
+        <span class="eyebrow">A note from Anthony</span>
+        <p class="dropcap">Before I was twenty, I had found my way to conscious breathing, and I have spent the more than fifty years since following where it leads — through boardrooms and classrooms, hospital beds and mountaintops, and the hardest hours of people's lives.</p>
+        <p>What I have learned is simple: the breath meets you exactly where you are. It asks for no belief, no background, no readiness. One honest hour of breathing can open what years of trying could not.</p>
+        <p>That is why our door is open every week, for free, to anyone. Come and breathe with us once. Everything else can wait until after that first breath.</p>
+        <div class="sig">Anthony Abbagnano</div>
+        <div class="sig-role">Founder, Alchemy of Breath &amp; ASHA</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PULL QUOTE -->
+<section class="legacy cv">
+  <div class="wrap reveal">
+    <span class="mark">&ldquo;</span>
+    <blockquote>If meditation is about clearing your mind, then breathwork is about freeing your ability to feel.</blockquote>
+    <cite>Anthony Abbagnano &middot; Founder, Alchemy of Breath</cite>
+  </div>
+</section>
+
+<!-- THE ALCHEMY PATHWAY -->
+<section class="pathway cv">
+  <div class="wrap">
+    <div style="text-align:center;max-width:38em;margin:0 auto 50px;position:relative;z-index:1">
+      <span class="eyebrow reveal" style="justify-content:center">From first breath to founder</span>
+      <h2 class="reveal d1">The Alchemy pathway: seven levels, <em>one lifelong journey</em>.</h2>
+      <p class="reveal d2" style="margin-top:16px;color:#C9BFA9;font-size:1rem">Wherever you begin, there is a next step: from your first regulated breath all the way to your own licensed school. Tap a level to explore it.</p>
+    </div>
+    <div class="path-track reveal d2" id="pathTrack" role="tablist" aria-label="The Alchemy pathway levels">
+      <button class="path-node active" data-i="0" type="button" role="tab" aria-selected="true"><span class="pn-ph">1</span><span class="pn-label">Regulation<br>method</span></button>
+      <button class="path-node" data-i="1" type="button" role="tab" aria-selected="false"><span class="pn-ph">2</span><span class="pn-label">Inner<br>journey</span></button>
+      <button class="path-node" data-i="2" type="button" role="tab" aria-selected="false"><span class="pn-ph">3</span><span class="pn-label">Facilitator<br>training</span></button>
+      <button class="path-node" data-i="3" type="button" role="tab" aria-selected="false"><span class="pn-ph">4</span><span class="pn-label">Graduation</span></button>
+      <button class="path-node" data-i="4" type="button" role="tab" aria-selected="false"><span class="pn-ph">5</span><span class="pn-label">Business<br>in a box</span></button>
+      <button class="path-node" data-i="5" type="button" role="tab" aria-selected="false"><span class="pn-ph">6</span><span class="pn-label">Junior<br>trainer</span></button>
+      <button class="path-node" data-i="6" type="button" role="tab" aria-selected="false"><span class="pn-ph">7</span><span class="pn-label">Your own<br>school</span></button>
+    </div>
+    <div class="path-detail reveal d2" id="pathDetail">
+      <div class="pd-body" id="pdBody" role="tabpanel" aria-live="polite">
+        <div class="pd-eb">Student to facilitator</div>
+        <div class="pd-level">Level 1 of 7</div>
+        <h3>The Alchemy Regulation Method</h3>
+        <p>Our nervous system regulation methodology. You graduate with a daily practice and a framework to regulate your own nervous system, and qualify to practice as a nervous system regulation coach.</p>
+      </div>
+      <div class="path-nav"><button aria-label="Previous level" id="pathPrev" type="button">&larr;</button><button aria-label="Next level" id="pathNext" type="button">&rarr;</button></div>
+    </div>
+    <div class="curr-foot reveal">
+      <a class="btn btn-primary" href="https://alchemyofbreath.com/free-breathwork-sessions/">Breathe with us — free <span class="arr">&rarr;</span></a>
+      <p class="cta-note">Level zero is a single free breath. Start there.</p>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="cv">
+  <div class="orb g" style="width:420px;height:420px;top:60px;right:-180px" aria-hidden="true"></div>
+  <div class="wrap">
+    <div style="text-align:center;max-width:38em;margin:0 auto">
+      <span class="eyebrow reveal" style="justify-content:center">In their words</span>
+      <h2 class="reveal d1">What people say after they <em>find their breath</em>.</h2>
+    </div>
+    <div class="testi-grid reveal d1">
+      <div class="t-card">
+        <span class="q">&ldquo;</span>
+        <p>It creates the space for deep insight, connection, and transformation in a safe and loving container. I deeply recommend Alchemy of Breath as an incredible experience to harness the power of true presence.</p>
+        <div class="t-who"><img src="https://alchemyofbreath.com/wp-content/uploads/tanya.jpg" alt="Tanya Lopez" width="724" height="240" loading="lazy" decoding="async"><div><strong>Tanya Lopez</strong><span>Graduate</span></div></div>
+      </div>
+      <div class="t-card">
+        <span class="q">&ldquo;</span>
+        <p>An hour later, I knew this had just turned my life around. I feel like my heart has opened up again for the first time in decades, and the training group has become a new little community for all of us.</p>
+        <div class="t-who"><img src="https://alchemyofbreath.com/wp-content/uploads/Nick.jpg" alt="Nick" width="300" height="300" loading="lazy" decoding="async"><div><strong>Nick</strong><span>Graduate</span></div></div>
+      </div>
+      <div class="t-card">
+        <span class="q">&ldquo;</span>
+        <p>Breathwork continues to open doors, and the training allows me to fully investigate and be supported in my experiences. I feel like I am growing and opening toward life's untapped potential.</p>
+        <div class="t-who"><img src="https://alchemyofbreath.com/wp-content/uploads/hannah-2.jpg" alt="Hannah Goodman" width="724" height="240" loading="lazy" decoding="async"><div><strong>Hannah Goodman</strong><span>Graduate</span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACCREDITATION -->
+<section class="alt cv" style="text-align:center">
+  <div class="wrap">
+    <span class="eyebrow reveal" style="justify-content:center">The gold standard</span>
+    <h2 class="reveal d1" style="max-width:20em;margin:0 auto">A triple accredited breathwork school, held to the <em>highest standards</em>.</h2>
+    <div class="badges-crop lazy-bg reveal d2" role="img" aria-label="Accreditation badges: Federation of Holistic Therapists, Global Professional Breathwork Alliance, American Association of Drugless Practitioners"></div>
+    <p class="reveal d2" style="max-width:42em;margin:0 auto;color:var(--slate);font-size:.95rem">Alchemy of Breath is accredited by the Federation of Holistic Therapists, the Global Professional Breathwork Alliance, and the American Association of Drugless Practitioners — recognized as one of the most thoroughly certified breathwork institutions in the world.</p>
+    <div class="reveal d2"><span class="ibf-line">Proud member of the International Breathwork Foundation</span></div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section class="stats cv">
+  <div class="wrap">
+    <div class="stats-grid">
+      <div class="stat reveal"><span class="num">50<sup>+</sup></span><span class="lbl">Years with the breath</span></div>
+      <div class="stat reveal d1"><span class="num">2,000<sup>+</sup></span><span class="lbl">Certified facilitators</span></div>
+      <div class="stat reveal d2"><span class="num">1M<sup>+</sup></span><span class="lbl">Lives reached</span></div>
+      <div class="stat reveal d3"><span class="num">1<sup>st</sup></span><span class="lbl">Online breathwork school</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq cv">
+  <div class="orb g" style="width:420px;height:420px;top:80px;right:-180px" aria-hidden="true"></div>
+  <div class="wrap">
+    <div style="text-align:center;max-width:38em;margin:0 auto">
+      <span class="eyebrow reveal" style="justify-content:center">Questions, gently</span>
+      <h2 class="reveal d1">New to breathwork? <em>Start here</em>.</h2>
+    </div>
+    <div class="faq-list reveal d1">
+      <details>
+        <summary>What is breathwork?<span class="pm">+</span></summary>
+        <div class="faq-a"><p>Breathwork is the conscious use of your breathing to shift how you feel, think, and heal. At Alchemy of Breath we practice Conscious Connected Breathwork, where inhalation and exhalation flow seamlessly without pauses, calming the nervous system and creating space for deep emotional release.</p></div>
+      </details>
+      <details>
+        <summary>What can breathwork help with?<span class="pm">+</span></summary>
+        <div class="faq-a"><p>Studies have shown breathwork can help reduce symptoms associated with stress, anxiety, depression, insomnia, and PTSD. Beyond the biological effects, practitioners report greater self-awareness, emotional freedom, and a deeper sense of connection and peace. Breathwork is not a substitute for medical or psychological treatment.</p></div>
+      </details>
+      <details>
+        <summary>I am completely new. Where do I start?<span class="pm">+</span></summary>
+        <div class="faq-a"><p>Start by breathing with us. We host <a href="https://alchemyofbreath.com/free-breathwork-sessions/">free live online breathwork sessions</a> every Sunday, open to everyone. They are the gentlest way to experience the work first-hand before choosing a program.</p></div>
+      </details>
+      <details>
+        <summary>Do I need experience to join a training?<span class="pm">+</span></summary>
+        <div class="faq-a"><p>No. Our trainings are designed for all levels, from complete newcomers to experienced practitioners, and meet you exactly where you are. Many students join purely for their own growth and healing.</p></div>
+      </details>
+      <details>
+        <summary>What is the Alchemy Regulation Method?<span class="pm">+</span></summary>
+        <div class="faq-a"><p>The Alchemy Regulation Method is our nervous system regulation methodology. You graduate with a daily practice and a framework to regulate your own nervous system, and can qualify to practice as a nervous system regulation coach.</p></div>
+      </details>
+      <details>
+        <summary>How do I become a certified breathwork facilitator?<span class="pm">+</span></summary>
+        <div class="faq-a"><p>Through the Alchemy of Breath Facilitator Training, a triple accredited certification you can walk two ways: the <a href="/facilitator-training/">8 month online training</a> with weekly live calls, or the <a href="/live-residential-breathwork-facilitator-training/">4 month accelerated path</a> that begins with 21 days live at ASHA in Tuscany.</p></div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="final cv">
+  <div class="wrap">
+    <span class="eyebrow reveal" style="justify-content:center">The door is open</span>
+    <h2 class="reveal d1">Your next breath can be the <em>first one that counts</em>.</h2>
+    <p class="lead reveal d2">Join a free live breathwork session this Sunday. No experience, no belief, no obligation — just an hour with your breath, guided by people who have given their lives to it.</p>
+    <div class="actions reveal d2">
+      <a class="btn btn-primary" href="https://alchemyofbreath.com/free-breathwork-sessions/">Breathe with us — free <span class="arr">&rarr;</span></a>
+      <a class="btn btn-ghost" href="#programs">Explore the programs</a>
+    </div>
+    <img class="avatars reveal d3" src="https://alchemyofbreath.com/wp-content/uploads/people-updated.png" alt="Alchemy of Breath community" width="686" height="78" loading="lazy" decoding="async">
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="cv">
+  <div class="foot-grid">
+    <div class="foot-brand">
+      <img src="https://alchemyofbreath.com/wp-content/uploads/AoB-emblem-web-white.png" alt="Alchemy of Breath" width="300" height="300" loading="lazy" decoding="async">
+      <p>The world's first online breathwork school, founded by Anthony Abbagnano. Breathwork taught with integrity and care, online and at ASHA in Tuscany.</p>
+    </div>
+    <div class="foot-col">
+      <h4>Programs</h4>
+      <ul>
+        <li><a href="/facilitator-training/">Facilitator Training — online</a></li>
+        <li><a href="/live-residential-breathwork-facilitator-training/">Live Residential Training</a></li>
+        <li><a href="https://alchemyofbreath.com/breathcamps/">BreathCamps</a></li>
+        <li><a href="https://go.alchemyofbreath.com/alchemy-regulation-method">Alchemy Regulation Method</a></li>
+        <li><a href="https://alchemyofbreath.com/free-breathwork-sessions/">Free breathwork sessions</a></li>
+      </ul>
+    </div>
+    <div class="foot-col">
+      <h4>Explore</h4>
+      <ul>
+        <li><a href="https://alchemyofbreath.com/breathwork-events/">Events</a></li>
+        <li><a href="https://alchemyofbreath.com/breathwork-fundamentals/">Breathwork fundamentals</a></li>
+        <li><a href="https://alchemyofbreath.com/blog/">Blog</a></li>
+        <li><a href="https://alchemyofbreath.com/shop/">Shop</a></li>
+        <li><a href="https://alchemyofbreath.com/contact/">Contact</a></li>
+      </ul>
+    </div>
+    <div class="foot-col">
+      <h4>Legal</h4>
+      <ul>
+        <li><a href="https://alchemyofbreath.com/privacy-policy/">Privacy Policy</a></li>
+        <li><a href="https://alchemyofbreath.com/terms-and-conditions/">Terms &amp; Conditions</a></li>
+        <li><a href="https://alchemyofbreath.com/waiver-and-release/">Waiver &amp; Release</a></li>
+        <li><a href="https://alchemyofbreath.com/cookie-policy/">Cookie Policy</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="foot-base">
+    <p>All Rights Reserved &copy; Alchemy of Breath</p>
+    <p>ASHA — Alchemy School of Healing Arts, Tuscany, Italy</p>
+  </div>
+  <div class="foot-note">
+    <p>Breathwork is not a substitute for medical or psychological treatment. If you are managing a serious physical or mental health condition, please speak with your health professional, and let us know before joining a session.</p>
+  </div>
+</footer>
+
+<!-- STICKY PILL -->
+<a class="pill" href="https://alchemyofbreath.com/free-breathwork-sessions/" aria-label="Breathe with us — free">
+  <span class="pill-label">Breathe with us — free</span>
+  <span class="pill-ring"><span class="inner">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12c0-4.4 3.6-8 8-8s8 3.6 8 8-3.6 8-8 8"/><circle cx="12" cy="12" r="3.4"/></svg>
+  </span></span>
+</a>
+
+<script>
+(function(){
+  var nav = document.getElementById('nav');
+
+  var io = new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} });
+  },{threshold:.12,rootMargin:'0px 0px -40px 0px'});
+  document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
+
+  // lazy background images: attach only when the element nears the viewport
+  var bgio = new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('bg-in'); bgio.unobserve(e.target);} });
+  },{rootMargin:'600px 0px'});
+  document.querySelectorAll('.lazy-bg').forEach(function(el){ bgio.observe(el); });
+
+  var pill=document.querySelector('.pill'), ring=pill && pill.querySelector('.pill-ring');
+  function onScroll(){
+    var y=window.scrollY||document.documentElement.scrollTop;
+    var h=document.documentElement.scrollHeight-window.innerHeight;
+    var p=h>0?Math.min(100,(y/h)*100):0;
+    if(ring) ring.style.setProperty('--p',p.toFixed(1));
+    if(pill) pill.classList.toggle('show',y>620);
+    if(nav) nav.classList.toggle('scrolled',y>10);
+  }
+  window.addEventListener('scroll',onScroll,{passive:true}); onScroll();
+
+  document.querySelectorAll('img').forEach(function(img){
+    img.addEventListener('error',function(){ img.style.display='none'; });
+  });
+
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var wA=document.getElementById('breathA'), wB=document.getElementById('breathB');
+  if(wA && wB && !reduce){
+    var phases=[['Breathe in',4000],['Hold',4000],['Breathe out',4000]], i=0, showingA=true;
+    (function cycle(){
+      setTimeout(function(){
+        i=(i+1)%phases.length;
+        var incoming=showingA?wB:wA, outgoing=showingA?wA:wB;
+        incoming.textContent=phases[i][0];
+        outgoing.style.opacity=0; incoming.style.opacity=1;
+        showingA=!showingA;
+        cycle();
+      },phases[i][1]);
+    })();
+  }
+
+  // Alchemy pathway: seven interactive levels
+  var LV=[
+    {lvl:'Level 1 of 7',phase:'Student to facilitator',title:'The Alchemy Regulation Method',text:'Our nervous system regulation methodology. You graduate with a daily practice and a framework to regulate your own nervous system, and qualify to practice as a nervous system regulation coach.'},
+    {lvl:'Level 2 of 7',phase:'Student to facilitator',title:'The Inner Journey',text:'A deep, 14 week journey of inner work paired with group mentor sessions: the call, the inner child, shadow work, and beyond. Included in the Facilitator Training, or taken on its own.'},
+    {lvl:'Level 3 of 7',phase:'Student to facilitator',title:'The Facilitator Training',text:'The triple accredited heart of the pathway. Learn to guide others with safety, ethics, and integrity — through the 8-month online training, or the 4-month live residential at ASHA.'},
+    {lvl:'Level 4 of 7',phase:'Student to facilitator',title:'Graduation',text:'You lead real sessions, receive your certification, and step out into the world as a facilitator — with graduation held live at ASHA in Tuscany.'},
+    {lvl:'Level 5 of 7',phase:'Facilitator to founder',title:'Breathwork Business in a Box',text:'Your bridge to full time facilitation, with the marketing and infrastructure already built in, so you can focus on the work itself.'},
+    {lvl:'Level 6 of 7',phase:'Facilitator to founder',title:'Shadow Facilitator to Junior Trainer',text:'Assist at live events and step into the junior trainer role, the bridge from one to one sessions to confidently holding a room full of breathers.'},
+    {lvl:'Level 7 of 7',phase:'Facilitator to founder',title:'Your Own Licensed School',text:'Launch your own breathwork school under the Alchemy brand: full brand license, full curriculum access, and ongoing support from Anthony and Amy.'}
+  ];
+  var pNodes=[].slice.call(document.querySelectorAll('#pathTrack .path-node'));
+  var pBody=document.getElementById('pdBody'), pCur=0;
+  function renderLevel(i){
+    pCur=(i+LV.length)%LV.length;
+    var d=LV[pCur];
+    pNodes.forEach(function(n,idx){
+      n.classList.toggle('active',idx===pCur);
+      n.setAttribute('aria-selected',idx===pCur?'true':'false');
+    });
+    if(pBody){
+      pBody.innerHTML='<div class="pd-eb">'+d.phase+'</div><div class="pd-level">'+d.lvl+'</div><h3>'+d.title+'</h3><p>'+d.text+'</p>';
+    }
+  }
+  if(pNodes.length){
+    pNodes.forEach(function(n){ n.addEventListener('click',function(){ renderLevel(parseInt(n.getAttribute('data-i'),10)); }); });
+    var ip=document.getElementById('pathPrev'), inx=document.getElementById('pathNext');
+    if(ip) ip.addEventListener('click',function(){ renderLevel(pCur-1); });
+    if(inx) inx.addEventListener('click',function(){ renderLevel(pCur+1); });
+  }
+
+  // in-page anchors: force-render .cv sections first, else Chrome cancels the
+  // smooth scroll when their heights re-resolve mid-flight
+  document.querySelectorAll('a[href^="#"]').forEach(function(a){
+    a.addEventListener('click',function(e){
+      var id=a.getAttribute('href').slice(1), el=id&&document.getElementById(id);
+      if(!el) return;
+      e.preventDefault();
+      document.querySelectorAll('.cv').forEach(function(s){ s.style.contentVisibility='visible'; });
+      void document.body.offsetHeight;
+      el.scrollIntoView({behavior:reduce?'auto':'smooth'});
+      history.pushState(null,'','#'+id);
+    });
+  });
+})();
+</script>
+  <script>(function(){function reportHeight(){var h=document.documentElement.scrollHeight;window.parent.postMessage({type:'aob-embed-resize',height:h},'*');}window.addEventListener('load',reportHeight);window.addEventListener('resize',reportHeight);var mo=new MutationObserver(reportHeight);mo.observe(document.body,{childList:true,subtree:true,attributes:true});setInterval(reportHeight,800);})();</script>
 </body>
 </html>

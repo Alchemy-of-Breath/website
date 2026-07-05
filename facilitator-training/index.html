@@ -1395,6 +1395,20 @@ section>.wrap{position:relative;z-index:1}
       } else { img.style.display='none'; }
     });
   });
+
+  // in-page anchors: force-render .cv sections first, else Chrome cancels the
+  // smooth scroll when their heights re-resolve mid-flight
+  document.querySelectorAll('a[href^="#"]').forEach(function(a){
+    a.addEventListener('click',function(e){
+      var id=a.getAttribute('href').slice(1), el=id&&document.getElementById(id);
+      if(!el) return;
+      e.preventDefault();
+      document.querySelectorAll('.cv').forEach(function(s){ s.style.contentVisibility='visible'; });
+      void document.body.offsetHeight;
+      el.scrollIntoView({behavior:reduce?'auto':'smooth'});
+      history.pushState(null,'','#'+id);
+    });
+  });
 })();
 </script>
   <script>(function(){function reportHeight(){var h=document.documentElement.scrollHeight;window.parent.postMessage({type:'aob-embed-resize',height:h},'*');}window.addEventListener('load',reportHeight);window.addEventListener('resize',reportHeight);var mo=new MutationObserver(reportHeight);mo.observe(document.body,{childList:true,subtree:true,attributes:true});setInterval(reportHeight,800);})();</script>
