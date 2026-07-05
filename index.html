@@ -171,6 +171,7 @@ section>.wrap{position:relative;z-index:1}
 .aob3-media video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .aob3-ext{position:absolute;inset:0;background:transparent}
 .aob3-frame{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:100vw;height:56.25vw;min-width:88.9vh;min-height:50vh;border:0;pointer-events:none}
+.aob3-frame-v{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:max(46vw,29vh);height:calc(max(46vw,29vh)*1.7778);border:0;pointer-events:none}
 .aob3-stage:hover .aob3-media{filter:grayscale(.45) brightness(.5) contrast(1.03);transform:scale(1.12)}
 .aob3-stage:hover .aob3-panel:hover .aob3-media{filter:none;transform:scale(1.18)}
 .aob3-ov{position:absolute;inset:0;z-index:1;transition:background .6s ease;background:linear-gradient(0deg,rgba(5,4,1,.94) 0%,rgba(205,153,37,.34) 46%,rgba(205,153,37,.08) 74%,transparent 100%)}
@@ -185,14 +186,19 @@ section>.wrap{position:relative;z-index:1}
 .aob3-cta:hover{filter:brightness(1.06);box-shadow:0 16px 38px rgba(214,166,82,.55)}
 .aob3-cta .ar{transition:transform .4s}
 .aob3-cta:hover .ar{transform:translateX(6px)}
+.aob3-ctas{display:flex;gap:12px;flex-wrap:wrap}
+.aob3-cta.ghost{background:transparent;color:#FBF7EF;border:1.5px solid rgba(251,247,239,.6);box-shadow:none}
+.aob3-cta.ghost:hover{border-color:#E1B668;background:rgba(225,182,104,.14);filter:none;box-shadow:none}
+div.aob3-panel{cursor:default}
 .aob3-ctawrap{max-height:0;overflow:hidden;margin:0 0 0 -32px;padding:0 44px 0 32px;transition:max-height .55s cubic-bezier(.22,1,.36,1),padding .55s cubic-bezier(.22,1,.36,1)}
-.aob3-panel:hover .aob3-ctawrap{max-height:170px;padding:22px 44px 58px 32px}
+.aob3-panel:hover .aob3-ctawrap{max-height:240px;padding:22px 44px 58px 32px}
 .aob3-panel:hover .aob3-cta{opacity:1;transform:translateY(0)}
 @media(max-width:820px){
 .aob3-stage{flex-direction:column;height:auto}
 .aob3-panel,.aob3-free,.aob3-arm,.aob3-train{flex:0 0 auto!important;min-height:50svh!important}
 .aob3-panel + .aob3-panel{border-left:0;border-top:1px solid rgba(200,170,110,.14)}
 .aob3-media,.aob3-stage:hover .aob3-media{filter:none!important;transform:scale(1.06)!important}
+.aob3-frame-v{width:max(100vw,29vh);height:calc(max(100vw,29vh)*1.7778)}
 .aob3-full{padding:26px 26px 32px;max-width:none}
 .aob3-root .aob3-title{font-size:clamp(36px,9vw,52px)!important}
 .aob3-sub{margin-bottom:24px;font-size:19px;max-width:none}
@@ -465,8 +471,15 @@ footer{background:var(--foot);border-top:1px solid rgba(225,182,104,.35);padding
   <div class="aob3-root">
     <div class="aob3-stage">
 
-      <!-- 01 · FREE BREATHWORK — BREATHE THE WORLD (logo, no video) -->
+      <!-- 01 · FREE BREATHWORK — BREATHE THE WORLD (YouTube Short) -->
       <a class="aob3-panel aob3-free" href="https://alchemyofbreath.com/free-breathwork-sessions/" target="_blank" rel="noopener" aria-label="Free breathwork every Sunday — Breathe The World">
+        <div class="aob3-media"><div class="aob3-media-inner">
+          <div class="aob3-ext">
+            <iframe class="aob3-frame-v" loading="lazy"
+              src="https://www.youtube-nocookie.com/embed/_AEbkCjTBow?autoplay=1&amp;mute=1&amp;loop=1&amp;playlist=_AEbkCjTBow&amp;controls=0&amp;playsinline=1&amp;rel=0&amp;modestbranding=1&amp;iv_load_policy=3&amp;disablekb=1"
+              allow="autoplay; fullscreen; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" title="Breathe The World — free Sunday breathwork"></iframe>
+          </div>
+        </div></div>
         <div class="aob3-ov"></div><div class="aob3-grain"></div>
         <div class="aob3-full">
           <h3 class="aob3-title">Breathe <em>The World</em></h3>
@@ -495,7 +508,7 @@ footer{background:var(--foot);border-top:1px solid rgba(225,182,104,.35);padding
       </a>
 
       <!-- 03 · FACILITATOR TRAINING (Vimeo) -->
-      <a class="aob3-panel aob3-train" href="/facilitator-training/" aria-label="Facilitator Training">
+      <div class="aob3-panel aob3-train" aria-label="Facilitator Training">
         <div class="aob3-media"><div class="aob3-media-inner">
           <div class="aob3-ext">
             <iframe class="aob3-frame" loading="lazy"
@@ -507,10 +520,13 @@ footer{background:var(--foot);border-top:1px solid rgba(225,182,104,.35);padding
         <div class="aob3-full">
           <h3 class="aob3-title">Facilitator <em>Training</em></h3>
           <div class="aob3-rule"></div>
-          <p class="aob3-sub">4-month &amp; 8-month programmes</p>
-          <div class="aob3-ctawrap"><span class="aob3-cta"><span>Explore the training</span><span class="ar">&rarr;</span></span></div>
+          <p class="aob3-sub">Two paths, one certification</p>
+          <div class="aob3-ctawrap"><div class="aob3-ctas">
+            <a class="aob3-cta" href="/facilitator-training/"><span>8-month online</span><span class="ar">&rarr;</span></a>
+            <a class="aob3-cta ghost" href="/live-residential-breathwork-facilitator-training/"><span>4-month residential</span><span class="ar">&rarr;</span></a>
+          </div></div>
         </div>
-      </a>
+      </div>
 
     </div>
   </div>
