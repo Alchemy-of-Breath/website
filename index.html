@@ -210,15 +210,17 @@ section>.wrap{position:relative;z-index:1}
 .ev-head{max-width:1016px;margin:0 auto 20px;padding:0 28px;display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap}
 .ev-head h3{font-size:1.45rem}
 .ev-head .ev-sub{font-size:.82rem;color:var(--slate);margin-top:4px}
-.ev-marquee{display:flex;gap:18px;overflow:hidden;padding:30px 0 88px;margin:-18px 0 -62px}
-.ev-track{display:flex;gap:18px;flex:none;list-style:none;margin:0;animation:ev-scroll 90s linear infinite}
-.ev-marquee:hover .ev-track,.ev-marquee:focus-within .ev-track{animation-play-state:paused}
-@keyframes ev-scroll{from{transform:translateX(0)}to{transform:translateX(calc(-100% - 18px))}}
+.ev-nav{display:flex;gap:10px}
+.ev-nav button{width:44px;height:44px;border-radius:50%;border:1px solid rgba(214,166,82,.55);background:#fff;color:var(--gold-deep);font-size:1rem;cursor:pointer;transition:background .25s,border-color .25s}
+.ev-nav button:hover{background:var(--gold-wash);border-color:var(--gold-deep)}
+.ev-marquee{display:flex;gap:18px;overflow-x:auto;overflow-y:hidden;padding:30px 0 88px;margin:-18px 0 -62px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.ev-marquee::-webkit-scrollbar{display:none}
+.ev-track{display:flex;gap:18px;flex:none;list-style:none;margin:0}
 .ev-card{flex:0 0 300px;background:#fff;border:1px solid rgba(225,182,104,.28);border-radius:18px;overflow:hidden;box-shadow:var(--shadow-soft);display:flex;flex-direction:column;transition:transform .35s,box-shadow .35s,border-color .35s}
 .ev-track li:nth-child(odd){transform:rotate(-.5deg)}
 .ev-track li:nth-child(even){transform:rotate(.4deg)}
 .ev-track .ev-card:hover{transform:translateY(-5px) rotate(0);box-shadow:var(--shadow-lift);border-color:rgba(225,182,104,.6)}
-.ev-img{width:100%;aspect-ratio:3/2;object-fit:cover;display:block;border-bottom:1px solid rgba(225,182,104,.2)}
+.ev-img{width:100%;height:200px;object-fit:cover;display:block;border-bottom:1px solid rgba(225,182,104,.2)}
 .ev-body{padding:18px 22px 20px;display:flex;flex-direction:column;flex:1}
 .ev-tag{font-size:.6rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--teal);margin-bottom:9px}
 .ev-card.bc .ev-tag{color:var(--gold-deep)}
@@ -231,7 +233,7 @@ section>.wrap{position:relative;z-index:1}
 .ev-bleed::before{left:0;background:linear-gradient(90deg,var(--paper-2),rgba(251,247,239,0))}
 .ev-bleed::after{right:0;background:linear-gradient(90deg,rgba(251,247,239,0),var(--paper-2))}
 @media(max-width:560px){.ev-card{flex-basis:250px}.ev-bleed::before,.ev-bleed::after{display:none}}
-@media(prefers-reduced-motion:reduce){.ev-track{animation:none}.ev-marquee{overflow-x:auto}}
+@media(prefers-reduced-motion:reduce){.ev-marquee{scroll-behavior:auto}}
 
 /* founder letter */
 .letter{background:linear-gradient(180deg,var(--paper) 0%,var(--paper-2) 100%)}
@@ -527,10 +529,14 @@ footer{background:var(--foot);border-top:1px solid rgba(225,182,104,.35);padding
     <div class="ev-head">
       <div>
         <h3>BreathCamps &amp; retreats at ASHA, <em class="em-i">2026</em></h3>
-        <p class="ev-sub">Live in Tuscany &middot; hover to pause the drift</p>
+        <p class="ev-sub">Live in Tuscany &middot; drifting gently &mdash; scroll or step through</p>
+      </div>
+      <div class="ev-nav">
+        <button type="button" id="evPrev" aria-label="Scroll events back">&larr;</button>
+        <button type="button" id="evNext" aria-label="Scroll events forward">&rarr;</button>
       </div>
     </div>
-    <div class="ev-marquee">
+    <div class="ev-marquee" id="evScroll">
       <ul class="ev-track" aria-label="ASHA 2026 events">
       <li class="ev-card"><img class="ev-img" src="https://alchemyofbreath.com/wp-content/uploads/elementor/thumbs/5F8A1159-1-rhx8e36rv5deq6ygkdwpj761gg95xsmkyqqy6by79g.jpg" alt="Community gathered at ASHA" width="250" height="250" loading="lazy" decoding="async"><div class="ev-body"><span class="ev-tag">Community</span><span class="ev-date">May &ndash; Nov 1</span><h4>ARC &middot; Alchemy Residential Club</h4><p>Co-live, work, and play with kindred visionaries on ancient Tuscan land.</p><a class="ev-go" href="https://www.asha.global/arc">Details</a></div></li>
       <li class="ev-card"><img class="ev-img" src="https://alchemyofbreath.com/wp-content/uploads/elementor/thumbs/WhatsApp-Image-2026-02-19-at-20.15.11-rjdtvqq8qd0hwuji0v5ebc0kpmf82sjqjekle81zyc.jpeg" alt="Retreat space at ASHA" width="250" height="250" loading="lazy" decoding="async"><div class="ev-body"><span class="ev-tag">Host your retreat</span><span class="ev-date">Jun 7 &ndash; Aug 1</span><h4>Co-Residential Retreats</h4><p>Lead your own retreat, with the venue, meals, and community handled.</p><a class="ev-go" href="https://alchemyofbreath.com/asha-hybrid-retreats/">Details</a></div></li>
@@ -861,6 +867,36 @@ footer{background:var(--foot);border-top:1px solid rgba(225,182,104,.35);padding
     if(inx) inx.addEventListener('click',function(){ renderLevel(pCur+1); });
   }
 
+
+  // 2026 events: slow auto-drift + manual scroll + arrows, seamless loop
+  var evScroll=document.getElementById('evScroll');
+  if(evScroll){
+    var evTrack0=evScroll.querySelector('.ev-track');
+    var evW=0, evPos=null, evPaused=false, evResume=null, evLast=null;
+    var evMeasure=function(){ evW=evTrack0.getBoundingClientRect().width+18; };
+    var evHold=function(ms){ evPaused=true; if(evResume) clearTimeout(evResume); evResume=setTimeout(function(){ evPaused=false; },ms); };
+    evMeasure(); window.addEventListener('resize',evMeasure);
+    evScroll.scrollLeft=evW; evPos=evW;
+    evScroll.addEventListener('pointerenter',function(){ evPaused=true; if(evResume) clearTimeout(evResume); });
+    evScroll.addEventListener('pointerleave',function(){ evHold(900); });
+    evScroll.addEventListener('touchstart',function(){ evHold(3000); },{passive:true});
+    evScroll.addEventListener('focusin',function(){ evPaused=true; if(evResume) clearTimeout(evResume); });
+    evScroll.addEventListener('focusout',function(){ evHold(900); });
+    var evPrevB=document.getElementById('evPrev'), evNextB=document.getElementById('evNext');
+    var evStep=function(dir){ evHold(1800); evScroll.scrollBy({left:dir*954,behavior:reduce?'auto':'smooth'}); };
+    if(evPrevB) evPrevB.addEventListener('click',function(){ evStep(-1); });
+    if(evNextB) evNextB.addEventListener('click',function(){ evStep(1); });
+    (function evFrame(t){
+      if(evPos===null) evPos=evScroll.scrollLeft;
+      if(Math.abs(evScroll.scrollLeft-evPos)>2) evPos=evScroll.scrollLeft; // user or smooth-scroll moved it
+      if(!reduce && !evPaused && evLast!==null) evPos+=Math.min(t-evLast,50)*0.033;
+      if(evW){
+        if(evPos<evW*0.25) evPos+=evW; else if(evPos>=evW*1.25) evPos-=evW;
+      }
+      if(Math.abs(evScroll.scrollLeft-evPos)>=1) evScroll.scrollLeft=evPos;
+      evLast=t; requestAnimationFrame(evFrame);
+    })(performance.now());
+  }
 
   // in-page anchors: force-render .cv sections first, else Chrome cancels the
   // smooth scroll when their heights re-resolve mid-flight
