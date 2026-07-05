@@ -283,6 +283,11 @@ div.aob3-panel{cursor:default}
 .path-detail h3{font-family:var(--serif);font-size:1.5rem;color:#FBF7EF;margin-bottom:6px}
 .path-detail .pd-level{font-family:var(--serif);font-size:1rem;color:var(--gold);margin-bottom:18px}
 .path-detail p{font-size:.95rem;color:#C9BFA9;line-height:1.65}
+.pd-links{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-top:22px}
+.pd-btn{display:inline-flex;align-items:center;gap:10px;font-family:var(--sans);font-weight:500;font-size:.85rem;letter-spacing:.04em;color:var(--ink);background:var(--grad-gold);padding:12px 26px;border-radius:999px;text-decoration:none;box-shadow:0 8px 22px rgba(214,166,82,.35);transition:filter .25s,transform .25s}
+.pd-btn:hover{filter:brightness(1.06);transform:translateY(-2px)}
+.pd-btn.ghost{background:none;color:#FBF7EF;border:1px solid rgba(251,247,239,.5);box-shadow:none}
+.pd-btn.ghost:hover{border-color:var(--gold);background:rgba(225,182,104,.12);filter:none}
 .path-nav{display:flex;justify-content:center;gap:16px;margin-top:24px}
 .path-nav button{background:none;border:1px solid rgba(225,182,104,.4);width:44px;height:44px;border-radius:50%;color:var(--gold);cursor:pointer;font-size:1rem;transition:background .25s,border-color .25s}
 .path-nav button:hover{background:rgba(225,182,104,.15);border-color:var(--gold)}
@@ -628,6 +633,7 @@ footer{background:var(--foot);border-top:1px solid rgba(225,182,104,.35);padding
         <div class="pd-level">Level 1 of 7</div>
         <h3>The Alchemy Regulation Method</h3>
         <p>Our nervous system regulation methodology. You graduate with a daily practice and a framework to regulate your own nervous system, and qualify to practice as a nervous system regulation coach.</p>
+        <div class="pd-links"><a class="pd-btn" href="https://go.alchemyofbreath.com/alchemy-regulation-method">Learn the method <span aria-hidden="true">&rarr;</span></a></div>
       </div>
       <div class="path-nav"><button aria-label="Previous level" id="pathPrev" type="button">&larr;</button><button aria-label="Next level" id="pathNext" type="button">&rarr;</button></div>
     </div>
@@ -842,9 +848,9 @@ footer{background:var(--foot);border-top:1px solid rgba(225,182,104,.35);padding
 
   // Alchemy pathway: seven interactive levels
   var LV=[
-    {lvl:'Level 1 of 7',phase:'Student to facilitator',title:'The Alchemy Regulation Method',text:'Our nervous system regulation methodology. You graduate with a daily practice and a framework to regulate your own nervous system, and qualify to practice as a nervous system regulation coach.'},
+    {lvl:'Level 1 of 7',phase:'Student to facilitator',title:'The Alchemy Regulation Method',text:'Our nervous system regulation methodology. You graduate with a daily practice and a framework to regulate your own nervous system, and qualify to practice as a nervous system regulation coach.',links:[{t:'Learn the method',h:'https://go.alchemyofbreath.com/alchemy-regulation-method'}]},
     {lvl:'Level 2 of 7',phase:'Student to facilitator',title:'The Inner Journey',text:'A deep, 14 week journey of inner work paired with group mentor sessions: the call, the inner child, shadow work, and beyond. Included in the Facilitator Training, or taken on its own.'},
-    {lvl:'Level 3 of 7',phase:'Student to facilitator',title:'The Facilitator Training',text:'The triple accredited heart of the pathway. Learn to guide others with safety, ethics, and integrity — through the 8-month online training, or the 4-month live residential at ASHA.'},
+    {lvl:'Level 3 of 7',phase:'Student to facilitator',title:'The Facilitator Training',text:'The triple accredited heart of the pathway. Learn to guide others with safety, ethics, and integrity — through the 8-month online training, or the 4-month live residential at ASHA.',links:[{t:'8-month online',h:'/facilitator-training/'},{t:'4-month residential',h:'/live-residential-breathwork-facilitator-training/',g:1}]},
     {lvl:'Level 4 of 7',phase:'Student to facilitator',title:'Graduation',text:'You lead real sessions, receive your certification, and step out into the world as a facilitator — with graduation held live at ASHA in Tuscany.'},
     {lvl:'Level 5 of 7',phase:'Facilitator to founder',title:'Breathwork Business in a Box',text:'Your bridge to full time facilitation, with the marketing and infrastructure already built in, so you can focus on the work itself.'},
     {lvl:'Level 6 of 7',phase:'Facilitator to founder',title:'Shadow Facilitator to Junior Trainer',text:'Assist at live events and step into the junior trainer role, the bridge from one to one sessions to confidently holding a room full of breathers.'},
@@ -860,7 +866,11 @@ footer{background:var(--foot);border-top:1px solid rgba(225,182,104,.35);padding
       n.setAttribute('aria-selected',idx===pCur?'true':'false');
     });
     if(pBody){
-      pBody.innerHTML='<div class="pd-eb">'+d.phase+'</div><div class="pd-level">'+d.lvl+'</div><h3>'+d.title+'</h3><p>'+d.text+'</p>';
+      var lk='';
+      if(d.links){
+        lk='<div class="pd-links">'+d.links.map(function(l){ return '<a class="pd-btn'+(l.g?' ghost':'')+'" href="'+l.h+'">'+l.t+' <span aria-hidden="true">&rarr;</span></a>'; }).join('')+'</div>';
+      }
+      pBody.innerHTML='<div class="pd-eb">'+d.phase+'</div><div class="pd-level">'+d.lvl+'</div><h3>'+d.title+'</h3><p>'+d.text+'</p>'+lk;
     }
   }
   if(pNodes.length){
