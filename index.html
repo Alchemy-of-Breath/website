@@ -107,44 +107,40 @@ section>.wrap{position:relative;z-index:1}
 .mid-cta{text-align:center;margin-top:62px;position:relative;z-index:1}
 .mid-cta .cta-note{max-width:30em;margin-left:auto;margin-right:auto}
 
-/* hero */
+/* hero — centered, rings breathing behind the headline */
 .hero{padding:170px 0 96px;overflow:hidden;background:radial-gradient(120% 90% at 50% 0%,var(--cream) 0%,var(--paper) 62%)}
 .hero::before{content:"";position:absolute;top:-220px;left:-180px;width:640px;height:640px;border-radius:50%;background:radial-gradient(circle,rgba(225,182,104,.26) 0%,rgba(225,182,104,0) 68%);pointer-events:none}
 .hero::after{content:"";position:absolute;bottom:-260px;right:-200px;width:720px;height:720px;border-radius:50%;background:radial-gradient(circle,rgba(0,165,178,.13) 0%,rgba(0,165,178,0) 68%);pointer-events:none}
-.hero-grid{display:grid;grid-template-columns:1.08fr .92fr;gap:64px;align-items:center;position:relative;z-index:1}
-@media(max-width:960px){.hero-grid{grid-template-columns:1fr;gap:56px}}
-.hero-sub{font-size:1.16rem;line-height:1.7;max-width:33em;margin:26px 0 8px}
-.hero-byline{font-family:var(--sans);font-size:.76rem;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--slate);margin-top:18px}
-.hero-actions{display:flex;align-items:center;flex-wrap:wrap;gap:18px;margin-top:34px}
-.hero-proof{display:flex;align-items:center;gap:18px;margin-top:40px;flex-wrap:wrap}
-.hero-proof img.avatars{height:46px;width:auto;border-radius:999px}
-.hero-proof p{font-size:.88rem;line-height:1.5;color:var(--slate);max-width:22em}
-.hero-proof p strong{color:var(--ink);font-weight:500}
-
-/* breathing rings */
-.breath-stage{position:relative;display:flex;align-items:center;justify-content:center;min-height:480px}
+.hero-stage{position:relative;max-width:880px;margin:0 auto;text-align:center;z-index:1}
+.hero-rings{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:.48;pointer-events:none}
 .ring{position:absolute;border-radius:50%;border:1px solid rgba(225,182,104,.55)}
-.ring.r1{width:200px;height:200px;background:radial-gradient(circle,#FDF6E9 0%,rgba(253,246,233,.55) 70%,rgba(253,246,233,0) 100%);border:none;animation:breathe 12s ease-in-out infinite}
-.ring.r2{width:290px;height:290px;animation:breathe 12s ease-in-out infinite;animation-delay:.18s;opacity:.85}
-.ring.r3{width:380px;height:380px;animation:breathe 12s ease-in-out infinite;animation-delay:.36s;opacity:.6}
-.ring.r4{width:470px;height:470px;animation:breathe 12s ease-in-out infinite;animation-delay:.54s;opacity:.38}
-.ring.r5{width:560px;height:560px;animation:breathe 12s ease-in-out infinite;animation-delay:.72s;opacity:.3;border-color:rgba(0,165,178,.4)}
+.ring.r1{width:230px;height:230px;background:radial-gradient(circle,#FDF6E9 0%,rgba(253,246,233,.55) 70%,rgba(253,246,233,0) 100%);border:none;animation:breathe 12s ease-in-out infinite}
+.ring.r2{width:350px;height:350px;animation:breathe 12s ease-in-out infinite;animation-delay:.18s;opacity:.85}
+.ring.r3{width:470px;height:470px;animation:breathe 12s ease-in-out infinite;animation-delay:.36s;opacity:.6}
+.ring.r4{width:590px;height:590px;animation:breathe 12s ease-in-out infinite;animation-delay:.54s;opacity:.38}
+.ring.r5{width:710px;height:710px;animation:breathe 12s ease-in-out infinite;animation-delay:.72s;opacity:.3;border-color:rgba(0,165,178,.4)}
 @keyframes breathe{0%{transform:scale(.86)}33.33%{transform:scale(1.06)}66.66%{transform:scale(1.06)}100%{transform:scale(.86)}}
-.breath-core{position:relative;z-index:2;text-align:center}
-.breath-core .word-stack{position:relative;height:2.2rem}
-.breath-core .word{position:absolute;left:50%;transform:translateX(-50%);white-space:nowrap;font-family:var(--serif);font-size:1.5rem;color:var(--ink);letter-spacing:.04em;transition:opacity .9s ease;opacity:0}
-.breath-core .w-a{opacity:1}
-.breath-core .tiny{font-size:.7rem;letter-spacing:.3em;text-transform:uppercase;color:var(--slate);font-weight:500;margin-top:8px}
-.chip{position:absolute;background:var(--paper-3);border:1px solid rgba(225,182,104,.3);border-radius:14px;padding:13px 18px;box-shadow:var(--shadow-soft);font-size:.8rem;line-height:1.45;color:var(--ink);z-index:3}
+.hero-core{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center}
+.breath-line{position:relative;width:100%;height:1.5rem;margin-bottom:20px;font-family:var(--serif);font-size:1.05rem;color:var(--gold-deep);letter-spacing:.1em}
+.breath-line .word{position:absolute;left:50%;transform:translateX(-50%);white-space:nowrap;transition:opacity .9s ease;opacity:0}
+.breath-line .w-a{opacity:1}
+.hero .eyebrow::after{content:"";width:34px;height:1px;background:var(--gold)}
+.hero h1{text-wrap:balance;max-width:12.5em}
+.hero-sub{font-size:1.16rem;line-height:1.7;max-width:36em;margin:26px auto 8px}
+.hero-byline{font-family:var(--sans);font-size:.76rem;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--slate);margin-top:18px}
+.hero-actions{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:18px;margin-top:34px}
+.hero-proof{display:flex;align-items:center;justify-content:center;gap:18px;margin-top:44px;flex-wrap:wrap}
+.hero-proof img.avatars{height:46px;width:auto;border-radius:999px}
+.hero-proof p{font-size:.88rem;line-height:1.5;color:var(--slate);max-width:22em;text-align:left}
+.hero-proof p strong{color:var(--ink);font-weight:500}
+.chip{position:absolute;background:var(--paper-3);border:1px solid rgba(225,182,104,.3);border-radius:14px;padding:13px 18px;box-shadow:var(--shadow-soft);font-size:.8rem;line-height:1.45;color:var(--ink);z-index:3;text-align:left}
 .chip strong{display:block;font-family:var(--serif);font-size:1.02rem;color:var(--ink);font-weight:400}
-.chip.c1{top:5%;left:0;transform:rotate(-2.2deg);animation:float 7s ease-in-out infinite}
-.chip.c2{top:30%;right:-3%;transform:rotate(1.6deg);animation:float 8s 1.2s ease-in-out infinite}
-.chip.c3{bottom:9%;left:-3%;transform:rotate(-1deg);animation:float 9s .5s ease-in-out infinite}
-.chip.c4{bottom:-1%;right:6%;transform:rotate(1.4deg);background:var(--grad-gold);animation:float 7.6s .8s ease-in-out infinite}
-.chip.c4 strong{display:inline}
+.hero .chip.hc1{top:38%;left:-200px;transform:rotate(-2.2deg);animation:float 7s ease-in-out infinite}
+.hero .chip.hc2{top:52%;right:-200px;transform:rotate(1.6deg);animation:float 8s 1.2s ease-in-out infinite}
 @keyframes float{0%,100%{translate:0 0}50%{translate:0 -9px}}
-@media(max-width:960px){.breath-stage{min-height:430px}.ring.r5{display:none}.chip.c1{left:2%}}
-@media(max-width:560px){.hero{padding-top:140px}.ring.r4{display:none}.chip{font-size:.72rem;padding:10px 13px}.chip.c2{right:0}.breath-stage{min-height:380px}.btn{padding:16px 26px;font-size:.88rem;width:100%;justify-content:center}.hero-actions{flex-direction:column;align-items:stretch}}
+@media(max-width:1360px){.hero .chip{display:none}}
+@media(max-width:960px){.ring.r5{display:none}}
+@media(max-width:560px){.hero{padding-top:140px}.ring.r4{display:none}.btn{padding:16px 26px;font-size:.88rem;width:100%;justify-content:center}.hero-actions{flex-direction:column;align-items:stretch;width:100%}}
 
 /* logo strip */
 .logos{padding:72px 0;border-top:1px solid rgba(225,182,104,.3);border-bottom:1px solid rgba(225,182,104,.3);background:var(--paper-2);position:relative;overflow:hidden}
@@ -417,8 +413,14 @@ footer{background:var(--foot);border-top:1px solid rgba(225,182,104,.35);padding
 <!-- HERO -->
 <section class="hero">
   <div class="wrap">
-    <div class="hero-grid">
-      <div>
+    <div class="hero-stage">
+      <div class="hero-rings" aria-hidden="true">
+        <div class="ring r5"></div><div class="ring r4"></div><div class="ring r3"></div><div class="ring r2"></div><div class="ring r1"></div>
+      </div>
+      <div class="chip hc1 reveal d3"><strong>50+ years</strong>Anthony's lifetime with the breath</div>
+      <div class="chip hc2 reveal d3"><strong>Triple accredited</strong>FHT, GPBA, AADP</div>
+      <div class="hero-core">
+        <div class="breath-line" aria-hidden="true"><span class="word w-a" id="breathA">Breathe in</span><span class="word w-b" id="breathB"></span></div>
         <span class="eyebrow reveal">The world's first online breathwork school</span>
         <h1 class="reveal d1">Breathwork that brings you <em>home to yourself</em>.</h1>
         <p class="hero-sub reveal d2">Alchemy of Breath is a school of Conscious Connected Breathwork, blending modern neuroscience with traditional healing methods. A natural way to meet stress and anxiety, and to find the clarity, connection, and peace that already live inside you — from wherever you are in the world.</p>
@@ -432,17 +434,6 @@ footer{background:var(--foot);border-top:1px solid rgba(225,182,104,.35);padding
           <img class="avatars" src="https://alchemyofbreath.com/wp-content/uploads/people-updated.png" alt="Alchemy of Breath community" width="686" height="78" decoding="async">
           <p><strong>2,000+ certified facilitators</strong> trained over 12 years — and a community breathing with us on every continent.</p>
         </div>
-      </div>
-      <div class="breath-stage reveal d2">
-        <div class="ring r5"></div><div class="ring r4"></div><div class="ring r3"></div><div class="ring r2"></div><div class="ring r1"></div>
-        <div class="breath-core">
-          <div class="word-stack"><span class="word w-a" id="breathA">Breathe in</span><span class="word w-b" id="breathB"></span></div>
-          <div class="tiny">Breathe with us</div>
-        </div>
-        <div class="chip c1"><strong>50+ years</strong>Anthony's lifetime with the breath</div>
-        <div class="chip c2"><strong>Triple accredited</strong>FHT, GPBA, AADP</div>
-        <div class="chip c3"><strong>2,000+ facilitators</strong>Certified worldwide</div>
-        <div class="chip c4"><strong>Free Sunday sessions</strong></div>
       </div>
     </div>
   </div>
