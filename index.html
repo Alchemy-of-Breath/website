@@ -189,8 +189,8 @@ section>.wrap{position:relative;z-index:1}
 .aob3-cta:hover{filter:brightness(1.06);box-shadow:0 16px 38px rgba(214,166,82,.55)}
 .aob3-cta .ar{transition:transform .4s}
 .aob3-cta:hover .ar{transform:translateX(6px)}
-.aob3-ctawrap{max-height:0;overflow:hidden;margin-top:0;transition:max-height .55s cubic-bezier(.22,1,.36,1),margin-top .55s cubic-bezier(.22,1,.36,1)}
-.aob3-panel:hover .aob3-ctawrap{max-height:90px;margin-top:22px}
+.aob3-ctawrap{max-height:0;overflow:hidden;margin:0 0 0 -32px;padding:0 44px 0 32px;transition:max-height .55s cubic-bezier(.22,1,.36,1),padding .55s cubic-bezier(.22,1,.36,1)}
+.aob3-panel:hover .aob3-ctawrap{max-height:170px;padding:22px 44px 58px 32px}
 .aob3-panel:hover .aob3-cta{opacity:1;transform:translateY(0)}
 @media(max-width:820px){
 .aob3-stage{flex-direction:column;height:auto}
@@ -200,7 +200,7 @@ section>.wrap{position:relative;z-index:1}
 .aob3-full{padding:26px 26px 32px;max-width:none}
 .aob3-root .aob3-title{font-size:clamp(36px,9vw,52px)!important}
 .aob3-sub{margin-bottom:24px;font-size:19px;max-width:none}
-.aob3-ctawrap{max-height:none!important;margin-top:20px!important}
+.aob3-ctawrap{max-height:none!important;padding:20px 44px 58px 32px!important}
 .aob3-cta{padding:15px 28px;font-size:.9rem;opacity:1!important;transform:none!important}
 }
 @media(prefers-reduced-motion:reduce){.aob3-panel,.aob3-media,.aob3-media-inner,.aob3-full{animation:none!important;transition:opacity .3s ease!important}}
@@ -210,7 +210,7 @@ section>.wrap{position:relative;z-index:1}
 .ev-head{max-width:1016px;margin:0 auto 20px;padding:0 28px;display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap}
 .ev-head h3{font-size:1.45rem}
 .ev-head .ev-sub{font-size:.82rem;color:var(--slate);margin-top:4px}
-.ev-marquee{display:flex;gap:18px;overflow:hidden;padding:10px 0 20px}
+.ev-marquee{display:flex;gap:18px;overflow:hidden;padding:30px 0 88px;margin:-18px 0 -62px}
 .ev-track{display:flex;gap:18px;flex:none;list-style:none;margin:0;animation:ev-scroll 90s linear infinite}
 .ev-marquee:hover .ev-track,.ev-marquee:focus-within .ev-track{animation-play-state:paused}
 @keyframes ev-scroll{from{transform:translateX(0)}to{transform:translateX(calc(-100% - 18px))}}
