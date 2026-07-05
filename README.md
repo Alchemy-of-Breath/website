@@ -10,6 +10,7 @@ Each page lives in its own folder as an `index.html`, so URLs stay clean (`/faci
 |------|------|
 | `/` | Development index (placeholder, `noindex`) |
 | `/facilitator-training/` | 8-month Facilitator Training landing page |
+| `/live-residential-breathwork-facilitator-training/` | 4-month Live Residential Facilitator Training (ASHA, Tuscany) landing page |
 
 ## Working on the site
 
