@@ -213,7 +213,9 @@ div.aob3-panel{cursor:default}
 .ev-nav{display:flex;gap:10px}
 .ev-nav button{width:44px;height:44px;border-radius:50%;border:1px solid rgba(214,166,82,.55);background:#fff;color:var(--gold-deep);font-size:1rem;cursor:pointer;transition:background .25s,border-color .25s}
 .ev-nav button:hover{background:var(--gold-wash);border-color:var(--gold-deep)}
-.ev-marquee{display:flex;gap:18px;overflow-x:auto;overflow-y:hidden;padding:30px 0 88px;margin:-18px 0 -62px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.ev-marquee{display:flex;gap:18px;overflow-x:auto;overflow-y:hidden;padding:30px 0 88px;margin:-18px 0 -62px;scrollbar-width:none;-webkit-overflow-scrolling:touch;cursor:grab}
+.ev-marquee.dragging{cursor:grabbing;user-select:none;-webkit-user-select:none}
+.ev-img{-webkit-user-drag:none}
 .ev-marquee::-webkit-scrollbar{display:none}
 .ev-track{display:flex;gap:18px;flex:none;list-style:none;margin:0}
 .ev-card{flex:0 0 300px;background:#fff;border:1px solid rgba(225,182,104,.28);border-radius:18px;overflow:hidden;box-shadow:var(--shadow-soft);display:flex;flex-direction:column;transition:transform .35s,box-shadow .35s,border-color .35s}
@@ -887,12 +889,33 @@ footer{background:var(--foot);border-top:1px solid rgba(225,182,104,.35);padding
     var evStep=function(dir){ evHold(1800); evScroll.scrollBy({left:dir*954,behavior:reduce?'auto':'smooth'}); };
     if(evPrevB) evPrevB.addEventListener('click',function(){ evStep(-1); });
     if(evNextB) evNextB.addEventListener('click',function(){ evStep(1); });
+    // click-drag to scroll (mouse; touch already scrolls natively)
+    var evDrag=false, evDragX=0, evDragStart=0, evMoved=0;
+    evScroll.addEventListener('pointerdown',function(e){
+      if(e.pointerType!=='mouse'||e.button!==0) return;
+      evDrag=true; evMoved=0; evDragX=e.clientX; evDragStart=evScroll.scrollLeft;
+      evPaused=true; if(evResume) clearTimeout(evResume);
+      evScroll.classList.add('dragging');
+      try{ evScroll.setPointerCapture(e.pointerId); }catch(err){}
+      e.preventDefault();
+    });
+    evScroll.addEventListener('pointermove',function(e){
+      if(!evDrag) return;
+      var dx=e.clientX-evDragX;
+      if(Math.abs(dx)>evMoved) evMoved=Math.abs(dx);
+      evScroll.scrollLeft=evDragStart-dx;
+    });
+    var evEndDrag=function(){ if(!evDrag) return; evDrag=false; evScroll.classList.remove('dragging'); evHold(1200); };
+    evScroll.addEventListener('pointerup',evEndDrag);
+    evScroll.addEventListener('pointercancel',evEndDrag);
+    evScroll.addEventListener('click',function(e){ if(evMoved>6){ e.preventDefault(); e.stopPropagation(); } evMoved=0; },true);
     (function evFrame(t){
       if(evPos===null) evPos=evScroll.scrollLeft;
       if(Math.abs(evScroll.scrollLeft-evPos)>2) evPos=evScroll.scrollLeft; // user or smooth-scroll moved it
       if(!reduce && !evPaused && evLast!==null) evPos+=Math.min(t-evLast,50)*0.033;
       if(evW){
-        if(evPos<evW*0.25) evPos+=evW; else if(evPos>=evW*1.25) evPos-=evW;
+        if(evPos<evW*0.25){ evPos+=evW; if(evDrag) evDragStart+=evW; }
+        else if(evPos>=evW*1.25){ evPos-=evW; if(evDrag) evDragStart-=evW; }
       }
       if(Math.abs(evScroll.scrollLeft-evPos)>=1) evScroll.scrollLeft=evPos;
       evLast=t; requestAnimationFrame(evFrame);
