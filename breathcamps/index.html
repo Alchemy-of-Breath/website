@@ -289,11 +289,22 @@ section>.wrap{position:relative;z-index:1}
 .dot-list b{font-weight:500}
 
 /* trainers */
-.trainers-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:34px 26px;margin-top:56px}
-@media(max-width:960px){.trainers-grid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:520px){.trainers-grid{grid-template-columns:1fr}}
-.trainer{text-align:center;transition:transform .35s}
-.trainer:hover{transform:translateY(-6px)}
+.tr-bleed{position:relative;width:100vw;max-width:100vw;margin:56px 0 0 calc(50% - 50vw)}
+.tr-marquee{display:flex;gap:18px;overflow-x:auto;overflow-y:hidden;padding:26px 0 66px;margin:-14px 0 -44px;scrollbar-width:none;-webkit-overflow-scrolling:touch;cursor:grab}
+.tr-marquee::-webkit-scrollbar{display:none}
+.tr-marquee.dragging{cursor:grabbing;user-select:none;-webkit-user-select:none}
+.tr-track{display:flex;gap:18px;flex:none;list-style:none;margin:0}
+.tr-track li{flex:0 0 272px;display:flex}
+.tr-track li:nth-child(odd) .trainer{transform:rotate(-.5deg)}
+.tr-track li:nth-child(even) .trainer{transform:rotate(.4deg)}
+.tr-bleed::before,.tr-bleed::after{content:"";position:absolute;top:0;bottom:0;width:64px;z-index:2;pointer-events:none}
+.tr-bleed::before{left:0;background:linear-gradient(90deg,var(--paper),rgba(255,255,255,0))}
+.tr-bleed::after{right:0;background:linear-gradient(90deg,rgba(255,255,255,0),var(--paper))}
+.tr-hint{text-align:center;font-size:.78rem;color:var(--slate);margin-top:26px}
+@media(max-width:560px){.tr-bleed::before,.tr-bleed::after{display:none}.tr-track li{flex-basis:246px}}
+.trainer{background:#fff;border:1px solid rgba(225,182,104,.28);border-radius:18px;padding:30px 24px 28px;text-align:center;box-shadow:var(--shadow-soft);width:100%;transition:transform .35s,box-shadow .35s}
+.tr-track .trainer:hover{transform:translateY(-5px) rotate(0);box-shadow:var(--shadow-lift)}
+.trainer img{pointer-events:none;-webkit-user-drag:none}
 .trainer .ph{width:150px;height:150px;border-radius:50%;overflow:hidden;margin:0 auto 18px;box-shadow:var(--shadow-soft);outline:1px solid rgba(225,182,104,.4);outline-offset:7px;transition:outline-offset .35s}
 .trainer:hover .ph{outline-offset:12px}
 .trainer .ph img{width:100%;height:100%;object-fit:cover}
@@ -674,14 +685,28 @@ section>.wrap{position:relative;z-index:1}
       <span class="eyebrow reveal" style="justify-content:center">Guided by masters</span>
       <h2 class="reveal d1">The people who will <em>hold the week</em>.</h2>
     </div>
-    <div class="trainers-grid">
-      <div class="trainer reveal"><div class="ph"><img src="https://alchemyofbreath.com/wp-content/uploads/anthony-abbagnano-2-1.jpg" alt="Anthony Abbagnano" width="500" height="500" loading="lazy" decoding="async"></div><h3>Anthony Abbagnano</h3><span class="role">Founder</span><p>Visionary thought leader, breath expert, and founder of Alchemy of Breath and ASHA, Alchemy School of Healing Arts.</p></div>
-      <div class="trainer reveal d1"><div class="ph"><img src="https://alchemyofbreath.com/wp-content/uploads/amy-rachelle-1.jpg" alt="Amy Rachelle" width="500" height="500" loading="lazy" decoding="async"></div><h3>Amy Rachelle, ND</h3><span class="role">Co-founder</span><p>Naturopath and medical medium blending breathwork, intuition, detox, food as medicine, and voice into a joyful approach.</p></div>
-      <div class="trainer reveal d2"><div class="ph"><img src="https://alchemyofbreath.com/wp-content/uploads/emily-ray-henderson-2.jpg" alt="Emily Ray Henderson" width="502" height="502" loading="lazy" decoding="async"></div><h3>Emily Ray Henderson</h3><span class="role">Master Trainer</span><p>Certified Wellness Counselor, Reiki Master, massage therapist, and 500 HR-RYT yoga instructor. Senior trainer for 8 years.</p></div>
-      <div class="trainer reveal d3"><div class="ph"><img src="https://alchemyofbreath.com/wp-content/uploads/pablo-castro.jpg" alt="Pablo Castro" width="501" height="501" loading="lazy" decoding="async"></div><h3>Pablo Castro</h3><span class="role">Master Trainer</span><p>Senior trainer for 8 years specializing in water work — the felt sense and water therapy are at the core of what he shares.</p></div>
-      <div class="trainer reveal"><div class="ph"><img src="https://alchemyofbreath.com/wp-content/uploads/simona-dvorackova-400x400-1.jpg" alt="Simona Dvorackova" width="400" height="400" loading="lazy" decoding="async"></div><h3>Simona Dvorackova</h3><span class="role">Trainer</span><p>In health and well-being since 2001, with deep experience across bodywork, energy healing, and hypnotherapy.</p></div>
-      <div class="trainer reveal d1"><div class="ph"><img src="https://alchemyofbreath.com/wp-content/uploads/btwfest-speaker-giulia-vaccari-768x768.jpg" alt="Giulia Vaccari" width="768" height="768" loading="lazy" decoding="async"></div><h3>Giulia Vaccari</h3><span class="role">Trainer</span><p>Passionate about helping people feel alive and safe in their body, using craniosacral therapy, reiki, movement, and breath.</p></div>
-      <div class="trainer reveal d2"><div class="ph"><img src="https://alchemyofbreath.com/wp-content/uploads/1000050015-1.jpg" alt="Nick Garrow-Fisher" width="506" height="672" loading="lazy" decoding="async"></div><h3>Nick Garrow-Fisher</h3><span class="role">Trainer</span><p>Expert in helping people find their greatness, drawing on authentic relating, movement, IFS, boundaries, and consent work.</p></div>
+    <div class="tr-bleed reveal">
+      <div class="tr-marquee" id="trScroll">
+        <ul class="tr-track">
+        <li><div class="trainer"><div class="ph"><img src="https://alchemyofbreath.com/wp-content/uploads/anthony-abbagnano-2-1.jpg" alt="Anthony Abbagnano" width="500" height="500" loading="lazy" decoding="async"></div><h3>Anthony Abbagnano</h3><span class="role">Founder</span><p>Visionary thought leader, breath expert, and founder of Alchemy of Breath and ASHA, Alchemy School of Healing Arts.</p></div></li>
+        <li><div class="trainer"><div class="ph"><img src="https://alchemyofbreath.com/wp-content/uploads/amy-rachelle-1.jpg" alt="Amy Rachelle" width="500" height="500" loading="lazy" decoding="async"></div><h3>Amy Rachelle, ND</h3><span class="role">Co-founder</span><p>Naturopath and medical medium blending breathwork, intuition, detox, food as medicine, and voice into a joyful approach.</p></div></li>
+        <li><div class="trainer"><div class="ph"><img src="https://alchemyofbreath.com/wp-content/uploads/emily-ray-henderson-2.jpg" alt="Emily Ray Henderson" width="502" height="502" loading="lazy" decoding="async"></div><h3>Emily Ray Henderson</h3><span class="role">Master Trainer</span><p>Certified Wellness Counselor, Reiki Master, massage therapist, and 500 HR-RYT yoga instructor. Senior trainer for 8 years.</p></div></li>
+        <li><div class="trainer"><div class="ph"><img src="https://alchemyofbreath.com/wp-content/uploads/pablo-castro.jpg" alt="Pablo Castro" width="501" height="501" loading="lazy" decoding="async"></div><h3>Pablo Castro</h3><span class="role">Master Trainer</span><p>Senior trainer for 8 years specializing in water work — the felt sense and water therapy are at the core of what he shares.</p></div></li>
+        <li><div class="trainer"><div class="ph"><img src="https://alchemyofbreath.com/wp-content/uploads/simona-dvorackova-400x400-1.jpg" alt="Simona Dvorackova" width="400" height="400" loading="lazy" decoding="async"></div><h3>Simona Dvorackova</h3><span class="role">Trainer</span><p>In health and well-being since 2001, with deep experience across bodywork, energy healing, and hypnotherapy.</p></div></li>
+        <li><div class="trainer"><div class="ph"><img src="https://alchemyofbreath.com/wp-content/uploads/btwfest-speaker-giulia-vaccari-768x768.jpg" alt="Giulia Vaccari" width="768" height="768" loading="lazy" decoding="async"></div><h3>Giulia Vaccari</h3><span class="role">Trainer</span><p>Passionate about helping people feel alive and safe in their body, using craniosacral therapy, reiki, movement, and breath.</p></div></li>
+        <li><div class="trainer"><div class="ph"><img src="https://alchemyofbreath.com/wp-content/uploads/1000050015-1.jpg" alt="Nick Garrow-Fisher" width="506" height="672" loading="lazy" decoding="async"></div><h3>Nick Garrow-Fisher</h3><span class="role">Trainer</span><p>Expert in helping people find their greatness, drawing on authentic relating, movement, IFS, boundaries, and consent work.</p></div></li>
+        </ul>
+        <ul class="tr-track" aria-hidden="true">
+        <li><div class="trainer"><div class="ph"><img src="https://alchemyofbreath.com/wp-content/uploads/anthony-abbagnano-2-1.jpg" alt="Anthony Abbagnano" width="500" height="500" loading="lazy" decoding="async"></div><h3>Anthony Abbagnano</h3><span class="role">Founder</span><p>Visionary thought leader, breath expert, and founder of Alchemy of Breath and ASHA, Alchemy School of Healing Arts.</p></div></li>
+        <li><div class="trainer"><div class="ph"><img src="https://alchemyofbreath.com/wp-content/uploads/amy-rachelle-1.jpg" alt="Amy Rachelle" width="500" height="500" loading="lazy" decoding="async"></div><h3>Amy Rachelle, ND</h3><span class="role">Co-founder</span><p>Naturopath and medical medium blending breathwork, intuition, detox, food as medicine, and voice into a joyful approach.</p></div></li>
+        <li><div class="trainer"><div class="ph"><img src="https://alchemyofbreath.com/wp-content/uploads/emily-ray-henderson-2.jpg" alt="Emily Ray Henderson" width="502" height="502" loading="lazy" decoding="async"></div><h3>Emily Ray Henderson</h3><span class="role">Master Trainer</span><p>Certified Wellness Counselor, Reiki Master, massage therapist, and 500 HR-RYT yoga instructor. Senior trainer for 8 years.</p></div></li>
+        <li><div class="trainer"><div class="ph"><img src="https://alchemyofbreath.com/wp-content/uploads/pablo-castro.jpg" alt="Pablo Castro" width="501" height="501" loading="lazy" decoding="async"></div><h3>Pablo Castro</h3><span class="role">Master Trainer</span><p>Senior trainer for 8 years specializing in water work — the felt sense and water therapy are at the core of what he shares.</p></div></li>
+        <li><div class="trainer"><div class="ph"><img src="https://alchemyofbreath.com/wp-content/uploads/simona-dvorackova-400x400-1.jpg" alt="Simona Dvorackova" width="400" height="400" loading="lazy" decoding="async"></div><h3>Simona Dvorackova</h3><span class="role">Trainer</span><p>In health and well-being since 2001, with deep experience across bodywork, energy healing, and hypnotherapy.</p></div></li>
+        <li><div class="trainer"><div class="ph"><img src="https://alchemyofbreath.com/wp-content/uploads/btwfest-speaker-giulia-vaccari-768x768.jpg" alt="Giulia Vaccari" width="768" height="768" loading="lazy" decoding="async"></div><h3>Giulia Vaccari</h3><span class="role">Trainer</span><p>Passionate about helping people feel alive and safe in their body, using craniosacral therapy, reiki, movement, and breath.</p></div></li>
+        <li><div class="trainer"><div class="ph"><img src="https://alchemyofbreath.com/wp-content/uploads/1000050015-1.jpg" alt="Nick Garrow-Fisher" width="506" height="672" loading="lazy" decoding="async"></div><h3>Nick Garrow-Fisher</h3><span class="role">Trainer</span><p>Expert in helping people find their greatness, drawing on authentic relating, movement, IFS, boundaries, and consent work.</p></div></li>
+        </ul>
+      </div>
+      <p class="tr-hint">Drifting gently &mdash; scroll, drag, or hover to pause</p>
     </div>
   </div>
 </section>
@@ -954,6 +979,49 @@ section>.wrap{position:relative;z-index:1}
       r.addEventListener('click',go);
       r.addEventListener('focusin',go);
     });
+  }
+
+  // trainers strip: slow drift + manual scroll + drag, seamless loop
+  var trScroll=document.getElementById('trScroll');
+  if(trScroll){
+    var trTrack0=trScroll.querySelector('.tr-track');
+    var trW=0, trPos=null, trPaused=false, trResume=null, trLast=null;
+    var trMeasure=function(){ trW=trTrack0.getBoundingClientRect().width+18; };
+    var trHold=function(ms){ trPaused=true; if(trResume) clearTimeout(trResume); trResume=setTimeout(function(){ trPaused=false; },ms); };
+    trMeasure(); window.addEventListener('resize',trMeasure);
+    trScroll.scrollLeft=trW; trPos=trW;
+    trScroll.addEventListener('pointerenter',function(){ trPaused=true; if(trResume) clearTimeout(trResume); });
+    trScroll.addEventListener('pointerleave',function(){ trHold(900); });
+    trScroll.addEventListener('touchstart',function(){ trHold(3000); },{passive:true});
+    trScroll.addEventListener('focusin',function(){ trPaused=true; if(trResume) clearTimeout(trResume); });
+    trScroll.addEventListener('focusout',function(){ trHold(900); });
+    var trDrag=false, trDragX=0, trDragStart=0;
+    trScroll.addEventListener('pointerdown',function(e){
+      if(e.pointerType!=='mouse'||e.button!==0) return;
+      trDrag=true; trDragX=e.clientX; trDragStart=trScroll.scrollLeft;
+      trPaused=true; if(trResume) clearTimeout(trResume);
+      trScroll.classList.add('dragging');
+      try{ trScroll.setPointerCapture(e.pointerId); }catch(err){}
+      e.preventDefault();
+    });
+    trScroll.addEventListener('pointermove',function(e){
+      if(!trDrag) return;
+      trScroll.scrollLeft=trDragStart-(e.clientX-trDragX);
+    });
+    var trEnd=function(){ if(!trDrag) return; trDrag=false; trScroll.classList.remove('dragging'); trHold(1200); };
+    trScroll.addEventListener('pointerup',trEnd);
+    trScroll.addEventListener('pointercancel',trEnd);
+    (function trFrame(t){
+      if(trPos===null) trPos=trScroll.scrollLeft;
+      if(Math.abs(trScroll.scrollLeft-trPos)>2) trPos=trScroll.scrollLeft;
+      if(!reduce && !trPaused && trLast!==null) trPos+=Math.min(t-trLast,50)*0.028;
+      if(trW){
+        if(trPos<trW*0.25){ trPos+=trW; if(trDrag) trDragStart+=trW; }
+        else if(trPos>=trW*1.25){ trPos-=trW; if(trDrag) trDragStart-=trW; }
+      }
+      if(Math.abs(trScroll.scrollLeft-trPos)>=1) trScroll.scrollLeft=trPos;
+      trLast=t; requestAnimationFrame(trFrame);
+    })(performance.now());
   }
 
   // in-page anchors: force-render .cv sections first, else Chrome cancels the
