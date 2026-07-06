@@ -137,6 +137,14 @@ section>.wrap{position:relative;z-index:1}
 .hero-video iframe{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);height:100%;width:auto;aspect-ratio:16/9;min-width:100%;min-height:100%;border:0;pointer-events:none}
 .hero-vig{position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(180deg,rgba(34,31,32,.04) 0%,rgba(34,31,32,0) 32%,rgba(34,31,32,.06) 64%,rgba(34,31,32,.24) 100%)}
 @media(prefers-reduced-motion:reduce){.hero-video{display:none}}
+.hero-sound{position:absolute;z-index:4;bottom:13%;right:13%;width:46px;height:46px;border-radius:50%;border:none;cursor:pointer;background:var(--grad-gold);box-shadow:0 8px 20px rgba(34,31,32,.3);display:flex;align-items:center;justify-content:center;transition:filter .25s,transform .25s}
+.hero-sound:hover{filter:brightness(1.06);transform:translateY(-2px)}
+.hero-sound svg{width:20px;height:20px;fill:none;stroke:var(--ink);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.hero-sound .on{display:none}
+.hero-sound.playing .off{display:none}
+.hero-sound.playing .on{display:block}
+@media(prefers-reduced-motion:reduce){.hero-sound{display:none}}
+@media(max-width:560px){.hero-sound{width:42px;height:42px;bottom:10%;right:6%}}
 .hero-ring{position:absolute;top:-24px;right:-16px;width:150px;height:150px;border-radius:50%;border:1px solid rgba(0,165,178,.4);z-index:-1}
 .hero-ring::after{content:"";position:absolute;inset:22px;border-radius:50%;border:1px solid rgba(225,182,104,.55)}
 .chip{position:absolute;background:var(--paper-3);border:1px solid rgba(225,182,104,.3);border-radius:14px;padding:13px 18px;box-shadow:var(--shadow-soft);font-size:.8rem;line-height:1.45;color:var(--ink);z-index:3}
@@ -421,6 +429,10 @@ section>.wrap{position:relative;z-index:1}
         <div class="chip c1"><strong>5 camps in 2026</strong>Aug 16 &ndash; Oct 31</div>
         <div class="chip c2"><strong>All levels welcome</strong>First breath to advanced</div>
         <div class="chip c3"><strong>All-inclusive stay</strong></div>
+        <button class="hero-sound" type="button" aria-pressed="false" aria-label="Unmute the video">
+          <svg class="off" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M17 9l4.5 4.5M21.5 9l-4.5 4.5"/></svg>
+          <svg class="on" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16 8.5a5 5 0 0 1 0 7M18.8 5.7a9 9 0 0 1 0 12.6"/></svg>
+        </button>
       </div>
     </div>
   </div>
@@ -855,6 +867,37 @@ section>.wrap{position:relative;z-index:1}
   });
 
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // hero video sound toggle — loads the Vimeo SDK only when a user asks for sound
+  var sBtn=document.querySelector('.hero-sound'), sFrame=document.querySelector('.hero-video iframe');
+  var vPlayer=null, sOn=false, sBusy=false;
+  function loadVimeo(cb){
+    if(window.Vimeo&&window.Vimeo.Player){ cb(); return; }
+    var sc=document.createElement('script'); sc.src='https://player.vimeo.com/api/player.js';
+    sc.onload=cb; sc.onerror=function(){ sBusy=false; };
+    document.head.appendChild(sc);
+  }
+  function applySound(){
+    if(!vPlayer) return;
+    vPlayer.setMuted(!sOn); vPlayer.setVolume(sOn?1:0);
+    if(sOn) vPlayer.play().catch(function(){});
+    sBtn.classList.toggle('playing',sOn);
+    sBtn.setAttribute('aria-pressed',sOn?'true':'false');
+    sBtn.setAttribute('aria-label',sOn?'Mute the video':'Unmute the video');
+  }
+  if(sBtn&&sFrame){
+    sBtn.addEventListener('click',function(){
+      sOn=!sOn;
+      if(vPlayer){ applySound(); return; }
+      if(sBusy) return; sBusy=true;
+      loadVimeo(function(){
+        sBusy=false;
+        if(!(window.Vimeo&&window.Vimeo.Player)){ sOn=false; return; }
+        vPlayer=new Vimeo.Player(sFrame);
+        applySound();
+      });
+    });
+  }
 
   // in-page anchors: force-render .cv sections first, else Chrome cancels the
   // smooth scroll when their heights re-resolve mid-flight
