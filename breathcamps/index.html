@@ -293,6 +293,37 @@ section>.wrap{position:relative;z-index:1}
 .room-b .prx{font-family:var(--serif);font-size:1rem;color:var(--gold-deep);margin:-4px 0 8px}
 .room-b .prx .was{font-size:.72rem}
 .rooms-note{text-align:center;font-size:.85rem;color:var(--slate);max-width:44em;margin:30px auto 0}
+.room{cursor:pointer}
+.room .rm-more{margin-top:12px;font-size:.72rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-deep)}
+.room:hover .rm-more{text-decoration:underline;text-underline-offset:3px}
+/* room lightbox */
+.rm-overlay{position:fixed;inset:0;z-index:80;background:rgba(25,22,23,.62);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:20px}
+.rm-overlay.open{display:flex}
+.rm-modal{background:var(--paper);border:1px solid rgba(225,182,104,.45);border-radius:20px;box-shadow:var(--shadow-lift);max-width:880px;width:100%;max-height:calc(100vh - 40px);overflow:auto;position:relative;overscroll-behavior:contain}
+.rm-close{position:absolute;top:14px;right:14px;z-index:6;width:42px;height:42px;border-radius:50%;border:none;background:rgba(25,22,23,.55);color:#FBF7EF;font-size:1.15rem;line-height:1;cursor:pointer;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);transition:background .25s}
+.rm-close:hover{background:rgba(25,22,23,.8)}
+.rm-stage{position:relative;background:var(--cream);overflow:hidden;border-radius:20px 20px 0 0}
+.rm-img{width:100%;aspect-ratio:16/10;object-fit:contain;display:block;background:var(--cream)}
+.rm-nav{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;border:1px solid rgba(214,166,82,.6);background:rgba(255,255,255,.88);color:var(--gold-deep);font-size:1rem;cursor:pointer;z-index:5;transition:background .25s}
+.rm-nav:hover{background:var(--gold-wash)}
+.rm-prev{left:14px}.rm-next{right:14px}
+.rm-count{position:absolute;left:14px;bottom:12px;z-index:5;font-size:.68rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#FBF7EF;background:rgba(25,22,23,.55);border-radius:999px;padding:7px 14px;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+.rm-plan{position:absolute;right:14px;bottom:12px;z-index:5;font-size:.66rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--ink);background:var(--grad-gold);border-radius:999px;padding:7px 14px;display:none}
+.rm-plan.on{display:block}
+.rm-thumbs{display:flex;gap:8px;padding:12px 16px;overflow-x:auto;background:var(--paper-2);border-top:1px solid rgba(225,182,104,.25);border-bottom:1px solid rgba(225,182,104,.25);scrollbar-width:none}
+.rm-thumbs::-webkit-scrollbar{display:none}
+.rm-thumbs img{width:66px;height:48px;object-fit:cover;border-radius:8px;cursor:pointer;opacity:.65;outline:2px solid transparent;outline-offset:1px;transition:opacity .25s,outline-color .25s;flex:none;background:#fff}
+.rm-thumbs img.on{opacity:1;outline-color:var(--gold-deep)}
+.rm-body{padding:26px 32px 30px}
+.rm-tag{display:inline-block;font-size:.62rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--teal);margin-bottom:8px}
+.rm-title{font-family:var(--serif);font-weight:400;font-size:1.6rem;color:var(--ink);margin-bottom:4px}
+.rm-price{font-family:var(--serif);font-size:1.5rem;color:var(--gold-deep);margin-bottom:12px}
+.rm-price .was{font-family:var(--sans);font-weight:300;font-size:.85rem;color:var(--slate);text-decoration:line-through;text-decoration-color:rgba(91,120,137,.5);margin-right:7px}
+.rm-price small{font-family:var(--sans);font-size:.68rem;color:var(--slate);letter-spacing:.06em}
+.rm-desc{font-size:.95rem;color:var(--ink);line-height:1.65}
+.rm-note{font-size:.8rem;color:var(--slate);margin-top:12px;line-height:1.55}
+.rm-actions{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-top:22px}
+@media(max-width:560px){.rm-body{padding:22px 20px 24px}.rm-nav{width:40px;height:40px}}
 
 /* includes band */
 .inc-band{background:linear-gradient(165deg,#2b2627 0%,var(--ink) 60%,#0d0b0c 100%);color:#FBF7EF;overflow:hidden;position:relative}
@@ -1034,6 +1065,31 @@ section>.wrap{position:relative;z-index:1}
 </section>
 
 
+<!-- ROOM LIGHTBOX -->
+<div class="rm-overlay" id="rmOverlay" role="dialog" aria-modal="true" aria-label="Room details">
+  <div class="rm-modal" id="rmModal">
+    <button type="button" class="rm-close" id="rmClose" aria-label="Close room details">&#10005;</button>
+    <div class="rm-stage">
+      <img class="rm-img" id="rmImg" alt="">
+      <button type="button" class="rm-nav rm-prev" id="rmPrev" aria-label="Previous photo">&larr;</button>
+      <button type="button" class="rm-nav rm-next" id="rmNext" aria-label="Next photo">&rarr;</button>
+      <span class="rm-count" id="rmCount"></span>
+      <span class="rm-plan" id="rmPlan">Floor plan</span>
+    </div>
+    <div class="rm-thumbs" id="rmThumbs"></div>
+    <div class="rm-body">
+      <span class="rm-tag" id="rmTag"></span>
+      <div class="rm-title" id="rmTitle"></div>
+      <div class="rm-price" id="rmPrice"></div>
+      <p class="rm-desc" id="rmDesc"></p>
+      <p class="rm-note" id="rmNote"></p>
+      <div class="rm-actions">
+        <a class="btn btn-primary" id="rmRegister" href="#dates">Register for 2026 <span class="arr">&rarr;</span></a>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- STICKY PILL -->
 <a class="pill" href="#dates" aria-label="Join BreathCamp 2026">
   <span class="pill-label">Join BreathCamp 2026</span>
@@ -1324,6 +1380,123 @@ section>.wrap{position:relative;z-index:1}
     agDots.forEach(function(d,i){ d.addEventListener('click',function(){ agPreload(); agGo(i,reduce); agStart(); }); });
     agStart();
   }
+
+  // accommodation lightbox: click a room card for photos, floor plans, price & text
+  (function(){
+    var RG='https://asha.secure.retreat.guru/wp-content/uploads/sites/4977/';
+    var AOB='https://alchemyofbreath.com/wp-content/uploads/';
+    var GALLERIES={
+      'Single Room Ensuite':[
+        {u:RG+'2024/02/single-bedroom-ensuite.jpeg'},{u:RG+'2024/10/Single-Ensuite-1024x683.jpg'},
+        {u:RG+'2024/10/DSCF3137-1024x683.jpg'},{u:RG+'2024/10/5A-1007x1024.png',plan:1}],
+      'Twin Room Ensuite':[
+        {u:RG+'2024/10/DSCF3034-1024x683.jpg'},{u:RG+'2024/10/DSCF3057-1024x683.jpg'},
+        {u:RG+'2024/10/DSCF3066-1024x683.jpg'},{u:RG+'2024/10/DSCF3074-1024x683.jpg'},
+        {u:RG+'2024/10/DSCF3079-1024x683.jpg'},
+        {u:RG+'2024/10/1B-1007x1024.png',plan:1},{u:RG+'2024/10/4B-1007x1024.png',plan:1},
+        {u:RG+'2024/10/4D-1007x1024.png',plan:1},{u:RG+'2024/10/5C-1007x1024.png',plan:1},
+        {u:RG+'2024/10/House-2C-1007x1024.png',plan:1}],
+      'Twin Room Non-Ensuite':[
+        {u:RG+'2024/10/DSCF3024-1024x683.jpg'},{u:RG+'2024/10/DSCF3029-1024x683.jpg'},
+        {u:RG+'2024/10/DSCF3043-1024x683.jpg'},{u:RG+'2024/10/DSCF3114-1024x683.jpg'},
+        {u:RG+'2024/10/1A-1007x1024.png',plan:1},{u:RG+'2024/10/1C-1007x1024.png',plan:1}],
+      'Triple Ensuite':[
+        {u:RG+'2024/10/DSCF3116-1024x683.jpg'},{u:RG+'2024/10/DSCF3133-1024x683.jpg'},
+        {u:RG+'2024/10/4A-1007x1024.png',plan:1},{u:RG+'2024/10/5B-1007x1024.png',plan:1}],
+      'ASHA Bell Tent':[
+        {u:RG+'2024/10/Copy-of-DSCF3083-683x1024.jpg'},{u:RG+'2024/10/Copy-of-DSCF3088-1024x683.jpg'},
+        {u:RG+'2024/10/Copy-of-DSCF3089-1024x683.jpg'},{u:RG+'2024/10/Glamping-single-1007x1024.png',plan:1},
+        {u:RG+'2024/10/Copy-of-DSCF3097-1024x683.jpg'},{u:RG+'2024/10/Copy-of-DSCF3098-1024x683.jpg'},
+        {u:RG+'2024/10/Copy-of-WhatsApp-Image-2024-07-14-at-16.49.43-685x1024.jpeg'},
+        {u:RG+'2024/10/Glamping-Double-1007x1024.png',plan:1}],
+      'Come in a Camper':[
+        {u:RG+'2024/10/accommodation-camper-1.jpg'},{u:RG+'2024/10/coffee-van-683x1024.jpg'},
+        {u:RG+'2024/10/empty-campervan-near-tall-tree-1024x683.jpg'}],
+      'Bring Your Own Tent':[
+        {u:RG+'2024/02/accommodation-tent-1.jpg'},{u:RG+'2024/10/DSCF2771-1024x683.jpg'},
+        {u:RG+'2024/10/full-shot-man-sitting-tent-681x1024.jpg'},
+        {u:RG+'2024/10/young-females-camping-forest_23-2148154976-1024x682.jpg'}],
+      'Private Cottage':[
+        {u:RG+'2024/02/private-cottage-1-1024x683.jpg'},
+        {u:AOB+'private-cottage-1-2-1.jpg'},{u:AOB+'private-cottage-2-1-1.jpg'}]
+    };
+    var WEATHER={'ASHA Bell Tent':1,'Come in a Camper':1,'Bring Your Own Tent':1};
+    var ov=document.getElementById('rmOverlay');
+    if(!ov) return;
+    var modal=document.getElementById('rmModal'), img=document.getElementById('rmImg'),
+        prev=document.getElementById('rmPrev'), next=document.getElementById('rmNext'),
+        count=document.getElementById('rmCount'), planChip=document.getElementById('rmPlan'),
+        thumbs=document.getElementById('rmThumbs'), closeB=document.getElementById('rmClose'),
+        tagEl=document.getElementById('rmTag'), titleEl=document.getElementById('rmTitle'),
+        priceEl=document.getElementById('rmPrice'), descEl=document.getElementById('rmDesc'),
+        noteEl=document.getElementById('rmNote'), regB=document.getElementById('rmRegister');
+    var cur=[], idx=0, opener=null, curTitle='';
+    function show(i){
+      idx=(i+cur.length)%cur.length;
+      var it=cur[idx];
+      img.style.display='';
+      img.src=it.u;
+      img.alt=curTitle+(it.plan?' — floor plan':' — photo '+(idx+1));
+      count.textContent=(idx+1)+' / '+cur.length;
+      planChip.classList.toggle('on',!!it.plan);
+      [].forEach.call(thumbs.children,function(t,j){ t.classList.toggle('on',j===idx); });
+      if(thumbs.children[idx]) thumbs.children[idx].scrollIntoView({block:'nearest',inline:'nearest'});
+      var n=cur[(idx+1)%cur.length]; if(n){ var pi=new Image(); pi.src=n.u; }
+    }
+    function openRoom(card){
+      var title=card.querySelector('h3').textContent.trim();
+      var g=GALLERIES[title]; if(!g) return;
+      curTitle=title; cur=g;
+      tagEl.textContent=(card.querySelector('.rt')||{}).textContent||'';
+      titleEl.textContent=title;
+      priceEl.innerHTML=(card.querySelector('.pr')||{}).innerHTML||'';
+      var px=card.querySelector('.prx'); if(px) priceEl.innerHTML+=' <span style="font-size:1rem">&middot; '+px.innerHTML+'</span>';
+      descEl.textContent=(card.querySelector('.room-b p')||{}).textContent||'';
+      noteEl.textContent=(WEATHER[title]?'May and September weather can be variable — used at your own risk, as we don\u2019t offer refunds. ':'')+'Payment plans available: 20% deposit, then monthly installments. Prices shown include 10% off with code SUMMER10, applied at checkout (ends 17 July).';
+      thumbs.innerHTML='';
+      g.forEach(function(it,i){
+        var t=document.createElement('img');
+        t.src=it.u; t.alt=''; t.loading='lazy'; t.decoding='async';
+        t.addEventListener('click',function(){ show(i); });
+        thumbs.appendChild(t);
+      });
+      opener=card;
+      ov.classList.add('open');
+      document.body.style.overflow='hidden';
+      show(0);
+      closeB.focus();
+    }
+    function closeRoom(){
+      ov.classList.remove('open');
+      document.body.style.overflow='';
+      img.removeAttribute('src');
+      if(opener){ opener.focus(); opener=null; }
+    }
+    prev.addEventListener('click',function(){ show(idx-1); });
+    next.addEventListener('click',function(){ show(idx+1); });
+    closeB.addEventListener('click',closeRoom);
+    ov.addEventListener('click',function(e){ if(e.target===ov) closeRoom(); });
+    regB.addEventListener('click',closeRoom);
+    document.addEventListener('keydown',function(e){
+      if(!ov.classList.contains('open')) return;
+      if(e.key==='Escape') closeRoom();
+      else if(e.key==='ArrowLeft') show(idx-1);
+      else if(e.key==='ArrowRight') show(idx+1);
+    });
+    document.querySelectorAll('.rooms-grid .room').forEach(function(card){
+      var title=card.querySelector('h3').textContent.trim();
+      if(!GALLERIES[title]) return;
+      card.setAttribute('role','button');
+      card.setAttribute('tabindex','0');
+      card.setAttribute('aria-label','View photos, floor plan and details for '+title);
+      var more=document.createElement('span');
+      more.className='rm-more';
+      more.textContent='View photos & floor plan \u2192';
+      card.querySelector('.room-b').appendChild(more);
+      card.addEventListener('click',function(){ openRoom(card); });
+      card.addEventListener('keydown',function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openRoom(card); } });
+    });
+  })();
 
   // in-page anchors: force-render .cv sections first, else Chrome cancels the
   // smooth scroll when their heights re-resolve mid-flight
