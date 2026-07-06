@@ -22,6 +22,7 @@
 <link rel="icon" type="image/png" href="https://alchemyofbreath.com/wp-content/uploads/AOB-Gold-Black-Transparant-symbol.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://player.vimeo.com">
 <!-- fonts load async so they never block first paint; display=swap shows text immediately -->
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Roboto:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Roboto:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" media="print" onload="this.media='all'">
@@ -130,8 +131,12 @@ section>.wrap{position:relative;z-index:1}
 .hero-proof p{font-size:.88rem;line-height:1.5;color:var(--slate);max-width:22em}
 .hero-proof p strong{color:var(--ink);font-weight:500}
 .hero-stage{position:relative}
-.hero-photo{border-radius:280px 280px 18px 18px;overflow:hidden;box-shadow:var(--shadow-lift);outline:1px solid rgba(225,182,104,.5);outline-offset:10px;transform:rotate(-.6deg)}
-.hero-photo img{width:100%;height:100%;object-fit:cover;aspect-ratio:4/4.4}
+.hero-photo{position:relative;border-radius:280px 280px 18px 18px;overflow:hidden;box-shadow:var(--shadow-lift);outline:1px solid rgba(225,182,104,.5);outline-offset:10px;transform:rotate(-.6deg)}
+.hero-photo img.hero-poster{width:100%;height:100%;object-fit:cover;aspect-ratio:4/4.4;display:block}
+.hero-video{position:absolute;inset:0;overflow:hidden;z-index:1;background:#0e0c09}
+.hero-video iframe{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);height:100%;width:auto;aspect-ratio:16/9;min-width:100%;min-height:100%;border:0;pointer-events:none}
+.hero-vig{position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(180deg,rgba(34,31,32,.04) 0%,rgba(34,31,32,0) 32%,rgba(34,31,32,.06) 64%,rgba(34,31,32,.24) 100%)}
+@media(prefers-reduced-motion:reduce){.hero-video{display:none}}
 .hero-ring{position:absolute;top:-24px;right:-16px;width:150px;height:150px;border-radius:50%;border:1px solid rgba(0,165,178,.4);z-index:-1}
 .hero-ring::after{content:"";position:absolute;inset:22px;border-radius:50%;border:1px solid rgba(225,182,104,.55)}
 .chip{position:absolute;background:var(--paper-3);border:1px solid rgba(225,182,104,.3);border-radius:14px;padding:13px 18px;box-shadow:var(--shadow-soft);font-size:.8rem;line-height:1.45;color:var(--ink);z-index:3}
@@ -406,7 +411,11 @@ section>.wrap{position:relative;z-index:1}
       </div>
       <div class="hero-stage reveal d2">
         <div class="hero-photo">
-          <img src="https://alchemyofbreath.com/wp-content/uploads/DSCF5832.jpg" alt="BreathCampers together at sunset at ASHA in Tuscany" width="1500" height="1000" decoding="async">
+          <img class="hero-poster" src="https://alchemyofbreath.com/wp-content/uploads/DSCF5832.jpg" alt="BreathCampers together at sunset at ASHA in Tuscany" width="1500" height="1000" decoding="async">
+          <div class="hero-video">
+            <iframe src="https://player.vimeo.com/video/932256056?background=1&amp;autoplay=1&amp;loop=1&amp;muted=1&amp;autopause=0&amp;dnt=1" allow="autoplay; fullscreen; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" title="BreathCamp in Tuscany"></iframe>
+          </div>
+          <div class="hero-vig" aria-hidden="true"></div>
         </div>
         <div class="hero-ring" aria-hidden="true"></div>
         <div class="chip c1"><strong>5 camps in 2026</strong>Aug 16 &ndash; Oct 31</div>
