@@ -313,6 +313,13 @@ section>.wrap{position:relative;z-index:1}
 .split-photo{position:relative;border-radius:18px;overflow:hidden;outline:1px solid rgba(225,182,104,.5);outline-offset:8px;box-shadow:var(--shadow-lift);transform:rotate(-.5deg)}
 .split-photo::before{content:"";position:absolute;inset:-20px;border-radius:26px;border:1px solid rgba(0,165,178,.3);pointer-events:none}
 .split-photo img{width:100%;height:100%;object-fit:cover;aspect-ratio:4/3.1}
+.ag-top{position:absolute;inset:0;opacity:0;transition:opacity .8s ease}
+.ag-top:not([src]){visibility:hidden}
+.ag-top.show{opacity:1}
+.ag-dots{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);display:flex;gap:9px;z-index:3;background:rgba(25,22,23,.32);backdrop-filter:blur(4px);padding:8px 12px;border-radius:999px}
+.ag-dots button{width:9px;height:9px;border-radius:50%;border:none;padding:0;background:rgba(251,247,239,.55);cursor:pointer;transition:background .3s,transform .3s}
+.ag-dots button:hover{background:rgba(251,247,239,.85)}
+.ag-dots button.on{background:var(--gold);transform:scale(1.3)}
 .food-trio{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;align-items:start}
 .food-trio img{width:100%;aspect-ratio:1/3.05;object-fit:cover;border-radius:999px 999px 14px 14px;outline:1px solid rgba(225,182,104,.5);outline-offset:7px;box-shadow:var(--shadow-soft);transition:transform .35s,box-shadow .35s}
 .food-trio img:hover{transform:translateY(-6px);box-shadow:var(--shadow-lift)}
@@ -699,8 +706,16 @@ section>.wrap{position:relative;z-index:1}
 <section class="alt cv">
   <div class="wrap">
     <div class="split rev">
-      <div class="split-photo reveal">
-        <img src="https://alchemyofbreath.com/wp-content/uploads/Rectangle-106-900x600.jpg" alt="ASHA Retreat and Community Centre in the Tuscan hills" width="900" height="600" loading="lazy" decoding="async">
+      <div class="split-photo reveal" id="ashaGallery">
+        <img id="agBase" src="https://alchemyofbreath.com/wp-content/uploads/Rectangle-118-768x512.jpg" alt="ASHA, Tuscany — location view 1 of 5" width="768" height="512" loading="lazy" decoding="async">
+        <img class="ag-top" id="agTop" alt="" aria-hidden="true" decoding="async">
+        <div class="ag-dots" aria-label="ASHA location gallery">
+          <button type="button" class="on" aria-label="Location view 1"></button>
+          <button type="button" aria-label="Location view 2"></button>
+          <button type="button" aria-label="Location view 3"></button>
+          <button type="button" aria-label="Location view 4"></button>
+          <button type="button" aria-label="Location view 5"></button>
+        </div>
       </div>
       <div class="reveal d1">
         <span class="eyebrow">Your retreat location</span>
@@ -1265,6 +1280,49 @@ section>.wrap{position:relative;z-index:1}
       if(Math.abs(vtScroll.scrollLeft-vtPos)>=1) vtScroll.scrollLeft=vtPos;
       vtLast=t; requestAnimationFrame(vtFrame);
     })(performance.now());
+  }
+
+  // ASHA location gallery: slow crossfade through five views
+  var agBase=document.getElementById('agBase'), agTop=document.getElementById('agTop'), agWrap=document.getElementById('ashaGallery');
+  if(agBase&&agTop&&agWrap){
+    var AG=[
+      'https://alchemyofbreath.com/wp-content/uploads/Rectangle-118-768x512.jpg',
+      'https://alchemyofbreath.com/wp-content/uploads/Rectangle-111-768x512.jpg',
+      'https://alchemyofbreath.com/wp-content/uploads/Rectangle-115-768x512.jpg',
+      'https://alchemyofbreath.com/wp-content/uploads/Rectangle-109-768x512.jpg',
+      'https://alchemyofbreath.com/wp-content/uploads/Rectangle-110.jpg'
+    ];
+    var agDots=[].slice.call(agWrap.querySelectorAll('.ag-dots button'));
+    var agIdx=0, agTimer=null, agHold=false, agLoaded=false;
+    var agPreload=function(){ if(agLoaded) return; agLoaded=true; AG.forEach(function(u){ var i=new Image(); i.src=u; }); };
+    if('IntersectionObserver' in window){
+      var agio=new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting){ agPreload(); agio.disconnect(); } }); },{rootMargin:'400px 0px'});
+      agio.observe(agWrap);
+    }
+    var agDot=function(i){ agDots.forEach(function(d,j){ d.classList.toggle('on',j===i); }); };
+    var agGo=function(i,instant){
+      agIdx=(i+AG.length)%AG.length;
+      agDot(agIdx);
+      var url=AG[agIdx], alt='ASHA, Tuscany — location view '+(agIdx+1)+' of 5';
+      if(instant){ agBase.src=url; agBase.alt=alt; return; }
+      agTop.onload=function(){
+        agTop.classList.add('show');
+        setTimeout(function(){
+          agBase.src=agTop.src; agBase.alt=alt;
+          agTop.style.transition='none'; agTop.classList.remove('show');
+          void agTop.offsetWidth; agTop.style.transition='';
+        },840);
+      };
+      agTop.src=url;
+      if(agTop.complete&&agTop.naturalWidth>0) agTop.onload();
+    };
+    var agStart=function(){ if(agTimer) clearInterval(agTimer); if(!reduce) agTimer=setInterval(function(){ if(!agHold) agGo(agIdx+1,false); },4400); };
+    agWrap.addEventListener('pointerenter',function(){ agHold=true; });
+    agWrap.addEventListener('pointerleave',function(){ agHold=false; });
+    agWrap.addEventListener('focusin',function(){ agHold=true; });
+    agWrap.addEventListener('focusout',function(){ agHold=false; });
+    agDots.forEach(function(d,i){ d.addEventListener('click',function(){ agPreload(); agGo(i,reduce); agStart(); }); });
+    agStart();
   }
 
   // in-page anchors: force-render .cv sections first, else Chrome cancels the
