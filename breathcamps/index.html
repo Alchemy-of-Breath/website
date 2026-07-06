@@ -222,6 +222,10 @@ section>.wrap{position:relative;z-index:1}
 @media(max-width:900px){.days-grid{grid-template-columns:1fr;gap:36px}}
 .days-img{border-radius:280px 280px 18px 18px;overflow:hidden;box-shadow:var(--shadow-lift);position:sticky;top:110px;transform:rotate(-.6deg);outline:1px solid rgba(225,182,104,.45);outline-offset:9px}
 .days-img img{width:100%;display:block;aspect-ratio:4/4.6;object-fit:cover}
+.days-img .di-top{position:absolute;inset:0;height:100%;opacity:0;transition:opacity .5s ease}
+.days-img .di-top[src]{visibility:visible}
+.days-img .di-top:not([src]){visibility:hidden}
+.days-img .di-top.show{opacity:1}
 @media(max-width:900px){.days-img{position:static;max-width:340px;margin:0 auto;transform:rotate(0)}.days-img img{aspect-ratio:4/3.4}}
 .ch-row{display:flex;gap:24px;align-items:baseline;padding:21px 6px;border-bottom:1px solid rgba(225,182,104,.22);transition:background .3s,padding-left .3s}
 .ch-row:hover{background:rgba(253,246,233,.35);padding-left:16px}
@@ -507,12 +511,12 @@ section>.wrap{position:relative;z-index:1}
       <p class="reveal d2" style="margin-top:16px;font-size:1.04rem">Every day at BreathCamp unfolds a new layer of insight, practice, and connection — blending science, spirit, and self-discovery.</p>
     </div>
     <div class="cards-grid">
-      <div class="fcard photo reveal"><img class="fc-img" src="https://alchemyofbreath.com/wp-content/uploads/elementor/thumbs/DSCF0574-1-rbk1iti7cnyhb5g4jzi3b06qltkkzd2uagktwr68n8.jpg" alt="A breather supported in a conscious breathwork session" width="250" height="250" loading="lazy" decoding="async"><div class="fc-b"><div class="num">i.</div><h3>The Science &amp; Biomechanics of Breathwork</h3><p>Understand how breath influences your nervous system and rewires your body from the inside out.</p></div></div>
-      <div class="fcard photo reveal d1"><img class="fc-img" src="https://alchemyofbreath.com/wp-content/uploads/elementor/thumbs/Rectangle-54-rettaty1tj2jtb0i0gwodvyxdhx0q1706odc2remyg.jpg" alt="A moment of personal practice in the Tuscan light" width="300" height="300" loading="lazy" decoding="async"><div class="fc-b"><div class="num">ii.</div><h3>Developing a Daily Breathwork Practice</h3><p>Learn how to integrate conscious breathing into your everyday routine for lasting calm and clarity.</p></div></div>
-      <div class="fcard photo reveal d2"><img class="fc-img" src="https://alchemyofbreath.com/wp-content/uploads/elementor/thumbs/Rectangle-47-rett7jidwekf6fsj81ponpuuiy4rs64tqe65lwa8qg.jpg" alt="A large group in a breathwork circle at ASHA" width="300" height="300" loading="lazy" decoding="async"><div class="fc-b"><div class="num">iii.</div><h3>Beginner to Advanced Techniques</h3><p>Explore methods that meet you where you are — from foundational practices to master-level expansion.</p></div></div>
-      <div class="fcard photo reveal"><img class="fc-img" src="https://alchemyofbreath.com/wp-content/uploads/elementor/thumbs/Rectangle-58-1-rettb5843jhzomk46ls77t4gi4dfaefs8875u2xwvs.jpg" alt="A woman moving freely in the Tuscan light" width="300" height="300" loading="lazy" decoding="async"><div class="fc-b"><div class="num">iv.</div><h3>The Art of Intuition</h3><p>Awaken your inner guidance and learn to trust your body's natural intelligence.</p></div></div>
-      <div class="fcard photo reveal d1"><img class="fc-img" src="https://alchemyofbreath.com/wp-content/uploads/elementor/thumbs/Rectangle-108-rettf5z9c105ckpupccqvslfzgjy7seg44nxqoza9k.jpg" alt="A community gathered in an outdoor circle at ASHA" width="300" height="300" loading="lazy" decoding="async"><div class="fc-b"><div class="num">v.</div><h3>Rites of Passage</h3><p>Experience guided journeys that help you release the past and step into a renewed version of yourself.</p></div></div>
-      <div class="fcard photo reveal d2"><img class="fc-img" src="https://alchemyofbreath.com/wp-content/uploads/elementor/thumbs/Rectangle-54-4-rettajlsuc5ssg9w61emkx81vsuw5dphdug0phs71a.jpg" alt="A facilitator holding space for a breather with hands-on support" width="227" height="227" loading="lazy" decoding="async"><div class="fc-b"><div class="num">vi.</div><h3>The Bridge</h3><p>Integrate everything you've learned — bridging breath, awareness, and daily life into one powerful flow.</p></div></div>
+      <div class="fcard photo reveal"><img class="fc-img" src="https://alchemyofbreath.com/wp-content/uploads/Anthony-Amy-6.jpg" alt="A hands-on bodywork session at BreathCamp" width="768" height="1155" loading="lazy" decoding="async"><div class="fc-b"><div class="num">i.</div><h3>The Science &amp; Biomechanics of Breathwork</h3><p>Understand how breath influences your nervous system and rewires your body from the inside out.</p></div></div>
+      <div class="fcard photo reveal d1"><img class="fc-img" src="https://alchemyofbreath.com/wp-content/uploads/Anthony-Amy-8.jpg" alt="A woman on her mat, hands resting on her head" width="768" height="512" loading="lazy" decoding="async"><div class="fc-b"><div class="num">ii.</div><h3>Developing a Daily Breathwork Practice</h3><p>Learn how to integrate conscious breathing into your everyday routine for lasting calm and clarity.</p></div></div>
+      <div class="fcard photo reveal d2"><img class="fc-img" src="https://alchemyofbreath.com/wp-content/uploads/Anthony-Amy-5.jpg" alt="A group breathwork circle in the ASHA tent" width="768" height="512" loading="lazy" decoding="async"><div class="fc-b"><div class="num">iii.</div><h3>Beginner to Advanced Techniques</h3><p>Explore methods that meet you where you are — from foundational practices to master-level expansion.</p></div></div>
+      <div class="fcard photo reveal"><img class="fc-img" src="https://alchemyofbreath.com/wp-content/uploads/Anthony-Amy-10.jpg" alt="A man in standing breathwork practice" width="768" height="512" loading="lazy" decoding="async"><div class="fc-b"><div class="num">iv.</div><h3>The Art of Intuition</h3><p>Awaken your inner guidance and learn to trust your body's natural intelligence.</p></div></div>
+      <div class="fcard photo reveal d1"><img class="fc-img" src="https://alchemyofbreath.com/wp-content/uploads/Anthony-Amy-7.jpg" alt="A Buddha statue on the ASHA land" width="768" height="512" loading="lazy" decoding="async"><div class="fc-b"><div class="num">v.</div><h3>Rites of Passage</h3><p>Experience guided journeys that help you release the past and step into a renewed version of yourself.</p></div></div>
+      <div class="fcard photo reveal d2"><img class="fc-img" src="https://alchemyofbreath.com/wp-content/uploads/Anthony-Amy-12.jpg" alt="Anthony teaching outdoors at ASHA" width="768" height="1155" loading="lazy" decoding="async"><div class="fc-b"><div class="num">vi.</div><h3>The Bridge</h3><p>Integrate everything you've learned — bridging breath, awareness, and daily life into one powerful flow.</p></div></div>
     </div>
   </div>
 </section>
@@ -525,17 +529,18 @@ section>.wrap{position:relative;z-index:1}
       <h2 class="reveal d1">Seven days, <em>held from arrival to integration</em>.</h2>
     </div>
     <div class="days-grid">
-      <div class="days-img reveal">
-        <img src="https://alchemyofbreath.com/wp-content/uploads/DSC00695-1-1-1-768x512.jpg" alt="BreathCampers gathered on the land at ASHA" width="768" height="512" loading="lazy" decoding="async">
+      <div class="days-img reveal" id="daysImg">
+        <img id="daysBase" src="https://alchemyofbreath.com/wp-content/uploads/Rectangle-109-768x512.jpg" alt="The entrance shrine at ASHA" width="768" height="512" loading="lazy" decoding="async">
+        <img class="di-top" id="daysTop" alt="" aria-hidden="true" width="768" height="512" decoding="async">
       </div>
       <div>
-        <div class="ch-row reveal"><span class="ch-num">Day 1</span><div><h3>Arrive at ASHA Retreat &amp; Community Center</h3><p>Connect with your group through our app, travel together or take the train, and arrive in the heart of Tuscany. Be welcomed by Anthony, Amy, our trainers, team, and fellow breathers.</p></div></div>
-        <div class="ch-row reveal"><span class="ch-num">Day 2</span><div><h3>Get grounded in breathwork</h3><p>Learn the why and what of breathwork, from beginner to advanced. Be guided and supported in your personal process — feel secure to let go and open.</p></div></div>
-        <div class="ch-row reveal"><span class="ch-num">Day 3</span><div><h3>Personal to professional support</h3><p>Whether you come for personal growth or to become a professional breathworker, learn profound yet simple methods for your transformation toolbox.</p></div></div>
-        <div class="ch-row reveal"><span class="ch-num">Day 4</span><div><h3>Deepen your practice</h3><p>Learn Anthony's signature Bridge process for healing trauma, from childhood to current. Get to the core of what holds you back, heal, and realize your potential.</p></div></div>
-        <div class="ch-row reveal"><span class="ch-num">Day 5</span><div><h3>Trauma informed</h3><p>Learn many different breath patterns and tools with our Breath Solutions — pool breathwork followed by a sound bath, with results that may otherwise take years.</p></div></div>
-        <div class="ch-row reveal"><span class="ch-num">Day 6</span><div><h3>Be held &amp; hold space with expert guidance</h3><p>Be held, hold space for others, and experience Anthony's Mandala Breathwork. Celebrate under the stars with our closing Italian feast.</p></div></div>
-        <div class="ch-row reveal"><span class="ch-num">Day 7</span><div><h3>Integration &amp; closing ritual</h3><p>Energized and recharged, integrate all the healthy work you've done for lasting well-being — and learn how to keep connected with your process.</p></div></div>
+        <div class="ch-row reveal" data-img="https://alchemyofbreath.com/wp-content/uploads/Rectangle-109-768x512.jpg" data-alt="The entrance shrine at ASHA"><span class="ch-num">Day 1</span><div><h3>Arrive at ASHA Retreat &amp; Community Center</h3><p>Connect with your group through our app, travel together or take the train, and arrive in the heart of Tuscany. Be welcomed by Anthony, Amy, our trainers, team, and fellow breathers.</p></div></div>
+        <div class="ch-row reveal" data-img="https://alchemyofbreath.com/wp-content/uploads/Rectangle-58-5-768x512.jpg" data-alt="A group breathwork session in the pavilion"><span class="ch-num">Day 2</span><div><h3>Get grounded in breathwork</h3><p>Learn the why and what of breathwork, from beginner to advanced. Be guided and supported in your personal process — feel secure to let go and open.</p></div></div>
+        <div class="ch-row reveal" data-img="https://alchemyofbreath.com/wp-content/uploads/Rectangle-58-1-768x512.jpg" data-alt="A facilitator holding space over breathers"><span class="ch-num">Day 3</span><div><h3>Personal to professional support</h3><p>Whether you come for personal growth or to become a professional breathworker, learn profound yet simple methods for your transformation toolbox.</p></div></div>
+        <div class="ch-row reveal" data-img="https://alchemyofbreath.com/wp-content/uploads/Rectangle-58-6-768x1152.jpg" data-alt="A sharing circle at ASHA"><span class="ch-num">Day 4</span><div><h3>Deepen your practice</h3><p>Learn Anthony's signature Bridge process for healing trauma, from childhood to current. Get to the core of what holds you back, heal, and realize your potential.</p></div></div>
+        <div class="ch-row reveal" data-img="https://alchemyofbreath.com/wp-content/uploads/Rectangle-58-3-768x512.jpg" data-alt="Pool breathwork at ASHA"><span class="ch-num">Day 5</span><div><h3>Trauma informed</h3><p>Learn many different breath patterns and tools with our Breath Solutions — pool breathwork followed by a sound bath, with results that may otherwise take years.</p></div></div>
+        <div class="ch-row reveal" data-img="https://alchemyofbreath.com/wp-content/uploads/Rectangle-44-768x512.jpg" data-alt="Amy singing in the ASHA tent"><span class="ch-num">Day 6</span><div><h3>Be held &amp; hold space with expert guidance</h3><p>Be held, hold space for others, and experience Anthony's Mandala Breathwork. Celebrate under the stars with our closing Italian feast.</p></div></div>
+        <div class="ch-row reveal" data-img="https://alchemyofbreath.com/wp-content/uploads/Rectangle-58-4-768x512.jpg" data-alt="The BreathCamp group photo"><span class="ch-num">Day 7</span><div><h3>Integration &amp; closing ritual</h3><p>Energized and recharged, integrate all the healthy work you've done for lasting well-being — and learn how to keep connected with your process.</p></div></div>
         <div class="sched-card reveal">
           <b>A typical day at BreathCamp</b>
           <p>Morning movement practice &middot; Breakfast &middot; Breathwork &amp; workshops &middot; Group share &middot; Lunch &middot; Free time &middot; Dinner &middot; Evening events</p>
@@ -910,6 +915,44 @@ section>.wrap{position:relative;z-index:1}
         vPlayer=new Vimeo.Player(sFrame);
         applySound();
       });
+    });
+  }
+
+  // 7-day experience: the arch image follows the hovered day
+  var dayRows=document.querySelectorAll('#days .ch-row[data-img]');
+  var daysBase=document.getElementById('daysBase'), daysTop=document.getElementById('daysTop');
+  if(dayRows.length&&daysBase&&daysTop){
+    var canHover=window.matchMedia('(hover:hover)').matches, preloaded=false, swapTmr=null;
+    var preload=function(){
+      if(preloaded) return; preloaded=true;
+      dayRows.forEach(function(r){ var i=new Image(); i.src=r.getAttribute('data-img'); });
+    };
+    if(canHover&&'IntersectionObserver' in window){
+      var dio=new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting){ preload(); dio.disconnect(); } }); },{rootMargin:'400px 0px'});
+      dio.observe(document.getElementById('daysImg'));
+    }
+    var commit=function(){
+      daysBase.src=daysTop.src; daysBase.alt=daysTop.getAttribute('data-alt')||'';
+      daysTop.style.transition='none'; daysTop.classList.remove('show');
+      void daysTop.offsetWidth; daysTop.style.transition='';
+    };
+    var swapTo=function(url,alt){
+      if(daysBase.getAttribute('src')===url) return;
+      if(daysTop.getAttribute('src')===url&&daysTop.classList.contains('show')) return;
+      preload();
+      daysTop.onload=function(){
+        daysTop.classList.add('show');
+        if(swapTmr) clearTimeout(swapTmr);
+        swapTmr=setTimeout(commit,540);
+      };
+      daysTop.setAttribute('data-alt',alt); daysTop.src=url;
+      if(daysTop.complete&&daysTop.naturalWidth>0) daysTop.onload();
+    };
+    dayRows.forEach(function(r){
+      var go=function(){ swapTo(r.getAttribute('data-img'),r.getAttribute('data-alt')||''); };
+      r.addEventListener('mouseenter',go);
+      r.addEventListener('click',go);
+      r.addEventListener('focusin',go);
     });
   }
 
