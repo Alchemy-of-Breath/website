@@ -704,32 +704,6 @@ button.check-item{width:100%;text-align:left;font:inherit;color:inherit;cursor:p
 .final .btn{position:relative;z-index:1}
 .final .avatars{height:46px;width:auto;margin:42px auto 0;border-radius:999px;position:relative;z-index:1}
 
-/* ---------- footer ---------- */
-footer{background:var(--foot);border-top:1px solid rgba(225,182,104,.35);padding:54px 0 42px}
-.foot-in{display:flex;justify-content:space-between;align-items:center;gap:30px;flex-wrap:wrap}
-.foot-in img{height:46px;width:auto}
-.foot-in p{font-size:.8rem;color:#C9BFA9}
-.foot-links{display:flex;gap:24px;font-size:.8rem}
-.foot-links a{color:#9AAEBB;text-decoration:none;transition:color .25s}
-.foot-links a:hover{color:var(--gold)}
-
-/* ---------- ambient depth: orbs + watermarks ---------- */
-.orb{position:absolute;border-radius:50%;pointer-events:none;z-index:0}
-.orb-gold{background:radial-gradient(circle,rgba(225,182,104,.22) 0%,rgba(225,182,104,0) 70%)}
-.orb-teal{background:radial-gradient(circle,rgba(0,165,178,.12) 0%,rgba(0,165,178,0) 70%)}
-.orb-ring{border:1px solid rgba(225,182,104,.3);background:none}
-.orb-ring.teal{border-color:rgba(0,165,178,.22)}
-.wm{
-  position:absolute;pointer-events:none;z-index:0;opacity:.05;width:min(420px,60vw);height:auto;
-  filter:grayscale(.2) sepia(.3);
-}
-section>.wrap{position:relative;z-index:1}
-@media(prefers-reduced-motion:no-preference){
-  .orb.drift{animation:drift 14s ease-in-out infinite}
-  @keyframes drift{0%,100%{transform:translate(0,0)}50%{transform:translate(0,-18px)}}
-}
-@media(max-width:760px){.wm{opacity:.04}}
-
 /* ---------- sticky pill ---------- */
 .pill{
   position:fixed;right:26px;bottom:26px;z-index:55;display:flex;align-items:center;gap:0;
@@ -1201,17 +1175,6 @@ section>.wrap{position:relative;z-index:1}
   </div>
 </section>
 
-<footer class="cv">
-  <div class="wrap foot-in">
-    <img src="https://alchemyofbreath.com/wp-content/uploads/AoB-emblem-web-white.png" alt="Alchemy of Breath" width="300" height="300" loading="lazy" decoding="async">
-    <p>All Rights Reserved &copy; Alchemy of Breath</p>
-    <div class="foot-links">
-      <a href="https://alchemyofbreath.com/waiver-and-release/">Disclaimer</a>
-      <a href="https://alchemyofbreath.com/privacy-policy/">Privacy Policy</a>
-      <a href="https://alchemyofbreath.com/terms-and-conditions/">Refund Policy</a>
-    </div>
-  </div>
-</footer>
 
 <!-- STICKY PILL -->
 <a class="pill" id="pill" href="https://go.alchemyofbreath.com/book-842709" aria-label="Book your discovery call">
