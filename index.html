@@ -840,23 +840,28 @@ div.aob3-panel{cursor:default}
     var evStep=function(dir){ evHold(1800); evScroll.scrollBy({left:dir*954,behavior:reduce?'auto':'smooth'}); };
     if(evPrevB) evPrevB.addEventListener('click',function(){ evStep(-1); });
     if(evNextB) evNextB.addEventListener('click',function(){ evStep(1); });
-    // click-drag to scroll (mouse; touch already scrolls natively)
-    var evDrag=false, evDragX=0, evDragStart=0, evMoved=0;
+    // click-drag to scroll — capture engages only after real movement, so card links stay clickable
+    var evDrag=false, evPend=false, evDragX=0, evDragStart=0, evMoved=0;
     evScroll.addEventListener('pointerdown',function(e){
       if(e.pointerType!=='mouse'||e.button!==0) return;
-      evDrag=true; evMoved=0; evDragX=e.clientX; evDragStart=evScroll.scrollLeft;
+      evPend=true; evDrag=false; evMoved=0; evDragX=e.clientX; evDragStart=evScroll.scrollLeft;
       evPaused=true; if(evResume) clearTimeout(evResume);
-      evScroll.classList.add('dragging');
-      try{ evScroll.setPointerCapture(e.pointerId); }catch(err){}
-      e.preventDefault();
     });
     evScroll.addEventListener('pointermove',function(e){
-      if(!evDrag) return;
+      if(!evPend&&!evDrag) return;
       var dx=e.clientX-evDragX;
       if(Math.abs(dx)>evMoved) evMoved=Math.abs(dx);
+      if(!evDrag){
+        if(Math.abs(dx)<6) return;
+        evDrag=true; evPend=false;
+        evScroll.classList.add('dragging');
+        try{ evScroll.setPointerCapture(e.pointerId); }catch(err){}
+      }
+      e.preventDefault();
       evScroll.scrollLeft=evDragStart-dx;
     });
-    var evEndDrag=function(){ if(!evDrag) return; evDrag=false; evScroll.classList.remove('dragging'); evHold(1200); };
+    var evEndDrag=function(){ evPend=false; if(!evDrag) return; evDrag=false; evScroll.classList.remove('dragging'); evHold(1200); };
+    evScroll.addEventListener('dragstart',function(e){ e.preventDefault(); });
     evScroll.addEventListener('pointerup',evEndDrag);
     evScroll.addEventListener('pointercancel',evEndDrag);
     evScroll.addEventListener('click',function(e){ if(evMoved>6){ e.preventDefault(); e.stopPropagation(); } evMoved=0; },true);
