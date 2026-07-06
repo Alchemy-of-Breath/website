@@ -243,6 +243,13 @@ section>.wrap{position:relative;z-index:1}
 .legacy .mark{font-family:var(--serif);font-size:5rem;line-height:.4;color:var(--gold);display:block;margin-bottom:26px}
 .legacy blockquote{font-family:var(--serif);font-size:clamp(1.6rem,3.2vw,2.3rem);line-height:1.32;color:var(--ink);max-width:24em}
 .legacy cite{display:block;font-family:var(--sans);font-style:normal;font-size:.78rem;font-weight:500;letter-spacing:.24em;text-transform:uppercase;color:var(--slate);margin-top:30px}
+.lq-grid{display:grid;grid-template-columns:1.02fr .98fr;gap:64px;align-items:center}
+@media(max-width:900px){.lq-grid{grid-template-columns:1fr;gap:44px}}
+.lq-copy blockquote{font-size:clamp(1.6rem,3vw,2.2rem);max-width:18em}
+.lq-copy cite{margin-top:28px}
+.lq-video:hover .vt-frame{outline-offset:13px;transform:translateY(-4px)}
+.lq-video:hover .vt-frame img{transform:scale(1.04)}
+.lq-video:hover .pbtn{transform:scale(1.08)}
 .vt-frame{position:relative;border-radius:18px;overflow:hidden;aspect-ratio:16/9;background:var(--ink);box-shadow:var(--shadow-lift);outline:1px solid rgba(225,182,104,.55);outline-offset:9px;cursor:pointer;transition:outline-offset .35s,transform .35s}
 .vtc-card:hover .vt-frame{outline-offset:13px;transform:translateY(-4px)}
 .vt-frame::before{content:"";position:absolute;inset:-22px;border-radius:30px;border:1px solid rgba(0,165,178,.22);pointer-events:none}
@@ -640,12 +647,23 @@ section>.wrap{position:relative;z-index:1}
   </div>
 </section>
 
-<!-- PULL QUOTE -->
+<!-- PULL QUOTE + LIVIA'S VIDEO -->
 <section class="legacy cv">
-  <div class="wrap reveal" style="text-align:center">
-    <span class="mark">&ldquo;</span>
-    <blockquote style="margin:0 auto">I've attended many retreats, but nothing opened my heart like this.</blockquote>
-    <cite>Livia &middot; Copenhagen</cite>
+  <div class="wrap">
+    <div class="lq-grid">
+      <div class="lq-copy reveal">
+        <span class="mark">&ldquo;</span>
+        <blockquote>I've attended many retreats, but nothing opened my heart like this.</blockquote>
+        <cite>Livia &middot; Copenhagen</cite>
+      </div>
+      <div class="lq-video reveal d1">
+        <div class="vt-frame" id="liviaVideo" role="button" tabindex="0" aria-label="Play Livia's video testimonial" data-yt="pjEa7lulP7M">
+          <img src="https://i.ytimg.com/vi/pjEa7lulP7M/sddefault.jpg" alt="Livia shares her BreathCamp experience" width="640" height="480" loading="lazy" decoding="async">
+          <div class="vt-play"><span class="pbtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></span></div>
+        </div>
+        <div class="vt-meta"><strong>Livia</strong><span>Her BreathCamp story</span></div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -1486,17 +1504,34 @@ section>.wrap{position:relative;z-index:1}
     document.querySelectorAll('.rooms-grid .room').forEach(function(card){
       var title=card.querySelector('h3').textContent.trim();
       if(!GALLERIES[title]) return;
+      var hasPlan=GALLERIES[title].some(function(it){ return it.plan; });
       card.setAttribute('role','button');
       card.setAttribute('tabindex','0');
-      card.setAttribute('aria-label','View photos, floor plan and details for '+title);
+      card.setAttribute('aria-label','View photos'+(hasPlan?', floor plan':'')+' and details for '+title);
       var more=document.createElement('span');
       more.className='rm-more';
-      more.textContent='View photos & floor plan \u2192';
+      more.textContent=hasPlan?'View photos & floor plan \u2192':'View photos \u2192';
       card.querySelector('.room-b').appendChild(more);
       card.addEventListener('click',function(){ openRoom(card); });
       card.addEventListener('keydown',function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openRoom(card); } });
     });
   })();
+
+  // Livia's video testimonial: click-to-play YouTube embed
+  var lv=document.getElementById('liviaVideo');
+  if(lv){
+    var lvPlay=function(){
+      if(lv.querySelector('iframe')) return;
+      var f=document.createElement('iframe');
+      f.src='https://www.youtube-nocookie.com/embed/'+lv.getAttribute('data-yt')+'?autoplay=1&rel=0&modestbranding=1&playsinline=1';
+      f.allow='autoplay; fullscreen; picture-in-picture';
+      f.title="Livia's BreathCamp story";
+      lv.innerHTML=''; lv.appendChild(f);
+      lv.style.cursor='default'; lv.removeAttribute('role'); lv.removeAttribute('tabindex');
+    };
+    lv.addEventListener('click',lvPlay);
+    lv.addEventListener('keydown',function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); lvPlay(); } });
+  }
 
   // in-page anchors: force-render .cv sections first, else Chrome cancels the
   // smooth scroll when their heights re-resolve mid-flight
