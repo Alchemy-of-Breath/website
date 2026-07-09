@@ -467,14 +467,15 @@ section>.wrap{position:relative;z-index:1}
 .guide-card iframe{display:block;width:100%;min-height:560px;border:none;border-radius:10px}
 
 /* sticky pill */
-.pill{position:fixed;right:26px;bottom:26px;z-index:55;display:flex;align-items:center;gap:0;text-decoration:none;opacity:0;pointer-events:none;transform:translateY(14px);transition:opacity .4s,transform .4s}
+/* anchored bottom-left so the chat widget owns the bottom-right corner */
+.pill{position:fixed;left:26px;bottom:26px;z-index:55;display:flex;flex-direction:row-reverse;align-items:center;gap:0;text-decoration:none;opacity:0;pointer-events:none;transform:translateY(14px);transition:opacity .4s,transform .4s}
 .pill.show{opacity:1;pointer-events:auto;transform:none}
 .pill-ring{width:62px;height:62px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:conic-gradient(var(--gold-deep) calc(var(--p,0)*1%), rgba(91,120,137,.22) 0);box-shadow:0 12px 30px rgba(34,31,32,.22);flex-shrink:0}
 .pill-ring .inner{width:52px;height:52px;border-radius:50%;background:var(--grad-gold);display:flex;align-items:center;justify-content:center}
 .pill-ring svg{width:22px;height:22px;stroke:var(--ink);fill:none;stroke-width:1.6;stroke-linecap:round}
-.pill-label{max-width:0;overflow:hidden;white-space:nowrap;transition:max-width .45s ease,padding .45s ease;background:var(--ink);color:var(--gold);border-radius:999px;font-size:.82rem;font-weight:500;letter-spacing:.06em;padding:14px 0;margin-right:-31px;padding-right:31px}
-.pill:hover .pill-label,.pill:focus .pill-label{max-width:260px;padding-left:24px;padding-right:48px}
-@media(max-width:560px){.pill{right:16px;bottom:16px}}
+.pill-label{max-width:0;overflow:hidden;white-space:nowrap;transition:max-width .45s ease,padding .45s ease;background:var(--ink);color:var(--gold);border-radius:999px;font-size:.82rem;font-weight:500;letter-spacing:.06em;padding:14px 0;margin-left:-31px;padding-left:31px}
+.pill:hover .pill-label,.pill:focus .pill-label{max-width:260px;padding-right:24px;padding-left:48px}
+@media(max-width:560px){.pill{left:16px;bottom:16px}}
 :focus-visible{outline:2px solid var(--gold-deep);outline-offset:3px;border-radius:6px}
 </style>
 <script type="application/ld+json">
@@ -1579,5 +1580,6 @@ section>.wrap{position:relative;z-index:1}
 })();
 </script>
   <script>(function(){if(window.self!==window.top){var st=document.createElement('style');st.textContent='.cv{content-visibility:visible !important}';document.head.appendChild(st);}function reportHeight(){var h=document.documentElement.scrollHeight;window.parent.postMessage({type:'aob-embed-resize',height:h},'*');}window.addEventListener('load',reportHeight);window.addEventListener('resize',reportHeight);var mo=new MutationObserver(reportHeight);mo.observe(document.body,{childList:true,subtree:true,attributes:true});setInterval(reportHeight,800);})();</script>
+  <script src="https://widgets.leadconnectorhq.com/loader.js" data-resources-url="https://widgets.leadconnectorhq.com/chat-widget/loader.js" data-widget-id="6a4ff449cf52f8a07d973fcf"></script>
 </body>
 </html>
