@@ -476,6 +476,17 @@ section>.wrap{position:relative;z-index:1}
 .pill-label{max-width:0;overflow:hidden;white-space:nowrap;transition:max-width .45s ease,padding .45s ease;background:var(--ink);color:var(--gold);border-radius:999px;font-size:.82rem;font-weight:500;letter-spacing:.06em;padding:14px 0;margin-left:-31px;padding-left:31px}
 .pill:hover .pill-label,.pill:focus .pill-label{max-width:260px;padding-right:24px;padding-left:48px}
 @media(max-width:560px){.pill{left:16px;bottom:16px}}
+
+/* discovery call — floating CTA, bottom right */
+.dcall{position:fixed;right:26px;bottom:26px;z-index:55;display:flex;align-items:center;gap:0;text-decoration:none}
+.dcall-label{max-width:0;overflow:hidden;white-space:nowrap;transition:max-width .45s ease,padding .45s ease;background:var(--ink);color:var(--gold);border-radius:999px;font-size:.82rem;font-weight:500;letter-spacing:.06em;padding:14px 0;margin-right:-31px;padding-right:31px}
+.dcall:hover .dcall-label,.dcall:focus .dcall-label{max-width:280px;padding-left:24px;padding-right:48px}
+.dcall-btn{width:62px;height:62px;border-radius:50%;background:var(--grad-gold);display:flex;align-items:center;justify-content:center;box-shadow:0 12px 30px rgba(34,31,32,.22);position:relative;transition:transform .25s,filter .25s;flex-shrink:0}
+.dcall:hover .dcall-btn{transform:translateY(-2px);filter:brightness(1.06)}
+.dcall-btn::after{content:"";position:absolute;inset:-9px;border-radius:50%;border:1px solid rgba(225,182,104,.7);animation:vtpulse 2.6s ease-out infinite}
+.dcall-btn svg{width:24px;height:24px;fill:var(--ink)}
+@media(max-width:560px){.dcall{right:16px;bottom:16px}.dcall-btn{width:56px;height:56px}}
+@media(prefers-reduced-motion:reduce){.dcall-btn::after{animation:none}}
 :focus-visible{outline:2px solid var(--gold-deep);outline-offset:3px;border-radius:6px}
 </style>
 <script type="application/ld+json">
@@ -1146,6 +1157,14 @@ section>.wrap{position:relative;z-index:1}
   </span></span>
 </a>
 
+<!-- DISCOVERY CALL -->
+<a class="dcall" href="https://go.alchemyofbreath.com/book-a-conversation" aria-label="Book a free discovery call">
+  <span class="dcall-label">Book a free discovery call</span>
+  <span class="dcall-btn">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+  </span>
+</a>
+
 <script>
 (function(){
   var nav = document.getElementById('nav');
@@ -1580,6 +1599,6 @@ section>.wrap{position:relative;z-index:1}
 })();
 </script>
   <script>(function(){if(window.self!==window.top){var st=document.createElement('style');st.textContent='.cv{content-visibility:visible !important}';document.head.appendChild(st);}function reportHeight(){var h=document.documentElement.scrollHeight;window.parent.postMessage({type:'aob-embed-resize',height:h},'*');}window.addEventListener('load',reportHeight);window.addEventListener('resize',reportHeight);var mo=new MutationObserver(reportHeight);mo.observe(document.body,{childList:true,subtree:true,attributes:true});setInterval(reportHeight,800);})();</script>
-  <script src="https://widgets.leadconnectorhq.com/loader.js" data-resources-url="https://widgets.leadconnectorhq.com/chat-widget/loader.js" data-widget-id="6a4ff449cf52f8a07d973fcf"></script>
+
 </body>
 </html>
