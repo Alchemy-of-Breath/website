@@ -274,6 +274,7 @@ div.aob3-panel{cursor:default}
 .path-track::before{content:"";position:absolute;top:50%;left:0;right:0;height:1px;background:linear-gradient(90deg,rgba(225,182,104,0),rgba(225,182,104,.6),rgba(225,182,104,0));pointer-events:none;z-index:0}
 .path-node{flex:none;width:120px;text-align:center;cursor:pointer;position:relative;z-index:1;scroll-snap-align:center;padding:0 4px;background:none;border:none;font-family:var(--sans)}
 .pn-ph{width:74px;height:74px;border-radius:50%;margin:0 auto;background:#3a3536;outline:1px solid rgba(225,182,104,.4);outline-offset:4px;display:flex;align-items:center;justify-content:center;color:var(--gold);font-family:var(--serif);font-size:1.3rem;transition:outline-color .3s,transform .3s,background .3s,color .3s}
+.pn-ph svg{stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round}
 .path-node:hover .pn-ph{outline-color:var(--gold);transform:scale(1.05)}
 .path-node.active .pn-ph{outline-color:var(--gold);background:var(--grad-gold);color:var(--ink)}
 .pn-label{display:block;margin-top:18px;font-size:.64rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:#8d8276;transition:color .35s;line-height:1.45}
@@ -604,10 +605,10 @@ div.aob3-panel{cursor:default}
       <p class="reveal d2" style="margin-top:16px;color:#C9BFA9;font-size:1rem">Wherever you begin, there is a next step: from your first regulated breath all the way to your own licensed school. Tap a level to explore it.</p>
     </div>
     <div class="path-track reveal d2" id="pathTrack" role="tablist" aria-label="The Alchemy pathway levels">
-      <button class="path-node active" data-i="0" type="button" role="tab" aria-selected="true"><span class="pn-ph">1</span><span class="pn-label">Regulation<br>method</span></button>
-      <button class="path-node" data-i="1" type="button" role="tab" aria-selected="false"><span class="pn-ph">2</span><span class="pn-label">Inner<br>journey</span></button>
-      <button class="path-node" data-i="2" type="button" role="tab" aria-selected="false"><span class="pn-ph">3</span><span class="pn-label">Facilitator<br>training</span></button>
-      <button class="path-node" data-i="3" type="button" role="tab" aria-selected="false"><span class="pn-ph">4</span><span class="pn-label">BreathCamp<br>graduation</span></button>
+      <button class="path-node active" data-i="0" type="button" role="tab" aria-selected="true"><span class="pn-ph"><svg viewBox="0 0 48 26" width="40" height="22" aria-hidden="true"><path d="M4 24a20 20 0 0 1 40 0"/></svg></span><span class="pn-label">Regulation<br>method</span></button>
+      <button class="path-node" data-i="1" type="button" role="tab" aria-selected="false"><span class="pn-ph"><svg viewBox="0 0 36 36" width="32" height="32" aria-hidden="true"><circle cx="18" cy="18" r="16"/></svg></span><span class="pn-label">Inner<br>journey</span></button>
+      <button class="path-node" data-i="2" type="button" role="tab" aria-selected="false"><span class="pn-ph"><svg viewBox="0 0 64 32" width="46" height="23" aria-hidden="true"><circle cx="16" cy="16" r="14"/><circle cx="48" cy="16" r="14"/></svg></span><span class="pn-label">Facilitator<br>training</span></button>
+      <button class="path-node" data-i="3" type="button" role="tab" aria-selected="false"><span class="pn-ph"><svg viewBox="0 0 52 36" width="42" height="29" aria-hidden="true"><circle cx="18" cy="18" r="16"/><circle cx="34" cy="18" r="16"/></svg></span><span class="pn-label">BreathCamp<br>graduation</span></button>
       <button class="path-node" data-i="4" type="button" role="tab" aria-selected="false"><span class="pn-ph">5</span><span class="pn-label">Business<br>in a box</span></button>
       <button class="path-node" data-i="5" type="button" role="tab" aria-selected="false"><span class="pn-ph">6</span><span class="pn-label">Junior<br>trainer</span></button>
       <button class="path-node" data-i="6" type="button" role="tab" aria-selected="false"><span class="pn-ph">7</span><span class="pn-label">Your own<br>school</span></button>
