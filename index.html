@@ -313,7 +313,7 @@ div.aob3-panel{cursor:default}
 .t-who span{font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--slate);font-weight:500}
 
 /* accreditation + stats */
-.badges-crop{width:100%;max-width:540px;aspect-ratio:655/195;margin:46px auto 30px;background-size:156.4% auto;background-position:left center;background-repeat:no-repeat;background-color:var(--paper);background-blend-mode:multiply}
+.badges-crop{width:100%;max-width:540px;aspect-ratio:655/195;margin:46px auto 30px;background-size:156.4% auto;background-position:left center;background-repeat:no-repeat;background-color:var(--paper-2);background-blend-mode:multiply}
 .badges-crop.bg-in{background-image:url('https://alchemyofbreath.com/wp-content/uploads/badges-1024x195.jpg')}
 .ibf-line{display:inline-flex;align-items:center;gap:10px;margin-top:34px;font-size:.78rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--slate);border:1px solid rgba(225,182,104,.4);border-radius:999px;padding:10px 22px;background:rgba(255,255,255,.7)}
 .ibf-line::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--teal)}
@@ -767,6 +767,21 @@ div.aob3-panel{cursor:default}
     if(nav) nav.classList.toggle('scrolled',y>10);
   }
   window.addEventListener('scroll',onScroll,{passive:true}); onScroll();
+
+  // Breathe The World loop: the browser pauses videos inside skipped
+  // content-visibility sections (and hidden tabs) without ever resuming
+  // them — replay whenever the panel is back on a visible screen
+  var btw=document.querySelector('.aob3-free video');
+  if(btw && !window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+    var btwOn=false;
+    var btwPlay=function(){ if(btwOn && !document.hidden && btw.paused){ var pr=btw.play(); if(pr&&pr.catch) pr.catch(function(){}); } };
+    var vio=new IntersectionObserver(function(es){
+      es.forEach(function(e){ btwOn=e.isIntersecting; if(btwOn) btwPlay(); else btw.pause(); });
+    },{rootMargin:'200px 0px'});
+    vio.observe(btw);
+    btw.addEventListener('pause',function(){ setTimeout(btwPlay,150); });
+    document.addEventListener('visibilitychange',btwPlay);
+  }
 
   document.querySelectorAll('img').forEach(function(img){
     img.addEventListener('error',function(){ img.style.display='none'; });
