@@ -465,7 +465,8 @@ div.aob3-panel{cursor:default}
       <!-- 01 · FREE BREATHWORK — BREATHE THE WORLD (local video) -->
       <a class="aob3-panel aob3-free" href="https://alchemyofbreath.com/free-breathwork-sessions/" target="_blank" rel="noopener" aria-label="Free breathwork every Sunday — Breathe The World">
         <div class="aob3-media"><div class="aob3-media-inner">
-          <video src="/assets/breathe-the-world.mp4" autoplay muted loop playsinline preload="metadata" aria-hidden="true"></video>
+          <!-- served via jsDelivr: Cloudflare Pages ignores HTTP range requests, which Safari requires for video playback -->
+          <video src="https://cdn.jsdelivr.net/gh/Alchemy-of-Breath/website@main/assets/breathe-the-world.mp4" poster="/assets/breathe-the-world-poster.jpg" autoplay muted loop playsinline preload="metadata" aria-hidden="true"></video>
         </div></div>
         <div class="aob3-ov"></div><div class="aob3-grain"></div>
         <div class="aob3-full">
