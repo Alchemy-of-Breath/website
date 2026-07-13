@@ -151,15 +151,9 @@ section>.wrap{position:relative;z-index:1}
 @media(max-width:560px){.hero-sound{width:42px;height:42px;bottom:10%;right:6%}}
 .hero-ring{position:absolute;top:-24px;right:-16px;width:150px;height:150px;border-radius:50%;border:1px solid rgba(0,165,178,.4);z-index:-1}
 .hero-ring::after{content:"";position:absolute;inset:22px;border-radius:50%;border:1px solid rgba(225,182,104,.55)}
-.chip{position:absolute;background:var(--paper-3);border:1px solid rgba(225,182,104,.3);border-radius:14px;padding:13px 18px;box-shadow:var(--shadow-soft);font-size:.8rem;line-height:1.45;color:var(--ink);z-index:3}
-.chip strong{display:block;font-family:var(--serif);font-size:1.02rem;color:var(--ink);font-weight:400}
-.chip.c1{top:7%;left:-9%;transform:rotate(-2.2deg);animation:float 7s ease-in-out infinite}
-.chip.c2{bottom:20%;right:-7%;transform:rotate(1.6deg);animation:float 8s 1.2s ease-in-out infinite}
-.chip.c3{bottom:-3%;left:2%;transform:rotate(-1deg);background:var(--grad-gold);animation:float 9s .5s ease-in-out infinite}
-.chip.c3 strong{display:inline}
 @keyframes float{0%,100%{translate:0 0}50%{translate:0 -9px}}
-@media(max-width:960px){.hero-stage{max-width:440px;margin:0 auto}.chip.c1{left:-2%}.chip.c2{right:-2%}}
-@media(max-width:560px){.hero{padding-top:196px}.chip{font-size:.72rem;padding:10px 13px}.btn{padding:16px 26px;font-size:.88rem;width:100%;justify-content:center}.hero-actions{flex-direction:column;align-items:stretch}}
+@media(max-width:960px){.hero-stage{max-width:440px;margin:0 auto}}
+@media(max-width:560px){.hero{padding-top:196px}.btn{padding:16px 26px;font-size:.88rem;width:100%;justify-content:center}.hero-actions{flex-direction:column;align-items:stretch}}
 
 /* 2026 dates */
 .dates-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;max-width:1040px;margin:50px auto 0}
@@ -564,9 +558,6 @@ section>.wrap{position:relative;z-index:1}
           <div class="hero-vig" aria-hidden="true"></div>
         </div>
         <div class="hero-ring" aria-hidden="true"></div>
-        <div class="chip c1"><strong>5 camps in 2026</strong>Aug 16 &ndash; Oct 31</div>
-        <div class="chip c2"><strong>All levels welcome</strong>First breath to advanced</div>
-        <div class="chip c3"><strong>All-inclusive stay</strong></div>
         <button class="hero-sound" type="button" aria-pressed="false" aria-label="Unmute the video">
           <svg class="off" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M17 9l4.5 4.5M21.5 9l-4.5 4.5"/></svg>
           <svg class="on" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16 8.5a5 5 0 0 1 0 7M18.8 5.7a9 9 0 0 1 0 12.6"/></svg>
