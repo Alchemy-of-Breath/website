@@ -79,6 +79,17 @@ h3{font-size:1.35rem}
 section{position:relative;padding:110px 0}
 @media(max-width:760px){section{padding:76px 0}}
 
+/* decorative orbs — absolutely positioned halos, never part of the layout flow */
+.orb{position:absolute;border-radius:50%;pointer-events:none;z-index:0}
+.orb-gold{background:radial-gradient(circle,rgba(225,182,104,.22) 0%,rgba(225,182,104,0) 70%)}
+.orb-teal{background:radial-gradient(circle,rgba(0,165,178,.12) 0%,rgba(0,165,178,0) 70%)}
+.orb-ring{border:1px solid rgba(225,182,104,.35)}
+.orb-ring.teal{border-color:rgba(0,165,178,.3)}
+.orb.drift{animation:orbDrift 16s ease-in-out infinite alternate}
+@keyframes orbDrift{from{transform:translateY(-14px)}to{transform:translateY(14px)}}
+@media(prefers-reduced-motion:reduce){.orb.drift{animation:none}}
+section>.wrap{position:relative;z-index:1}
+
 /* below-the-fold sections skip layout+paint until scrolled near */
 .cv{content-visibility:auto;contain-intrinsic-size:auto 900px}
 
