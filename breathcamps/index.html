@@ -84,13 +84,17 @@ section>.wrap{position:relative;z-index:1}
 @media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}*{animation-duration:.001s !important;animation-iteration-count:1 !important}html{scroll-behavior:auto}}
 
 /* offer banner (remove when SUMMER10 closes, 17 July 2026) */
-.bday{position:fixed;top:0;left:0;right:0;z-index:60;background:linear-gradient(135deg,#7B0712 0%,#9D1018 50%,#7B0712 100%);color:#FBF7EF;border-bottom:1px solid rgba(225,182,104,.35);box-shadow:0 4px 18px rgba(0,0,0,.18);text-decoration:none;display:block}
-.bday-in{max-width:1140px;margin:0 auto;padding:18px 28px;display:flex;align-items:center;justify-content:center;gap:14px;font-family:var(--sans);font-size:1rem;font-weight:400;letter-spacing:.03em;text-align:center}
+.bday{position:fixed;top:0;left:0;right:0;z-index:60;background:linear-gradient(135deg,#A50713 0%,#D91324 50%,#A50713 100%);color:#FFF6E8;border-bottom:1px solid rgba(225,182,104,.5);box-shadow:0 4px 18px rgba(0,0,0,.22);text-decoration:none;display:block}
+.bday-in{max-width:1140px;margin:0 auto;padding:17px 28px;display:flex;align-items:center;justify-content:center;gap:14px;font-family:var(--sans);font-size:1.05rem;font-weight:500;letter-spacing:.03em;text-align:center}
 .bday-in .pulse{width:9px;height:9px;border-radius:50%;background:var(--gold);flex-shrink:0;box-shadow:0 0 0 0 rgba(225,182,104,.7);animation:bdayPulse 2.2s ease-out infinite}
 @keyframes bdayPulse{0%{box-shadow:0 0 0 0 rgba(225,182,104,.55)}70%{box-shadow:0 0 0 11px rgba(225,182,104,0)}100%{box-shadow:0 0 0 0 rgba(225,182,104,0)}}
-.bday-in strong{color:var(--gold);font-weight:600;letter-spacing:.02em}
+.bday-in strong{background:var(--grad-gold);color:var(--ink);font-weight:700;letter-spacing:.04em;padding:4px 13px;border-radius:999px;box-shadow:0 4px 12px rgba(0,0,0,.25)}
+.bday-in b{color:#FFDF9E;font-weight:700}
 .bday-in .sep{opacity:.5;margin:0 2px}
 @media(max-width:760px){.bday-in{padding:14px 16px;font-size:.84rem;gap:11px;line-height:1.4}.bday-in .hide-sm{display:none}}
+/* pricing-section offer chip (remove with the banner after 17 July 2026) */
+.s10-chip{display:inline-flex;flex-wrap:wrap;justify-content:center;align-items:baseline;gap:7px;margin-top:20px;background:var(--grad-gold);color:var(--ink);font-weight:600;font-size:.98rem;letter-spacing:.03em;border-radius:999px;padding:13px 28px;box-shadow:0 10px 28px rgba(214,166,82,.5)}
+.s10-chip b{font-weight:800;letter-spacing:.05em}
 .nav{top:60px !important}
 .hero{padding-top:220px !important}
 @media(max-width:760px){.hero{padding-top:196px !important}}
@@ -521,7 +525,7 @@ section>.wrap{position:relative;z-index:1}
 <a class="bday" href="#dates" aria-label="10% off all retreats until 17 July with code SUMMER10">
   <div class="bday-in">
     <span class="pulse" aria-hidden="true"></span>
-    <span><span class="hide-sm">10% off all retreats &middot; ends 17 July &middot; </span>use code <strong>SUMMER10</strong> at checkout<span class="sep"> &middot; </span>claim your spot&nbsp;&rarr;</span>
+    <span><span class="hide-sm"><b>10% off all retreats</b> &middot; ends 17 July &middot; </span>use code <strong>SUMMER10</strong> at checkout<span class="sep"> &middot; </span>claim your spot&nbsp;&rarr;</span>
   </div>
 </a>
 
@@ -714,7 +718,8 @@ section>.wrap{position:relative;z-index:1}
     <div class="sec-intro" style="margin-bottom:0">
       <span class="eyebrow reveal" style="justify-content:center">Pricing &amp; accommodation</span>
       <h2 class="reveal d1">Luxury to rustic — <em>every breather welcome</em>.</h2>
-      <p class="reveal d2" style="margin-top:16px;font-size:1.04rem">All prices are per person for the full 7-day, all-inclusive retreat. Every price below already includes <em class="em-i">10% off with code SUMMER10</em>, applied at checkout &mdash; offer ends 17 July.</p>
+      <p class="reveal d2" style="margin-top:16px;font-size:1.04rem">All prices are per person for the full 7-day, all-inclusive retreat.</p>
+      <p class="reveal d2"><span class="s10-chip"><b>10% OFF</b> already applied to every price below &middot; code <b>SUMMER10</b> at checkout &middot; ends 17 July</span></p>
     </div>
     <div class="rooms-grid">
       <div class="room reveal"><img src="https://alchemyofbreath.com/wp-content/uploads/single-ensuite-1-1-1.jpg" alt="Single ensuite room in the ASHA main house" width="1000" height="667" loading="lazy" decoding="async"><div class="room-b"><span class="rt">Private</span><h3>Single Room Ensuite</h3><div class="pr"><span class="was">&euro;2,745</span> &euro;2,470.50 <small>/ person</small></div><p>A private room with its own bathroom in the Main House — a single bed, a desk, and your own quiet oasis to rest and process.</p></div></div>
