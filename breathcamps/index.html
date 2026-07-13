@@ -309,9 +309,9 @@ section>.wrap{position:relative;z-index:1}
 .room .rm-more{margin-top:12px;font-size:.72rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-deep)}
 .room:hover .rm-more{text-decoration:underline;text-underline-offset:3px}
 /* room lightbox */
-.rm-overlay{position:fixed;inset:0;z-index:80;background:rgba(25,22,23,.62);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:20px}
+.rm-overlay{position:fixed;inset:0;z-index:80;background:rgba(25,22,23,.62);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);display:none;align-items:flex-start;justify-content:center;padding:20px;overflow:auto}
 .rm-overlay.open{display:flex}
-.rm-modal{background:var(--paper);border:1px solid rgba(225,182,104,.45);border-radius:20px;box-shadow:var(--shadow-lift);max-width:880px;width:100%;max-height:calc(100vh - 40px);overflow:auto;position:relative;overscroll-behavior:contain}
+.rm-modal{background:var(--paper);border:1px solid rgba(225,182,104,.45);border-radius:20px;box-shadow:var(--shadow-lift);max-width:880px;width:100%;margin-top:36px;max-height:calc(100vh - 92px);overflow:auto;position:relative;overscroll-behavior:contain}
 .rm-close{position:absolute;top:14px;right:14px;z-index:6;width:42px;height:42px;border-radius:50%;border:none;background:rgba(25,22,23,.55);color:#FBF7EF;font-size:1.15rem;line-height:1;cursor:pointer;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);transition:background .25s}
 .rm-close:hover{background:rgba(25,22,23,.8)}
 .rm-stage{position:relative;background:var(--cream);overflow:hidden;border-radius:20px 20px 0 0}
@@ -1535,6 +1535,9 @@ section>.wrap{position:relative;z-index:1}
         thumbs.appendChild(t);
       });
       opener=card;
+      // inside the WP embed the frame spans the full page height, so anchor
+      // the dialog beside the clicked card instead of the frame's far middle
+      modal.style.marginTop = window.self!==window.top ? Math.max(24, Math.round(card.getBoundingClientRect().top) - 40)+'px' : '';
       ov.classList.add('open');
       document.body.style.overflow='hidden';
       show(0);
