@@ -1496,6 +1496,12 @@ section>.wrap{position:relative;z-index:1}
         priceEl=document.getElementById('rmPrice'), descEl=document.getElementById('rmDesc'),
         noteEl=document.getElementById('rmNote'), regB=document.getElementById('rmRegister');
     var cur=[], idx=0, opener=null, curTitle='';
+    // the WP embed snippet reports the visitor's real viewport height so the
+    // dialog can be sized to fit it (the frame itself is full page height)
+    var parentVH=0;
+    window.addEventListener('message',function(e){
+      if(e.data && e.data.type==='aob-embed-viewport' && typeof e.data.vh==='number') parentVH=e.data.vh;
+    });
     function show(i){
       idx=(i+cur.length)%cur.length;
       var it=cur[idx];
@@ -1527,8 +1533,17 @@ section>.wrap{position:relative;z-index:1}
       });
       opener=card;
       // inside the WP embed the frame spans the full page height, so anchor
-      // the dialog beside the clicked card instead of the frame's far middle
-      modal.style.marginTop = window.self!==window.top ? Math.max(24, Math.round(card.getBoundingClientRect().top) - 40)+'px' : '';
+      // the dialog beside the clicked card, cap it to the visitor's screen,
+      // and ask the parent page to scroll it fully into view
+      if(window.self!==window.top){
+        var mt=Math.max(24, Math.round(card.getBoundingClientRect().top)-40);
+        modal.style.marginTop=mt+'px';
+        modal.style.maxHeight=(parentVH?Math.max(420,parentVH-48):620)+'px';
+        try{ window.parent.postMessage({type:'aob-modal-open',top:mt+20},'*'); }catch(err){}
+      }else{
+        modal.style.marginTop='';
+        modal.style.maxHeight='';
+      }
       ov.classList.add('open');
       document.body.style.overflow='hidden';
       show(0);
