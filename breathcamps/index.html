@@ -1585,6 +1585,17 @@ section>.wrap{position:relative;z-index:1}
     lv.addEventListener('keydown',function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); lvPlay(); } });
   }
 
+  // every link that leaves the page opens a new tab — inside the WP embeds
+  // an in-frame navigation would trap the visitor inside the iframe
+  document.addEventListener('click',function(e){
+    var a=e.target && e.target.closest ? e.target.closest('a[href]') : null;
+    if(!a) return;
+    var h=a.getAttribute('href');
+    if(!h || h.charAt(0)==='#' || h.indexOf('javascript:')===0) return;
+    a.target='_blank';
+    if(!/\bnoopener\b/.test(a.rel||'')) a.rel=((a.rel||'')+' noopener').trim();
+  },true);
+
   // in-page anchors: force-render .cv sections first, else Chrome cancels the
   // smooth scroll when their heights re-resolve mid-flight
   document.querySelectorAll('a[href^="#"]').forEach(function(a){
