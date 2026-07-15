@@ -387,6 +387,8 @@ section>.wrap{position:relative;z-index:1}
 .tr-bleed::after{right:0;background:linear-gradient(90deg,rgba(255,255,255,0),var(--paper))}
 .tr-hint{text-align:center;font-size:.78rem;color:var(--slate);margin-top:26px}
 @media(max-width:560px){.tr-bleed::before,.tr-bleed::after{display:none}.tr-track li{flex-basis:246px}}
+.tr-duo{display:flex;justify-content:center;gap:26px;margin-top:54px;flex-wrap:wrap}
+.tr-duo .trainer{flex:0 1 330px;width:auto}
 .trainer{background:#fff;border:1px solid rgba(225,182,104,.28);border-radius:18px;padding:30px 24px 28px;text-align:center;box-shadow:var(--shadow-soft);width:100%;transition:transform .35s,box-shadow .35s}
 .tr-track .trainer:hover{transform:translateY(-5px) rotate(0);box-shadow:var(--shadow-lift)}
 .trainer img{pointer-events:none;-webkit-user-drag:none}
@@ -811,28 +813,9 @@ section>.wrap{position:relative;z-index:1}
       <span class="eyebrow reveal" style="justify-content:center">Guided by masters</span>
       <h2 class="reveal d1">The people who will <em>hold the week</em>.</h2>
     </div>
-    <div class="tr-bleed reveal">
-      <div class="tr-marquee" id="trScroll">
-        <ul class="tr-track">
-        <li><div class="trainer"><div class="ph"><img src="https://alchemyofbreath.com/wp-content/uploads/anthony-abbagnano-2-1.jpg" alt="Anthony Abbagnano" width="500" height="500" loading="lazy" decoding="async"></div><h3>Anthony Abbagnano</h3><span class="role">Founder</span><p>Visionary thought leader, breath expert, and founder of Alchemy of Breath and ASHA, Alchemy School of Healing Arts.</p></div></li>
-        <li><div class="trainer"><div class="ph"><img src="https://alchemyofbreath.com/wp-content/uploads/amy-rachelle-1.jpg" alt="Amy Rachelle" width="500" height="500" loading="lazy" decoding="async"></div><h3>Amy Rachelle, ND</h3><span class="role">Co-founder</span><p>Naturopath and medical medium blending breathwork, intuition, detox, food as medicine, and voice into a joyful approach.</p></div></li>
-        <li><div class="trainer"><div class="ph"><img src="https://alchemyofbreath.com/wp-content/uploads/emily-ray-henderson-2.jpg" alt="Emily Ray Henderson" width="502" height="502" loading="lazy" decoding="async"></div><h3>Emily Ray Henderson</h3><span class="role">Master Trainer</span><p>Certified Wellness Counselor, Reiki Master, massage therapist, and 500 HR-RYT yoga instructor. Senior trainer for 8 years.</p></div></li>
-        <li><div class="trainer"><div class="ph"><img src="https://alchemyofbreath.com/wp-content/uploads/pablo-castro.jpg" alt="Pablo Castro" width="501" height="501" loading="lazy" decoding="async"></div><h3>Pablo Castro</h3><span class="role">Master Trainer</span><p>Senior trainer for 8 years specializing in water work — the felt sense and water therapy are at the core of what he shares.</p></div></li>
-        <li><div class="trainer"><div class="ph"><img src="https://alchemyofbreath.com/wp-content/uploads/simona-dvorackova-400x400-1.jpg" alt="Simona Dvorackova" width="400" height="400" loading="lazy" decoding="async"></div><h3>Simona Dvorackova</h3><span class="role">Trainer</span><p>In health and well-being since 2001, with deep experience across bodywork, energy healing, and hypnotherapy.</p></div></li>
-        <li><div class="trainer"><div class="ph"><img src="https://alchemyofbreath.com/wp-content/uploads/btwfest-speaker-giulia-vaccari-768x768.jpg" alt="Giulia Vaccari" width="768" height="768" loading="lazy" decoding="async"></div><h3>Giulia Vaccari</h3><span class="role">Trainer</span><p>Passionate about helping people feel alive and safe in their body, using craniosacral therapy, reiki, movement, and breath.</p></div></li>
-        <li><div class="trainer"><div class="ph"><img src="https://alchemyofbreath.com/wp-content/uploads/1000050015-1.jpg" alt="Nick Garrow-Fisher" width="506" height="672" loading="lazy" decoding="async"></div><h3>Nick Garrow-Fisher</h3><span class="role">Trainer</span><p>Expert in helping people find their greatness, drawing on authentic relating, movement, IFS, boundaries, and consent work.</p></div></li>
-        </ul>
-        <ul class="tr-track" aria-hidden="true">
-        <li><div class="trainer"><div class="ph"><img src="https://alchemyofbreath.com/wp-content/uploads/anthony-abbagnano-2-1.jpg" alt="Anthony Abbagnano" width="500" height="500" loading="lazy" decoding="async"></div><h3>Anthony Abbagnano</h3><span class="role">Founder</span><p>Visionary thought leader, breath expert, and founder of Alchemy of Breath and ASHA, Alchemy School of Healing Arts.</p></div></li>
-        <li><div class="trainer"><div class="ph"><img src="https://alchemyofbreath.com/wp-content/uploads/amy-rachelle-1.jpg" alt="Amy Rachelle" width="500" height="500" loading="lazy" decoding="async"></div><h3>Amy Rachelle, ND</h3><span class="role">Co-founder</span><p>Naturopath and medical medium blending breathwork, intuition, detox, food as medicine, and voice into a joyful approach.</p></div></li>
-        <li><div class="trainer"><div class="ph"><img src="https://alchemyofbreath.com/wp-content/uploads/emily-ray-henderson-2.jpg" alt="Emily Ray Henderson" width="502" height="502" loading="lazy" decoding="async"></div><h3>Emily Ray Henderson</h3><span class="role">Master Trainer</span><p>Certified Wellness Counselor, Reiki Master, massage therapist, and 500 HR-RYT yoga instructor. Senior trainer for 8 years.</p></div></li>
-        <li><div class="trainer"><div class="ph"><img src="https://alchemyofbreath.com/wp-content/uploads/pablo-castro.jpg" alt="Pablo Castro" width="501" height="501" loading="lazy" decoding="async"></div><h3>Pablo Castro</h3><span class="role">Master Trainer</span><p>Senior trainer for 8 years specializing in water work — the felt sense and water therapy are at the core of what he shares.</p></div></li>
-        <li><div class="trainer"><div class="ph"><img src="https://alchemyofbreath.com/wp-content/uploads/simona-dvorackova-400x400-1.jpg" alt="Simona Dvorackova" width="400" height="400" loading="lazy" decoding="async"></div><h3>Simona Dvorackova</h3><span class="role">Trainer</span><p>In health and well-being since 2001, with deep experience across bodywork, energy healing, and hypnotherapy.</p></div></li>
-        <li><div class="trainer"><div class="ph"><img src="https://alchemyofbreath.com/wp-content/uploads/btwfest-speaker-giulia-vaccari-768x768.jpg" alt="Giulia Vaccari" width="768" height="768" loading="lazy" decoding="async"></div><h3>Giulia Vaccari</h3><span class="role">Trainer</span><p>Passionate about helping people feel alive and safe in their body, using craniosacral therapy, reiki, movement, and breath.</p></div></li>
-        <li><div class="trainer"><div class="ph"><img src="https://alchemyofbreath.com/wp-content/uploads/1000050015-1.jpg" alt="Nick Garrow-Fisher" width="506" height="672" loading="lazy" decoding="async"></div><h3>Nick Garrow-Fisher</h3><span class="role">Trainer</span><p>Expert in helping people find their greatness, drawing on authentic relating, movement, IFS, boundaries, and consent work.</p></div></li>
-        </ul>
-      </div>
-      <p class="tr-hint">Drifting gently &mdash; scroll, drag, or hover to pause</p>
+    <div class="tr-duo reveal">
+      <div class="trainer"><div class="ph"><img src="https://alchemyofbreath.com/wp-content/uploads/pablo-castro.jpg" alt="Pablo Castro" width="501" height="501" loading="lazy" decoding="async"></div><h3>Pablo Castro</h3><span class="role">Master Trainer</span><p>Senior trainer for 8 years specializing in water work — the felt sense and water therapy are at the core of what he shares.</p></div>
+      <div class="trainer"><div class="ph"><img src="https://alchemyofbreath.com/wp-content/uploads/1000050015-1.jpg" alt="Nick Garrow-Fisher" width="506" height="672" loading="lazy" decoding="async"></div><h3>Nick Garrow-Fisher</h3><span class="role">Trainer</span><p>Expert in helping people find their greatness, drawing on authentic relating, movement, IFS, boundaries, and consent work.</p></div>
     </div>
   </div>
 </section>
