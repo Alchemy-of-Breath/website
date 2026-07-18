@@ -139,9 +139,13 @@ section>.wrap{position:relative;z-index:1}
 @media(max-width:560px){.hero{padding-top:196px}.btn{padding:16px 26px;font-size:.88rem;width:100%;justify-content:center}.hero-actions{flex-direction:column;align-items:stretch}}
 
 /* 2026 dates */
-.dates-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;max-width:1040px;margin:50px auto 0}
-@media(max-width:1000px){.dates-grid{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:640px){.dates-grid{grid-template-columns:1fr 1fr}}
+.dates-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:16px;max-width:1040px;margin:50px auto 0}
+.date-card{grid-column:span 2}
+.date-card.featured{grid-column:span 3;padding:36px 24px 30px}
+.date-card.featured .dc-n{font-size:1.05rem}
+.date-card.featured .dc-d{font-size:1.55rem;margin-bottom:20px}
+.date-card.featured a{padding:13px 28px;font-size:.76rem}
+@media(max-width:1000px){.dates-grid{grid-template-columns:1fr 1fr}.date-card,.date-card.featured{grid-column:auto}}
 @media(max-width:430px){.dates-grid{grid-template-columns:1fr}}
 .date-card{position:relative;background:#fff;border:1px solid rgba(225,182,104,.3);border-radius:16px;padding:26px 20px 22px;text-align:center;box-shadow:var(--shadow-soft);display:flex;flex-direction:column;align-items:center;transition:transform .3s,box-shadow .3s,border-color .3s}
 .dc-flag{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#A50713,#D91324);color:#FFF6E8;font-size:.6rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;border-radius:999px;padding:6px 15px;box-shadow:0 6px 16px rgba(165,7,19,.4);white-space:nowrap}
@@ -555,11 +559,11 @@ section>.wrap{position:relative;z-index:1}
       <p class="reveal d2" style="margin-top:16px;font-size:1.04rem">Each camp is the same 7-day journey — choose the week that fits your life.</p>
     </div>
     <div class="dates-grid reveal d1">
-      <div class="date-card soldout"><span class="dc-flag full">Full &middot; waitlist only</span><span class="dc-n">BreathCamp 1</span><span class="dc-d">Aug 16 &ndash; 22</span><a href="https://asha.secure.retreat.guru/program/breathcamp-aug-16-aug-22-2026-students-copy/?form=1&amp;lang=en">Join waitlist</a></div>
-      <div class="date-card soldout"><span class="dc-flag full">Full &middot; waitlist only</span><span class="dc-n">BreathCamp 2</span><span class="dc-d">Aug 30 &ndash; Sep 5</span><a href="https://asha.secure.retreat.guru/program/breathcamp-aug-30-sep-5-2026/?form=1&amp;lang=en">Join waitlist</a></div>
+      <div class="date-card featured"><span class="dc-flag full">Full &middot; waitlist only</span><span class="dc-n">BreathCamp 1</span><span class="dc-d">Aug 16 &ndash; 22</span><a href="https://asha.secure.retreat.guru/program/breathcamp-aug-16-aug-22-2026-students-copy/?form=1&amp;lang=en">Book now</a></div>
+      <div class="date-card featured"><span class="dc-flag full">Full &middot; waitlist only</span><span class="dc-n">BreathCamp 2</span><span class="dc-d">Aug 30 &ndash; Sep 5</span><a href="https://asha.secure.retreat.guru/program/breathcamp-aug-30-sep-5-2026/?form=1&amp;lang=en">Book now</a></div>
       <div class="date-card soldout"><span class="dc-n">BreathCamp 3</span><span class="dc-d">Sep 6 &ndash; 12</span><a href="https://asha.secure.retreat.guru/program/breathcamp-sep-6-sep-12-2026-2027/?form=1&amp;lang=en">Join waitlist</a></div>
       <div class="date-card soldout"><span class="dc-n">BreathCamp 4</span><span class="dc-d">Sep 20 &ndash; 26</span><a href="https://asha.secure.retreat.guru/program/breathcamp-sep-20-sep-26-2026/?form=1&amp;lang=en">Join waitlist</a></div>
-      <div class="date-card"><span class="dc-n">BreathCamp 5</span><span class="dc-d">Oct 25 &ndash; 31</span><a href="https://asha.secure.retreat.guru/program/breathcamp-oct-25-oct-31-2026/?form=1&amp;lang=en">Register</a></div>
+      <div class="date-card soldout"><span class="dc-n">BreathCamp 5</span><span class="dc-d">Oct 25 &ndash; 31</span><a href="https://asha.secure.retreat.guru/program/breathcamp-oct-25-oct-31-2026/?form=1&amp;lang=en">Join waitlist</a></div>
     </div>
     <p class="dates-note reveal d2">A current student booking to graduate at ASHA? <a href="https://asha.secure.retreat.guru/program/breathcamp-aug-16-aug-22-2026-students-copy/?form=1&amp;lang=en">Graduates &amp; alumni register here</a> &middot; or <a href="https://alchemyofbreath.com/calendar-2026/">view the full 2026 calendar</a>.</p>
   </div>
