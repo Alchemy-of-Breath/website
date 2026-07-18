@@ -82,19 +82,6 @@ section>.wrap{position:relative;z-index:1}
 .reveal.d1{transition-delay:.12s}.reveal.d2{transition-delay:.24s}.reveal.d3{transition-delay:.36s}
 @media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}*{animation-duration:.001s !important;animation-iteration-count:1 !important}html{scroll-behavior:auto}}
 
-/* offer banner (remove when SUMMER10 closes, 17 July 2026) */
-.bday{position:fixed;top:0;left:0;right:0;z-index:60;background:linear-gradient(135deg,#7B0712 0%,#9D1018 50%,#7B0712 100%);color:#FBF7EF;border-bottom:1px solid rgba(225,182,104,.35);box-shadow:0 4px 18px rgba(0,0,0,.18);text-decoration:none;display:block}
-.bday-in{max-width:1140px;margin:0 auto;padding:18px 28px;display:flex;align-items:center;justify-content:center;gap:14px;font-family:var(--sans);font-size:1rem;font-weight:400;letter-spacing:.03em;text-align:center}
-.bday-in .pulse{width:9px;height:9px;border-radius:50%;background:var(--gold);flex-shrink:0;box-shadow:0 0 0 0 rgba(225,182,104,.7);animation:bdayPulse 2.2s ease-out infinite}
-@keyframes bdayPulse{0%{box-shadow:0 0 0 0 rgba(225,182,104,.55)}70%{box-shadow:0 0 0 11px rgba(225,182,104,0)}100%{box-shadow:0 0 0 0 rgba(225,182,104,0)}}
-.bday-in strong{color:var(--gold);font-weight:600;letter-spacing:.02em}
-.bday-in .sep{opacity:.5;margin:0 2px}
-@media(max-width:760px){.bday-in{padding:14px 16px;font-size:.84rem;gap:11px;line-height:1.4}.bday-in .hide-sm{display:none}}
-.nav{top:60px !important}
-.hero{padding-top:230px !important}
-@media(max-width:760px){.hero{padding-top:204px !important}}
-@media(prefers-reduced-motion:reduce){.bday-in .pulse{animation:none}}
-
 /* nav */
 .nav{position:fixed;top:0;left:0;right:0;z-index:50;background:rgba(255,255,255,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid rgba(225,182,104,.18);transition:box-shadow .3s}
 .nav.scrolled{box-shadow:0 6px 30px rgba(34,31,32,.07)}
@@ -222,14 +209,6 @@ section>.wrap{position:relative;z-index:1}
 </head>
 <body>
 
-<!-- SUMMER OFFER BANNER (remove after 17 July 2026) -->
-<a class="bday" href="#schedule" aria-label="10% off all retreats until 17 July with code SUMMER10">
-  <div class="bday-in">
-    <span class="pulse" aria-hidden="true"></span>
-    <span><span class="hide-sm">10% off all retreats &middot; ends 17 July &middot; </span>use code <strong>SUMMER10</strong> at checkout<span class="sep"> &middot; </span>see the 2026 dates&nbsp;&rarr;</span>
-  </div>
-</a>
-
 <!-- NAV -->
 <header class="nav" id="nav">
   <div class="nav-in">
@@ -266,7 +245,7 @@ section>.wrap{position:relative;z-index:1}
     <div style="text-align:center;max-width:44em;margin:0 auto 74px">
       <span class="eyebrow reveal" style="justify-content:center">The 2026 schedule</span>
       <h2 class="reveal d1">Month by month — <em>every doorway</em> this year.</h2>
-      <p class="reveal d2" style="margin-top:16px;font-size:1.02rem;color:var(--slate)">All residential dates happen at ASHA in the golden hills of Tuscany. Early discounts are live now — they soon expire.</p>
+      <p class="reveal d2" style="margin-top:16px;font-size:1.02rem;color:var(--slate)">All residential dates happen at ASHA in the golden hills of Tuscany.</p>
     </div>
 
     <!-- JUNE -->

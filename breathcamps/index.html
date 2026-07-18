@@ -83,23 +83,6 @@ section>.wrap{position:relative;z-index:1}
 .reveal.d1{transition-delay:.12s}.reveal.d2{transition-delay:.24s}.reveal.d3{transition-delay:.36s}
 @media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}*{animation-duration:.001s !important;animation-iteration-count:1 !important}html{scroll-behavior:auto}}
 
-/* offer banner (remove when SUMMER10 closes, 17 July 2026) */
-.bday{position:fixed;top:0;left:0;right:0;z-index:60;background:linear-gradient(135deg,#A50713 0%,#D91324 50%,#A50713 100%);color:#FFF6E8;border-bottom:1px solid rgba(225,182,104,.5);box-shadow:0 4px 18px rgba(0,0,0,.22);text-decoration:none;display:block}
-.bday-in{max-width:1140px;margin:0 auto;padding:17px 28px;display:flex;align-items:center;justify-content:center;gap:14px;font-family:var(--sans);font-size:1.05rem;font-weight:500;letter-spacing:.03em;text-align:center}
-.bday-in .pulse{width:9px;height:9px;border-radius:50%;background:var(--gold);flex-shrink:0;box-shadow:0 0 0 0 rgba(225,182,104,.7);animation:bdayPulse 2.2s ease-out infinite}
-@keyframes bdayPulse{0%{box-shadow:0 0 0 0 rgba(225,182,104,.55)}70%{box-shadow:0 0 0 11px rgba(225,182,104,0)}100%{box-shadow:0 0 0 0 rgba(225,182,104,0)}}
-.bday-in strong{background:var(--grad-gold);color:var(--ink);font-weight:700;letter-spacing:.04em;padding:4px 13px;border-radius:999px;box-shadow:0 4px 12px rgba(0,0,0,.25)}
-.bday-in b{color:#FFDF9E;font-weight:700}
-.bday-in .sep{opacity:.5;margin:0 2px}
-@media(max-width:760px){.bday-in{padding:14px 16px;font-size:.84rem;gap:11px;line-height:1.4}.bday-in .hide-sm{display:none}}
-/* pricing-section offer chip (remove with the banner after 17 July 2026) */
-.s10-chip{display:inline-flex;flex-wrap:wrap;justify-content:center;align-items:baseline;gap:7px;margin-top:20px;background:var(--grad-gold);color:var(--ink);font-weight:600;font-size:.98rem;letter-spacing:.03em;border-radius:999px;padding:13px 28px;box-shadow:0 10px 28px rgba(214,166,82,.5)}
-.s10-chip b{font-weight:800;letter-spacing:.05em}
-.nav{top:60px !important}
-.hero{padding-top:220px !important}
-@media(max-width:760px){.hero{padding-top:196px !important}}
-@media(prefers-reduced-motion:reduce){.bday-in .pulse{animation:none}}
-
 /* nav */
 .nav{position:fixed;top:0;left:0;right:0;z-index:50;background:rgba(255,255,255,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid rgba(225,182,104,.18);transition:box-shadow .3s}
 .nav.scrolled{box-shadow:0 6px 30px rgba(34,31,32,.07)}
@@ -299,9 +282,7 @@ section>.wrap{position:relative;z-index:1}
 .room-b .pr{font-family:var(--serif);font-size:1.45rem;color:var(--gold-deep);margin-bottom:8px}
 .room-b .pr small{font-family:var(--sans);font-size:.68rem;color:var(--slate);letter-spacing:.06em}
 .room-b p{font-size:.82rem;color:var(--slate);line-height:1.55;flex:1}
-.room-b .was{font-family:var(--sans);font-weight:300;font-size:.82rem;color:var(--slate);text-decoration:line-through;text-decoration-color:rgba(91,120,137,.5);margin-right:7px}
 .room-b .prx{font-family:var(--serif);font-size:1rem;color:var(--gold-deep);margin:-4px 0 8px}
-.room-b .prx .was{font-size:.72rem}
 .rooms-note{text-align:center;font-size:.85rem;color:var(--slate);max-width:44em;margin:30px auto 0}
 .room{cursor:pointer}
 .room .rm-more{margin-top:12px;font-size:.72rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-deep)}
@@ -328,7 +309,6 @@ section>.wrap{position:relative;z-index:1}
 .rm-tag{display:inline-block;font-size:.62rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--teal);margin-bottom:8px}
 .rm-title{font-family:var(--serif);font-weight:400;font-size:1.6rem;color:var(--ink);margin-bottom:4px}
 .rm-price{font-family:var(--serif);font-size:1.5rem;color:var(--gold-deep);margin-bottom:12px}
-.rm-price .was{font-family:var(--sans);font-weight:300;font-size:.85rem;color:var(--slate);text-decoration:line-through;text-decoration-color:rgba(91,120,137,.5);margin-right:7px}
 .rm-price small{font-family:var(--sans);font-size:.68rem;color:var(--slate);letter-spacing:.06em}
 .rm-desc{font-size:.95rem;color:var(--ink);line-height:1.65}
 .rm-note{font-size:.8rem;color:var(--slate);margin-top:12px;line-height:1.55}
@@ -522,14 +502,6 @@ section>.wrap{position:relative;z-index:1}
 </head>
 <body>
 
-<!-- OFFER BANNER (remove when SUMMER10 closes — ends 17 July 2026) -->
-<a class="bday" href="#dates" aria-label="10% off all retreats until 17 July with code SUMMER10">
-  <div class="bday-in">
-    <span class="pulse" aria-hidden="true"></span>
-    <span><span class="hide-sm"><b>10% off all retreats</b> &middot; ends 17 July &middot; </span>use code <strong>SUMMER10</strong> at checkout<span class="sep"> &middot; </span>claim your spot&nbsp;&rarr;</span>
-  </div>
-</a>
-
 <!-- NAV -->
 <header class="nav" id="nav">
   <div class="nav-in">
@@ -717,17 +689,16 @@ section>.wrap{position:relative;z-index:1}
       <span class="eyebrow reveal" style="justify-content:center">Pricing &amp; accommodation</span>
       <h2 class="reveal d1">Luxury to rustic — <em>every breather welcome</em>.</h2>
       <p class="reveal d2" style="margin-top:16px;font-size:1.04rem">All prices are per person for the full 7-day, all-inclusive retreat.</p>
-      <p class="reveal d2"><span class="s10-chip"><b>10% OFF</b> already applied to every price below &middot; code <b>SUMMER10</b> at checkout &middot; ends 17 July</span></p>
     </div>
     <div class="rooms-grid">
-      <div class="room reveal"><img src="https://alchemyofbreath.com/wp-content/uploads/single-ensuite-1-1-1.jpg" alt="Single ensuite room in the ASHA main house" width="1000" height="667" loading="lazy" decoding="async"><div class="room-b"><span class="rt">Private</span><h3>Single Room Ensuite</h3><div class="pr"><span class="was">&euro;2,745</span> &euro;2,470.50 <small>/ person</small></div><p>A private room with its own bathroom in the Main House — a single bed, a desk, and your own quiet oasis to rest and process.</p></div></div>
-      <div class="room reveal d1"><img src="https://alchemyofbreath.com/wp-content/uploads/twin-ensuite-1-1-1-768x512.jpg" alt="Twin ensuite shared room at ASHA" width="768" height="512" loading="lazy" decoding="async"><div class="room-b"><span class="rt">Shared &middot; ensuite</span><h3>Twin Room Ensuite</h3><div class="pr"><span class="was">&euro;2,295</span> &euro;2,065.50 <small>/ person</small></div><p>Share a room with one other guest and enjoy a private ensuite bathroom. Rustic, simple, and filled with warmth and natural light.</p></div></div>
-      <div class="room reveal d2"><img src="https://alchemyofbreath.com/wp-content/uploads/twin-non-ensuite-1-1-1-768x512.jpg" alt="Twin non-ensuite room in a private cottage" width="768" height="512" loading="lazy" decoding="async"><div class="room-b"><span class="rt">Shared</span><h3>Twin Room Non-Ensuite</h3><div class="pr"><span class="was">&euro;2,059</span> &euro;1,853.10 <small>/ person</small></div><p>Two single beds to a room, shared same-sex, in a private cottage. The bathroom is shared between four people.</p></div></div>
-      <div class="room reveal d3"><img src="https://alchemyofbreath.com/wp-content/uploads/triple-ensuite-1-1-1-1-768x512.jpg" alt="Triple ensuite room at ASHA" width="768" height="512" loading="lazy" decoding="async"><div class="room-b"><span class="rt">Shared &middot; ensuite</span><h3>Triple Ensuite</h3><div class="pr"><span class="was">&euro;1,995</span> &euro;1,795.50 <small>/ person</small></div><p>Three single beds with a private bathroom, shared same-sex, in a private cottage or the Main House.</p></div></div>
-      <div class="room reveal"><img src="https://alchemyofbreath.com/wp-content/uploads/asha-glamping-1-1-1.jpg" alt="Glamping bell tent at ASHA" width="1000" height="667" loading="lazy" decoding="async"><div class="room-b"><span class="rt">Glamping</span><h3>ASHA Bell Tent</h3><div class="pr"><span class="was">&euro;1,925</span> &euro;1,732.50 <small>/ person twin</small></div><div class="prx"><span class="was">&euro;2,049</span> &euro;1,844.10 single</div><p>Guests love our bell tents with nearby toilets and showers. Choose a private single tent, or share with one other.</p></div></div>
-      <div class="room reveal d1"><img src="https://alchemyofbreath.com/wp-content/uploads/accommodation-camper-1-1-1-1-1.jpg" alt="Camper spot at ASHA" width="1000" height="641" loading="lazy" decoding="async"><div class="room-b"><span class="rt">Camper</span><h3>Come in a Camper</h3><div class="pr"><span class="was">&euro;1,695</span> &euro;1,525.50 <small>/ person</small></div><p>Bring your camper and join the community, with full access to our facilities. One of our most popular, nature-immersed options.</p></div></div>
-      <div class="room reveal d2"><img src="https://alchemyofbreath.com/wp-content/uploads/accommodation-tent-1-1-1-1-1.jpg" alt="Own-tent camping in the ASHA woods" width="1003" height="592" loading="lazy" decoding="async"><div class="room-b"><span class="rt">Tent</span><h3>Bring Your Own Tent</h3><div class="pr"><span class="was">&euro;1,649</span> &euro;1,484.10 <small>/ person</small></div><p>Pitch your own tent in our secluded woods, with full use of our facilities. Bring your own bedding and gear.</p></div></div>
-      <div class="room reveal d3"><img src="https://alchemyofbreath.com/wp-content/uploads/Private-Cottage-1-1-1-768x512.jpg" alt="Private cottage at ASHA" width="768" height="512" loading="lazy" decoding="async"><div class="room-b"><span class="rt">Cottage</span><h3>Private Cottage</h3><div class="pr"><span class="was">&euro;6,895</span> &euro;6,205.50 <small>for two</small></div><div class="prx"><span class="was">&euro;5,075</span> &euro;4,567.50 for one</div><p>A cozy private cottage with your own bathroom, kitchen, and living space — perfect for couples or anyone seeking quiet comfort.</p></div></div>
+      <div class="room reveal"><img src="https://alchemyofbreath.com/wp-content/uploads/single-ensuite-1-1-1.jpg" alt="Single ensuite room in the ASHA main house" width="1000" height="667" loading="lazy" decoding="async"><div class="room-b"><span class="rt">Private</span><h3>Single Room Ensuite</h3><div class="pr">&euro;2,745 <small>/ person</small></div><p>A private room with its own bathroom in the Main House — a single bed, a desk, and your own quiet oasis to rest and process.</p></div></div>
+      <div class="room reveal d1"><img src="https://alchemyofbreath.com/wp-content/uploads/twin-ensuite-1-1-1-768x512.jpg" alt="Twin ensuite shared room at ASHA" width="768" height="512" loading="lazy" decoding="async"><div class="room-b"><span class="rt">Shared &middot; ensuite</span><h3>Twin Room Ensuite</h3><div class="pr">&euro;2,295 <small>/ person</small></div><p>Share a room with one other guest and enjoy a private ensuite bathroom. Rustic, simple, and filled with warmth and natural light.</p></div></div>
+      <div class="room reveal d2"><img src="https://alchemyofbreath.com/wp-content/uploads/twin-non-ensuite-1-1-1-768x512.jpg" alt="Twin non-ensuite room in a private cottage" width="768" height="512" loading="lazy" decoding="async"><div class="room-b"><span class="rt">Shared</span><h3>Twin Room Non-Ensuite</h3><div class="pr">&euro;2,059 <small>/ person</small></div><p>Two single beds to a room, shared same-sex, in a private cottage. The bathroom is shared between four people.</p></div></div>
+      <div class="room reveal d3"><img src="https://alchemyofbreath.com/wp-content/uploads/triple-ensuite-1-1-1-1-768x512.jpg" alt="Triple ensuite room at ASHA" width="768" height="512" loading="lazy" decoding="async"><div class="room-b"><span class="rt">Shared &middot; ensuite</span><h3>Triple Ensuite</h3><div class="pr">&euro;1,995 <small>/ person</small></div><p>Three single beds with a private bathroom, shared same-sex, in a private cottage or the Main House.</p></div></div>
+      <div class="room reveal"><img src="https://alchemyofbreath.com/wp-content/uploads/asha-glamping-1-1-1.jpg" alt="Glamping bell tent at ASHA" width="1000" height="667" loading="lazy" decoding="async"><div class="room-b"><span class="rt">Glamping</span><h3>ASHA Bell Tent</h3><div class="pr">&euro;1,925 <small>/ person twin</small></div><div class="prx">&euro;2,049 single</div><p>Guests love our bell tents with nearby toilets and showers. Choose a private single tent, or share with one other.</p></div></div>
+      <div class="room reveal d1"><img src="https://alchemyofbreath.com/wp-content/uploads/accommodation-camper-1-1-1-1-1.jpg" alt="Camper spot at ASHA" width="1000" height="641" loading="lazy" decoding="async"><div class="room-b"><span class="rt">Camper</span><h3>Come in a Camper</h3><div class="pr">&euro;1,695 <small>/ person</small></div><p>Bring your camper and join the community, with full access to our facilities. One of our most popular, nature-immersed options.</p></div></div>
+      <div class="room reveal d2"><img src="https://alchemyofbreath.com/wp-content/uploads/accommodation-tent-1-1-1-1-1.jpg" alt="Own-tent camping in the ASHA woods" width="1003" height="592" loading="lazy" decoding="async"><div class="room-b"><span class="rt">Tent</span><h3>Bring Your Own Tent</h3><div class="pr">&euro;1,649 <small>/ person</small></div><p>Pitch your own tent in our secluded woods, with full use of our facilities. Bring your own bedding and gear.</p></div></div>
+      <div class="room reveal d3"><img src="https://alchemyofbreath.com/wp-content/uploads/Private-Cottage-1-1-1-768x512.jpg" alt="Private cottage at ASHA" width="768" height="512" loading="lazy" decoding="async"><div class="room-b"><span class="rt">Cottage</span><h3>Private Cottage</h3><div class="pr">&euro;6,895 <small>for two</small></div><div class="prx">&euro;5,075 for one</div><p>A cozy private cottage with your own bathroom, kitchen, and living space — perfect for couples or anyone seeking quiet comfort.</p></div></div>
     </div>
     <p class="rooms-note reveal">Please note: May and September weather can be variable — tent and glamping options are used at your own risk, as we don't offer refunds. All guests stay on-site at ASHA.</p>
     <div class="mid-cta reveal">
@@ -1510,7 +1481,7 @@ section>.wrap{position:relative;z-index:1}
       priceEl.innerHTML=(card.querySelector('.pr')||{}).innerHTML||'';
       var px=card.querySelector('.prx'); if(px) priceEl.innerHTML+=' <span style="font-size:1rem">&middot; '+px.innerHTML+'</span>';
       descEl.textContent=(card.querySelector('.room-b p')||{}).textContent||'';
-      noteEl.textContent=(WEATHER[title]?'May and September weather can be variable — used at your own risk, as we don\u2019t offer refunds. ':'')+'Payment plans available: 20% deposit, then monthly installments. Prices shown include 10% off with code SUMMER10, applied at checkout (ends 17 July).';
+      noteEl.textContent=(WEATHER[title]?'May and September weather can be variable — used at your own risk, as we don\u2019t offer refunds. ':'')+'Payment plans available: 20% deposit, then monthly installments.';
       thumbs.innerHTML='';
       g.forEach(function(it,i){
         var t=document.createElement('img');
