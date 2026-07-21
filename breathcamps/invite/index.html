@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Invite a Friend — 50% Off Their BreathCamp | Alchemy of Breath</title>
+<meta name="description" content="Share your link with a friend and they'll receive 50% off their BreathCamp registration.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#FBF7EF">
+<link rel="icon" type="image/png" href="https://alchemyofbreath.com/wp-content/uploads/AOB-Gold-Black-Transparant-symbol.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Roboto:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Roboto:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Roboto:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap"></noscript>
+<style>
+:root{
+  --paper:#FFFFFF;--paper-2:#FBF7EF;--cream:#FDF6E9;
+  --gold:#E1B668;--gold-deep:#D6A652;--gold-wash:#F7EBD2;
+  --teal:#00A5B2;--slate:#5B7889;--ink:#221F20;
+  --grad-gold:linear-gradient(135deg,#E1B668 0%,#D6A652 100%);
+  --shadow-soft:0 1px 2px rgba(34,31,32,.04),0 8px 24px rgba(34,31,32,.06),0 24px 64px rgba(34,31,32,.07);
+  --shadow-lift:0 2px 4px rgba(34,31,32,.05),0 14px 34px rgba(34,31,32,.10),0 34px 80px rgba(34,31,32,.10);
+  --serif:'Marcellus',Georgia,'Times New Roman',serif;
+  --sans:'Roboto',-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--sans);font-weight:300;font-size:17px;line-height:1.7;color:var(--ink);background:radial-gradient(120% 90% at 50% 0%,var(--cream) 0%,var(--paper-2) 70%);min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{max-width:100%;height:auto;display:block}
+em{color:var(--gold-deep);font-style:italic}
+
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opacity:.05;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E")}
+
+.orb{position:fixed;border-radius:50%;pointer-events:none;z-index:0}
+.orb.g{background:radial-gradient(circle,rgba(225,182,104,.24) 0%,rgba(225,182,104,0) 70%)}
+.orb.t{background:radial-gradient(circle,rgba(0,165,178,.13) 0%,rgba(0,165,178,0) 70%)}
+
+.wrap{position:relative;z-index:1;max-width:600px;margin:0 auto;padding:56px 24px 72px;text-align:center}
+.logo{height:40px;width:auto;margin:0 auto 42px}
+
+.eyebrow{font-size:.74rem;font-weight:500;letter-spacing:.26em;text-transform:uppercase;color:var(--slate);display:inline-flex;align-items:center;gap:14px;margin-bottom:18px}
+.eyebrow::before,.eyebrow::after{content:"";width:30px;height:1px;background:var(--gold)}
+h1{font-family:var(--serif);font-weight:400;font-size:clamp(2rem,6.4vw,2.9rem);line-height:1.16;letter-spacing:-.01em;margin-bottom:18px}
+.sub{font-size:1.04rem;color:var(--slate);max-width:28em;margin:0 auto}
+.sub strong{color:var(--ink);font-weight:500}
+
+.link-card{margin:36px auto 14px;background:var(--paper);border:1px solid rgba(225,182,104,.5);border-radius:18px;padding:26px 26px 24px;box-shadow:var(--shadow-lift);position:relative}
+.link-card::before{content:"";position:absolute;inset:-10px;border-radius:24px;border:1px solid rgba(225,182,104,.3);pointer-events:none}
+.link-label{font-size:.66rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:10px}
+.link-url{font-family:var(--serif);font-size:clamp(1.05rem,3.6vw,1.4rem);color:var(--ink);word-break:break-all;line-height:1.4;padding:14px 16px;background:var(--cream);border:1px dashed rgba(214,166,82,.6);border-radius:12px;user-select:all}
+.copy-btn{display:inline-flex;align-items:center;gap:10px;margin-top:18px;background:var(--grad-gold);color:var(--ink);border:none;cursor:pointer;font-family:var(--sans);font-weight:600;font-size:.9rem;letter-spacing:.06em;text-transform:uppercase;border-radius:999px;padding:15px 34px;box-shadow:0 10px 26px rgba(214,166,82,.45);transition:filter .2s,transform .2s}
+.copy-btn:hover{filter:brightness(1.06);transform:translateY(-1px)}
+.copy-btn svg{width:17px;height:17px;fill:none;stroke:var(--ink);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.copy-btn.copied{background:var(--ink);color:var(--gold)}
+.copy-btn.copied svg{stroke:var(--gold)}
+
+.share-row{display:flex;justify-content:center;flex-wrap:wrap;gap:12px;margin-top:22px}
+.share-row a{display:inline-flex;align-items:center;gap:9px;font-size:.82rem;font-weight:500;letter-spacing:.05em;color:var(--ink);text-decoration:none;border:1px solid rgba(34,31,32,.25);border-radius:999px;padding:12px 22px;background:var(--paper);transition:border-color .2s,background .2s,transform .2s}
+.share-row a:hover{border-color:var(--gold-deep);background:var(--gold-wash);transform:translateY(-1px)}
+.share-row svg{width:16px;height:16px;fill:none;stroke:var(--ink);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+
+.note{font-size:.85rem;color:var(--slate);max-width:27em;margin:26px auto 0;line-height:1.65}
+.foot{margin-top:44px;font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--slate);opacity:.75}
+</style>
+</head>
+<body>
+
+<div class="orb g" style="width:560px;height:560px;top:-220px;left:-200px" aria-hidden="true"></div>
+<div class="orb t" style="width:520px;height:520px;bottom:-220px;right:-190px" aria-hidden="true"></div>
+
+<main class="wrap">
+  <img class="logo" src="https://alchemyofbreath.com/wp-content/uploads/AOB-Gold-Black-Transparant.png" alt="Alchemy of Breath" width="252" height="72" decoding="async">
+
+  <span class="eyebrow">Invite a friend</span>
+  <h1>The week is better <em>shared</em>.</h1>
+  <p class="sub">Share this link with a friend and they'll receive <strong>50% off</strong> their BreathCamp registration.</p>
+
+  <div class="link-card">
+    <p class="link-label">Your link to share</p>
+    <p class="link-url" id="shareUrl">breathcamp.alchemyofbreath.com/50off</p>
+    <button class="copy-btn" id="copyBtn" type="button">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      <span id="copyLabel">Copy link</span>
+    </button>
+  </div>
+
+  <div class="share-row">
+    <a href="https://wa.me/?text=Come%20to%20BreathCamp%20with%20me%20%F0%9F%8C%BF%20You%27ll%20get%2050%25%20off%20your%20registration%20with%20this%20link%3A%20https%3A%2F%2Fbreathcamp.alchemyofbreath.com%2F50off" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.5 8.5 0 0 1-12.4 7.5L3 21l2-5.4A8.5 8.5 0 1 1 21 11.5z"/></svg>
+      WhatsApp
+    </a>
+    <a href="mailto:?subject=Your%2050%25%20off%20BreathCamp%20in%20Tuscany&body=I%27d%20love%20for%20you%20to%20join%20me%20at%20BreathCamp%20%E2%80%94%20seven%20days%20of%20breathwork%20and%20community%20at%20ASHA%20in%20Tuscany.%0A%0AThis%20link%20gives%20you%2050%25%20off%20your%20registration%3A%0Ahttps%3A%2F%2Fbreathcamp.alchemyofbreath.com%2F50off">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6L22 7"/></svg>
+      Email
+    </a>
+    <a href="#" id="nativeShare" hidden>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/></svg>
+      More
+    </a>
+  </div>
+
+  <p class="note">Their 50% off is applied automatically at registration — they simply choose their 2026 week. Places at this rate are limited.</p>
+
+  <p class="foot">BreathCamp &middot; ASHA &middot; Tuscany</p>
+</main>
+
+<script>
+(function(){
+  var URL_TO_SHARE = 'https://breathcamp.alchemyofbreath.com/50off';
+  var btn = document.getElementById('copyBtn');
+  var label = document.getElementById('copyLabel');
+  btn.addEventListener('click', function(){
+    function done(){
+      btn.classList.add('copied');
+      label.textContent = 'Copied!';
+      setTimeout(function(){ btn.classList.remove('copied'); label.textContent = 'Copy link'; }, 2200);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(URL_TO_SHARE).then(done).catch(fallback);
+    } else { fallback(); }
+    function fallback(){
+      var ta = document.createElement('textarea');
+      ta.value = URL_TO_SHARE;
+      ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); done(); } catch(e){}
+      document.body.removeChild(ta);
+    }
+  });
+
+  var ns = document.getElementById('nativeShare');
+  if (navigator.share) {
+    ns.hidden = false;
+    ns.addEventListener('click', function(e){
+      e.preventDefault();
+      navigator.share({
+        title: '50% off BreathCamp',
+        text: "Come to BreathCamp with me — this link gives you 50% off your registration.",
+        url: URL_TO_SHARE
+      }).catch(function(){});
+    });
+  }
+})();
+</script>
+
+  <script>(function(){if(window.self!==window.top){var st=document.createElement('style');st.textContent='.cv{content-visibility:visible !important}';document.head.appendChild(st);}function reportHeight(){var h=document.documentElement.scrollHeight;window.parent.postMessage({type:'aob-embed-resize',height:h},'*');}window.addEventListener('load',reportHeight);window.addEventListener('resize',reportHeight);var mo=new MutationObserver(reportHeight);mo.observe(document.body,{childList:true,subtree:true,attributes:true});setInterval(reportHeight,800);})();</script>
+</body>
+</html>
