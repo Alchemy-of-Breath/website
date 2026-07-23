@@ -82,17 +82,6 @@ section>.wrap{position:relative;z-index:1}
 .reveal.d1{transition-delay:.12s}.reveal.d2{transition-delay:.24s}.reveal.d3{transition-delay:.36s}
 @media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}*{animation-duration:.001s !important;animation-iteration-count:1 !important}html{scroll-behavior:auto}}
 
-/* birthday banner (remove when the offer closes) */
-.bday{position:fixed;top:0;left:0;right:0;z-index:60;background:linear-gradient(135deg,#7B0712 0%,#9D1018 50%,#7B0712 100%);color:#FBF7EF;border-bottom:1px solid rgba(225,182,104,.35);box-shadow:0 4px 18px rgba(0,0,0,.18);text-decoration:none;display:block}
-.bday-in{max-width:1140px;margin:0 auto;padding:18px 28px;display:flex;align-items:center;justify-content:center;gap:14px;font-family:var(--sans);font-size:1rem;font-weight:400;letter-spacing:.03em;text-align:center}
-.bday-in .pulse{width:9px;height:9px;border-radius:50%;background:var(--gold);flex-shrink:0;box-shadow:0 0 0 0 rgba(225,182,104,.7);animation:bdayPulse 2.2s ease-out infinite}
-@keyframes bdayPulse{0%{box-shadow:0 0 0 0 rgba(225,182,104,.55)}70%{box-shadow:0 0 0 11px rgba(225,182,104,0)}100%{box-shadow:0 0 0 0 rgba(225,182,104,0)}}
-.bday-in strong{color:var(--gold);font-weight:600;letter-spacing:.02em}
-.bday-in .sep{opacity:.5;margin:0 2px}
-@media(max-width:760px){.bday-in{padding:14px 16px;font-size:.84rem;gap:11px;line-height:1.4}.bday-in .hide-sm{display:none}}
-.nav{top:60px !important}
-.hero{padding-top:220px !important}
-@media(max-width:760px){.hero{padding-top:196px !important}}
 
 /* nav */
 .nav{position:fixed;top:0;left:0;right:0;z-index:50;background:rgba(255,255,255,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid rgba(225,182,104,.18);transition:box-shadow .3s}
@@ -386,7 +375,7 @@ section>.wrap{position:relative;z-index:1}
   "name":"Live Residential Breathwork Facilitator Training (4 Month Accelerated)",
   "description":"A four-month accelerated breathwork facilitator training: 21 days live and residential at ASHA in Tuscany, Italy, followed by roughly three months of online study and mentorship. Led by Anthony Abbagnano, Amy Rachelle, and Pablo Castro.",
   "provider":{"@type":"Organization","name":"Alchemy of Breath","url":"https://alchemyofbreath.com/","logo":"https://alchemyofbreath.com/wp-content/uploads/AOB-Gold-Black-Transparant.png","sameAs":["https://www.facebook.com/AOB.Breathwork/","https://www.instagram.com/alchemyofbreath/"]},
-  "offers":{"@type":"Offer","price":"5040","priceCurrency":"USD","url":"https://go.alchemyofbreath.com/book-842709","availability":"https://schema.org/InStock","category":"Paid"},
+  "offers":{"@type":"Offer","price":"7200","priceCurrency":"USD","url":"https://go.alchemyofbreath.com/book-842709","availability":"https://schema.org/InStock","category":"Paid"},
   "hasCourseInstance":{"@type":"CourseInstance","courseMode":"Blended","startDate":"2026-09-27","endDate":"2026-10-17","location":{"@type":"Place","name":"ASHA Retreat & Community Centre","address":{"@type":"PostalAddress","addressRegion":"Tuscany","addressCountry":"IT"}}},
   "timeRequired":"P4M",
   "educationalCredentialAwarded":"Alchemy of Breath Facilitator Certification"
@@ -651,13 +640,6 @@ section>.wrap{position:relative;z-index:1}
 </head>
 <body>
 
-<!-- BIRTHDAY BANNER (remove when the offer closes) -->
-<a class="bday" href="#pathways" aria-label="In celebration of Anthony's birthday, 30% off the Facilitator Training">
-  <div class="bday-in">
-    <span class="pulse" aria-hidden="true"></span>
-    <span><span class="hide-sm">In celebration of Anthony's birthday: </span><strong>30% off the Facilitator Training</strong><span class="sep"> &middot; </span>both pathways&nbsp;&rarr;</span>
-  </div>
-</a>
 
 <!-- NAV -->
 <header class="nav" id="nav">
@@ -999,12 +981,11 @@ section>.wrap{position:relative;z-index:1}
     </div>
     <div class="paths-grid reveal d1">
       <div class="path-card">
-        <span class="path-ribbon">Birthday gift &middot; 30% off</span>
         <span class="tag">8-month online</span>
         <h3>The online training</h3>
         <p class="lede">Train from anywhere, at a steady rhythm over eight months, with weekly live calls and a graduation retreat in Tuscany.</p>
-        <div class="path-price"><span class="now"><sup>$</sup>5,040</span><span class="was">$7,200</span></div>
-        <p class="path-pnote">In celebration of Anthony's birthday, 30% off. Payment plans available.</p>
+        <div class="path-price"><span class="now"><sup>$</sup>7,200</span></div>
+        <p class="path-pnote">Payment plans available.</p>
         <ul class="path-list">
           <li>400 hour, triple accredited certification</li>
           <li>Weekly live calls with expert coaching</li>
@@ -1015,12 +996,11 @@ section>.wrap{position:relative;z-index:1}
         <a class="btn btn-ghost" href="/facilitator-training/">Explore the online training <span class="arr">&rarr;</span></a>
       </div>
       <div class="path-card feat">
-        <span class="path-ribbon">Birthday gift &middot; 30% off</span>
         <span class="tag">4-month live residential</span>
         <h3>The live residential</h3>
         <p class="lede">Twenty-one days living the practice at ASHA, then three months online. The deepest, most immersive way in.</p>
-        <div class="path-price"><span class="now"><sup>$</sup>5,040</span><span class="was">$7,200</span></div>
-        <p class="path-pnote">In celebration of Anthony's birthday, 30% off. A payment plan is available: 20% deposit, then monthly installments.</p>
+        <div class="path-price"><span class="now"><sup>$</sup>7,200</span></div>
+        <p class="path-pnote">A payment plan is available: 20% deposit, then monthly installments.</p>
         <ul class="path-list">
           <li>21 days live and residential at ASHA, Tuscany</li>
           <li>Roughly three months of online study and mentorship</li>
