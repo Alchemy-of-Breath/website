@@ -107,6 +107,8 @@ section>.wrap{position:relative;z-index:1}
 @keyframes bdayPulse{0%{box-shadow:0 0 0 0 rgba(225,182,104,.55)}70%{box-shadow:0 0 0 11px rgba(225,182,104,0)}100%{box-shadow:0 0 0 0 rgba(225,182,104,0)}}
 .bday-in strong{background:var(--grad-gold);color:var(--ink);font-weight:700;letter-spacing:.04em;padding:4px 13px;border-radius:999px;box-shadow:0 4px 12px rgba(0,0,0,.25)}
 .bday-in b{color:#FFDF9E;font-weight:700}
+.bday-cd{display:inline-flex;align-items:baseline;gap:5px;font-variant-numeric:tabular-nums;font-weight:700;letter-spacing:.04em;background:rgba(0,0,0,.28);border-radius:999px;padding:4px 12px;margin-left:2px;white-space:nowrap}
+.bday-cd u{text-decoration:none;font-weight:400;opacity:.75;font-size:.82em;margin-left:1px}
 .bday-in .sep{opacity:.5;margin:0 2px}
 @media(max-width:760px){.bday-in{padding:14px 16px;font-size:.84rem;gap:11px;line-height:1.4}.bday-in .hide-sm{display:none}}
 .lm-chip{display:inline-flex;flex-wrap:wrap;justify-content:center;align-items:baseline;gap:7px;margin-top:20px;background:linear-gradient(135deg,#A50713,#D91324);color:#FFF6E8;font-weight:600;font-size:.98rem;letter-spacing:.03em;border-radius:999px;padding:13px 28px;box-shadow:0 10px 28px rgba(165,7,19,.4)}
@@ -571,7 +573,7 @@ section>.wrap{position:relative;z-index:1}
 <a class="bday" href="#dates" aria-label="Last-minute offer: 20% off BreathCamps 1 and 2">
   <div class="bday-in">
     <span class="pulse" aria-hidden="true"></span>
-    <span><b>Last-minute offer</b><span class="sep"> &middot; </span><strong>20% OFF</strong> BreathCamps 1 &amp; 2<span class="sep"> &middot; </span>claim your spot&nbsp;&rarr;</span>
+    <span><b>Last-minute offer</b><span class="sep"> &middot; </span><strong>20% OFF</strong> BreathCamps 1 &amp; 2<span class="sep"> &middot; </span><span class="hide-sm">ends in </span><span class="bday-cd" id="bdayCd" aria-live="off">&mdash;</span><span class="sep"> &middot; </span>claim your spot&nbsp;&rarr;</span>
   </div>
 </a>
 
@@ -1735,6 +1737,37 @@ section>.wrap{position:relative;z-index:1}
   });
 })();
 </script>
+  <script>
+  /* last-minute offer countdown — ends 4 August 2026, 23:59 UK time (BST = UTC+1) */
+  (function(){
+    var el = document.getElementById('bdayCd');
+    var banner = document.querySelector('.bday');
+    if(!el) return;
+    var END = Date.UTC(2026, 7, 4, 22, 59, 59); // 4 Aug 2026 23:59:59 BST
+    function tick(){
+      var left = END - Date.now();
+      if(left <= 0){
+        if(banner) banner.style.display = 'none';
+        var fix = document.createElement('style');
+        fix.textContent = '.nav{top:0 !important}.hero{padding-top:170px !important}@media(max-width:760px){.hero{padding-top:150px !important}}';
+        document.head.appendChild(fix);
+        clearInterval(timer);
+        return;
+      }
+      var s = Math.floor(left/1000),
+          d = Math.floor(s/86400),
+          h = Math.floor(s%86400/3600),
+          m = Math.floor(s%3600/60),
+          sec = s%60,
+          p = function(n){ return n < 10 ? '0'+n : ''+n; };
+      el.innerHTML = d > 0
+        ? d+'<u>d</u> '+p(h)+'<u>h</u> '+p(m)+'<u>m</u> '+p(sec)+'<u>s</u>'
+        : p(h)+'<u>h</u> '+p(m)+'<u>m</u> '+p(sec)+'<u>s</u>';
+    }
+    tick();
+    var timer = setInterval(tick, 1000);
+  })();
+  </script>
   <script>(function(){if(window.self!==window.top){var st=document.createElement('style');st.textContent='.cv{content-visibility:visible !important}';document.head.appendChild(st);}function reportHeight(){var h=document.documentElement.scrollHeight;window.parent.postMessage({type:'aob-embed-resize',height:h},'*');}window.addEventListener('load',reportHeight);window.addEventListener('resize',reportHeight);var mo=new MutationObserver(reportHeight);mo.observe(document.body,{childList:true,subtree:true,attributes:true});setInterval(reportHeight,800);})();</script>
 
 </body>
