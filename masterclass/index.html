@@ -23,7 +23,7 @@
   --paper:#FFFFFF;--paper-2:#FBF7EF;--cream:#FDF6E9;
   --gold:#E1B668;--gold-deep:#D6A652;--gold-soft:#EFDCB6;--gold-wash:#F7EBD2;
   --teal:#00A5B2;--slate:#5B7889;
-  --ink:#221F20;--foot:#191617;
+  --ink:#221F20;
   --grad-gold:linear-gradient(135deg,#E1B668 0%,#D6A652 100%);
   --shadow-soft:0 1px 2px rgba(34,31,32,.04),0 8px 24px rgba(34,31,32,.06),0 24px 64px rgba(34,31,32,.07);
   --shadow-lift:0 2px 4px rgba(34,31,32,.05),0 14px 34px rgba(34,31,32,.10),0 34px 80px rgba(34,31,32,.10);
@@ -354,15 +354,6 @@ section>.wrap{position:relative;z-index:1}
 
 @media(max-width:560px){.signup-card{padding:38px 26px}}
 
-/* footer */
-footer{background:var(--foot);border-top:1px solid rgba(225,182,104,.35);padding:54px 0 42px}
-.foot-in{display:flex;justify-content:space-between;align-items:center;gap:30px;flex-wrap:wrap;max-width:1140px;margin:0 auto;padding:0 28px}
-.foot-in img{height:46px;width:auto}
-.foot-in p{font-size:.8rem;color:#C9BFA9}
-.foot-links{display:flex;gap:24px;font-size:.8rem}
-.foot-links a{color:#9AAEBB;text-decoration:none;transition:color .25s}
-.foot-links a:hover{color:var(--gold)}
-
 /* sticky pill */
 .pill{
   position:fixed;right:26px;bottom:26px;z-index:55;display:flex;align-items:center;gap:0;text-decoration:none;
@@ -639,19 +630,6 @@ footer{background:var(--foot);border-top:1px solid rgba(225,182,104,.35);padding
     </div>
   </div>
 </section>
-
-<!-- FOOTER -->
-<footer>
-  <div class="foot-in">
-    <img src="https://alchemyofbreath.com/wp-content/uploads/AoB-emblem-web-white.png" alt="Alchemy of Breath">
-    <p>All Rights Reserved &copy; Alchemy of Breath</p>
-    <div class="foot-links">
-      <a href="https://alchemyofbreath.com/waiver-and-release/">Disclaimer</a>
-      <a href="https://alchemyofbreath.com/privacy-policy/">Privacy Policy</a>
-      <a href="https://alchemyofbreath.com/terms-and-conditions/">Refund Policy</a>
-    </div>
-  </div>
-</footer>
 
 <!-- STICKY PILL -->
 <a class="pill" id="pill" href="#signup" aria-label="Sign up for the free masterclass">
