@@ -29,6 +29,7 @@ function aob_pages_proxy_serve() {
 		'breathcamps/guide'    => '/breathcamps/guide/',
 		'calendar'             => '/calendar/',
 		'arm'                  => '/arm/',
+		'masterclass'          => '/masterclass/',
 		'breathwork-training'  => '/facilitator-training/',
 		'facilitator-training' => '/facilitator-training/',
 		'live-residential-breathwork-facilitator-training' => '/live-residential-breathwork-facilitator-training/',
