@@ -615,14 +615,14 @@ footer{background:var(--foot);border-top:1px solid rgba(225,182,104,.35);padding
   function goTo(id){
     var t = document.getElementById(id);
     if(!t) return false;
-    var offset = t.getBoundingClientRect().top + (window.scrollY||document.documentElement.scrollTop);
     if(embedded){
-      // Inside a full-height iframe this document has no scroll room of its own,
-      // so ask the host page to scroll instead.
-      window.parent.postMessage({type:'aob-embed-scrollto', top: offset},'*');
+      // Inside a full-height iframe this document has no scroll room of its own.
+      // scrollIntoView walks up through the frame boundary and scrolls the host
+      // page, so it works without any code on the host side.
+      t.scrollIntoView({behavior:'smooth', block:'start'});
       return true;
     }
-    var top = offset - navH();
+    var top = t.getBoundingClientRect().top + (window.scrollY||document.documentElement.scrollTop) - navH();
     window.scrollTo({top: top < 0 ? 0 : top, behavior:'smooth'});
     if(history.replaceState) history.replaceState(null,'','#'+id);
     return true;
