@@ -30,6 +30,7 @@ function aob_pages_proxy_serve() {
 		'calendar'             => '/calendar/',
 		'arm'                  => '/arm/',
 		'masterclass'          => '/masterclass/',
+		'legacy-scholarship'   => '/legacy-scholarship/',
 		'breathwork-training'  => '/facilitator-training/',
 		'facilitator-training' => '/facilitator-training/',
 		'live-residential-breathwork-facilitator-training' => '/live-residential-breathwork-facilitator-training/',

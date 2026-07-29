@@ -610,11 +610,19 @@ footer{background:var(--foot);border-top:1px solid rgba(225,182,104,.35);padding
   // Every CTA scrolls to the booking form. Handled explicitly, in the capture
   // phase, so it still works when the page is hosted inside a funnel builder
   // that binds its own handlers to anchors.
+  var embedded = window.self !== window.top;
   function navH(){ return nav ? nav.getBoundingClientRect().height + 24 : 90; }
   function goTo(id){
     var t = document.getElementById(id);
     if(!t) return false;
-    var top = t.getBoundingClientRect().top + (window.scrollY||document.documentElement.scrollTop) - navH();
+    var offset = t.getBoundingClientRect().top + (window.scrollY||document.documentElement.scrollTop);
+    if(embedded){
+      // Inside a full-height iframe this document has no scroll room of its own,
+      // so ask the host page to scroll instead.
+      window.parent.postMessage({type:'aob-embed-scrollto', top: offset},'*');
+      return true;
+    }
+    var top = offset - navH();
     window.scrollTo({top: top < 0 ? 0 : top, behavior:'smooth'});
     if(history.replaceState) history.replaceState(null,'','#'+id);
     return true;
