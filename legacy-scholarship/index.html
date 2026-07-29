@@ -77,6 +77,8 @@ section>.wrap{position:relative;z-index:1}
 /* nav */
 .nav{position:fixed;top:0;left:0;right:0;z-index:50;background:rgba(255,255,255,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid rgba(225,182,104,.18);transition:box-shadow .3s}
 .nav.scrolled{box-shadow:0 6px 30px rgba(34,31,32,.07)}
+/* keep anchor targets clear of the fixed nav */
+section[id]{scroll-margin-top:96px}
 .nav-in{max-width:1140px;margin:0 auto;padding:14px 28px;display:flex;align-items:center;justify-content:space-between;gap:20px}
 .nav-logo img{height:34px;width:auto}
 .nav-cta{font-family:var(--sans);font-size:.82rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--ink);background:var(--grad-gold);text-decoration:none;padding:12px 24px;border-radius:999px;white-space:nowrap;transition:filter .25s,transform .25s,box-shadow .25s;box-shadow:0 6px 18px rgba(214,166,82,.4)}
@@ -604,6 +606,31 @@ footer{background:var(--foot);border-top:1px solid rgba(225,182,104,.35);padding
     if(nav) nav.classList.toggle('scrolled',y>10);
   }
   window.addEventListener('scroll',onScroll,{passive:true}); onScroll();
+
+  // Every CTA scrolls to the booking form. Handled explicitly, in the capture
+  // phase, so it still works when the page is hosted inside a funnel builder
+  // that binds its own handlers to anchors.
+  function navH(){ return nav ? nav.getBoundingClientRect().height + 24 : 90; }
+  function goTo(id){
+    var t = document.getElementById(id);
+    if(!t) return false;
+    var top = t.getBoundingClientRect().top + (window.scrollY||document.documentElement.scrollTop) - navH();
+    window.scrollTo({top: top < 0 ? 0 : top, behavior:'smooth'});
+    if(history.replaceState) history.replaceState(null,'','#'+id);
+    return true;
+  }
+  document.addEventListener('click',function(e){
+    var a = e.target.closest && e.target.closest('a[href^="#"]');
+    if(!a) return;
+    var id = a.getAttribute('href').slice(1);
+    if(!id) return;
+    if(goTo(id)) e.preventDefault();
+  },true);
+  // deep links land below the nav too
+  if(location.hash.length>1){
+    window.addEventListener('load',function(){ setTimeout(function(){ goTo(location.hash.slice(1)); },80); });
+  }
+
   document.querySelectorAll('img').forEach(function(img){
     img.addEventListener('error',function(){ img.style.display='none'; });
   });
