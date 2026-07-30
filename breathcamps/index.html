@@ -334,6 +334,29 @@ section>.wrap{position:relative;z-index:1}
 .room{cursor:pointer}
 .room .rm-more{margin-top:12px;font-size:.72rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-deep)}
 .room:hover .rm-more{text-decoration:underline;text-underline-offset:3px}
+/* dates popup */
+.dt-overlay{position:fixed;inset:0;z-index:84;background:rgba(25,22,23,.62);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);display:none;align-items:flex-start;justify-content:center;padding:20px;overflow:auto}
+.dt-overlay.open{display:flex}
+.dt-sheet{background:var(--paper);border:1px solid rgba(225,182,104,.45);border-radius:20px;box-shadow:var(--shadow-lift);max-width:460px;width:100%;margin-top:8vh;max-height:calc(100vh - 80px);overflow:auto;position:relative;overscroll-behavior:contain;padding:34px 28px 26px}
+.dt-close{position:absolute;top:12px;right:12px;width:38px;height:38px;border-radius:50%;border:none;background:rgba(34,31,32,.07);color:var(--ink);font-size:1rem;line-height:1;cursor:pointer;transition:background .25s}
+.dt-close:hover{background:rgba(34,31,32,.15)}
+.dt-sheet h3{font-family:var(--serif);font-weight:400;font-size:1.45rem;text-align:center;margin:0 0 4px}
+.dt-sub{text-align:center;font-size:.85rem;color:var(--slate);margin:0 0 20px}
+.dt-list{display:flex;flex-direction:column;gap:10px}
+.dt-row{display:flex;align-items:center;justify-content:space-between;gap:12px;background:#fff;border:1px solid rgba(225,182,104,.35);border-radius:14px;padding:13px 16px}
+.dt-row .l{display:flex;flex-direction:column;gap:1px;text-align:left}
+.dt-row .n{font-family:var(--serif);font-style:italic;font-size:.78rem;color:var(--gold-deep)}
+.dt-row .d{font-family:var(--serif);font-size:1.06rem;color:var(--ink);line-height:1.25}
+.dt-row .f{display:inline-block;font-size:.58rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border-radius:999px;padding:3px 9px;margin-top:4px;align-self:flex-start}
+.dt-row .f.off{background:linear-gradient(135deg,#A50713,#D91324);color:#FFF6E8}
+.dt-row .f.full{background:#E8801A;color:#FFF6E8}
+.dt-row a{flex-shrink:0;font-size:.62rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;color:var(--ink);background:var(--grad-gold);border-radius:999px;padding:10px 16px;box-shadow:0 5px 14px rgba(214,166,82,.35);transition:filter .25s;white-space:nowrap}
+.dt-row a:hover{filter:brightness(1.06)}
+.dt-row.q a{background:transparent;border:1px solid rgba(34,31,32,.3);box-shadow:none}
+.dt-row.q a:hover{background:rgba(34,31,32,.05);filter:none}
+.dt-note{font-size:.76rem;color:var(--slate);text-align:center;margin:16px 0 0;line-height:1.5}
+.dt-note a{color:var(--gold-deep)}
+@media(max-width:420px){.dt-sheet{padding:30px 18px 22px}.dt-row{padding:12px 12px}.dt-row a{padding:9px 12px}}
 /* room lightbox */
 .rm-overlay{position:fixed;inset:0;z-index:80;background:rgba(25,22,23,.62);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);display:none;align-items:flex-start;justify-content:center;padding:20px;overflow:auto}
 .rm-overlay.open{display:flex}
@@ -1279,6 +1302,23 @@ section>.wrap{position:relative;z-index:1}
   </div>
 </div>
 
+<!-- DATES POPUP -->
+<div class="dt-overlay" id="dtOverlay" role="dialog" aria-modal="true" aria-label="2026 BreathCamp dates">
+  <div class="dt-sheet" id="dtSheet">
+    <button type="button" class="dt-close" id="dtClose" aria-label="Close dates">&#10005;</button>
+    <h3>2026 BreathCamp dates</h3>
+    <p class="dt-sub">The same 7-day journey &mdash; choose your week.</p>
+    <div class="dt-list">
+      <div class="dt-row"><span class="l"><span class="n">BreathCamp 1</span><span class="d">Aug 16 &ndash; 22</span><span class="f off">20% off</span></span><a href="https://asha.secure.retreat.guru/program/breathcamp-aug-16-aug-22-2026-students-copy/?form=1&amp;lang=en">Book now</a></div>
+      <div class="dt-row"><span class="l"><span class="n">BreathCamp 2</span><span class="d">Aug 30 &ndash; Sep 5</span><span class="f off">20% off</span></span><a href="https://asha.secure.retreat.guru/program/breathcamp-aug-30-sep-5-2026/?form=1&amp;lang=en">Book now</a></div>
+      <div class="dt-row q"><span class="l"><span class="n">BreathCamp 3</span><span class="d">Sep 6 &ndash; 12</span></span><a href="https://asha.secure.retreat.guru/program/breathcamp-sep-6-sep-12-2026-2027/?form=1&amp;lang=en">Book now</a></div>
+      <div class="dt-row q"><span class="l"><span class="n">BreathCamp 4</span><span class="d">Sep 20 &ndash; 26</span><span class="f full">Almost sold out</span></span><a href="https://asha.secure.retreat.guru/program/breathcamp-sep-20-sep-26-2026/?form=1&amp;lang=en">Book now</a></div>
+      <div class="dt-row q"><span class="l"><span class="n">BreathCamp 5</span><span class="d">Oct 25 &ndash; 31</span></span><a href="https://asha.secure.retreat.guru/program/breathcamp-oct-25-oct-31-2026/?form=1&amp;lang=en">Book now</a></div>
+    </div>
+    <p class="dt-note">A current student booking to graduate at ASHA? <a href="https://alchemyofbreath.com/breathcamps-students/">Register here</a> &middot; <a href="#dates" id="dtSeeAll">See accommodation &amp; full details</a></p>
+  </div>
+</div>
+
 <!-- STICKY PILL -->
 <a class="pill" href="#dates" aria-label="Join BreathCamp">
   <span class="pill-label">Join BreathCamp</span>
@@ -1749,6 +1789,10 @@ section>.wrap{position:relative;z-index:1}
       var id=a.getAttribute('href').slice(1), el=id&&document.getElementById(id);
       if(!el) return;
       e.preventDefault();
+      // dates CTAs open the compact popup instead of scrolling; the
+      // "full details" link inside the popup falls through to the scroll
+      if(id==='dates' && window.aobDates && !a.closest('#dtOverlay')){ window.aobDates.open(a); return; }
+      if(window.aobDates) window.aobDates.close();
       document.querySelectorAll('.cv').forEach(function(s){ s.style.contentVisibility='visible'; });
       void document.body.offsetHeight;
       el.scrollIntoView({behavior:reduce?'auto':'smooth'});
@@ -1786,6 +1830,49 @@ section>.wrap{position:relative;z-index:1}
     }
     tick();
     var timer = setInterval(tick, 1000);
+  })();
+  </script>
+  <script>
+  /* compact dates popup — opened by every #dates CTA */
+  (function(){
+    var ov=document.getElementById('dtOverlay'); if(!ov) return;
+    var sheet=document.getElementById('dtSheet'), closeB=document.getElementById('dtClose');
+    var opener=null, parentVH=0;
+    window.addEventListener('message',function(e){
+      if(e.data && e.data.type==='aob-embed-viewport' && typeof e.data.vh==='number') parentVH=e.data.vh;
+    });
+    function open(trigger){
+      opener=trigger||null;
+      // inside the WP embed the frame spans the full page height, so anchor
+      // the popup beside the clicked button, cap it to the visitor's screen,
+      // and ask the parent page to scroll it into view
+      if(window.self!==window.top){
+        var mt=24;
+        if(trigger){ mt=Math.max(24, Math.round(trigger.getBoundingClientRect().top)-60); }
+        sheet.style.marginTop=mt+'px';
+        sheet.style.maxHeight=(parentVH?Math.max(380,parentVH-64):600)+'px';
+        try{ window.parent.postMessage({type:'aob-modal-open',top:Math.max(0,mt-20)},'*'); }catch(err){}
+      }else{
+        sheet.style.marginTop='';
+        sheet.style.maxHeight='';
+      }
+      ov.classList.add('open');
+      document.body.style.overflow='hidden';
+      closeB.focus();
+    }
+    function close(){
+      if(!ov.classList.contains('open')) return;
+      ov.classList.remove('open');
+      document.body.style.overflow='';
+      if(opener && opener.focus){ try{ opener.focus(); }catch(err){} }
+      opener=null;
+    }
+    closeB.addEventListener('click',close);
+    ov.addEventListener('click',function(e){ if(e.target===ov) close(); });
+    document.addEventListener('keydown',function(e){ if(ov.classList.contains('open') && e.key==='Escape') close(); });
+    // booking a camp from the popup also dismisses it
+    ov.querySelectorAll('.dt-row a').forEach(function(a){ a.addEventListener('click',close); });
+    window.aobDates={open:open,close:close};
   })();
   </script>
   <script>(function(){if(window.self!==window.top){var st=document.createElement('style');st.textContent='.cv{content-visibility:visible !important}';document.head.appendChild(st);}function reportHeight(){var h=document.documentElement.scrollHeight;window.parent.postMessage({type:'aob-embed-resize',height:h},'*');}window.addEventListener('load',reportHeight);window.addEventListener('resize',reportHeight);var mo=new MutationObserver(reportHeight);mo.observe(document.body,{childList:true,subtree:true,attributes:true});setInterval(reportHeight,800);})();</script>
