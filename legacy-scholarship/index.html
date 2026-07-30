@@ -595,9 +595,13 @@ section[id]{scroll-margin-top:96px}
     if(!t) return false;
     if(embedded){
       // Inside a full-height iframe this document has no scroll room of its own.
-      // scrollIntoView walks up through the frame boundary and scrolls the host
-      // page, so it works without any code on the host side.
+      // scrollIntoView crosses the frame boundary where the browser allows it
+      // (desktop Chrome), but Safari/iOS block that for cross-origin frames —
+      // so also ask the host page to scroll via postMessage; the WP snippet
+      // listens for aob-embed-scrollto.
+      var abs = t.getBoundingClientRect().top + (window.scrollY||document.documentElement.scrollTop);
       t.scrollIntoView({behavior:'smooth', block:'start'});
+      try{ window.parent.postMessage({type:'aob-embed-scrollto', top: abs},'*'); }catch(err){}
       return true;
     }
     var top = t.getBoundingClientRect().top + (window.scrollY||document.documentElement.scrollTop) - navH();
