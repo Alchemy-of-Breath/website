@@ -61,6 +61,10 @@ h1{font-family:var(--serif);font-weight:400;font-size:clamp(2rem,6.4vw,2.9rem);l
 .sub{font-size:1.04rem;color:var(--slate);max-width:28em;margin:0 auto}
 .sub strong{color:var(--ink);font-weight:500}
 
+.valid{display:inline-flex;align-items:center;gap:10px;margin:26px auto 8px;background:var(--grad-gold);color:var(--ink);font-weight:600;font-size:.9rem;letter-spacing:.04em;border-radius:999px;padding:12px 26px;box-shadow:0 10px 26px rgba(214,166,82,.45)}
+.valid .dot{width:8px;height:8px;border-radius:50%;background:var(--ink);opacity:.7;animation:vPulse 2.2s ease-in-out infinite}
+@keyframes vPulse{0%,100%{opacity:.45}50%{opacity:.95}}
+@media(prefers-reduced-motion:reduce){.valid .dot{animation:none}}
 .hurry{font-size:.98rem;color:var(--ink);max-width:29em;margin:22px auto 0;line-height:1.65}
 .hurry strong{font-weight:600;color:var(--gold-deep)}
 .link-card{margin:32px auto 14px;background:var(--paper);border:1px solid rgba(225,182,104,.5);border-radius:18px;padding:26px 26px 24px;box-shadow:var(--shadow-lift);position:relative}
@@ -93,6 +97,8 @@ h1{font-family:var(--serif);font-weight:400;font-size:clamp(2rem,6.4vw,2.9rem);l
   <span class="eyebrow">Invite a friend</span>
   <h1>The week is better <em>shared</em>.</h1>
   <p class="sub">Share this link with a friend and they'll receive <strong>50% off</strong> their BreathCamp registration.</p>
+
+  <span class="valid"><span class="dot" aria-hidden="true"></span>Offer valid until 4 August 2026</span>
 
   <p class="hurry"><strong>Discounted spots are capped &mdash; hurry up and book now!</strong> Or grab another spot for yourself and buy yourself another week at 50% off.</p>
 
