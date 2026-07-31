@@ -85,6 +85,21 @@ section>.wrap{position:relative;z-index:1}
 
 /* nav */
 .nav{position:fixed;top:0;left:0;right:0;z-index:50;background:rgba(255,255,255,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid rgba(225,182,104,.18);transition:box-shadow .3s}
+/* Legacy Scholarship banner (auto-hides after 5 Aug 2026) */
+.schol{position:fixed;top:0;left:0;right:0;z-index:60;background:linear-gradient(135deg,#191617 0%,#332a2c 50%,#191617 100%);color:#FBF7EF;border-bottom:1px solid rgba(225,182,104,.55);box-shadow:0 4px 18px rgba(0,0,0,.22);text-decoration:none;display:block}
+.schol:hover .go{text-decoration:underline;text-underline-offset:3px}
+.schol-in{max-width:1140px;margin:0 auto;padding:17px 28px;display:flex;align-items:center;justify-content:center;gap:14px;font-family:var(--sans);font-size:1rem;font-weight:500;letter-spacing:.03em;text-align:center;line-height:1.35}
+.schol-in .pulse{width:9px;height:9px;border-radius:50%;background:var(--gold);flex-shrink:0;box-shadow:0 0 0 0 rgba(225,182,104,.7);animation:scholPulse 2.2s ease-out infinite}
+@keyframes scholPulse{0%{box-shadow:0 0 0 0 rgba(225,182,104,.55)}70%{box-shadow:0 0 0 11px rgba(225,182,104,0)}100%{box-shadow:0 0 0 0 rgba(225,182,104,0)}}
+@media(prefers-reduced-motion:reduce){.schol-in .pulse{animation:none}}
+.schol-in strong{background:var(--grad-gold);color:var(--ink);font-weight:700;letter-spacing:.04em;padding:4px 13px;border-radius:999px;box-shadow:0 4px 12px rgba(0,0,0,.25);white-space:nowrap}
+.schol-in b{color:#FFDF9E;font-weight:700}
+.schol-in .go{color:var(--gold);font-weight:700;white-space:nowrap}
+@media(max-width:760px){.schol-in{padding:14px 16px;font-size:.84rem;gap:11px}.schol-in .hide-sm{display:none}}
+@media(max-width:560px){.schol-in .go{display:none}.schol-in{gap:9px}}
+.nav{top:60px !important}
+.hero{padding-top:230px !important}
+@media(max-width:760px){.hero{padding-top:196px !important}}
 .nav.scrolled{box-shadow:0 6px 30px rgba(34,31,32,.07)}
 .nav-in{max-width:1140px;margin:0 auto;padding:14px 28px;display:flex;align-items:center;justify-content:space-between;gap:20px}
 .nav-logo img{height:34px;width:auto}
@@ -640,6 +655,16 @@ section>.wrap{position:relative;z-index:1}
 </head>
 <body>
 
+<!-- LEGACY SCHOLARSHIP BANNER -->
+<a class="schol" href="https://alchemyofbreath.com/legacy-scholarship/" aria-label="The Legacy Scholarship — applications close August 5. Apply now.">
+  <span class="schol-in">
+    <span class="pulse" aria-hidden="true"></span>
+    <strong>Legacy Scholarship</strong>
+    <span class="hide-sm">The cost of training shouldn&rsquo;t stand in your way &mdash;</span>
+    <b>applications close August&nbsp;5</b>
+    <span class="go">Apply now &rarr;</span>
+  </span>
+</a>
 
 <!-- NAV -->
 <header class="nav" id="nav">
@@ -1295,5 +1320,19 @@ section>.wrap{position:relative;z-index:1}
 })();
 </script>
   <script>(function(){if(window.self!==window.top){var st=document.createElement('style');st.textContent='.cv{content-visibility:visible !important}';document.head.appendChild(st);}function reportHeight(){var h=document.documentElement.scrollHeight;window.parent.postMessage({type:'aob-embed-resize',height:h},'*');}window.addEventListener('load',reportHeight);window.addEventListener('resize',reportHeight);var mo=new MutationObserver(reportHeight);mo.observe(document.body,{childList:true,subtree:true,attributes:true});setInterval(reportHeight,800);})();</script>
+  <script>
+  /* Legacy Scholarship banner — hides after applications close 5 Aug 2026, 23:59 UK (BST) */
+  (function(){
+    var banner = document.querySelector('.schol');
+    if(!banner) return;
+    var END = Date.UTC(2026, 7, 5, 22, 59, 59);
+    if(Date.now() > END){
+      banner.style.display = 'none';
+      var fix = document.createElement('style');
+      fix.textContent = '.nav{top:0 !important}.hero{padding-top:170px !important}@media(max-width:560px){.hero{padding-top:140px !important}}';
+      document.head.appendChild(fix);
+    }
+  })();
+  </script>
 </body>
 </html>
