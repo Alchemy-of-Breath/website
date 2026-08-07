@@ -319,6 +319,11 @@ section>.wrap{position:relative;z-index:1}
 .path-detail .pd-level{font-family:var(--serif);font-size:1rem;color:var(--gold);margin-bottom:18px}
 .path-detail p{font-size:.95rem;color:#C9BFA9;line-height:1.65}
 .path-detail .pd-here{display:inline-block;margin-top:16px;font-size:.66rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--ink);background:var(--grad-gold);border-radius:999px;padding:7px 16px}
+.pn-flag{position:absolute;top:-15px;left:50%;transform:translateX(-50%);background:var(--grad-gold);color:var(--ink);font-size:.56rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border-radius:999px;padding:4px 11px;white-space:nowrap;box-shadow:0 6px 16px rgba(0,0,0,.35);z-index:2}
+.path-detail .pd-date{margin-top:18px;font-size:.92rem;color:#FBF7EF}
+.path-detail .pd-date b{color:var(--gold);font-weight:600}
+.path-detail .pd-cta{display:inline-flex;align-items:center;gap:9px;margin-top:16px;background:var(--grad-gold);color:var(--ink);font-family:var(--sans);font-size:.78rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;border-radius:999px;padding:13px 26px;box-shadow:0 10px 24px rgba(0,0,0,.35);transition:filter .25s,transform .25s}
+.path-detail .pd-cta:hover{filter:brightness(1.06);transform:translateY(-2px)}
 .path-nav{display:flex;justify-content:center;gap:16px;margin-top:24px}
 .path-nav button{background:none;border:1px solid rgba(225,182,104,.4);width:44px;height:44px;border-radius:50%;color:var(--gold);cursor:pointer;font-size:1rem;transition:background .25s,border-color .25s}
 .path-nav button:hover{background:rgba(225,182,104,.15);border-color:var(--gold)}
@@ -974,7 +979,7 @@ section>.wrap{position:relative;z-index:1}
       <p class="reveal d2" style="margin-top:16px;color:#C9BFA9;font-size:1rem">This training is level three of seven. From your first regulated breath to your own licensed school, here is where it can lead. Tap a level to explore it.</p>
     </div>
     <div class="path-track reveal d2" id="pathTrack" role="tablist" aria-label="The Alchemy pathway levels">
-      <button class="path-node" data-i="0" type="button" role="tab" aria-selected="false"><span class="pn-ph">1</span><span class="pn-label">Regulation<br>method</span></button>
+      <button class="path-node" data-i="0" type="button" role="tab" aria-selected="false"><span class="pn-flag">Next: 27 Sept</span><span class="pn-ph">1</span><span class="pn-label">Regulation<br>method</span></button>
       <button class="path-node" data-i="1" type="button" role="tab" aria-selected="false"><span class="pn-ph">2</span><span class="pn-label">Inner<br>journey</span></button>
       <button class="path-node active" data-i="2" type="button" role="tab" aria-selected="true"><span class="pn-ph">3</span><span class="pn-label">Facilitator<br>training</span></button>
       <button class="path-node" data-i="3" type="button" role="tab" aria-selected="false"><span class="pn-ph">4</span><span class="pn-label">Graduation</span></button>
@@ -1276,7 +1281,7 @@ section>.wrap{position:relative;z-index:1}
 
   // Alchemy pathway: seven interactive levels
   var LV=[
-    {lvl:'Level 1 of 7',phase:'Student to facilitator',title:'The Alchemy Regulation Method',text:'Our nervous system regulation methodology. You graduate with a daily practice and a framework to regulate your own nervous system, and qualify to practice as a nervous system regulation coach.',here:false},
+    {lvl:'Level 1 of 7',phase:'Student to facilitator',title:'The Alchemy Regulation Method',text:'Our nervous system regulation methodology. You graduate with a daily practice and a framework to regulate your own nervous system, and qualify to practice as a nervous system regulation coach.',here:false,date:'Next cohort: <b>27 September &ndash; 3 October 2026</b>',cta:{href:'https://go.alchemyofbreath.com/alchemy-regulation-method',label:'Book Level 1'}},
     {lvl:'Level 2 of 7',phase:'Student to facilitator',title:'The Inner Journey',text:'A deep, 14 week journey of inner work paired with group mentor sessions: the call, the inner child, shadow work, and beyond. Included in the Facilitator Training, or taken on its own.',here:false},
     {lvl:'Level 3 of 7',phase:'Student to facilitator',title:'The Facilitator Training',text:'The triple accredited heart of the pathway, and the training on this page. Here you learn to guide others with safety, ethics, and integrity. You can walk it two ways: the 8-month online training, or the 4-month live residential at ASHA.',here:true},
     {lvl:'Level 4 of 7',phase:'Student to facilitator',title:'Graduation',text:'You lead real sessions, receive your certification, and step out into the world as a facilitator. On the residential, your graduation happens within the 21 days at ASHA.',here:false},
@@ -1294,7 +1299,7 @@ section>.wrap{position:relative;z-index:1}
       n.setAttribute('aria-selected',idx===pCur?'true':'false');
     });
     if(pBody){
-      pBody.innerHTML='<div class="pd-eb">'+d.phase+'</div><div class="pd-level">'+d.lvl+'</div><h3>'+d.title+'</h3><p>'+d.text+'</p>'+(d.here?'<span class="pd-here">You are here</span>':'');
+      pBody.innerHTML='<div class="pd-eb">'+d.phase+'</div><div class="pd-level">'+d.lvl+'</div><h3>'+d.title+'</h3><p>'+d.text+'</p>'+(d.here?'<span class="pd-here">You are here</span>':'')+(d.date?'<div class="pd-date">'+d.date+'</div>':'')+(d.cta?'<a class="pd-cta" href="'+d.cta.href+'" target="_blank" rel="noopener">'+d.cta.label+' <span aria-hidden="true">&rarr;</span></a>':'');
     }
   }
   if(pNodes.length){
