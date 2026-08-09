@@ -396,7 +396,7 @@ section>.wrap{position:relative;z-index:1}
   "name":"Live Residential Breathwork Facilitator Training (4 Month Accelerated)",
   "description":"A four-month accelerated breathwork facilitator training: 21 days live and residential at ASHA in Tuscany, Italy, followed by roughly three months of online study and mentorship. Led by Anthony Abbagnano, Amy Rachelle, and Pablo Castro.",
   "provider":{"@type":"Organization","name":"Alchemy of Breath","url":"https://alchemyofbreath.com/","logo":"https://alchemyofbreath.com/wp-content/uploads/AOB-Gold-Black-Transparant.png","sameAs":["https://www.facebook.com/AOB.Breathwork/","https://www.instagram.com/alchemyofbreath/"]},
-  "offers":{"@type":"Offer","price":"6400","priceCurrency":"USD","priceValidUntil":"2026-08-22","url":"https://go.alchemyofbreath.com/book-842709","availability":"https://schema.org/InStock","category":"Paid"},
+  "offers":{"@type":"Offer","price":"6400","priceCurrency":"USD","priceValidUntil":"2026-08-21","url":"https://go.alchemyofbreath.com/book-842709","availability":"https://schema.org/InStock","category":"Paid"},
   "hasCourseInstance":{"@type":"CourseInstance","courseMode":"Blended","startDate":"2026-09-27","endDate":"2026-10-17","location":{"@type":"Place","name":"ASHA Retreat & Community Centre","address":{"@type":"PostalAddress","addressRegion":"Tuscany","addressCountry":"IT"}}},
   "timeRequired":"P4M",
   "educationalCredentialAwarded":"Alchemy of Breath Facilitator Certification"
@@ -1015,8 +1015,8 @@ section>.wrap{position:relative;z-index:1}
         <span class="tag">8-month online</span>
         <h3>The online training</h3>
         <p class="lede">Train from anywhere, at a steady rhythm over eight months, with weekly live calls and a graduation retreat in Tuscany.</p>
-        <div class="pp-flag eb-flag">Early Bird &middot; until 22 August</div>
-        <div class="path-price"><span class="was">$7,200</span><span class="now eb-price"><sup>$</sup>6,400</span></div>
+        <div class="pp-flag lm-flag">Last-minute discount &middot; until 1 September</div>
+        <div class="path-price"><span class="was lm-was">$7,200</span><span class="now lm-price"><sup>$</sup>6,800</span></div>
         <p class="path-pnote">Payment plans available.</p>
         <ul class="path-list">
           <li>400 hour, triple accredited certification</li>
@@ -1031,7 +1031,7 @@ section>.wrap{position:relative;z-index:1}
         <span class="tag">4-month live residential</span>
         <h3>The live residential</h3>
         <p class="lede">Twenty-one days living the practice at ASHA, then three months online. The deepest, most immersive way in.</p>
-        <div class="pp-flag eb-flag">Early Bird &middot; until 22 August</div>
+        <div class="pp-flag eb-flag">Early Bird &middot; until 21 August</div>
         <div class="path-price"><span class="was">$7,200</span><span class="now eb-price"><sup>$</sup>6,400</span></div>
         <p class="path-pnote">A payment plan is available: 20% deposit, then monthly installments.</p>
         <ul class="path-list">
@@ -1329,17 +1329,23 @@ section>.wrap{position:relative;z-index:1}
 </script>
   <script>(function(){if(window.self!==window.top){var st=document.createElement('style');st.textContent='.cv{content-visibility:visible !important}';document.head.appendChild(st);}function reportHeight(){var h=document.documentElement.scrollHeight;window.parent.postMessage({type:'aob-embed-resize',height:h},'*');}window.addEventListener('load',reportHeight);window.addEventListener('resize',reportHeight);var mo=new MutationObserver(reportHeight);mo.observe(document.body,{childList:true,subtree:true,attributes:true});setInterval(reportHeight,800);})();</script>
   <script>
-  /* Early Bird pricing — becomes the last-minute discount after 22 Aug 2026, 23:59 UK (BST) */
+  /* Residential Early Bird ends 21 Aug 2026 23:59 UK, then last-minute pricing;
+     the online card's last-minute discount ends 1 Sept 2026 23:59 UK */
   (function(){
-    var END = Date.UTC(2026, 7, 22, 22, 59, 59);
-    if(Date.now() <= END) return;
-    document.querySelectorAll('.eb-flag').forEach(function(f){ f.textContent = 'Last-minute discount'; });
-    document.querySelectorAll('.eb-price').forEach(function(p){ p.innerHTML = '<sup>$</sup>6,800'; });
-    document.querySelectorAll('script[type="application/ld+json"]').forEach(function(s){
-      if(s.textContent.indexOf('"price":"6400"') > -1){
-        s.textContent = s.textContent.replace('"price":"6400"','"price":"6800"').replace(',"priceValidUntil":"2026-08-22"','');
-      }
-    });
+    var now = Date.now();
+    if(now > Date.UTC(2026, 7, 21, 22, 59, 59)){
+      document.querySelectorAll('.eb-flag').forEach(function(f){ f.textContent = 'Last-minute discount'; });
+      document.querySelectorAll('.eb-price').forEach(function(p){ p.innerHTML = '<sup>$</sup>6,800'; });
+      document.querySelectorAll('script[type="application/ld+json"]').forEach(function(s){
+        if(s.textContent.indexOf('"price":"6400"') > -1){
+          s.textContent = s.textContent.replace('"price":"6400"','"price":"6800"').replace(',"priceValidUntil":"2026-08-21"','');
+        }
+      });
+    }
+    if(now > Date.UTC(2026, 8, 1, 22, 59, 59)){
+      document.querySelectorAll('.lm-flag,.lm-was').forEach(function(el){ el.style.display = 'none'; });
+      document.querySelectorAll('.lm-price').forEach(function(p){ p.innerHTML = '<sup>$</sup>7,200'; });
+    }
   })();
   </script>
   <script>
