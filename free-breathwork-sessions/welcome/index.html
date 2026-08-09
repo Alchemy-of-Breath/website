@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>You're In — Welcome to #BreatheTheWorld | Alchemy of Breath</title>
+<meta name="description" content="Your Zoom link, meeting ID and Sunday session times for the free Breathe The World breathwork sessions — plus one-tap add to calendar.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#FBF7EF">
+<link rel="icon" type="image/png" href="https://alchemyofbreath.com/wp-content/uploads/AOB-Gold-Black-Transparant-symbol.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Roboto:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --paper:#FFFFFF;--paper-2:#FBF7EF;--cream:#FDF6E9;
+  --gold:#E1B668;--gold-deep:#D6A652;--gold-wash:#F7EBD2;
+  --teal:#00A5B2;--slate:#5B7889;--ink:#221F20;
+  --grad-gold:linear-gradient(135deg,#E1B668 0%,#D6A652 100%);
+  --shadow-soft:0 1px 2px rgba(34,31,32,.04),0 8px 24px rgba(34,31,32,.06),0 24px 64px rgba(34,31,32,.07);
+  --shadow-lift:0 2px 4px rgba(34,31,32,.05),0 14px 34px rgba(34,31,32,.10),0 34px 80px rgba(34,31,32,.10);
+  --serif:'Marcellus',Georgia,'Times New Roman',serif;
+  --sans:'Roboto',-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--sans);font-weight:300;font-size:17px;line-height:1.7;color:var(--ink);background:radial-gradient(120% 90% at 50% 0%,var(--cream) 0%,var(--paper-2) 70%);min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+::selection{background:var(--gold-wash);color:var(--ink)}
+img{max-width:100%;height:auto;display:block}
+em{color:var(--gold-deep);font-style:italic}
+
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:60;opacity:.05;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E")}
+.orb{position:fixed;border-radius:50%;pointer-events:none;z-index:0}
+.orb.g{background:radial-gradient(circle,rgba(225,182,104,.24) 0%,rgba(225,182,104,0) 70%)}
+.orb.t{background:radial-gradient(circle,rgba(0,165,178,.13) 0%,rgba(0,165,178,0) 70%)}
+
+.wrap{position:relative;z-index:1;max-width:640px;margin:0 auto;padding:52px 24px 72px;text-align:center}
+.logo{height:40px;width:auto;margin:0 auto 42px}
+
+.eyebrow{font-size:.74rem;font-weight:500;letter-spacing:.26em;text-transform:uppercase;color:var(--slate);display:inline-flex;align-items:center;gap:14px;margin-bottom:18px}
+.eyebrow::before,.eyebrow::after{content:"";width:30px;height:1px;background:var(--gold)}
+h1{font-family:var(--serif);font-weight:400;font-size:clamp(1.9rem,6vw,2.7rem);line-height:1.18;letter-spacing:-.01em;margin-bottom:16px}
+.sub{font-size:1.02rem;color:var(--slate);max-width:29em;margin:0 auto}
+
+/* access card */
+.access{margin:34px 0 20px;background:var(--paper);border:1px solid rgba(225,182,104,.5);border-radius:20px;padding:34px 28px 30px;box-shadow:var(--shadow-lift);position:relative}
+.access::before{content:"";position:absolute;inset:-11px;border-radius:28px;border:1px solid rgba(225,182,104,.3);pointer-events:none}
+.acc-label{font-size:.66rem;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:14px}
+.acc-creds{display:inline-block;background:var(--cream);border:1px dashed rgba(214,166,82,.6);border-radius:12px;padding:14px 26px;font-size:.95rem;line-height:1.8}
+.acc-creds b{font-weight:500;letter-spacing:.06em}
+.sessions{margin-top:26px;display:grid;gap:14px}
+.sess{background:#fff;border:1px solid rgba(225,182,104,.35);border-radius:14px;padding:18px 20px 16px;box-shadow:var(--shadow-soft)}
+.sess .t{font-family:var(--serif);font-size:1.28rem;line-height:1.3}
+.sess .t small{font-family:var(--sans);font-size:.72rem;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--slate);display:block;margin-bottom:2px}
+.sess .local{font-size:.82rem;color:var(--teal);margin-top:4px;min-height:1.2em}
+.sess .cal{display:flex;justify-content:center;flex-wrap:wrap;gap:10px;margin-top:12px}
+.sess .cal a{display:inline-flex;align-items:center;gap:7px;font-size:.72rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink);text-decoration:none;border:1px solid rgba(34,31,32,.25);border-radius:999px;padding:9px 16px;background:var(--paper);transition:border-color .2s,background .2s}
+.sess .cal a:hover{border-color:var(--gold-deep);background:var(--gold-wash)}
+.zoom-btn{display:inline-flex;align-items:center;gap:11px;margin-top:24px;background:var(--grad-gold);color:var(--ink);font-weight:600;font-size:.92rem;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;border-radius:999px;padding:17px 38px;box-shadow:0 10px 26px rgba(214,166,82,.45);transition:filter .2s,transform .2s}
+.zoom-btn:hover{filter:brightness(1.06);transform:translateY(-1px)}
+.inbox-note{font-size:.82rem;color:var(--slate);margin-top:18px;line-height:1.6}
+.inbox-note b{color:var(--ink);font-weight:500}
+
+/* story + expect */
+.panel{margin:20px 0 0;border-radius:18px;padding:30px 30px;text-align:center}
+.panel.wash{background:var(--gold-wash)}
+.panel.card{background:var(--paper);border:1px solid rgba(225,182,104,.4);box-shadow:var(--shadow-soft)}
+.panel h2{font-family:var(--serif);font-weight:400;font-size:1.5rem;margin-bottom:12px}
+.panel p{font-size:.94rem;line-height:1.7;color:var(--ink)}
+.benefits{list-style:none;text-align:left;max-width:32em;margin:16px auto 0;display:grid;gap:10px}
+.benefits li{display:flex;gap:12px;align-items:flex-start;font-size:.92rem;line-height:1.6}
+.benefits li::before{content:"\2726";color:var(--gold-deep);flex-shrink:0;line-height:1.6}
+
+.foot{margin-top:46px;font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--slate);opacity:.75}
+:focus-visible{outline:2px solid var(--gold-deep);outline-offset:3px;border-radius:6px}
+@media(max-width:460px){.access{padding:26px 16px 24px}.acc-creds{padding:12px 16px}}
+</style>
+</head>
+<body>
+
+<div class="orb g" style="width:560px;height:560px;top:-220px;left:-200px" aria-hidden="true"></div>
+<div class="orb t" style="width:520px;height:520px;bottom:-220px;right:-190px" aria-hidden="true"></div>
+
+<main class="wrap">
+  <img class="logo" src="https://alchemyofbreath.com/wp-content/uploads/AOB-Gold-Black-Transparant.png" alt="Alchemy of Breath" width="252" height="72" decoding="async">
+
+  <span class="eyebrow">#BreatheTheWorld</span>
+  <h1>You&rsquo;re in. Welcome to a unique and <em>transformative</em> offering.</h1>
+  <p class="sub">Everything you need to join the free Sunday gatherings is right here &mdash; save it now, and we&rsquo;ll see you in the breath.</p>
+
+  <div class="access">
+    <p class="acc-label">Online room access</p>
+    <div class="acc-creds">Meeting ID: <b>885 1581 3912</b><br>Passcode: <b>Breathe</b></div>
+
+    <div class="sessions">
+      <div class="sess">
+        <p class="t"><small>Morning session &middot; every Sunday</small>09:30 &mdash; London time</p>
+        <p class="local" id="localAm"></p>
+        <div class="cal">
+          <a href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Breathe%20The%20World%20%E2%80%94%20Free%20Sunday%20Breathwork%20(AM)&amp;dates=20260809T093000/20260809T103000&amp;ctz=Europe/London&amp;recur=RRULE:FREQ%3DWEEKLY;BYDAY%3DSU&amp;location=Zoom&amp;details=Join%20here%3A%20https%3A%2F%2Fus06web.zoom.us%2Fmeeting%2Fregister%2FtZwoduygrzgjG9a-k92kibOBWGLthNg2O1x5%0AMeeting%20ID%3A%20885%201581%203912%0APasscode%3A%20Breathe" target="_blank" rel="noopener">Google Calendar</a>
+          <a href="https://website-5h3.pages.dev/free-breathwork-sessions/welcome/breathe-the-world-am.ics" download>Apple / Outlook</a>
+        </div>
+      </div>
+      <div class="sess">
+        <p class="t"><small>Evening session &middot; every Sunday</small>05:00 PM &mdash; London time</p>
+        <p class="local" id="localPm"></p>
+        <div class="cal">
+          <a href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Breathe%20The%20World%20%E2%80%94%20Free%20Sunday%20Breathwork%20(PM)&amp;dates=20260809T170000/20260809T180000&amp;ctz=Europe/London&amp;recur=RRULE:FREQ%3DWEEKLY;BYDAY%3DSU&amp;location=Zoom&amp;details=Join%20here%3A%20https%3A%2F%2Fus06web.zoom.us%2Fmeeting%2Fregister%2FtZwoduygrzgjG9a-k92kibOBWGLthNg2O1x5%0AMeeting%20ID%3A%20885%201581%203912%0APasscode%3A%20Breathe" target="_blank" rel="noopener">Google Calendar</a>
+          <a href="https://website-5h3.pages.dev/free-breathwork-sessions/welcome/breathe-the-world-pm.ics" download>Apple / Outlook</a>
+        </div>
+      </div>
+    </div>
+
+    <a class="zoom-btn" href="https://us06web.zoom.us/meeting/register/tZwoduygrzgjG9a-k92kibOBWGLthNg2O1x5" target="_blank" rel="noopener">Online room access link &rarr;</a>
+    <p class="inbox-note">We&rsquo;ve also emailed everything to you. Add <b>info@alchemyofbreath.com</b> to your contacts so it never lands in spam.</p>
+  </div>
+
+  <div class="panel wash">
+    <p>What started as a hair-brained idea has grown into a global healing community with more than <b>35,000 registrants</b> from around the world &mdash; showing up, joining together in a sacred space, and breathing as one.</p>
+  </div>
+
+  <div class="panel card">
+    <h2>What to expect</h2>
+    <p>Each week a different Alchemy of Breath facilitator &mdash; including founder Anthony Abbagnano &mdash; holds the session, each with their own special gifts and way of offering the breath. Expect something a little different every Sunday: always powerful, deep, and beautifully held.</p>
+  </div>
+
+  <div class="panel card">
+    <h2>Benefits of showing up</h2>
+    <ul class="benefits">
+      <li>Discover your own tender path towards healing old grief and trauma</li>
+      <li>Connect with fellow breathers from around the world</li>
+      <li>Gain tools to integrate your breathwork learnings into daily life</li>
+      <li>Learn how to transform insecurity, fear, anger, and pain into love</li>
+      <li>Experience nature&rsquo;s most powerful remedy for stress and anxiety</li>
+      <li>Access the body archive where your memories, traumas, and deepest intuition live</li>
+      <li>Experience greater clarity, connection, creativity, and wellbeing</li>
+      <li>Create radical, positive change in your life from the inside out</li>
+    </ul>
+  </div>
+
+  <p class="foot">Alchemy of Breath &middot; Breathe The World</p>
+</main>
+
+<script>
+(function(){
+  // show each Sunday session in the visitor's own timezone
+  function nextSunday(){
+    var d=new Date(); d.setHours(12,0,0,0);
+    d.setDate(d.getDate()+((7-d.getDay())%7));
+    return d;
+  }
+  function londonToLocal(h,m){
+    var base=nextSunday();
+    // start from the BST guess, then correct against the real London wall clock
+    var guess=new Date(Date.UTC(base.getFullYear(),base.getMonth(),base.getDate(),h-1,m));
+    try{
+      var fmt=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/London',hour:'2-digit',minute:'2-digit',hour12:false});
+      for(var i=0;i<3;i++){
+        var parts=fmt.format(guess).split(':');
+        var diff=(h*60+m)-(parseInt(parts[0],10)*60+parseInt(parts[1],10));
+        if(diff===0) break;
+        guess=new Date(guess.getTime()+diff*60000);
+      }
+      return guess;
+    }catch(e){ return null; }
+  }
+  function show(id,h,m){
+    var el=document.getElementById(id); if(!el) return;
+    var local=londonToLocal(h,m); if(!local) return;
+    try{
+      var tz=Intl.DateTimeFormat().resolvedOptions().timeZone||'';
+      var t=local.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});
+      var lon=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/London',hour:'2-digit',minute:'2-digit'}).format(local);
+      // only show if the visitor is not on London time
+      var here=new Intl.DateTimeFormat('en-GB',{hour:'2-digit',minute:'2-digit'}).format(local);
+      if(here!==lon) el.textContent='That’s '+t+' in your time zone'+(tz?' ('+tz.replace('_',' ')+')':'');
+    }catch(e){}
+  }
+  show('localAm',9,30);
+  show('localPm',17,0);
+})();
+</script>
+<script>(function(){if(window.self!==window.top){var st=document.createElement('style');st.textContent='.cv{content-visibility:visible !important}';document.head.appendChild(st);}function reportHeight(){var h=document.documentElement.scrollHeight;window.parent.postMessage({type:'aob-embed-resize',height:h},'*');}window.addEventListener('load',reportHeight);window.addEventListener('resize',reportHeight);var mo=new MutationObserver(reportHeight);mo.observe(document.body,{childList:true,subtree:true,attributes:true});setInterval(reportHeight,800);})();</script>
+</body>
+</html>
