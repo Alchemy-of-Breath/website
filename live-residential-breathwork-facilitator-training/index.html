@@ -342,6 +342,7 @@ section>.wrap{position:relative;z-index:1}
 .path-ribbon::after{content:"";position:absolute;top:100%;right:0;border:6px solid #7B0712;border-bottom-color:transparent;border-right-color:transparent}
 .path-card h3{font-size:1.7rem;margin-bottom:8px}
 .path-card .lede{font-size:.92rem;color:var(--slate);line-height:1.6}
+.pp-flag{display:inline-block;align-self:flex-start;margin:20px 0 -10px;background:var(--grad-gold);color:var(--ink);font-size:.66rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;border-radius:999px;padding:6px 14px;box-shadow:0 6px 16px rgba(214,166,82,.4)}
 .path-price{display:flex;align-items:baseline;gap:12px;margin:24px 0 4px;flex-wrap:wrap}
 .path-price .now{font-family:var(--serif);font-size:2.6rem;color:var(--ink);line-height:1}
 .path-price .now sup{font-size:.45em;top:-.9em;font-style:italic;color:var(--gold-deep)}
@@ -395,7 +396,7 @@ section>.wrap{position:relative;z-index:1}
   "name":"Live Residential Breathwork Facilitator Training (4 Month Accelerated)",
   "description":"A four-month accelerated breathwork facilitator training: 21 days live and residential at ASHA in Tuscany, Italy, followed by roughly three months of online study and mentorship. Led by Anthony Abbagnano, Amy Rachelle, and Pablo Castro.",
   "provider":{"@type":"Organization","name":"Alchemy of Breath","url":"https://alchemyofbreath.com/","logo":"https://alchemyofbreath.com/wp-content/uploads/AOB-Gold-Black-Transparant.png","sameAs":["https://www.facebook.com/AOB.Breathwork/","https://www.instagram.com/alchemyofbreath/"]},
-  "offers":{"@type":"Offer","price":"7200","priceCurrency":"USD","url":"https://go.alchemyofbreath.com/book-842709","availability":"https://schema.org/InStock","category":"Paid"},
+  "offers":{"@type":"Offer","price":"6400","priceCurrency":"USD","priceValidUntil":"2026-08-22","url":"https://go.alchemyofbreath.com/book-842709","availability":"https://schema.org/InStock","category":"Paid"},
   "hasCourseInstance":{"@type":"CourseInstance","courseMode":"Blended","startDate":"2026-09-27","endDate":"2026-10-17","location":{"@type":"Place","name":"ASHA Retreat & Community Centre","address":{"@type":"PostalAddress","addressRegion":"Tuscany","addressCountry":"IT"}}},
   "timeRequired":"P4M",
   "educationalCredentialAwarded":"Alchemy of Breath Facilitator Certification"
@@ -1014,7 +1015,8 @@ section>.wrap{position:relative;z-index:1}
         <span class="tag">8-month online</span>
         <h3>The online training</h3>
         <p class="lede">Train from anywhere, at a steady rhythm over eight months, with weekly live calls and a graduation retreat in Tuscany.</p>
-        <div class="path-price"><span class="now"><sup>$</sup>7,200</span></div>
+        <div class="pp-flag eb-flag">Early Bird &middot; until 22 August</div>
+        <div class="path-price"><span class="was">$7,200</span><span class="now eb-price"><sup>$</sup>6,400</span></div>
         <p class="path-pnote">Payment plans available.</p>
         <ul class="path-list">
           <li>400 hour, triple accredited certification</li>
@@ -1029,7 +1031,8 @@ section>.wrap{position:relative;z-index:1}
         <span class="tag">4-month live residential</span>
         <h3>The live residential</h3>
         <p class="lede">Twenty-one days living the practice at ASHA, then three months online. The deepest, most immersive way in.</p>
-        <div class="path-price"><span class="now"><sup>$</sup>7,200</span></div>
+        <div class="pp-flag eb-flag">Early Bird &middot; until 22 August</div>
+        <div class="path-price"><span class="was">$7,200</span><span class="now eb-price"><sup>$</sup>6,400</span></div>
         <p class="path-pnote">A payment plan is available: 20% deposit, then monthly installments.</p>
         <ul class="path-list">
           <li>21 days live and residential at ASHA, Tuscany</li>
@@ -1325,6 +1328,20 @@ section>.wrap{position:relative;z-index:1}
 })();
 </script>
   <script>(function(){if(window.self!==window.top){var st=document.createElement('style');st.textContent='.cv{content-visibility:visible !important}';document.head.appendChild(st);}function reportHeight(){var h=document.documentElement.scrollHeight;window.parent.postMessage({type:'aob-embed-resize',height:h},'*');}window.addEventListener('load',reportHeight);window.addEventListener('resize',reportHeight);var mo=new MutationObserver(reportHeight);mo.observe(document.body,{childList:true,subtree:true,attributes:true});setInterval(reportHeight,800);})();</script>
+  <script>
+  /* Early Bird pricing — becomes the last-minute discount after 22 Aug 2026, 23:59 UK (BST) */
+  (function(){
+    var END = Date.UTC(2026, 7, 22, 22, 59, 59);
+    if(Date.now() <= END) return;
+    document.querySelectorAll('.eb-flag').forEach(function(f){ f.textContent = 'Last-minute discount'; });
+    document.querySelectorAll('.eb-price').forEach(function(p){ p.innerHTML = '<sup>$</sup>6,800'; });
+    document.querySelectorAll('script[type="application/ld+json"]').forEach(function(s){
+      if(s.textContent.indexOf('"price":"6400"') > -1){
+        s.textContent = s.textContent.replace('"price":"6400"','"price":"6800"').replace(',"priceValidUntil":"2026-08-22"','');
+      }
+    });
+  })();
+  </script>
   <script>
   /* Legacy Scholarship banner — hides after applications close 5 Aug 2026, 23:59 UK (BST) */
   (function(){
