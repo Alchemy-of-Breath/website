@@ -648,6 +648,7 @@ button.check-item{width:100%;text-align:left;font:inherit;color:inherit;cursor:p
   position:sticky;top:104px;transform:rotate(.5deg);
 }
 .price-card .pc-eyebrow{font-size:.72rem;font-weight:500;letter-spacing:.26em;text-transform:uppercase;color:var(--gold-deep)}
+.pc-flag{display:inline-block;margin:14px 0 2px;background:var(--grad-gold);color:var(--ink);font-size:.7rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;border-radius:999px;padding:7px 16px;box-shadow:0 6px 16px rgba(214,166,82,.4)}
 .price-card h3{font-size:1.7rem;margin:12px 0 6px}
 .price-old{font-size:1.05rem;color:var(--slate);text-decoration:line-through;text-decoration-color:rgba(91,120,137,.6)}
 .price-now{font-family:var(--serif);font-size:3.2rem;color:var(--ink);line-height:1;margin:6px 0 4px}
@@ -729,7 +730,7 @@ button.check-item{width:100%;text-align:left;font:inherit;color:inherit;cursor:p
   "name":"Online Breathwork Facilitator Training (8 Month Comprehensive)",
   "description":"A 400 hour, triple accredited online breathwork facilitator training with founder Anthony Abbagnano and co-founder Amy Rachelle, including weekly live calls and a 7 day graduation BreathCamp at ASHA in Tuscany, Italy.",
   "provider":{"@type":"Organization","name":"Alchemy of Breath","url":"https://alchemyofbreath.com/","logo":"https://alchemyofbreath.com/wp-content/uploads/AOB-Gold-Black-Transparant.png","sameAs":["https://www.facebook.com/AOB.Breathwork/","https://www.instagram.com/alchemyofbreath/"]},
-  "offers":{"@type":"Offer","price":"7200","priceCurrency":"USD","url":"https://go.alchemyofbreath.com/book-842709","availability":"https://schema.org/InStock","category":"Paid"},
+  "offers":{"@type":"Offer","price":"6400","priceCurrency":"USD","priceValidUntil":"2026-08-22","url":"https://go.alchemyofbreath.com/book-842709","availability":"https://schema.org/InStock","category":"Paid"},
   "hasCourseInstance":{"@type":"CourseInstance","courseMode":"Online","startDate":"2026-09-15","location":{"@type":"VirtualLocation","url":"https://alchemyofbreath.com/facilitator-training/"}},
   "timeRequired":"P8M",
   "educationalCredentialAwarded":"Alchemy of Breath Facilitator Certification"
@@ -1099,7 +1100,9 @@ button.check-item{width:100%;text-align:left;font:inherit;color:inherit;cursor:p
       <div class="price-card reveal d1">
         <span class="pc-eyebrow">8 Month Comprehensive Training</span>
         <h3>Online + 7 days live in Tuscany</h3>
-        <div class="price-now"><sup>$</sup>7,200</div>
+        <div class="pc-flag" id="ftFlag">Early Bird &middot; until 22 August</div>
+        <div class="price-old">$7,200</div>
+        <div class="price-now" id="ftPrice"><sup>$</sup>6,400</div>
         <p class="price-note">Graduation BreathCamp at ASHA, Italy is paid separately. Next cohort begins September 15, 2026.</p>
         <ul class="price-list">
           <li>400 hour, triple accredited certification</li>
@@ -1384,6 +1387,21 @@ button.check-item{width:100%;text-align:left;font:inherit;color:inherit;cursor:p
 })();
 </script>
   <script>(function(){if(window.self!==window.top){var st=document.createElement('style');st.textContent='.cv{content-visibility:visible !important}';document.head.appendChild(st);}function reportHeight(){var h=document.documentElement.scrollHeight;window.parent.postMessage({type:'aob-embed-resize',height:h},'*');}window.addEventListener('load',reportHeight);window.addEventListener('resize',reportHeight);var mo=new MutationObserver(reportHeight);mo.observe(document.body,{childList:true,subtree:true,attributes:true});setInterval(reportHeight,800);})();</script>
+  <script>
+  /* Early Bird pricing — becomes the last-minute discount after 22 Aug 2026, 23:59 UK (BST) */
+  (function(){
+    var END = Date.UTC(2026, 7, 22, 22, 59, 59);
+    if(Date.now() <= END) return;
+    var flag = document.getElementById('ftFlag'), price = document.getElementById('ftPrice');
+    if(flag) flag.textContent = 'Last-minute discount';
+    if(price) price.innerHTML = '<sup>$</sup>6,800';
+    document.querySelectorAll('script[type="application/ld+json"]').forEach(function(s){
+      if(s.textContent.indexOf('"price":"6400"') > -1){
+        s.textContent = s.textContent.replace('"price":"6400"','"price":"6800"').replace(',"priceValidUntil":"2026-08-22"','');
+      }
+    });
+  })();
+  </script>
   <script>
   /* Legacy Scholarship banner — hides after applications close 5 Aug 2026, 23:59 UK (BST) */
   (function(){
