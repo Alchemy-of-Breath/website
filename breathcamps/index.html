@@ -165,24 +165,23 @@ section>.wrap{position:relative;z-index:1}
 /* 2026 dates */
 .dates-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:16px;max-width:1040px;margin:50px auto 0}
 .date-card{grid-column:span 2}
-.date-card.featured{grid-column:span 3;padding:36px 24px 30px}
-.date-card.featured .dc-n{font-size:1.05rem}
-.date-card.featured .dc-d{font-size:1.55rem;margin-bottom:20px}
-.date-card.featured a{padding:13px 28px;font-size:.76rem}
-@media(max-width:1000px){.dates-grid{grid-template-columns:1fr 1fr}.date-card,.date-card.featured{grid-column:auto}}
+/* five equal cards on six tracks: 3 up top, 2 centered below */
+.dates-grid .date-card:nth-child(4){grid-column:2/span 2}
+@media(max-width:1000px){.dates-grid{grid-template-columns:1fr 1fr}.date-card,.dates-grid .date-card:nth-child(4){grid-column:auto}.dates-grid .date-card:nth-child(5){grid-column:1/-1;width:calc(50% - 9px);margin:0 auto}}
+@media(max-width:430px){.dates-grid .date-card:nth-child(5){width:100%}}
 @media(max-width:430px){.dates-grid{grid-template-columns:1fr}}
 .date-card{position:relative;background:#fff;border:1px solid rgba(225,182,104,.3);border-radius:16px;padding:26px 20px 22px;text-align:center;box-shadow:var(--shadow-soft);display:flex;flex-direction:column;align-items:center;transition:transform .3s,box-shadow .3s,border-color .3s}
 .dc-flag{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#A50713,#D91324);color:#FFF6E8;font-size:.6rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;border-radius:999px;padding:6px 15px;box-shadow:0 6px 16px rgba(165,7,19,.4);white-space:nowrap}
-.dc-flag.sold{background:var(--ink);color:var(--gold);box-shadow:0 6px 16px rgba(34,31,32,.3)}
 .dc-flag.full{background:linear-gradient(135deg,#E06A10,#F58A2A);color:#FFF6E8;box-shadow:0 6px 16px rgba(224,106,16,.4)}
-.date-card.soldout .dc-d{color:var(--slate)}
-.date-card.soldout a{background:transparent;border:1px solid rgba(34,31,32,.3);color:var(--ink);box-shadow:none}
-.date-card.soldout a:hover{background:rgba(34,31,32,.05);border-color:var(--ink);filter:none}
 .date-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lift);border-color:var(--gold)}
 .date-card .dc-n{font-family:var(--serif);font-style:italic;font-size:.9rem;color:var(--gold-deep);margin-bottom:8px}
 .date-card .dc-d{font-family:var(--serif);font-size:1.2rem;color:var(--ink);line-height:1.3;margin-bottom:16px;flex:1}
 .date-card a{font-size:.68rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;color:var(--ink);background:var(--grad-gold);border-radius:999px;padding:11px 20px;box-shadow:0 6px 16px rgba(214,166,82,.35);transition:filter .25s,transform .25s}
 .date-card a:hover{filter:brightness(1.06);transform:translateY(-1px)}
+.dates-promo{max-width:46em;margin:30px auto 0;background:var(--gold-wash);border:1px dashed rgba(214,166,82,.65);border-radius:14px;padding:16px 24px;text-align:center;font-size:.95rem;line-height:1.6;color:var(--ink)}
+.dates-promo b{color:var(--gold-deep);font-weight:600}
+.dt-promo{margin:14px 0 0;background:var(--gold-wash);border-radius:10px;padding:10px 14px;font-size:.8rem;line-height:1.55;text-align:center;color:var(--ink)}
+.dt-promo b{color:var(--gold-deep);font-weight:600}
 .dates-note{text-align:center;font-size:.88rem;color:var(--slate);margin-top:26px}
 .dates-note a{color:var(--ink)}
 
@@ -333,8 +332,6 @@ section>.wrap{position:relative;z-index:1}
 .dt-row .f.full{background:#E8801A;color:#FFF6E8}
 .dt-row a{flex-shrink:0;font-size:.62rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;color:var(--ink);background:var(--grad-gold);border-radius:999px;padding:10px 16px;box-shadow:0 5px 14px rgba(214,166,82,.35);transition:filter .25s;white-space:nowrap}
 .dt-row a:hover{filter:brightness(1.06)}
-.dt-row.q a{background:transparent;border:1px solid rgba(34,31,32,.3);box-shadow:none}
-.dt-row.q a:hover{background:rgba(34,31,32,.05);filter:none}
 .dt-note{font-size:.76rem;color:var(--slate);text-align:center;margin:16px 0 0;line-height:1.5}
 .dt-note a{color:var(--gold-deep)}
 @media(max-width:420px){.dt-sheet{padding:30px 18px 22px}.dt-row{padding:12px 12px}.dt-row a{padding:9px 12px}}
@@ -631,12 +628,13 @@ section>.wrap{position:relative;z-index:1}
       <p class="reveal d2" style="margin-top:16px;font-size:1.04rem">Each camp is the same 7-day journey — choose the week that fits your life.</p>
     </div>
     <div class="dates-grid reveal d1">
-      <div class="date-card featured"><span class="dc-n">BreathCamp 1</span><span class="dc-d">Aug 16 &ndash; 22</span><a href="https://asha.secure.retreat.guru/program/breathcamp-aug-16-aug-22-2026-students-copy/?form=1&amp;lang=en">Book now</a></div>
-      <div class="date-card featured"><span class="dc-n">BreathCamp 2</span><span class="dc-d">Aug 30 &ndash; Sep 5</span><a href="https://asha.secure.retreat.guru/program/breathcamp-aug-30-sep-5-2026/?form=1&amp;lang=en">Book now</a></div>
-      <div class="date-card soldout"><span class="dc-n">BreathCamp 3</span><span class="dc-d">Sep 6 &ndash; 12</span><a href="https://asha.secure.retreat.guru/program/breathcamp-sep-6-sep-12-2026-2027/?form=1&amp;lang=en">Book now</a></div>
-      <div class="date-card soldout"><span class="dc-flag full">Almost sold out</span><span class="dc-n">BreathCamp 4</span><span class="dc-d">Sep 20 &ndash; 26</span><a href="https://asha.secure.retreat.guru/program/breathcamp-sep-20-sep-26-2026/?form=1&amp;lang=en">Book now</a></div>
-      <div class="date-card soldout"><span class="dc-n">BreathCamp 5</span><span class="dc-d">Oct 25 &ndash; 31</span><a href="https://asha.secure.retreat.guru/program/breathcamp-oct-25-oct-31-2026/?form=1&amp;lang=en">Book now</a></div>
+      <div class="date-card"><span class="dc-n">BreathCamp 1</span><span class="dc-d">Aug 16 &ndash; 22</span><a href="https://asha.secure.retreat.guru/program/breathcamp-aug-16-aug-22-2026-students-copy/?form=1&amp;lang=en">Book now</a></div>
+      <div class="date-card"><span class="dc-n">BreathCamp 2</span><span class="dc-d">Aug 30 &ndash; Sep 5</span><a href="https://asha.secure.retreat.guru/program/breathcamp-aug-30-sep-5-2026/?form=1&amp;lang=en">Book now</a></div>
+      <div class="date-card"><span class="dc-n">BreathCamp 3</span><span class="dc-d">Sep 6 &ndash; 12</span><a href="https://asha.secure.retreat.guru/program/breathcamp-sep-6-sep-12-2026-2027/?form=1&amp;lang=en">Book now</a></div>
+      <div class="date-card"><span class="dc-flag full">Almost sold out</span><span class="dc-n">BreathCamp 4</span><span class="dc-d">Sep 20 &ndash; 26</span><a href="https://asha.secure.retreat.guru/program/breathcamp-sep-20-sep-26-2026/?form=1&amp;lang=en">Book now</a></div>
+      <div class="date-card"><span class="dc-n">BreathCamp 5</span><span class="dc-d">Oct 25 &ndash; 31</span><a href="https://asha.secure.retreat.guru/program/breathcamp-oct-25-oct-31-2026/?form=1&amp;lang=en">Book now</a></div>
     </div>
+    <p class="dates-promo reveal d2"><b>Take a friend or your partner with you &mdash; 50% off their spot.</b> After your purchase you&rsquo;ll receive a 50% discount to add your friend or partner.</p>
     <p class="dates-note reveal d2">A current student booking to graduate at ASHA? <a href="https://alchemyofbreath.com/breathcamps-students/">Graduates &amp; alumni register here</a> &middot; or <a href="https://alchemyofbreath.com/calendar-2026/">view the full 2026 calendar</a>.</p>
   </div>
 </section>
@@ -1283,10 +1281,11 @@ section>.wrap{position:relative;z-index:1}
     <div class="dt-list">
       <div class="dt-row"><span class="l"><span class="n">BreathCamp 1</span><span class="d">Aug 16 &ndash; 22</span></span><a href="https://asha.secure.retreat.guru/program/breathcamp-aug-16-aug-22-2026-students-copy/?form=1&amp;lang=en">Book now</a></div>
       <div class="dt-row"><span class="l"><span class="n">BreathCamp 2</span><span class="d">Aug 30 &ndash; Sep 5</span></span><a href="https://asha.secure.retreat.guru/program/breathcamp-aug-30-sep-5-2026/?form=1&amp;lang=en">Book now</a></div>
-      <div class="dt-row q"><span class="l"><span class="n">BreathCamp 3</span><span class="d">Sep 6 &ndash; 12</span></span><a href="https://asha.secure.retreat.guru/program/breathcamp-sep-6-sep-12-2026-2027/?form=1&amp;lang=en">Book now</a></div>
-      <div class="dt-row q"><span class="l"><span class="n">BreathCamp 4</span><span class="d">Sep 20 &ndash; 26</span><span class="f full">Almost sold out</span></span><a href="https://asha.secure.retreat.guru/program/breathcamp-sep-20-sep-26-2026/?form=1&amp;lang=en">Book now</a></div>
-      <div class="dt-row q"><span class="l"><span class="n">BreathCamp 5</span><span class="d">Oct 25 &ndash; 31</span></span><a href="https://asha.secure.retreat.guru/program/breathcamp-oct-25-oct-31-2026/?form=1&amp;lang=en">Book now</a></div>
+      <div class="dt-row"><span class="l"><span class="n">BreathCamp 3</span><span class="d">Sep 6 &ndash; 12</span></span><a href="https://asha.secure.retreat.guru/program/breathcamp-sep-6-sep-12-2026-2027/?form=1&amp;lang=en">Book now</a></div>
+      <div class="dt-row"><span class="l"><span class="n">BreathCamp 4</span><span class="d">Sep 20 &ndash; 26</span><span class="f full">Almost sold out</span></span><a href="https://asha.secure.retreat.guru/program/breathcamp-sep-20-sep-26-2026/?form=1&amp;lang=en">Book now</a></div>
+      <div class="dt-row"><span class="l"><span class="n">BreathCamp 5</span><span class="d">Oct 25 &ndash; 31</span></span><a href="https://asha.secure.retreat.guru/program/breathcamp-oct-25-oct-31-2026/?form=1&amp;lang=en">Book now</a></div>
     </div>
+    <p class="dt-promo"><b>Bring a friend or partner &mdash; 50% off their spot.</b> After your purchase you&rsquo;ll receive a 50% discount to add them.</p>
     <p class="dt-note">A current student booking to graduate at ASHA? <a href="https://alchemyofbreath.com/breathcamps-students/">Register here</a> &middot; <a href="#dates" id="dtSeeAll">See accommodation &amp; full details</a></p>
   </div>
 </div>
