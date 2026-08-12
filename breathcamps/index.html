@@ -127,10 +127,10 @@ section>.wrap{position:relative;z-index:1}
 .cta-note{font-size:.82rem;color:var(--slate);margin-top:14px;letter-spacing:.02em}
 .mid-cta{text-align:center;margin-top:62px;position:relative;z-index:1}
 .mid-cta .cta-note{max-width:30em;margin-left:auto;margin-right:auto}
-/* full-width silent video band (21:9, background mode) */
-.vband{padding:0;width:100%;aspect-ratio:21/9;overflow:hidden;background:#0e0c09}
+/* full-width silent video band — max 300px tall, video center-cropped to cover */
+.vband{padding:0;width:100%;height:min(42.85vw,300px);overflow:hidden;background:#0e0c09}
 .vband img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.vband iframe{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:100.5%;aspect-ratio:16/9;border:0;pointer-events:none}
+.vband iframe{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:100.5%;min-height:100%;aspect-ratio:16/9;border:0;pointer-events:none}
 @media(prefers-reduced-motion:reduce){.vband iframe{display:none}}
 
 /* hero */
