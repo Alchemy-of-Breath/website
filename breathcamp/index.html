@@ -131,11 +131,34 @@ section>.wrap{position:relative;z-index:1}
 .inc-item{display:flex;gap:13px;align-items:flex-start;font-size:.96rem;line-height:1.55;color:#E9E2D4}
 .inc-item::before{content:"\2726";color:var(--gold);flex-shrink:0;line-height:1.55}
 
+/* gallery */
+.gal{background:var(--paper)}
+.gal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media(max-width:820px){.gal-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:460px){.gal-grid{grid-template-columns:1fr}}
+.gal-grid figure{margin:0;border-radius:14px;overflow:hidden;box-shadow:var(--shadow-soft);border:1px solid rgba(225,182,104,.3)}
+.gal-grid img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;transition:transform .5s}
+.gal-grid figure:hover img{transform:scale(1.04)}
 /* rooms pricing */
 .rooms{background:var(--paper)}
 .room-list{max-width:720px;margin:44px auto 0;display:grid;gap:10px}
 .room-row{display:flex;align-items:center;justify-content:space-between;gap:16px;background:#fff;border:1px solid rgba(225,182,104,.32);border-radius:14px;padding:15px 22px;box-shadow:0 1px 3px rgba(34,31,32,.04);transition:transform .25s,box-shadow .25s,border-color .25s}
 .room-row:hover{transform:translateY(-2px);box-shadow:var(--shadow-soft);border-color:rgba(225,182,104,.6)}
+.room-row{cursor:pointer;flex-wrap:wrap}
+.rooms-hint{display:block;font-size:.82rem;color:var(--gold-deep);margin-top:6px}
+.room-pop{width:100%;overflow:hidden}
+.room-pop img{width:100%;aspect-ratio:3/2;object-fit:cover;border-radius:10px}
+.room-pop .rp-d{display:block;font-size:.86rem;color:var(--slate);line-height:1.6;padding:10px 2px 2px}
+@media(hover:hover){
+  .room-pop{position:absolute;left:50%;bottom:calc(100% + 14px);transform:translateX(-50%) translateY(6px);width:340px;background:#fff;border:1px solid rgba(225,182,104,.55);border-radius:14px;box-shadow:var(--shadow-lift);padding:8px;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;z-index:6}
+  .room-pop::after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);border:9px solid transparent;border-top-color:#fff}
+  .room-row:hover .room-pop,.room-row:focus-visible .room-pop{opacity:1;transform:translateX(-50%) translateY(0)}
+  .room-pop .rp-d{padding:10px 8px 6px}
+}
+@media(hover:none){
+  .room-pop{display:none;margin-top:12px}
+  .room-row.open .room-pop{display:block}
+}
 .room-row .rn{font-size:.98rem;line-height:1.45}
 .room-row .rp{font-family:var(--serif);font-size:1.22rem;color:var(--ink);white-space:nowrap}
 .rooms-note{text-align:center;font-size:.85rem;color:var(--slate);max-width:40em;margin:24px auto 0;line-height:1.6}
@@ -149,8 +172,11 @@ section>.wrap{position:relative;z-index:1}
 /* steps */
 .steps-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;max-width:920px;margin:44px auto 0}
 @media(max-width:760px){.steps-grid{grid-template-columns:1fr;max-width:460px}}
-.step{background:#fff;border:1px solid rgba(225,182,104,.3);border-radius:16px;padding:30px 26px;text-align:center;box-shadow:var(--shadow-soft)}
-.step .n{width:50px;height:50px;border-radius:50%;background:var(--grad-gold);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-family:var(--serif);font-size:1.35rem;color:var(--ink);box-shadow:0 8px 20px rgba(214,166,82,.35)}
+.step{background:#fff;border:1px solid rgba(225,182,104,.3);border-radius:16px;padding:0 0 28px;text-align:center;box-shadow:var(--shadow-soft);overflow:hidden}
+.step-img{width:100%;aspect-ratio:3/2;object-fit:cover;display:block;margin-bottom:0}
+.step h3{padding:0 24px}
+.step p{padding:0 24px}
+.step .n{width:50px;height:50px;border-radius:50%;background:var(--grad-gold);display:flex;align-items:center;justify-content:center;margin:-25px auto 14px;position:relative;font-family:var(--serif);font-size:1.35rem;color:var(--ink);box-shadow:0 8px 20px rgba(214,166,82,.35);outline:4px solid #fff}
 .step h3{font-size:1.2rem;margin-bottom:8px}
 .step p{font-size:.9rem;color:var(--slate);line-height:1.6}
 
@@ -190,10 +216,6 @@ section>.wrap{position:relative;z-index:1}
       <div class="hero-actions reveal d3">
         <a class="btn btn-primary" href="https://asha.secure.retreat.guru/program/preview/686/?form=1&amp;lang=en" target="_blank" rel="noopener">Reserve your spot &mdash; $888 deposit <span class="arr">&rarr;</span></a>
         <p class="cta-note">Your deposit secures your BreathCamp place &mdash; five 2026 weeks to choose from.</p>
-      </div>
-      <div class="hero-proof reveal d3">
-        <img src="https://alchemyofbreath.com/wp-content/uploads/people-updated.png" alt="BreathCamp community">
-        <p><strong>2 million+ hearts</strong> awakened through breathwork with Alchemy of Breath. We tend to sell out &mdash; booking early is kind to yourself.</p>
       </div>
     </div>
   </div>
@@ -247,6 +269,24 @@ section>.wrap{position:relative;z-index:1}
   </div>
 </section>
 
+<!-- LIFE AT ASHA GALLERY -->
+<section class="gal">
+  <div class="wrap">
+    <div style="text-align:center;max-width:38em;margin:0 auto 44px">
+      <span class="eyebrow reveal" style="justify-content:center">Life at ASHA</span>
+      <h2 class="reveal d1">The place that <em>holds the week</em>.</h2>
+    </div>
+    <div class="gal-grid reveal d1">
+      <figure><img src="https://cdn.jsdelivr.net/gh/Alchemy-of-Breath/website@main/assets/asha/pool.jpg" alt="The pool at ASHA, Tuscany" loading="lazy" decoding="async"></figure>
+      <figure><img src="https://cdn.jsdelivr.net/gh/Alchemy-of-Breath/website@main/assets/asha/yurt.jpg" alt="The yurt in the ASHA hills" loading="lazy" decoding="async"></figure>
+      <figure><img src="https://cdn.jsdelivr.net/gh/Alchemy-of-Breath/website@main/assets/asha/terrace.jpg" alt="The terrace at ASHA" loading="lazy" decoding="async"></figure>
+      <figure><img src="https://cdn.jsdelivr.net/gh/Alchemy-of-Breath/website@main/assets/asha/breathwork-garden.jpg" alt="A breathwork session in the ASHA olive garden" loading="lazy" decoding="async"></figure>
+      <figure><img src="https://cdn.jsdelivr.net/gh/Alchemy-of-Breath/website@main/assets/asha/wooden-cabin.jpg" alt="A wooden cabin at ASHA" loading="lazy" decoding="async"></figure>
+      <figure><img src="https://cdn.jsdelivr.net/gh/Alchemy-of-Breath/website@main/assets/asha/living-room.jpg" alt="The cozy living room at ASHA" loading="lazy" decoding="async"></figure>
+    </div>
+  </div>
+</section>
+
 <!-- ROOMS & PRICING -->
 <section class="rooms" id="rooms">
   <div class="orb t" style="width:480px;height:480px;bottom:-200px;left:-190px" aria-hidden="true"></div>
@@ -254,20 +294,40 @@ section>.wrap{position:relative;z-index:1}
     <div style="text-align:center;max-width:38em;margin:0 auto">
       <span class="eyebrow reveal" style="justify-content:center">Accommodation &amp; pricing</span>
       <h2 class="reveal d1">Luxury to rustic &mdash; <em>every breather welcome</em>.</h2>
-      <p class="reveal d2" style="margin-top:14px;font-size:1rem">All prices are for the full 7-day, all-inclusive retreat.</p>
+      <p class="reveal d2" style="margin-top:14px;font-size:1rem">All prices are for the full 7-day, all-inclusive retreat. <span class="rooms-hint">Hover or tap any room to see it.</span></p>
     </div>
     <div class="room-list reveal d1">
-      <div class="room-row"><span class="rn">Private Single Room Ensuite</span><span class="rp">&euro;1,849</span></div>
-      <div class="room-row"><span class="rn">Twin Room Ensuite</span><span class="rp">&euro;1,399</span></div>
-      <div class="room-row"><span class="rn">Twin Room Non-Ensuite</span><span class="rp">&euro;1,149</span></div>
-      <div class="room-row"><span class="rn">Shared Room Triple Ensuite</span><span class="rp">&euro;999</span></div>
-      <div class="room-row"><span class="rn">Single Glamping in ASHA Tent</span><span class="rp">&euro;1,099</span></div>
-      <div class="room-row"><span class="rn">Twin Glamping in ASHA Tent</span><span class="rp">&euro;999</span></div>
-      <div class="room-row"><span class="rn">Come in a Camper</span><span class="rp">&euro;799</span></div>
-      <div class="room-row"><span class="rn">Bring Your Own Tent</span><span class="rp">&euro;749</span></div>
-      <div class="room-row"><span class="rn">Private Cottage for one</span><span class="rp">&euro;2,888</span></div>
-      <div class="room-row"><span class="rn">Private Cottage for two</span><span class="rp">&euro;5,333</span></div>
-    </div>
+      <div class="room-row" tabindex="0"><span class="rn">Private Single Room Ensuite</span><span class="rp">&euro;1,849</span>
+        <span class="room-pop" aria-hidden="true"><img src="https://alchemyofbreath.com/wp-content/uploads/single-ensuite-1-1-1.jpg" alt="Private Single Room Ensuite" loading="lazy" decoding="async"><span class="rp-d">A private room with its own bathroom in the Main House &mdash; a single bed, a desk, and your own quiet oasis to rest and process.</span></span>
+      </div>
+      <div class="room-row" tabindex="0"><span class="rn">Twin Room Ensuite</span><span class="rp">&euro;1,399</span>
+        <span class="room-pop" aria-hidden="true"><img src="https://alchemyofbreath.com/wp-content/uploads/twin-ensuite-1-1-1-768x512.jpg" alt="Twin Room Ensuite" loading="lazy" decoding="async"><span class="rp-d">Share a room with one other guest and enjoy a private ensuite bathroom. Rustic, simple, and filled with warmth and natural light.</span></span>
+      </div>
+      <div class="room-row" tabindex="0"><span class="rn">Twin Room Non-Ensuite</span><span class="rp">&euro;1,149</span>
+        <span class="room-pop" aria-hidden="true"><img src="https://alchemyofbreath.com/wp-content/uploads/twin-non-ensuite-1-1-1-768x512.jpg" alt="Twin Room Non-Ensuite" loading="lazy" decoding="async"><span class="rp-d">Two single beds to a room, shared same-sex, in a private cottage. The bathroom is shared between four people.</span></span>
+      </div>
+      <div class="room-row" tabindex="0"><span class="rn">Shared Room Triple Ensuite</span><span class="rp">&euro;999</span>
+        <span class="room-pop" aria-hidden="true"><img src="https://alchemyofbreath.com/wp-content/uploads/triple-ensuite-1-1-1-1-768x512.jpg" alt="Shared Room Triple Ensuite" loading="lazy" decoding="async"><span class="rp-d">Three single beds with a private bathroom, shared same-sex, in a private cottage or the Main House.</span></span>
+      </div>
+      <div class="room-row" tabindex="0"><span class="rn">Single Glamping in ASHA Tent</span><span class="rp">&euro;1,099</span>
+        <span class="room-pop" aria-hidden="true"><img src="https://alchemyofbreath.com/wp-content/uploads/asha-glamping-1-1-1.jpg" alt="Single Glamping in ASHA Tent" loading="lazy" decoding="async"><span class="rp-d">Your own private bell tent immersed in nature, with toilets and showers nearby.</span></span>
+      </div>
+      <div class="room-row" tabindex="0"><span class="rn">Twin Glamping in ASHA Tent</span><span class="rp">&euro;999</span>
+        <span class="room-pop" aria-hidden="true"><img src="https://alchemyofbreath.com/wp-content/uploads/asha-glamping-1-1-1.jpg" alt="Twin Glamping in ASHA Tent" loading="lazy" decoding="async"><span class="rp-d">Share a bell tent with one other guest &mdash; guests love these, with toilets and showers nearby.</span></span>
+      </div>
+      <div class="room-row" tabindex="0"><span class="rn">Come in a Camper</span><span class="rp">&euro;799</span>
+        <span class="room-pop" aria-hidden="true"><img src="https://alchemyofbreath.com/wp-content/uploads/accommodation-camper-1-1-1-1-1.jpg" alt="Come in a Camper" loading="lazy" decoding="async"><span class="rp-d">Bring your camper and join the community, with full access to our facilities. One of our most popular, nature-immersed options.</span></span>
+      </div>
+      <div class="room-row" tabindex="0"><span class="rn">Bring Your Own Tent</span><span class="rp">&euro;749</span>
+        <span class="room-pop" aria-hidden="true"><img src="https://alchemyofbreath.com/wp-content/uploads/accommodation-tent-1-1-1-1-1.jpg" alt="Bring Your Own Tent" loading="lazy" decoding="async"><span class="rp-d">Pitch your own tent in our secluded woods, with full use of our facilities. Bring your own bedding and gear.</span></span>
+      </div>
+      <div class="room-row" tabindex="0"><span class="rn">Private Cottage for one</span><span class="rp">&euro;2,888</span>
+        <span class="room-pop" aria-hidden="true"><img src="https://alchemyofbreath.com/wp-content/uploads/Private-Cottage-1-1-1-768x512.jpg" alt="Private Cottage for one" loading="lazy" decoding="async"><span class="rp-d">A cozy private cottage with your own bathroom, kitchen, and living space &mdash; all to yourself.</span></span>
+      </div>
+      <div class="room-row" tabindex="0"><span class="rn">Private Cottage for two</span><span class="rp">&euro;5,333</span>
+        <span class="room-pop" aria-hidden="true"><img src="https://alchemyofbreath.com/wp-content/uploads/Private-Cottage-1-1-1-768x512.jpg" alt="Private Cottage for two" loading="lazy" decoding="async"><span class="rp-d">A cozy private cottage with your own bathroom, kitchen, and living space &mdash; perfect for couples.</span></span>
+      </div>
+        </div>
     <p class="rooms-note reveal d2">Payment plans available: your <b>$888 deposit</b> reserves your place, and the balance is settled in monthly installments &mdash; fully paid 2 weeks before arrival.</p>
     <div class="mid-cta reveal d2">
       <a class="btn btn-primary" href="https://asha.secure.retreat.guru/program/preview/686/?form=1&amp;lang=en" target="_blank" rel="noopener">Reserve your spot &mdash; $888 <span class="arr">&rarr;</span></a>
@@ -292,9 +352,9 @@ section>.wrap{position:relative;z-index:1}
       <h2 class="reveal d1">Three steps to <em>Tuscany</em>.</h2>
     </div>
     <div class="steps-grid">
-      <div class="step reveal"><div class="n">1</div><h3>Reserve your place</h3><p>Secure your BreathCamp spot with an $888 deposit. We tend to sell out &mdash; booking early is kind to yourself.</p></div>
-      <div class="step reveal d1"><div class="n">2</div><h3>Get connected</h3><p>Join your community group, introduce yourself, share ground transportation, and get prepared for travel.</p></div>
-      <div class="step reveal d2"><div class="n">3</div><h3>Arrive &amp; transform</h3><p>Immerse yourself in seven days of deep healing, connection, and renewal in the heart of Tuscany.</p></div>
+      <div class="step reveal"><img class="step-img" src="https://cdn.jsdelivr.net/gh/Alchemy-of-Breath/website@main/assets/asha/tent-workshop.jpg" alt="A BreathCamp session in the tent at ASHA" loading="lazy" decoding="async"><div class="n">1</div><h3>Reserve your place</h3><p>Secure your BreathCamp spot with an $888 deposit. We tend to sell out &mdash; booking early is kind to yourself.</p></div>
+      <div class="step reveal d1"><img class="step-img" src="https://cdn.jsdelivr.net/gh/Alchemy-of-Breath/website@main/assets/asha/stone-house.jpg" alt="A stone guest house at ASHA" loading="lazy" decoding="async"><div class="n">2</div><h3>Choose accommodation</h3><p>Pick the space that fits you &mdash; from a private cottage to your own tent under the oaks. Luxury to rustic, every breather welcome.</p></div>
+      <div class="step reveal d2"><img class="step-img" src="https://cdn.jsdelivr.net/gh/Alchemy-of-Breath/website@main/assets/asha/welcome-hug.jpg" alt="A warm welcome at ASHA" loading="lazy" decoding="async"><div class="n">3</div><h3>Arrive &amp; transform</h3><p>Immerse yourself in seven days of deep healing, connection, and renewal in the heart of Tuscany.</p></div>
     </div>
   </div>
 </section>
@@ -328,6 +388,12 @@ section>.wrap{position:relative;z-index:1}
   document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
   function onScroll(){ if(nav) nav.classList.toggle('scrolled',(window.scrollY||document.documentElement.scrollTop)>10); }
   window.addEventListener('scroll',onScroll,{passive:true}); onScroll();
+  // touch devices: tap a room to reveal its photo and details
+  if(window.matchMedia('(hover:none)').matches){
+    document.querySelectorAll('.room-row').forEach(function(r){
+      r.addEventListener('click',function(){ r.classList.toggle('open'); });
+    });
+  }
   document.querySelectorAll('img').forEach(function(img){
     img.addEventListener('error',function(){ img.style.display='none'; });
   });
