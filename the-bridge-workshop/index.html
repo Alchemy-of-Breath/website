@@ -28,11 +28,13 @@
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Roboto:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap"></noscript>
 <!-- Google Tag Manager + Ontraport. GTM carries GA4 G-254V03EFF0, Meta Pixel
      713374525487066 and Hotjar 3447424 — manage those inside GTM, not here.
-     Both are skipped on localhost/file:// so preview traffic stays out of the
-     client's reporting. -->
+
+     Allowlisted to the production domain on purpose: a blocklist of localhost
+     let a *.pages.dev staging deploy through, which sent real pageviews to the
+     client's GA4. Anything that is not the live domain stays silent. -->
 <script>(function(){
   var h=location.hostname;
-  if(location.protocol==='file:'||h==='localhost'||h==='127.0.0.1'||h==='::1'||h.endsWith('.local')) return;
+  if(h!=='alchemyofbreath.com'&&h!=='www.alchemyofbreath.com') return;
   window.dataLayer=window.dataLayer||[];
   window.dataLayer.push({'gtm.start':new Date().getTime(),event:'gtm.js'});
   var f=document.getElementsByTagName('script')[0],j=document.createElement('script');
