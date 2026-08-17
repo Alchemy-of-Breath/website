@@ -1,0 +1,13 @@
+# STAGING — this copy duplicates content that is still live on
+# alchemyofbreath.com, so nothing here may be crawled.
+#
+# AT CUTOVER: replace this whole file with the production version below,
+# once this site becomes alchemyofbreath.com.
+User-agent: *
+Disallow: /
+
+# ---- production robots.txt (do not enable until cutover) ----
+# User-agent: *
+# Allow: /
+# Disallow: /_shell/
+# Sitemap: https://alchemyofbreath.com/sitemap.xml

@@ -1,0 +1,6 @@
+# Cloudflare Pages headers.
+# Belt and braces with robots.txt: fragments under /_shell/ are build inputs
+# that duplicate real page copy, so keep them out of search results even if
+# something links to one. Best is to exclude the directory from deploy entirely.
+/_shell/*
+  X-Robots-Tag: noindex, nofollow
