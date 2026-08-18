@@ -27,9 +27,9 @@ DTSTART;TZID=Europe/London:20260809T093000
 DTEND;TZID=Europe/London:20260809T103000
 RRULE:FREQ=WEEKLY;BYDAY=SU
 SUMMARY:Breathe The World — Free Sunday Breathwork (AM)
-DESCRIPTION:Join the free #BreatheTheWorld session with Alchemy of Breath.\n\nJoin here: https://us06web.zoom.us/meeting/register/tZwoduygrzgjG9a-k92kibOBWGLthNg2O1x5\nMeeting ID: 885 1581 3912\nPasscode: Breathe
+DESCRIPTION:Join the free #BreatheTheWorld session with Alchemy of Breath.\n\nJoin here: https://us06web.zoom.us/j/88515813912\nMeeting ID: 885 1581 3912\nPasscode: Breathe
 LOCATION:Zoom
-URL:https://us06web.zoom.us/meeting/register/tZwoduygrzgjG9a-k92kibOBWGLthNg2O1x5
+URL:https://us06web.zoom.us/j/88515813912
 BEGIN:VALARM
 ACTION:DISPLAY
 DESCRIPTION:Breathe The World starts in 30 minutes
