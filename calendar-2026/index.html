@@ -123,6 +123,9 @@ section>.wrap{position:relative;z-index:1}
 .hero .wrap{position:relative;z-index:1}
 .hero .eyebrow{justify-content:center}
 .hero .eyebrow::after{content:"";width:34px;height:1px;background:var(--gold)}
+.hero::after{content:"";position:absolute;inset:0;background:url('https://alchemyofbreath.com/wp-content/uploads/asha-campus-7.jpg') center 55%/cover no-repeat;opacity:.12;pointer-events:none;-webkit-mask-image:linear-gradient(180deg,transparent 0%,#000 30%,#000 78%,transparent 100%);mask-image:linear-gradient(180deg,transparent 0%,#000 30%,#000 78%,transparent 100%)}
+.hero .wrap{position:relative;z-index:1}
+
 .hero h1{max-width:14em;margin:0 auto}
 .hero-sub{font-size:1.16rem;line-height:1.7;max-width:36em;margin:26px auto 0}
 .hero-actions{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:18px;margin-top:36px}
@@ -149,7 +152,7 @@ section>.wrap{position:relative;z-index:1}
 .cal-ev{display:grid;grid-template-columns:230px 1fr auto;gap:30px;align-items:center;background:var(--paper);border:1px solid rgba(225,182,104,.3);border-radius:18px;padding:22px;box-shadow:var(--shadow-soft);transition:transform .35s,box-shadow .35s,border-color .35s}
 .cal-ev + .cal-ev{margin-top:22px}
 .cal-ev:hover{transform:translateY(-4px);box-shadow:var(--shadow-lift);border-color:rgba(225,182,104,.6)}
-.cal-ev img{width:230px;height:158px;object-fit:cover;border-radius:12px}
+.cal-ev img{width:256px;height:176px;object-fit:cover;border-radius:12px}
 .cal-tag{display:inline-block;font-size:.62rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--teal);margin-bottom:8px}
 .cal-ev.bc .cal-tag{color:var(--gold-deep)}
 .cal-ev h3{font-size:1.34rem}
@@ -184,6 +187,8 @@ section>.wrap{position:relative;z-index:1}
 .pill:hover .pill-label,.pill:focus .pill-label{max-width:260px;padding-left:24px;padding-right:48px}
 @media(max-width:560px){.pill{right:16px;bottom:16px}}
 :focus-visible{outline:2px solid var(--gold-deep);outline-offset:3px;border-radius:6px}
+.hosts-photo{max-width:520px;margin:0 auto 30px;border-radius:18px;overflow:hidden;box-shadow:var(--shadow-lift);outline:1px solid rgba(225,182,104,.5);outline-offset:9px;aspect-ratio:3/2}
+.hosts-photo img{width:100%;height:100%;object-fit:cover}
 
 /* ===== site shell ===== */
 /* nav */
@@ -281,7 +286,72 @@ html.menu-open .pill{opacity:0 !important;pointer-events:none !important}
 .foot-bottom{border-top:1px solid rgba(225,182,104,.16);margin-top:68px;padding:26px 0 36px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;font-size:.76rem;color:#8d8276}
 .foot-legal{display:flex;gap:20px;flex-wrap:wrap}
 @media(max-width:1060px){.foot-grid{grid-template-columns:1fr 1fr;gap:36px 40px}.foot-brand{grid-column:1/-1;max-width:30em}}
-@media(max-width:520px){.foot-grid{grid-template-columns:1fr}.foot{padding-top:70px}.foot-bottom{flex-direction:column;align-items:flex-start}}
+@media(max-width:640px){.foot-grid{grid-template-columns:1fr}.foot{padding-top:70px}.foot-bottom{flex-direction:column;align-items:flex-start}}
+
+/* sitewide polish — lands after every page's own CSS, so it wins at equal
+   specificity. Three jobs: readable accent colors, tap targets, small
+   component consistency. No layout ownership — pages keep their designs. */
+
+/* 1 · CONTRAST.
+   The signature gold (#D6A652) measures 2.08:1 as text on cream, slate body
+   copy 4.37:1, teal micro-labels 2.99:1. Text usages darken in two tiers:
+   small text to #8A5F1C (>=4.5:1 on cream, white and gold-wash), large serif
+   accents to #A9762A (>=3:1, AA for large text, keeps the brand warmth).
+   Every FILL, rule, border, shadow and dark-background usage keeps the
+   original palette untouched. */
+:root{
+  --gold-text:#8A5F1C;      /* small gold text — full AA */
+  --gold-text-lg:#A9762A;   /* large serif accents — AA large-text */
+  --slate:#4A6070;          /* was #5B7889 */
+  --teal:#00727C;           /* was #00A5B2 — micro-labels; dots merely deepen */
+}
+
+/* the signature italic accent: large in headings, darker in running copy */
+main em,main .em-i{color:var(--gold-text-lg)}
+main p em,main li em{color:var(--gold-text)}
+/* dark-band exceptions stay light gold */
+.pathway em,.pull em,.pull .em-i,.schol em,.foot em{color:var(--gold)}
+
+/* gold text accents on light backgrounds — from an audit of every
+   `color: var(--gold[-deep])` usage sitewide. Small-text tier. */
+.hero .kicker,.why .n,.mod .n,.stat-chip b,.stage .n,.inst .role,.rate-line,
+.room .nightly,.bonus .val,.gift,.room .rate,.post .date,.post h2 a:hover,
+.date-card .dc-n,.dates-promo b,.dt-promo b,.fcard .num,.ch-num,
+.room-b .pr,.room-b .dep,.room-b .prx,.room .rm-more,.dt-row .n,.dt-note a,
+.rm-nav,.rm-price,.faq-cat,.lesson .num,.feature-list .fnum,
+.price-card .pc-eyebrow,.price-list li::before,.pc-ribbon,.hero-open strong,
+.cal-ev.bc .cal-tag,.rc .when,.ev.camp .ev-tag,.ev-date,.ev .dates,.tz a,
+.quote,.breath-line,.ev-card.bc .ev-tag,.c-name,.c-meta,
+.award-card .big sup,.award-off,.award-tiers li span:first-child,.step .when,
+.hook .lead.bridge em,.sol-block .tag,.person .role,.hv-cap span,
+.hv-duration,.dcard .num,.letter-card .pull,.byline,.card .price,
+.feature .price,.support .amt,.step .letter,.day .n,
+.faq-list summary .pm,.stage .pm,
+.nm-drop a[aria-current="page"],.mg-b a[aria-current="page"],.mg-b a:hover{
+  color:var(--gold-text)
+}
+/* large-tier accents re-raised to the warmer gold (all >=24px serif) */
+.stats-grid .stat .num,.stats-grid .stat .num sup,.room .nightly,
+.support .amt,.why .n,.step .letter,.lesson .num{
+  color:var(--gold-text-lg)
+}
+
+/* 2 · TAP TARGETS. The small ghost pills used as card CTAs sit at ~30-40px;
+   44px minimum below the desktop breakpoint. Labels unchanged. */
+@media(max-width:1120px){
+  .go,.ev-go,.more,.rm-more,.rc .go{
+    min-height:44px;display:inline-flex;align-items:center;justify-content:center;
+    padding:12px 22px
+  }
+}
+
+/* 3 · CONSISTENCY DETAILS. */
+/* card CTAs pin to the card floor so grid rows share a baseline */
+.card .go{margin-top:auto}
+.card .price{margin-top:14px}
+.card p{flex:1 1 auto}
+/* the arched portrait is the site's one portrait treatment */
+.author-photo{border-radius:280px 280px 18px 18px;aspect-ratio:4/4.4}
 
 </style>
 <script type="application/ld+json">
@@ -301,15 +371,14 @@ html.menu-open .pill{opacity:0 !important;pointer-events:none !important}
       "name": "ASHA 2026 schedule",
       "itemListElement": [
         {"@type":"ListItem","position":1,"item":{"@type":"Event","name":"ASHA Co-Residential Retreats","startDate":"2026-06-07","endDate":"2026-08-01","eventAttendanceMode":"https://schema.org/OfflineEventAttendanceMode","location":{"@type":"Place","name":"ASHA — Alchemy School of Healing Arts","address":"Località Le Piane, Castell'azzara, Tuscany, Italy"},"image":"https://alchemyofbreath.com/wp-content/uploads/WhatsApp-Image-2026-02-19-at-20.15.11.jpeg","url":"https://alchemyofbreath.com/asha-hybrid-retreats/","organizer":{"@type":"Organization","name":"Alchemy of Breath","url":"https://alchemyofbreath.com/"}}},
-        {"@type":"ListItem","position":2,"item":{"@type":"Event","name":"Alchemy Regulation Method — live at ASHA with Anthony & Amy","startDate":"2026-07-19","endDate":"2026-07-25","eventAttendanceMode":"https://schema.org/OfflineEventAttendanceMode","location":{"@type":"Place","name":"ASHA — Alchemy School of Healing Arts","address":"Località Le Piane, Castell'azzara, Tuscany, Italy"},"image":"https://alchemyofbreath.com/wp-content/uploads/Rectangle-58-1-768x512.jpg","url":"https://go.alchemyofbreath.com/alchemy-regulation-method","organizer":{"@type":"Organization","name":"Alchemy of Breath","url":"https://alchemyofbreath.com/"}}},
-        {"@type":"ListItem","position":3,"item":{"@type":"Event","name":"BreathCamp 1","startDate":"2026-08-16","endDate":"2026-08-22","eventAttendanceMode":"https://schema.org/OfflineEventAttendanceMode","location":{"@type":"Place","name":"ASHA — Alchemy School of Healing Arts","address":"Località Le Piane, Castell'azzara, Tuscany, Italy"},"image":"https://alchemyofbreath.com/wp-content/uploads/Rectangle-54-2-768x512.jpg","url":"https://alchemyofbreath.com/breathcamps/","organizer":{"@type":"Organization","name":"Alchemy of Breath","url":"https://alchemyofbreath.com/"}}},
-        {"@type":"ListItem","position":4,"item":{"@type":"Event","name":"BreathCamp 2","startDate":"2026-08-30","endDate":"2026-09-05","eventAttendanceMode":"https://schema.org/OfflineEventAttendanceMode","location":{"@type":"Place","name":"ASHA — Alchemy School of Healing Arts","address":"Località Le Piane, Castell'azzara, Tuscany, Italy"},"image":"https://alchemyofbreath.com/wp-content/uploads/asha-breathcamp-gallery-17.jpg","url":"https://alchemyofbreath.com/breathcamps/","organizer":{"@type":"Organization","name":"Alchemy of Breath","url":"https://alchemyofbreath.com/"}}},
-        {"@type":"ListItem","position":5,"item":{"@type":"Event","name":"BreathCamp 3","startDate":"2026-09-06","endDate":"2026-09-12","eventAttendanceMode":"https://schema.org/OfflineEventAttendanceMode","location":{"@type":"Place","name":"ASHA — Alchemy School of Healing Arts","address":"Località Le Piane, Castell'azzara, Tuscany, Italy"},"image":"https://alchemyofbreath.com/wp-content/uploads/DSCF0574-1-768x512.jpg","url":"https://alchemyofbreath.com/breathcamps/","organizer":{"@type":"Organization","name":"Alchemy of Breath","url":"https://alchemyofbreath.com/"}}},
-        {"@type":"ListItem","position":6,"item":{"@type":"Event","name":"BreathCamp 4","startDate":"2026-09-20","endDate":"2026-09-26","eventAttendanceMode":"https://schema.org/OfflineEventAttendanceMode","location":{"@type":"Place","name":"ASHA — Alchemy School of Healing Arts","address":"Località Le Piane, Castell'azzara, Tuscany, Italy"},"image":"https://alchemyofbreath.com/wp-content/uploads/DSC00695-1-1-1.jpg","url":"https://alchemyofbreath.com/breathcamps/","organizer":{"@type":"Organization","name":"Alchemy of Breath","url":"https://alchemyofbreath.com/"}}},
-        {"@type":"ListItem","position":7,"item":{"@type":"Event","name":"Alchemy Regulation Method — live online certification","startDate":"2026-09-27","endDate":"2026-10-03","eventAttendanceMode":"https://schema.org/OnlineEventAttendanceMode","location":{"@type":"VirtualLocation","url":"https://go.alchemyofbreath.com/alchemy-regulation-method"},"image":"https://alchemyofbreath.com/wp-content/uploads/Rectangle-58-3-768x512.jpg","url":"https://go.alchemyofbreath.com/alchemy-regulation-method","organizer":{"@type":"Organization","name":"Alchemy of Breath","url":"https://alchemyofbreath.com/"}}},
-        {"@type":"ListItem","position":8,"item":{"@type":"Event","name":"Live Residential Breathwork Facilitator Training","startDate":"2026-09-27","endDate":"2026-10-17","eventAttendanceMode":"https://schema.org/OfflineEventAttendanceMode","location":{"@type":"Place","name":"ASHA — Alchemy School of Healing Arts","address":"Località Le Piane, Castell'azzara, Tuscany, Italy"},"image":"https://alchemyofbreath.com/wp-content/uploads/people-image.png","url":"https://alchemyofbreath.com/live-residential-breathwork-facilitator-training/","organizer":{"@type":"Organization","name":"Alchemy of Breath","url":"https://alchemyofbreath.com/"}}},
-        {"@type":"ListItem","position":9,"item":{"@type":"Event","name":"BreathCamp 5","startDate":"2026-10-25","endDate":"2026-10-31","eventAttendanceMode":"https://schema.org/OfflineEventAttendanceMode","location":{"@type":"Place","name":"ASHA — Alchemy School of Healing Arts","address":"Località Le Piane, Castell'azzara, Tuscany, Italy"},"image":"https://alchemyofbreath.com/wp-content/uploads/DSCF5832-768x512.jpg","url":"https://alchemyofbreath.com/breathcamps/","organizer":{"@type":"Organization","name":"Alchemy of Breath","url":"https://alchemyofbreath.com/"}}},
-        {"@type":"ListItem","position":10,"item":{"@type":"Event","name":"ARC — Alchemy Residential Club","startDate":"2026-05-01","endDate":"2026-11-01","eventAttendanceMode":"https://schema.org/OfflineEventAttendanceMode","location":{"@type":"Place","name":"ASHA — Alchemy School of Healing Arts","address":"Località Le Piane, Castell'azzara, Tuscany, Italy"},"image":"https://alchemyofbreath.com/wp-content/uploads/5F8A1159-1.jpg","url":"https://www.asha.global/arc","organizer":{"@type":"Organization","name":"Alchemy of Breath","url":"https://alchemyofbreath.com/"}}}
+        {"@type":"ListItem","position":2,"item":{"@type":"Event","name":"BreathCamp 1","startDate":"2026-08-16","endDate":"2026-08-22","eventAttendanceMode":"https://schema.org/OfflineEventAttendanceMode","location":{"@type":"Place","name":"ASHA — Alchemy School of Healing Arts","address":"Località Le Piane, Castell'azzara, Tuscany, Italy"},"image":"https://alchemyofbreath.com/wp-content/uploads/Rectangle-54-2-768x512.jpg","url":"https://alchemyofbreath.com/breathcamps/","organizer":{"@type":"Organization","name":"Alchemy of Breath","url":"https://alchemyofbreath.com/"}}},
+        {"@type":"ListItem","position":3,"item":{"@type":"Event","name":"BreathCamp 2","startDate":"2026-08-30","endDate":"2026-09-05","eventAttendanceMode":"https://schema.org/OfflineEventAttendanceMode","location":{"@type":"Place","name":"ASHA — Alchemy School of Healing Arts","address":"Località Le Piane, Castell'azzara, Tuscany, Italy"},"image":"https://alchemyofbreath.com/wp-content/uploads/asha-breathcamp-gallery-17.jpg","url":"https://alchemyofbreath.com/breathcamps/","organizer":{"@type":"Organization","name":"Alchemy of Breath","url":"https://alchemyofbreath.com/"}}},
+        {"@type":"ListItem","position":4,"item":{"@type":"Event","name":"BreathCamp 3","startDate":"2026-09-06","endDate":"2026-09-12","eventAttendanceMode":"https://schema.org/OfflineEventAttendanceMode","location":{"@type":"Place","name":"ASHA — Alchemy School of Healing Arts","address":"Località Le Piane, Castell'azzara, Tuscany, Italy"},"image":"https://alchemyofbreath.com/wp-content/uploads/DSCF0574-1-768x512.jpg","url":"https://alchemyofbreath.com/breathcamps/","organizer":{"@type":"Organization","name":"Alchemy of Breath","url":"https://alchemyofbreath.com/"}}},
+        {"@type":"ListItem","position":5,"item":{"@type":"Event","name":"BreathCamp 4","startDate":"2026-09-20","endDate":"2026-09-26","eventAttendanceMode":"https://schema.org/OfflineEventAttendanceMode","location":{"@type":"Place","name":"ASHA — Alchemy School of Healing Arts","address":"Località Le Piane, Castell'azzara, Tuscany, Italy"},"image":"https://alchemyofbreath.com/wp-content/uploads/DSC00695-1-1-1.jpg","url":"https://alchemyofbreath.com/breathcamps/","organizer":{"@type":"Organization","name":"Alchemy of Breath","url":"https://alchemyofbreath.com/"}}},
+        {"@type":"ListItem","position":6,"item":{"@type":"Event","name":"Alchemy Regulation Method — coach certification at ASHA","startDate":"2026-09-27","endDate":"2026-10-03","eventAttendanceMode":"https://schema.org/OfflineEventAttendanceMode","location":{"@type":"Place","name":"ASHA — Alchemy School of Healing Arts","address":"Località Le Piane, Castell'azzara, Tuscany, Italy"},"image":"https://alchemyofbreath.com/wp-content/uploads/Rectangle-58-3-768x512.jpg","url":"https://alchemyofbreath.com/alchemy-regulation-method/","organizer":{"@type":"Organization","name":"Alchemy of Breath","url":"https://alchemyofbreath.com/"}}},
+        {"@type":"ListItem","position":7,"item":{"@type":"Event","name":"Live Residential Breathwork Facilitator Training","startDate":"2026-09-27","endDate":"2026-10-17","eventAttendanceMode":"https://schema.org/OfflineEventAttendanceMode","location":{"@type":"Place","name":"ASHA — Alchemy School of Healing Arts","address":"Località Le Piane, Castell'azzara, Tuscany, Italy"},"image":"https://alchemyofbreath.com/wp-content/uploads/people-image.png","url":"https://alchemyofbreath.com/live-residential-breathwork-facilitator-training/","organizer":{"@type":"Organization","name":"Alchemy of Breath","url":"https://alchemyofbreath.com/"}}},
+        {"@type":"ListItem","position":8,"item":{"@type":"Event","name":"BreathCamp 5","startDate":"2026-10-25","endDate":"2026-10-31","eventAttendanceMode":"https://schema.org/OfflineEventAttendanceMode","location":{"@type":"Place","name":"ASHA — Alchemy School of Healing Arts","address":"Località Le Piane, Castell'azzara, Tuscany, Italy"},"image":"https://alchemyofbreath.com/wp-content/uploads/DSCF5832-768x512.jpg","url":"https://alchemyofbreath.com/breathcamps/","organizer":{"@type":"Organization","name":"Alchemy of Breath","url":"https://alchemyofbreath.com/"}}},
+        {"@type":"ListItem","position":9,"item":{"@type":"Event","name":"ARC — Alchemy Residential Club","startDate":"2026-05-01","endDate":"2026-11-01","eventAttendanceMode":"https://schema.org/OfflineEventAttendanceMode","location":{"@type":"Place","name":"ASHA — Alchemy School of Healing Arts","address":"Località Le Piane, Castell'azzara, Tuscany, Italy"},"image":"https://alchemyofbreath.com/wp-content/uploads/5F8A1159-1.jpg","url":"https://www.asha.global/arc","organizer":{"@type":"Organization","name":"Alchemy of Breath","url":"https://alchemyofbreath.com/"}}}
       ]
     }
   ]
@@ -341,7 +410,7 @@ html.menu-open .pill{opacity:0 !important;pointer-events:none !important}
             <a class="nm-lead" href="/breathwork-training/">Online Facilitator Training</a>
             <a class="nm-lead" href="/live-residential-breathwork-facilitator-training/">Residential Training — Tuscany</a>
             <div class="nm-div" aria-hidden="true"></div>
-            <a href="https://go.alchemyofbreath.com/alchemy-regulation-method">Alchemy Regulation Method <span class="ext" aria-hidden="true">&nearr;</span></a>
+            <a href="/alchemy-regulation-method/">Alchemy Regulation Method</a>
             <a href="/the-alchemist/">The Alchemist</a>
           </div>
         </li>
@@ -394,7 +463,7 @@ html.menu-open .pill{opacity:0 !important;pointer-events:none !important}
       <div class="mg-b"><div class="mg-b-in">
         <a href="/breathwork-training/">Online Facilitator Training</a>
         <a href="/live-residential-breathwork-facilitator-training/">Residential Training — Tuscany</a>
-        <a href="https://go.alchemyofbreath.com/alchemy-regulation-method">Alchemy Regulation Method <span class="ext" aria-hidden="true">&nearr;</span></a>
+        <a href="/alchemy-regulation-method/">Alchemy Regulation Method</a>
         <a href="/the-alchemist/">The Alchemist</a>
       </div></div>
     </div>
@@ -482,18 +551,6 @@ html.menu-open .pill{opacity:0 !important;pointer-events:none !important}
     <!-- JULY -->
     <div class="cal-mo" id="m-jul">
       <div class="cal-mo-head reveal"><h2>July</h2><span class="yr">2026</span></div>
-      <article class="cal-ev reveal">
-        <img src="https://alchemyofbreath.com/wp-content/uploads/Rectangle-58-1-768x512.jpg" alt="Alchemy Regulation Method session at ASHA" width="768" height="512" loading="lazy" decoding="async">
-        <div>
-          <span class="cal-tag">Training &middot; at ASHA</span>
-          <h3>Alchemy Regulation Method</h3>
-          <p class="cal-p">Become a certified Alchemy Regulation Method coach — trained by Amy &amp; Anthony, who are teaching this course themselves, live at ASHA, for the first time ever.</p>
-        </div>
-        <div class="cal-side">
-          <span class="cal-when"><span class="cw-yr">2026</span><span class="cw-d">Jul 19 &ndash; 25</span></span>
-          <a class="btn btn-ghost btn-sm" href="https://go.alchemyofbreath.com/alchemy-regulation-method">Learn from A&amp;A <span class="arr">&rarr;</span></a>
-        </div>
-      </article>
       </div>
 
     <!-- AUGUST -->
@@ -555,13 +612,13 @@ html.menu-open .pill{opacity:0 !important;pointer-events:none !important}
       <article class="cal-ev reveal">
         <img src="https://alchemyofbreath.com/wp-content/uploads/Rectangle-58-3-768x512.jpg" alt="Alchemy Regulation Method practice" width="768" height="512" loading="lazy" decoding="async">
         <div>
-          <span class="cal-tag">Training &middot; live online</span>
+          <span class="cal-tag">Training &middot; at ASHA</span>
           <h3>Alchemy Regulation Method</h3>
           <p class="cal-p">Become a certified Alchemy Regulation Method coach. For yourself first. For the people you guide after.</p>
         </div>
         <div class="cal-side">
           <span class="cal-when"><span class="cw-yr">2026</span><span class="cw-d">Sep 27 &ndash; Oct 3</span></span>
-          <a class="btn btn-ghost btn-sm" href="https://go.alchemyofbreath.com/alchemy-regulation-method">Learn live <span class="arr">&rarr;</span></a>
+          <a class="btn btn-ghost btn-sm" href="/alchemy-regulation-method/">Learn live <span class="arr">&rarr;</span></a>
         </div>
       </article>
       <article class="cal-ev reveal">
@@ -624,6 +681,7 @@ html.menu-open .pill{opacity:0 !important;pointer-events:none !important}
   <div class="orb g" style="width:460px;height:460px;top:-140px;left:-140px" aria-hidden="true"></div>
   <div class="wrap">
     <div class="hosts reveal">
+        <div class="hosts-photo"><img src="https://alchemyofbreath.com/wp-content/uploads/Anthony-Amy-900x600.jpg" alt="Anthony Abbagnano and Amy Rachelle" width="900" height="600" loading="lazy" decoding="async"></div>
       <span class="eyebrow" style="justify-content:center">Your hosts</span>
       <p>Anthony Abbagnano is the founder of Alchemy of Breath, an international organization that promotes the union of Western medicine with all other modalities, and of ASHA — the Alchemy School of Healing Arts in central Tuscany, dedicated to community health and emerging consciousness. Amy Rachelle, ND is the co-founder of both.</p>
       <span class="names">Anthony Abbagnano &amp; Amy Rachelle, ND</span>
@@ -667,7 +725,7 @@ html.menu-open .pill{opacity:0 !important;pointer-events:none !important}
         <a href="/breathwork-training/">Facilitator Training — Online</a>
         <a href="/live-residential-breathwork-facilitator-training/">Residential Training — Tuscany</a>
         <a href="/the-alchemist/">The Alchemist</a>
-        <a href="https://go.alchemyofbreath.com/alchemy-regulation-method">Alchemy Regulation Method</a>
+        <a href="/alchemy-regulation-method/">Alchemy Regulation Method</a>
       </nav>
       <nav class="foot-col" aria-label="Footer — at ASHA">
         <h3>At ASHA</h3>

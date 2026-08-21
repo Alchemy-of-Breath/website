@@ -83,6 +83,9 @@ h1{font-family:var(--serif);font-weight:400;font-size:clamp(2.1rem,4.6vw,3.2rem)
 .form-card .small{text-align:center;font-size:.74rem;color:var(--slate);margin-top:12px;line-height:1.5}
 @media(max-width:560px){.form-card{padding:26px 16px 20px}.ghl-form-wrap,.ghl-form-wrap iframe{min-height:680px}}
 
+.hero-photo{margin-top:30px;border-radius:18px;overflow:hidden;box-shadow:var(--shadow-lift);outline:1px solid rgba(225,182,104,.5);outline-offset:8px;aspect-ratio:3/2}
+.hero-photo img{width:100%;height:100%;object-fit:cover}
+@media(max-width:900px){.hero-photo{max-width:420px;margin-left:auto;margin-right:auto}}
 :focus-visible{outline:2px solid var(--gold-deep);outline-offset:3px;border-radius:6px}
 
 /* ===== site shell ===== */
@@ -183,7 +186,72 @@ html.menu-open .pill{opacity:0 !important;pointer-events:none !important}
 .foot-bottom{border-top:1px solid rgba(225,182,104,.16);margin-top:68px;padding:26px 0 36px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;font-size:.76rem;color:#8d8276}
 .foot-legal{display:flex;gap:20px;flex-wrap:wrap}
 @media(max-width:1060px){.foot-grid{grid-template-columns:1fr 1fr;gap:36px 40px}.foot-brand{grid-column:1/-1;max-width:30em}}
-@media(max-width:520px){.foot-grid{grid-template-columns:1fr}.foot{padding-top:70px}.foot-bottom{flex-direction:column;align-items:flex-start}}
+@media(max-width:640px){.foot-grid{grid-template-columns:1fr}.foot{padding-top:70px}.foot-bottom{flex-direction:column;align-items:flex-start}}
+
+/* sitewide polish — lands after every page's own CSS, so it wins at equal
+   specificity. Three jobs: readable accent colors, tap targets, small
+   component consistency. No layout ownership — pages keep their designs. */
+
+/* 1 · CONTRAST.
+   The signature gold (#D6A652) measures 2.08:1 as text on cream, slate body
+   copy 4.37:1, teal micro-labels 2.99:1. Text usages darken in two tiers:
+   small text to #8A5F1C (>=4.5:1 on cream, white and gold-wash), large serif
+   accents to #A9762A (>=3:1, AA for large text, keeps the brand warmth).
+   Every FILL, rule, border, shadow and dark-background usage keeps the
+   original palette untouched. */
+:root{
+  --gold-text:#8A5F1C;      /* small gold text — full AA */
+  --gold-text-lg:#A9762A;   /* large serif accents — AA large-text */
+  --slate:#4A6070;          /* was #5B7889 */
+  --teal:#00727C;           /* was #00A5B2 — micro-labels; dots merely deepen */
+}
+
+/* the signature italic accent: large in headings, darker in running copy */
+main em,main .em-i{color:var(--gold-text-lg)}
+main p em,main li em{color:var(--gold-text)}
+/* dark-band exceptions stay light gold */
+.pathway em,.pull em,.pull .em-i,.schol em,.foot em{color:var(--gold)}
+
+/* gold text accents on light backgrounds — from an audit of every
+   `color: var(--gold[-deep])` usage sitewide. Small-text tier. */
+.hero .kicker,.why .n,.mod .n,.stat-chip b,.stage .n,.inst .role,.rate-line,
+.room .nightly,.bonus .val,.gift,.room .rate,.post .date,.post h2 a:hover,
+.date-card .dc-n,.dates-promo b,.dt-promo b,.fcard .num,.ch-num,
+.room-b .pr,.room-b .dep,.room-b .prx,.room .rm-more,.dt-row .n,.dt-note a,
+.rm-nav,.rm-price,.faq-cat,.lesson .num,.feature-list .fnum,
+.price-card .pc-eyebrow,.price-list li::before,.pc-ribbon,.hero-open strong,
+.cal-ev.bc .cal-tag,.rc .when,.ev.camp .ev-tag,.ev-date,.ev .dates,.tz a,
+.quote,.breath-line,.ev-card.bc .ev-tag,.c-name,.c-meta,
+.award-card .big sup,.award-off,.award-tiers li span:first-child,.step .when,
+.hook .lead.bridge em,.sol-block .tag,.person .role,.hv-cap span,
+.hv-duration,.dcard .num,.letter-card .pull,.byline,.card .price,
+.feature .price,.support .amt,.step .letter,.day .n,
+.faq-list summary .pm,.stage .pm,
+.nm-drop a[aria-current="page"],.mg-b a[aria-current="page"],.mg-b a:hover{
+  color:var(--gold-text)
+}
+/* large-tier accents re-raised to the warmer gold (all >=24px serif) */
+.stats-grid .stat .num,.stats-grid .stat .num sup,.room .nightly,
+.support .amt,.why .n,.step .letter,.lesson .num{
+  color:var(--gold-text-lg)
+}
+
+/* 2 · TAP TARGETS. The small ghost pills used as card CTAs sit at ~30-40px;
+   44px minimum below the desktop breakpoint. Labels unchanged. */
+@media(max-width:1120px){
+  .go,.ev-go,.more,.rm-more,.rc .go{
+    min-height:44px;display:inline-flex;align-items:center;justify-content:center;
+    padding:12px 22px
+  }
+}
+
+/* 3 · CONSISTENCY DETAILS. */
+/* card CTAs pin to the card floor so grid rows share a baseline */
+.card .go{margin-top:auto}
+.card .price{margin-top:14px}
+.card p{flex:1 1 auto}
+/* the arched portrait is the site's one portrait treatment */
+.author-photo{border-radius:280px 280px 18px 18px;aspect-ratio:4/4.4}
 
 /* page-specific shell fit */
 main.wrap{padding-top:118px}
@@ -216,7 +284,7 @@ main.wrap{padding-top:118px}
             <a class="nm-lead" href="/breathwork-training/">Online Facilitator Training</a>
             <a class="nm-lead" href="/live-residential-breathwork-facilitator-training/">Residential Training — Tuscany</a>
             <div class="nm-div" aria-hidden="true"></div>
-            <a href="https://go.alchemyofbreath.com/alchemy-regulation-method">Alchemy Regulation Method <span class="ext" aria-hidden="true">&nearr;</span></a>
+            <a href="/alchemy-regulation-method/">Alchemy Regulation Method</a>
             <a href="/the-alchemist/">The Alchemist</a>
           </div>
         </li>
@@ -269,7 +337,7 @@ main.wrap{padding-top:118px}
       <div class="mg-b"><div class="mg-b-in">
         <a href="/breathwork-training/">Online Facilitator Training</a>
         <a href="/live-residential-breathwork-facilitator-training/">Residential Training — Tuscany</a>
-        <a href="https://go.alchemyofbreath.com/alchemy-regulation-method">Alchemy Regulation Method <span class="ext" aria-hidden="true">&nearr;</span></a>
+        <a href="/alchemy-regulation-method/">Alchemy Regulation Method</a>
         <a href="/the-alchemist/">The Alchemist</a>
       </div></div>
     </div>
@@ -319,6 +387,7 @@ main.wrap{padding-top:118px}
       <h1>Change your breath, <em>change your life</em>.</h1>
       <p class="sub">Join <strong>170,000+ people</strong> breathing together in our free Breathe The World sessions &mdash; two live online sessions every Sunday, led by founders Anthony Abbagnano &amp; Amy Rachelle. Free, online, and 30 minutes can change everything.</p>
       <p class="quote">&ldquo;The most myself I&rsquo;ve felt in ages.&rdquo;<span>&mdash; Martha, Sunday breather</span></p>
+      <div class="hero-photo"><img src="https://alchemyofbreath.com/wp-content/uploads/Anthony-Amy-900x600.jpg" alt="Anthony Abbagnano and Amy Rachelle" width="900" height="600" loading="lazy" decoding="async"></div>
     </div>
 
     <div class="form-card" id="reserve">
@@ -375,7 +444,7 @@ main.wrap{padding-top:118px}
         <a href="/breathwork-training/">Facilitator Training — Online</a>
         <a href="/live-residential-breathwork-facilitator-training/">Residential Training — Tuscany</a>
         <a href="/the-alchemist/">The Alchemist</a>
-        <a href="https://go.alchemyofbreath.com/alchemy-regulation-method">Alchemy Regulation Method</a>
+        <a href="/alchemy-regulation-method/">Alchemy Regulation Method</a>
       </nav>
       <nav class="foot-col" aria-label="Footer — at ASHA">
         <h3>At ASHA</h3>

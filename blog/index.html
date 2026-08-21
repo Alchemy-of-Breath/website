@@ -3,26 +3,25 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The Alchemist — An Inner Journey to Yourself | Alchemy of Breath</title>
-<meta name="description" content="Discover The Alchemist breathwork experience — a transformative journey using conscious breathing to release tension &amp; expand awareness.">
+<title>Breathwork Blog | Alchemy of Breath</title>
+<meta name="description" content="Explore our breathwork blog — articles on breathwork, wellness, healing, mindfulness, anxiety reduction, and personal transformation insights.">
 <meta name="robots" content="index, follow, max-image-preview:large">
-<link rel="canonical" href="https://alchemyofbreath.com/the-alchemist/">
+<link rel="canonical" href="https://alchemyofbreath.com/blog/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Alchemy of Breath">
-<meta property="og:title" content="The Alchemist — An Inner Journey to Yourself">
-<meta property="og:description" content="A seven-chapter journey of self-discovery curated by Anthony Abbagnano. Step into your full power.">
-<meta property="og:url" content="https://alchemyofbreath.com/the-alchemist/">
+<meta property="og:title" content="Breathwork Blog">
+<meta property="og:description" content="Articles on breathwork, wellness, healing, mindfulness, anxiety reduction, and personal transformation insights.">
+<meta property="og:url" content="https://alchemyofbreath.com/blog/">
 <meta property="og:image" content="https://alchemyofbreath.com/wp-content/uploads/Aob-thumbnail.png">
 <meta property="og:locale" content="en_US">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="The Alchemist — An Inner Journey to Yourself">
-<meta name="twitter:description" content="A seven-chapter journey of self-discovery curated by Anthony Abbagnano.">
+<meta name="twitter:title" content="Breathwork Blog">
+<meta name="twitter:description" content="Articles on breathwork, wellness, healing, mindfulness, and anxiety reduction.">
 <meta name="twitter:image" content="https://alchemyofbreath.com/wp-content/uploads/Aob-thumbnail.png">
 <meta name="theme-color" content="#FBF7EF">
 <link rel="icon" type="image/png" href="https://alchemyofbreath.com/wp-content/uploads/AOB-Gold-Black-Transparant-symbol.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preconnect" href="https://player.vimeo.com">
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Roboto:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Roboto:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" media="print" onload="this.media='all'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Roboto:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap"></noscript>
@@ -97,76 +96,33 @@ section>.wrap{position:relative;z-index:1}
 :focus-visible{outline:2px solid var(--gold-deep);outline-offset:3px;border-radius:6px}
 
 /* hero */
-.hero{padding:150px 0 90px;overflow:hidden;background:radial-gradient(120% 90% at 50% 0%,var(--cream) 0%,var(--paper) 62%);text-align:center}
+.hero{padding:150px 0 70px;overflow:hidden;background:radial-gradient(120% 90% at 50% 0%,var(--cream) 0%,var(--paper) 62%);text-align:center}
 .hero::before{content:"";position:absolute;top:-220px;left:-180px;width:640px;height:640px;border-radius:50%;background:radial-gradient(circle,rgba(225,182,104,.24) 0%,rgba(225,182,104,0) 68%);pointer-events:none}
-.hero::after{content:"";position:absolute;bottom:-260px;right:-200px;width:700px;height:700px;border-radius:50%;background:radial-gradient(circle,rgba(0,165,178,.13) 0%,rgba(0,165,178,0) 68%);pointer-events:none}
 .hero .eyebrow::after{content:"";width:34px;height:1px;background:var(--gold)}
-.hero h1{max-width:11em;margin:0 auto;text-wrap:balance}
-.hero .kicker{font-family:var(--serif);font-size:clamp(1.15rem,2.2vw,1.55rem);color:var(--gold-deep);margin-top:12px}
-.hero-sub{font-size:1.08rem;line-height:1.7;max-width:34em;margin:24px auto 0}
-.vid-frame{position:relative;max-width:880px;margin:36px auto 0;border-radius:18px;overflow:hidden;box-shadow:var(--shadow-lift);border:1px solid rgba(225,182,104,.3);aspect-ratio:16/9;background:#0e0c09}
-.vid-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
-@media(max-width:560px){.hero{padding-top:130px}.btn{width:100%;justify-content:center}}
+.hero-sub{font-size:1.08rem;line-height:1.7;max-width:34em;margin:22px auto 0}
+@media(max-width:560px){.hero{padding-top:130px}}
 
-/* prose */
-.prose{max-width:44em;margin:0 auto}
-.prose p{margin-bottom:1.15em;font-size:1.04rem}
-.prose p:last-child{margin-bottom:0}
-.beat{font-family:var(--serif);font-size:clamp(1.7rem,3.6vw,2.6rem);text-align:center;letter-spacing:.02em;margin:0 auto 18px;color:var(--ink)}
+/* post grid */
+.posts{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+@media(max-width:980px){.posts{grid-template-columns:1fr 1fr}}
+@media(max-width:640px){.posts{grid-template-columns:1fr}}
+.post{background:#fff;border:1px solid rgba(225,182,104,.28);border-radius:18px;overflow:hidden;box-shadow:var(--shadow-soft);display:flex;flex-direction:column;transition:transform .35s,box-shadow .35s,border-color .35s}
+.post:hover{transform:translateY(-5px);box-shadow:var(--shadow-lift);border-color:rgba(225,182,104,.6)}
+.post .thumb{display:block;aspect-ratio:3/2;overflow:hidden;border-bottom:1px solid rgba(225,182,104,.2)}
+.post .thumb img{width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.22,1,.36,1)}
+.post:hover .thumb img{transform:scale(1.04)}
+.post-body{padding:22px 24px 24px;display:flex;flex-direction:column;flex:1}
+.post .date{font-family:var(--serif);font-size:.88rem;color:var(--gold-deep);margin-bottom:8px}
+.post h2{font-size:1.18rem;line-height:1.35;margin-bottom:10px}
+.post h2 a{text-decoration:none;color:var(--ink);transition:color .25s}
+.post h2 a:hover{color:var(--gold-deep)}
+.post p{font-size:.9rem;line-height:1.6;color:var(--slate);flex:1}
+.post .more{margin-top:16px;align-self:flex-start;font-size:.68rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;color:var(--ink);border:1px solid rgba(34,31,32,.3);border-radius:999px;padding:9px 18px;transition:background .25s,border-color .25s}
+.post .more:hover{background:var(--grad-gold);border-color:var(--gold-deep)}
 
-/* benefits */
-.ben-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:1020px;margin:0 auto}
-@media(max-width:900px){.ben-grid{grid-template-columns:1fr 1fr}}
-@media(max-width:560px){.ben-grid{grid-template-columns:1fr}}
-.ben{background:#fff;border:1px solid rgba(225,182,104,.28);border-radius:14px;padding:20px 22px;box-shadow:var(--shadow-soft);font-size:.95rem;line-height:1.5;display:flex;gap:12px;align-items:flex-start;transition:transform .3s,border-color .3s}
-.ben:hover{transform:translateY(-3px);border-color:rgba(225,182,104,.6)}
-.ben::before{content:"";flex:none;margin-top:6px;width:13px;height:7px;border-left:2px solid var(--gold-deep);border-bottom:2px solid var(--gold-deep);transform:rotate(-45deg)}
-
-/* modules */
-.mods{max-width:880px;margin:0 auto}
-.mod{display:flex;gap:22px;align-items:flex-start;padding:22px 0;border-bottom:1px solid rgba(225,182,104,.28)}
-.mod:last-child{border-bottom:none}
-.mod .n{flex:none;width:50px;height:50px;border-radius:50%;background:var(--gold-wash);color:var(--gold-deep);font-family:var(--serif);font-size:1.15rem;display:flex;align-items:center;justify-content:center}
-.mod h3{font-size:1.1rem;line-height:1.35;margin-bottom:5px;padding-top:4px}
-.mod p{font-size:.93rem;color:var(--slate);line-height:1.6}
-
-/* pull quote */
-.pull{background:linear-gradient(165deg,#2b2627 0%,var(--ink) 60%,#0d0b0c 100%);color:#FBF7EF;text-align:center;overflow:hidden}
-.pull .ph{position:absolute;inset:0;background:url('https://alchemyofbreath.com/wp-content/uploads/aob-breathcamp-15.jpg') center/cover no-repeat;opacity:.16;pointer-events:none}
-.pull .wrap{position:relative;z-index:1}
-.pull::before{content:"";position:absolute;top:-200px;left:50%;transform:translateX(-50%);width:800px;height:400px;background:radial-gradient(ellipse,rgba(225,182,104,.18) 0%,rgba(225,182,104,0) 70%);pointer-events:none}
-.pull h2{color:#FBF7EF;max-width:20em;margin:0 auto}
-.pull p{color:#C9BFA9;max-width:34em;margin:20px auto 0;font-size:1.02rem}
-
-/* plans */
-.plans{display:grid;grid-template-columns:1fr 1fr;gap:26px;max-width:980px;margin:0 auto;align-items:start}
-@media(max-width:860px){.plans{grid-template-columns:1fr}}
-.plan{background:#fff;border:1px solid rgba(225,182,104,.4);border-radius:20px;padding:38px 34px;box-shadow:var(--shadow-soft);position:relative;display:flex;flex-direction:column;height:100%}
-.plan.feature{border-color:rgba(214,166,82,.85);box-shadow:var(--shadow-lift)}
-.plan .tag{position:absolute;top:-13px;left:50%;transform:translateX(-50%);font-size:.62rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--ink);background:var(--grad-gold);border-radius:999px;padding:6px 16px;white-space:nowrap}
-.plan h3{font-size:1.5rem;margin-bottom:4px}
-.plan .len{font-size:.76rem;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--slate);margin-bottom:20px}
-.plan .price{font-family:var(--serif);font-size:2.8rem;line-height:1;margin-bottom:4px}
-.plan .price s{font-size:.42em;color:var(--slate);margin-right:12px;font-family:var(--sans);font-weight:300}
-.plan .price-sub{font-size:.8rem;color:var(--slate);margin-bottom:24px}
-.plan ul{list-style:none;margin-bottom:28px;flex:1}
-.plan li{position:relative;padding:10px 0 10px 30px;font-size:.94rem;line-height:1.55;border-bottom:1px solid rgba(225,182,104,.2)}
-.plan li:last-child{border-bottom:none}
-.plan li::before{content:"";position:absolute;left:2px;top:18px;width:12px;height:6px;border-left:2px solid var(--gold-deep);border-bottom:2px solid var(--gold-deep);transform:rotate(-45deg)}
-.plan .btn{width:100%;justify-content:center}
-.support{max-width:760px;margin:44px auto 0;background:var(--cream);border:1px solid rgba(225,182,104,.4);border-radius:18px;padding:30px 32px;text-align:center}
-.support h3{font-size:1.2rem;margin-bottom:8px}
-.support p{font-size:.95rem;line-height:1.6;color:var(--ink)}
-.support .amt{font-family:var(--serif);font-size:1.7rem;color:var(--gold-deep);display:block;margin:10px 0 4px}
-.disclaimer{text-align:center;font-size:.8rem;color:var(--slate);max-width:44em;margin:0 auto}
-
-/* image+text split (design pass): copy untouched, layout only */
-.split{display:grid;grid-template-columns:.9fr 1.1fr;gap:56px;align-items:center;max-width:1080px;margin:0 auto}
-@media(max-width:900px){.split{grid-template-columns:1fr;gap:36px}}
-.split-photo{border-radius:18px;overflow:hidden;box-shadow:var(--shadow-lift);outline:1px solid rgba(225,182,104,.5);outline-offset:9px;aspect-ratio:4/3.4}
-@media(max-width:900px){.split-photo{max-width:420px;margin:0 auto}}
-.split-photo img{width:100%;height:100%;object-fit:cover}
-.split .prose{margin:0}
+/* older */
+.older{text-align:center;margin-top:56px}
+.older .note{font-size:.84rem;color:var(--slate);margin-top:14px}
 
 /* ===== site shell ===== */
 /* nav */
@@ -336,20 +292,21 @@ main p em,main li em{color:var(--gold-text)}
 <script type="application/ld+json">
 {
   "@context":"https://schema.org",
-  "@type":"Course",
-  "name":"The Alchemist — The Inner Journey",
-  "description":"A seven-chapter journey of self-discovery curated by Anthony Abbagnano, covering pre and perinatal experiences, the inner child, shadow work and the road to mastery.",
-  "url":"https://alchemyofbreath.com/the-alchemist/",
-  "provider":{"@type":"Organization","name":"Alchemy of Breath","url":"https://alchemyofbreath.com/"},
-  "offers":{
-    "@type":"Offer","price":"499","priceCurrency":"USD",
-    "availability":"https://schema.org/InStock",
-    "url":"https://checkout.alchemyofbreath.com/the-alchemist/self-paced-journey"
-  },
-  "hasCourseInstance":{
-    "@type":"CourseInstance","courseMode":"online",
-    "instructor":{"@type":"Person","name":"Anthony Abbagnano"}
-  }
+  "@type":"Blog",
+  "name":"Alchemy of Breath — Breathwork Blog",
+  "url":"https://alchemyofbreath.com/blog/",
+  "publisher":{"@type":"Organization","name":"Alchemy of Breath","url":"https://alchemyofbreath.com/"},
+  "blogPost":[
+    {"@type":"BlogPosting","headline":"Conscious Breathing for Focus When Life Feels Full","url":"https://alchemyofbreath.com/conscious-breathing-for-focus/","datePublished":"2026-08-19"},
+    {"@type":"BlogPosting","headline":"Who Should Avoid Intense Breathwork Practices?","url":"https://alchemyofbreath.com/who-should-avoid-intense-breathwork/","datePublished":"2026-08-17"},
+    {"@type":"BlogPosting","headline":"Breathwork vs Meditation Benefits for Real Life","url":"https://alchemyofbreath.com/breathwork-vs-meditation-benefits/","datePublished":"2026-08-15"},
+    {"@type":"BlogPosting","headline":"What Alchemy Regulation Method Training Teaches","url":"https://alchemyofbreath.com/alchemy-regulation-method-training/","datePublished":"2026-08-13"},
+    {"@type":"BlogPosting","headline":"Is Conscious Breathing Safe? A Grounded Answer","url":"https://alchemyofbreath.com/is-conscious-breathing-safe/","datePublished":"2026-08-11"},
+    {"@type":"BlogPosting","headline":"How to Regulate Overwhelm Naturally With Breath","url":"https://alchemyofbreath.com/how-to-regulate-overwhelm-naturally/","datePublished":"2026-08-09"},
+    {"@type":"BlogPosting","headline":"Breathwork for Burnout Recovery Starts Gently","url":"https://alchemyofbreath.com/breathwork-for-burnout-recovery/","datePublished":"2026-08-07"},
+    {"@type":"BlogPosting","headline":"7 Best Tools for Self Regulation That Work","url":"https://alchemyofbreath.com/best-tools-for-self-regulation/","datePublished":"2026-08-05"},
+    {"@type":"BlogPosting","headline":"Online Breathwork Course Review: What to Look For","url":"https://alchemyofbreath.com/online-breathwork-course-review/","datePublished":"2026-08-03"}
+  ]
 }
 </script>
 </head>
@@ -379,7 +336,7 @@ main p em,main li em{color:var(--gold-text)}
             <a class="nm-lead" href="/live-residential-breathwork-facilitator-training/">Residential Training — Tuscany</a>
             <div class="nm-div" aria-hidden="true"></div>
             <a href="/alchemy-regulation-method/">Alchemy Regulation Method</a>
-            <a href="/the-alchemist/" aria-current="page">The Alchemist</a>
+            <a href="/the-alchemist/">The Alchemist</a>
           </div>
         </li>
         <li class="nm-item">
@@ -405,11 +362,11 @@ main p em,main li em{color:var(--gold-text)}
           </div>
         </li>
         <li class="nm-item"><a class="nm-link" href="/events/">Events</a></li>
-        <li class="nm-item"><a class="nm-link" href="/blog/">Blog</a></li>
+        <li class="nm-item"><a class="nm-link" href="/blog/" aria-current="page">Blog</a></li>
       </ul>
     </nav>
     <div class="nav-right">
-      <a class="nav-cta" href="#programs">View programs</a>
+      <a class="nav-cta" href="/free-breathwork-sessions/">Breathe free</a>
       <button class="nav-burger" type="button" aria-expanded="false" aria-controls="mnav" aria-label="Open menu"><span></span><span></span><span></span></button>
     </div>
   </div>
@@ -432,7 +389,7 @@ main p em,main li em{color:var(--gold-text)}
         <a href="/breathwork-training/">Online Facilitator Training</a>
         <a href="/live-residential-breathwork-facilitator-training/">Residential Training — Tuscany</a>
         <a href="/alchemy-regulation-method/">Alchemy Regulation Method</a>
-        <a href="/the-alchemist/" aria-current="page">The Alchemist</a>
+        <a href="/the-alchemist/">The Alchemist</a>
       </div></div>
     </div>
     <div class="mg">
@@ -456,9 +413,9 @@ main p em,main li em{color:var(--gold-text)}
       </div></div>
     </div>
     <div class="mg"><a class="mg-h" href="/events/">Events</a></div>
-    <div class="mg"><a class="mg-h" href="/blog/">Blog</a></div>
+    <div class="mg"><a class="mg-h" href="/blog/" aria-current="page">Blog</a></div>
     <div class="mnav-cta">
-      <a class="mnav-btn" href="#programs">View programs <span aria-hidden="true">&rarr;</span></a>
+      <a class="mnav-btn" href="/free-breathwork-sessions/">Breathe free <span aria-hidden="true">&rarr;</span></a>
       <p class="mnav-note">Free live breathwork every Sunday — no experience needed.</p>
       <div class="mnav-social">
         <a href="https://www.facebook.com/AOB.Breathwork/" aria-label="Alchemy of Breath on Facebook"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 21v-7h2.4l.4-3h-2.8V9.1c0-.9.3-1.5 1.6-1.5h1.3V4.9c-.2 0-1-.1-1.9-.1-1.9 0-3.2 1.2-3.2 3.3V11H8.9v3h2.4v7h2.2z"/></svg></a>
@@ -473,137 +430,111 @@ main p em,main li em{color:var(--gold-text)}
   <!-- HERO -->
   <section class="hero">
     <div class="wrap">
-      <span class="eyebrow reveal" style="justify-content:center">The Alchemist &middot; an inner journey to yourself</span>
-      <h1 class="reveal d1">Step into your <em>full power</em> &mdash; now.</h1>
-      <p class="kicker reveal d1">The Inner Journey programme is your chance to take back control.</p>
-      <p class="hero-sub reveal d2">Are you fed up with having to hide your true feelings, swallow things that need to be said, or feeling like you are not enough? After millions have transformed their lives with Alchemy, our founder Anthony Abbagnano has now decided to reveal the core part of our world-famous facilitator journey &mdash; the Alchemist &mdash; to the public as a whole.</p>
-      <div class="vid-frame reveal d3">
-        <img src="https://alchemyofbreath.com/wp-content/uploads/bg-photo-anthony-1.jpg" alt="Anthony Abbagnano guiding a breathwork session" width="834" height="600" loading="lazy" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">
-      </div>
-      <div style="margin-top:34px" class="reveal d3">
-        <a class="btn btn-primary" href="#programs">Choose your journey <span class="arr">&rarr;</span></a>
-      </div>
+      <span class="eyebrow reveal" style="justify-content:center">The blog</span>
+      <h1 class="reveal d1">Breathwork, <em>written down</em>.</h1>
+      <p class="hero-sub reveal d2">Articles on breathwork, wellness, healing, mindfulness, anxiety reduction, and personal transformation insights.</p>
     </div>
   </section>
 
-  <!-- IT'S NOT YOUR FAULT -->
+  <!-- POSTS -->
   <section class="alt cv">
     <div class="wrap">
-      <div class="sec-intro" style="max-width:42em">
-        <span class="eyebrow reveal" style="justify-content:center">The question</span>
-        <h2 class="reveal d1">Have you been writing your book of life? Or let <em>the world write it</em> for you?</h2>
-      </div>
-      <div class="split reveal d1">
-        <div class="split-photo"><img src="https://alchemyofbreath.com/wp-content/uploads/looking-far-617x600.jpg" alt="Looking out over the horizon" width="617" height="600" loading="lazy" decoding="async"></div>
-        <div class="prose">
-        <p>Ever wonder why life doesn't turn out the way you want? Did you know that your subconscious mind makes 95% of your choices for you?</p>
-        </div>
-      </div>
-      <p class="beat reveal d2" style="margin-top:44px">It's. Not. Your. Fault.</p>
-      <div class="prose reveal d2" style="text-align:center">
-        <p>It happens to all of us. But once you can see the patterns running underneath, you get to choose again &mdash; and that is exactly what this journey is for.</p>
-      </div>
-    </div>
-  </section>
+      <div class="posts">
 
-  <!-- BENEFITS -->
-  <section class="cv">
-    <div class="orb g" style="width:420px;height:420px;top:60px;right:-180px" aria-hidden="true"></div>
-    <div class="wrap">
-      <div class="sec-intro">
-        <span class="eyebrow reveal" style="justify-content:center">Dare to imagine</span>
-        <h2 class="reveal d1">Here's how your life <em>will change</em>. You will:</h2>
-      </div>
-      <div class="ben-grid">
-        <div class="ben reveal">Stand up for what you believe</div>
-        <div class="ben reveal">Learn to lead by being you</div>
-        <div class="ben reveal">Trust your creative self, and that your voice really counts</div>
-        <div class="ben reveal d1">Transform depression to direction</div>
-        <div class="ben reveal d1">Remove overwhelm from your life</div>
-        <div class="ben reveal d1">Attract the people you want in your life</div>
-        <div class="ben reveal d2">Develop vulnerability, presence and strength</div>
-        <div class="ben reveal d2">Assume the authority you deserve</div>
-        <div class="ben reveal d2">Become the example that inspires others</div>
-        <div class="ben reveal d3">Make self-confidence your new normal</div>
-        <div class="ben reveal d3">Create new intimacy in relationship</div>
-        <div class="ben reveal d3">Become the superhero of your own journey</div>
-      </div>
-    </div>
-  </section>
+        <article class="post reveal">
+          <a class="thumb" href="https://alchemyofbreath.com/conscious-breathing-for-focus/"><img src="https://alchemyofbreath.com/wp-content/uploads/conscious-breathing-for-focus-when-life-feels-full-featured-900x600.webp" alt="Conscious Breathing for Focus When Life Feels Full" width="900" height="600" loading="lazy" decoding="async"></a>
+          <div class="post-body">
+            <div class="date">August 19, 2026</div>
+            <h2><a href="https://alchemyofbreath.com/conscious-breathing-for-focus/">Conscious Breathing for Focus When Life Feels Full</a></h2>
+            <p>Conscious breathing for focus offers a practical way to settle mental noise, regulate your nervous system, and return to the task that matters most now.</p>
+            <a class="more" href="https://alchemyofbreath.com/conscious-breathing-for-focus/">Begin Reading</a>
+          </div>
+        </article>
 
-  <!-- COURSE OVERVIEW -->
-  <section class="alt cv">
-    <div class="wrap">
-      <div class="sec-intro">
-        <span class="eyebrow reveal" style="justify-content:center">Course overview</span>
-        <h2 class="reveal d1">A seven-chapter journey of <em>self-discovery</em>.</h2>
-        <p class="reveal d2" style="margin-top:16px;font-size:1.02rem">Curated by Anthony Abbagnano, and developed from 40+ years of research and experience.</p>
-      </div>
-      <div class="mods reveal d1">
-        <div class="mod"><span class="n">1</span><div><h3>Opening the Book of Your Life</h3><p>Pre and perinatal experiences.</p></div></div>
-        <div class="mod"><span class="n">2</span><div><h3>The Call</h3><p>Self-responsibility for change.</p></div></div>
-        <div class="mod"><span class="n">3</span><div><h3>The Inner Child</h3><p>Understanding the aspects of the inner child.</p></div></div>
-        <div class="mod"><span class="n">4</span><div><h3>Embracing Your Shadows</h3><p>Exploration of the unconscious mind.</p></div></div>
-        <div class="mod"><span class="n">5</span><div><h3>Finding the Treasure</h3><p>The road to mastery.</p></div></div>
-        <div class="mod"><span class="n">6</span><div><h3>Atonement and Return</h3><p>Transition from mastery to mystery.</p></div></div>
-        <div class="mod"><span class="n">7</span><div><h3>The Return</h3><p>A new beginning.</p></div></div>
-      </div>
-    </div>
-  </section>
+        <article class="post reveal d1">
+          <a class="thumb" href="https://alchemyofbreath.com/who-should-avoid-intense-breathwork/"><img src="https://alchemyofbreath.com/wp-content/uploads/who-should-avoid-intense-breathwork-practices-featured-900x600.webp" alt="Who Should Avoid Intense Breathwork Practices?" width="900" height="600" loading="lazy" decoding="async"></a>
+          <div class="post-body">
+            <div class="date">August 17, 2026</div>
+            <h2><a href="https://alchemyofbreath.com/who-should-avoid-intense-breathwork/">Who Should Avoid Intense Breathwork Practices?</a></h2>
+            <p>Learn who should avoid intense breathwork, when to choose gentle practices instead, and how informed support creates a safer path for healing and presence.</p>
+            <a class="more" href="https://alchemyofbreath.com/who-should-avoid-intense-breathwork/">Begin Reading</a>
+          </div>
+        </article>
 
-  <!-- PULL -->
-  <section class="pull cv">
-    <div class="ph" aria-hidden="true"></div>
-    <div class="wrap reveal" style="text-align:center">
-      <h2>Are you ready to climb into the front seat and grab the wheel of your life?</h2>
-      <p>Isn't it time for an upgrade?</p>
-    </div>
-  </section>
+        <article class="post reveal d2">
+          <a class="thumb" href="https://alchemyofbreath.com/breathwork-vs-meditation-benefits/"><img src="https://alchemyofbreath.com/wp-content/uploads/breathwork-vs-meditation-benefits-for-real-life-featured-900x600.webp" alt="Breathwork vs Meditation Benefits for Real Life" width="900" height="600" loading="lazy" decoding="async"></a>
+          <div class="post-body">
+            <div class="date">August 15, 2026</div>
+            <h2><a href="https://alchemyofbreath.com/breathwork-vs-meditation-benefits/">Breathwork vs Meditation Benefits for Real Life</a></h2>
+            <p>Compare breathwork vs meditation benefits for stress, focus, and emotional healing, and learn when each practice can support your nervous system best.</p>
+            <a class="more" href="https://alchemyofbreath.com/breathwork-vs-meditation-benefits/">Begin Reading</a>
+          </div>
+        </article>
 
-  <!-- PLANS -->
-  <section class="cv" id="programs" style="scroll-margin-top:80px">
-    <div class="wrap">
-      <div class="sec-intro">
-        <span class="eyebrow reveal" style="justify-content:center">Inner Journey: The Alchemist</span>
-        <h2 class="reveal d1">Choose between <em>two programs</em>.</h2>
+        <article class="post reveal">
+          <a class="thumb" href="https://alchemyofbreath.com/alchemy-regulation-method-training/"><img src="https://alchemyofbreath.com/wp-content/uploads/what-alchemy-regulation-method-training-teaches-featured-900x600.webp" alt="What Alchemy Regulation Method Training Teaches" width="900" height="600" loading="lazy" decoding="async"></a>
+          <div class="post-body">
+            <div class="date">August 13, 2026</div>
+            <h2><a href="https://alchemyofbreath.com/alchemy-regulation-method-training/">What Alchemy Regulation Method Training Teaches</a></h2>
+            <p>Alchemy Regulation Method Training teaches practical, trauma-aware breathwork for emotional balance, nervous system resilience, and professional practice.</p>
+            <a class="more" href="https://alchemyofbreath.com/alchemy-regulation-method-training/">Begin Reading</a>
+          </div>
+        </article>
+
+        <article class="post reveal d1">
+          <a class="thumb" href="https://alchemyofbreath.com/is-conscious-breathing-safe/"><img src="https://alchemyofbreath.com/wp-content/uploads/is-conscious-breathing-safe-a-grounded-answer-featured-900x600.webp" alt="Is Conscious Breathing Safe? A Grounded Answer" width="900" height="600" loading="lazy" decoding="async"></a>
+          <div class="post-body">
+            <div class="date">August 11, 2026</div>
+            <h2><a href="https://alchemyofbreath.com/is-conscious-breathing-safe/">Is Conscious Breathing Safe? A Grounded Answer</a></h2>
+            <p>Is conscious breathing safe? Learn who benefits, when to slow down, and how trauma-informed guidance supports a grounded, steady practice for wellbeing.</p>
+            <a class="more" href="https://alchemyofbreath.com/is-conscious-breathing-safe/">Begin Reading</a>
+          </div>
+        </article>
+
+        <article class="post reveal d2">
+          <a class="thumb" href="https://alchemyofbreath.com/how-to-regulate-overwhelm-naturally/"><img src="https://alchemyofbreath.com/wp-content/uploads/how-to-regulate-overwhelm-naturally-with-breath-featured-900x600.webp" alt="How to Regulate Overwhelm Naturally With Breath" width="900" height="600" loading="lazy" decoding="async"></a>
+          <div class="post-body">
+            <div class="date">August 9, 2026</div>
+            <h2><a href="https://alchemyofbreath.com/how-to-regulate-overwhelm-naturally/">How to Regulate Overwhelm Naturally With Breath</a></h2>
+            <p>Learn how to regulate overwhelm naturally with breath, body-based grounding, and compassionate rhythms for a steadier nervous system at home when life feels loud.</p>
+            <a class="more" href="https://alchemyofbreath.com/how-to-regulate-overwhelm-naturally/">Begin Reading</a>
+          </div>
+        </article>
+
+        <article class="post reveal">
+          <a class="thumb" href="https://alchemyofbreath.com/breathwork-for-burnout-recovery/"><img src="https://alchemyofbreath.com/wp-content/uploads/breathwork-for-burnout-recovery-starts-gently-featured-900x600.webp" alt="Breathwork for Burnout Recovery Starts Gently" width="900" height="600" loading="lazy" decoding="async"></a>
+          <div class="post-body">
+            <div class="date">August 7, 2026</div>
+            <h2><a href="https://alchemyofbreath.com/breathwork-for-burnout-recovery/">Breathwork for Burnout Recovery Starts Gently</a></h2>
+            <p>Breathwork for burnout recovery can help calm your nervous system, restore depleted energy, and create space to meet yourself with care again each day.</p>
+            <a class="more" href="https://alchemyofbreath.com/breathwork-for-burnout-recovery/">Begin Reading</a>
+          </div>
+        </article>
+
+        <article class="post reveal d1">
+          <a class="thumb" href="https://alchemyofbreath.com/best-tools-for-self-regulation/"><img src="https://alchemyofbreath.com/wp-content/uploads/7-best-tools-for-self-regulation-that-work-featured-900x600.webp" alt="7 Best Tools for Self Regulation That Work" width="900" height="600" loading="lazy" decoding="async"></a>
+          <div class="post-body">
+            <div class="date">August 5, 2026</div>
+            <h2><a href="https://alchemyofbreath.com/best-tools-for-self-regulation/">7 Best Tools for Self Regulation That Work</a></h2>
+            <p>Explore the best tools for self regulation, from breathwork to sensory grounding, and learn how to choose practices that support your nervous system daily</p>
+            <a class="more" href="https://alchemyofbreath.com/best-tools-for-self-regulation/">Begin Reading</a>
+          </div>
+        </article>
+
+        <article class="post reveal d2">
+          <a class="thumb" href="https://alchemyofbreath.com/online-breathwork-course-review/"><img src="https://alchemyofbreath.com/wp-content/uploads/online-breathwork-course-review-what-to-look-for-featured-900x600.webp" alt="Online Breathwork Course Review: What to Look For" width="900" height="600" loading="lazy" decoding="async"></a>
+          <div class="post-body">
+            <div class="date">August 3, 2026</div>
+            <h2><a href="https://alchemyofbreath.com/online-breathwork-course-review/">Online Breathwork Course Review: What to Look For</a></h2>
+            <p>An online breathwork course review for choosing safe, supportive training that builds daily regulation skills, awareness, and facilitation confidence.</p>
+            <a class="more" href="https://alchemyofbreath.com/online-breathwork-course-review/">Begin Reading</a>
+          </div>
+        </article>
+
       </div>
-      <div class="plans">
-        <div class="plan reveal">
-          <h3>Self-Paced Journey</h3>
-          <div class="len">7 modules over 7 weeks</div>
-          <div class="price"><s>$1499</s>$499</div>
-          <div class="price-sub">Start anytime</div>
-          <ul>
-            <li>All seven Alchemist modules, at your own pace</li>
-            <li>Sunday BreatheTheWorld Collection &mdash; 20 breathwork sessions with Anthony Abbagnano &amp; Amy Rachelle</li>
-            <li>1 year access to weekly support calls</li>
-            <li>Developed from 40+ years of research and experience</li>
-          </ul>
-          <a class="btn btn-primary" href="https://checkout.alchemyofbreath.com/the-alchemist/self-paced-journey">Join Self-Paced Journey <span class="arr">&rarr;</span></a>
-        </div>
-        <div class="plan feature reveal d1">
-          <span class="tag">Guided &middot; small groups</span>
-          <h3>Guided Mastery Journey</h3>
-          <div class="len">7 modules over 14 weeks</div>
-          <div class="price">Guided</div>
-          <div class="price-sub">Next intake September 2026 &middot; 4-month payment plan available</div>
-          <ul>
-            <li>Everything in the Self-Paced Journey</li>
-            <li>Trainers and mentors: live classes on Tuesdays (AM or PM)</li>
-            <li>Bi-weekly live class with a trainer &mdash; 25-person group</li>
-            <li>Bi-weekly circle with your personal mentor &mdash; 5-person group</li>
-            <li>Recordings available &middot; cancel anytime</li>
-          </ul>
-          <a class="btn btn-primary" href="https://calendly.com/d/cshw-qjk-ywb/the-alchemist-an-inner-journey-to-yourself">Book a discovery call <span class="arr">&rarr;</span></a>
-        </div>
+      <div class="older reveal">
+        <a class="btn btn-ghost" href="https://alchemyofbreath.com/blog/2/">Older posts <span class="arr">&rarr;</span></a>
       </div>
-      <div class="support reveal d1">
-        <h3>Weekly Support Calls</h3>
-        <p>With Anthony Abbagnano &mdash; Fridays at 9 AM or 5 PM UK time.</p>
-        <span class="amt">$97/month</span>
-        <p style="font-size:.86rem;color:var(--slate)">Recordings available. Cancel anytime.</p>
-      </div>
-      <p class="disclaimer reveal" style="margin-top:44px">Alchemy of Breath is not a medical practice and facilitators are not medically trained. <a href="/terms-and-conditions/">Please read our policy here</a>.</p>
     </div>
   </section>
 
@@ -635,7 +566,7 @@ main p em,main li em{color:var(--gold-text)}
         <h3>Go deeper</h3>
         <a href="/breathwork-training/">Facilitator Training — Online</a>
         <a href="/live-residential-breathwork-facilitator-training/">Residential Training — Tuscany</a>
-        <a href="/the-alchemist/" aria-current="page">The Alchemist</a>
+        <a href="/the-alchemist/">The Alchemist</a>
         <a href="/alchemy-regulation-method/">Alchemy Regulation Method</a>
       </nav>
       <nav class="foot-col" aria-label="Footer — at ASHA">
@@ -648,7 +579,7 @@ main p em,main li em{color:var(--gold-text)}
         <h3>Explore</h3>
         <a href="/shop/">Shop</a>
         <a href="/events/">Events</a>
-        <a href="/blog/">Blog</a>
+        <a href="/blog/" aria-current="page">Blog</a>
         <a href="/contact/">Contact</a>
       </nav>
     </div>

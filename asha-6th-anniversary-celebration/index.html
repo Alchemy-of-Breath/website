@@ -98,6 +98,8 @@ section>.wrap{position:relative;z-index:1}
 /* hero */
 .hero{padding:150px 0 90px;overflow:hidden;background:radial-gradient(120% 90% at 50% 0%,var(--cream) 0%,var(--paper) 62%);text-align:center}
 .hero::before{content:"";position:absolute;top:-220px;left:-180px;width:640px;height:640px;border-radius:50%;background:radial-gradient(circle,rgba(225,182,104,.24) 0%,rgba(225,182,104,0) 68%);pointer-events:none}
+.hero::after{content:"";position:absolute;inset:0;background:url('https://alchemyofbreath.com/wp-content/uploads/asha-campus-7.jpg') center 30%/cover no-repeat;opacity:.12;pointer-events:none;-webkit-mask-image:linear-gradient(180deg,transparent 0%,#000 30%,#000 78%,transparent 100%);mask-image:linear-gradient(180deg,transparent 0%,#000 30%,#000 78%,transparent 100%)}
+.hero .wrap{position:relative;z-index:1}
 .hero .eyebrow::after{content:"";width:34px;height:1px;background:var(--gold)}
 .hero h1{max-width:11em;margin:0 auto;text-wrap:balance}
 .when{display:flex;justify-content:center;flex-wrap:wrap;gap:12px;margin-top:26px}
@@ -116,6 +118,8 @@ section>.wrap{position:relative;z-index:1}
 
 /* pull */
 .pull{background:linear-gradient(165deg,#2b2627 0%,var(--ink) 60%,#0d0b0c 100%);color:#FBF7EF;text-align:center;overflow:hidden}
+.pull .ph{position:absolute;inset:0;background:url('https://alchemyofbreath.com/wp-content/uploads/DSCF5832.jpg') center/cover no-repeat;opacity:.16;pointer-events:none}
+.pull .wrap{position:relative;z-index:1}
 .pull::before{content:"";position:absolute;top:-200px;left:50%;transform:translateX(-50%);width:800px;height:400px;background:radial-gradient(ellipse,rgba(225,182,104,.18) 0%,rgba(225,182,104,0) 70%);pointer-events:none}
 .pull p{font-size:1.06rem;line-height:1.8;max-width:36em;margin:0 auto;color:#C9BFA9}
 .pull .three{font-family:var(--serif);font-size:clamp(1.4rem,2.8vw,2rem);color:#FBF7EF;line-height:1.5;margin-top:30px}
@@ -124,7 +128,8 @@ section>.wrap{position:relative;z-index:1}
 .rooms{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;max-width:1060px;margin:0 auto}
 @media(max-width:900px){.rooms{grid-template-columns:1fr 1fr}}
 @media(max-width:560px){.rooms{grid-template-columns:1fr}}
-.room{background:#fff;border:1px solid rgba(225,182,104,.3);border-radius:18px;padding:28px 26px;box-shadow:var(--shadow-soft);display:flex;flex-direction:column;transition:transform .3s,border-color .3s}
+.room{background:#fff;border:1px solid rgba(225,182,104,.3);border-radius:18px;padding:0 0 26px;box-shadow:var(--shadow-soft);display:flex;flex-direction:column;transition:transform .3s,border-color .3s;overflow:hidden}
+.room>img{width:100%;height:150px;object-fit:cover;border-bottom:1px solid rgba(225,182,104,.2);margin-bottom:18px}
 .room:hover{transform:translateY(-4px);border-color:rgba(225,182,104,.65)}
 .room h3{font-size:1.12rem;margin-bottom:8px}
 .room .rate{font-family:var(--serif);font-size:1.9rem;color:var(--gold-deep);line-height:1}
@@ -132,6 +137,7 @@ section>.wrap{position:relative;z-index:1}
 .room p{font-size:.92rem;line-height:1.6;flex:1}
 .room .go{margin-top:18px;align-self:flex-start;font-size:.7rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;color:var(--ink);border:1px solid rgba(34,31,32,.3);border-radius:999px;padding:9px 18px;transition:background .25s,border-color .25s}
 .room .go:hover{background:var(--grad-gold);border-color:var(--gold-deep)}
+.room>h3,.room .rate,.room .per,.room>p,.room .go{margin-left:26px;margin-right:26px}
 .rooms-note{text-align:center;font-size:.9rem;color:var(--slate);max-width:40em;margin:36px auto 0;line-height:1.6}
 
 /* getting there */
@@ -244,7 +250,72 @@ html.menu-open .pill{opacity:0 !important;pointer-events:none !important}
 .foot-bottom{border-top:1px solid rgba(225,182,104,.16);margin-top:68px;padding:26px 0 36px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;font-size:.76rem;color:#8d8276}
 .foot-legal{display:flex;gap:20px;flex-wrap:wrap}
 @media(max-width:1060px){.foot-grid{grid-template-columns:1fr 1fr;gap:36px 40px}.foot-brand{grid-column:1/-1;max-width:30em}}
-@media(max-width:520px){.foot-grid{grid-template-columns:1fr}.foot{padding-top:70px}.foot-bottom{flex-direction:column;align-items:flex-start}}
+@media(max-width:640px){.foot-grid{grid-template-columns:1fr}.foot{padding-top:70px}.foot-bottom{flex-direction:column;align-items:flex-start}}
+
+/* sitewide polish — lands after every page's own CSS, so it wins at equal
+   specificity. Three jobs: readable accent colors, tap targets, small
+   component consistency. No layout ownership — pages keep their designs. */
+
+/* 1 · CONTRAST.
+   The signature gold (#D6A652) measures 2.08:1 as text on cream, slate body
+   copy 4.37:1, teal micro-labels 2.99:1. Text usages darken in two tiers:
+   small text to #8A5F1C (>=4.5:1 on cream, white and gold-wash), large serif
+   accents to #A9762A (>=3:1, AA for large text, keeps the brand warmth).
+   Every FILL, rule, border, shadow and dark-background usage keeps the
+   original palette untouched. */
+:root{
+  --gold-text:#8A5F1C;      /* small gold text — full AA */
+  --gold-text-lg:#A9762A;   /* large serif accents — AA large-text */
+  --slate:#4A6070;          /* was #5B7889 */
+  --teal:#00727C;           /* was #00A5B2 — micro-labels; dots merely deepen */
+}
+
+/* the signature italic accent: large in headings, darker in running copy */
+main em,main .em-i{color:var(--gold-text-lg)}
+main p em,main li em{color:var(--gold-text)}
+/* dark-band exceptions stay light gold */
+.pathway em,.pull em,.pull .em-i,.schol em,.foot em{color:var(--gold)}
+
+/* gold text accents on light backgrounds — from an audit of every
+   `color: var(--gold[-deep])` usage sitewide. Small-text tier. */
+.hero .kicker,.why .n,.mod .n,.stat-chip b,.stage .n,.inst .role,.rate-line,
+.room .nightly,.bonus .val,.gift,.room .rate,.post .date,.post h2 a:hover,
+.date-card .dc-n,.dates-promo b,.dt-promo b,.fcard .num,.ch-num,
+.room-b .pr,.room-b .dep,.room-b .prx,.room .rm-more,.dt-row .n,.dt-note a,
+.rm-nav,.rm-price,.faq-cat,.lesson .num,.feature-list .fnum,
+.price-card .pc-eyebrow,.price-list li::before,.pc-ribbon,.hero-open strong,
+.cal-ev.bc .cal-tag,.rc .when,.ev.camp .ev-tag,.ev-date,.ev .dates,.tz a,
+.quote,.breath-line,.ev-card.bc .ev-tag,.c-name,.c-meta,
+.award-card .big sup,.award-off,.award-tiers li span:first-child,.step .when,
+.hook .lead.bridge em,.sol-block .tag,.person .role,.hv-cap span,
+.hv-duration,.dcard .num,.letter-card .pull,.byline,.card .price,
+.feature .price,.support .amt,.step .letter,.day .n,
+.faq-list summary .pm,.stage .pm,
+.nm-drop a[aria-current="page"],.mg-b a[aria-current="page"],.mg-b a:hover{
+  color:var(--gold-text)
+}
+/* large-tier accents re-raised to the warmer gold (all >=24px serif) */
+.stats-grid .stat .num,.stats-grid .stat .num sup,.room .nightly,
+.support .amt,.why .n,.step .letter,.lesson .num{
+  color:var(--gold-text-lg)
+}
+
+/* 2 · TAP TARGETS. The small ghost pills used as card CTAs sit at ~30-40px;
+   44px minimum below the desktop breakpoint. Labels unchanged. */
+@media(max-width:1120px){
+  .go,.ev-go,.more,.rm-more,.rc .go{
+    min-height:44px;display:inline-flex;align-items:center;justify-content:center;
+    padding:12px 22px
+  }
+}
+
+/* 3 · CONSISTENCY DETAILS. */
+/* card CTAs pin to the card floor so grid rows share a baseline */
+.card .go{margin-top:auto}
+.card .price{margin-top:14px}
+.card p{flex:1 1 auto}
+/* the arched portrait is the site's one portrait treatment */
+.author-photo{border-radius:280px 280px 18px 18px;aspect-ratio:4/4.4}
 
 
 </style>
@@ -293,7 +364,7 @@ html.menu-open .pill{opacity:0 !important;pointer-events:none !important}
             <a class="nm-lead" href="/breathwork-training/">Online Facilitator Training</a>
             <a class="nm-lead" href="/live-residential-breathwork-facilitator-training/">Residential Training — Tuscany</a>
             <div class="nm-div" aria-hidden="true"></div>
-            <a href="https://go.alchemyofbreath.com/alchemy-regulation-method">Alchemy Regulation Method <span class="ext" aria-hidden="true">&nearr;</span></a>
+            <a href="/alchemy-regulation-method/">Alchemy Regulation Method</a>
             <a href="/the-alchemist/">The Alchemist</a>
           </div>
         </li>
@@ -346,7 +417,7 @@ html.menu-open .pill{opacity:0 !important;pointer-events:none !important}
       <div class="mg-b"><div class="mg-b-in">
         <a href="/breathwork-training/">Online Facilitator Training</a>
         <a href="/live-residential-breathwork-facilitator-training/">Residential Training — Tuscany</a>
-        <a href="https://go.alchemyofbreath.com/alchemy-regulation-method">Alchemy Regulation Method <span class="ext" aria-hidden="true">&nearr;</span></a>
+        <a href="/alchemy-regulation-method/">Alchemy Regulation Method</a>
         <a href="/the-alchemist/">The Alchemist</a>
       </div></div>
     </div>
@@ -425,6 +496,7 @@ html.menu-open .pill{opacity:0 !important;pointer-events:none !important}
 
   <!-- PULL -->
   <section class="pull cv">
+    <div class="ph" aria-hidden="true"></div>
     <div class="wrap reveal">
       <p>In a world of screens and distance, we're calling you back to what matters most: being together, in person. Breathing the same air. Sharing the same earth. Connecting heart to heart.</p>
       <p class="three">Come celebrate six years of transformation.<br>Come celebrate community.<br>Come celebrate life itself.</p>
@@ -442,54 +514,63 @@ html.menu-open .pill{opacity:0 !important;pointer-events:none !important}
       </div>
       <div class="rooms">
         <div class="room reveal">
+          <img src="https://alchemyofbreath.com/wp-content/uploads/Private-Cottage-1-1-1-768x512.jpg" alt="Private cottage at ASHA" width="768" height="512" loading="lazy" decoding="async">
           <h3>Private Cottage for two</h3>
           <div class="rate">€150</div><div class="per">per night</div>
           <p>Stay in a cozy private cottage with your own bathroom, kitchen, and living space. Perfect for singles, couples, or families seeking quiet comfort.</p>
           <a class="go" href="https://asha.secure.retreat.guru/program/asha-6th-anniversary-party-june-13-2026/?form=1&amp;lang=en">Book here</a>
         </div>
         <div class="room reveal d1">
+          <img src="https://alchemyofbreath.com/wp-content/uploads/Private-Cottage-1-1-1-768x512.jpg" alt="Private cottage at ASHA" width="768" height="512" loading="lazy" decoding="async">
           <h3>Private Cottage for one</h3>
           <div class="rate">€120</div><div class="per">per night</div>
           <p>The same private cottage &mdash; your own bathroom, kitchen, and living space &mdash; for a single guest.</p>
           <a class="go" href="https://asha.secure.retreat.guru/program/asha-6th-anniversary-party-june-13-2026/?form=1&amp;lang=en">Book here</a>
         </div>
         <div class="room reveal d2">
+          <img src="https://alchemyofbreath.com/wp-content/uploads/single-ensuite-1-1-1-768x512.jpg" alt="Single ensuite room in the Main House" width="768" height="512" loading="lazy" decoding="async">
           <h3>Single Room Ensuite</h3>
           <div class="rate">€95</div><div class="per">per person</div>
           <p>Enjoy a private ensuite room in the Main House with a single bed and writing desk. A peaceful space to rest, reflect, and recharge in full privacy.</p>
           <a class="go" href="https://asha.secure.retreat.guru/program/asha-6th-anniversary-party-june-13-2026/?form=1&amp;lang=en">Book here</a>
         </div>
         <div class="room reveal">
+          <img src="https://alchemyofbreath.com/wp-content/uploads/twin-ensuite-1-1-1-768x512.jpg" alt="Shared room with private ensuite" width="768" height="512" loading="lazy" decoding="async">
           <h3>Shared Room &middot; private ensuite</h3>
           <div class="rate">€85</div><div class="per">per person</div>
           <p>Share a room with one other guest and enjoy a private ensuite bathroom. Rustic, simple, and filled with warmth and natural light.</p>
           <a class="go" href="https://asha.secure.retreat.guru/program/asha-6th-anniversary-party-june-13-2026/?form=1&amp;lang=en">Book here</a>
         </div>
         <div class="room reveal d1">
+          <img src="https://alchemyofbreath.com/wp-content/uploads/twin-non-ensuite-1-1-1-768x512.jpg" alt="Shared twin room in a cottage" width="768" height="512" loading="lazy" decoding="async">
           <h3>Shared Cottage Twin</h3>
           <div class="rate">€75</div><div class="per">per person</div>
           <p>A shared twin room in a charming cottage with a shared bathroom between four guests. Cozy, comfortable, and perfect for building new connections.</p>
           <a class="go" href="https://asha.secure.retreat.guru/program/asha-6th-anniversary-party-june-13-2026/?form=1&amp;lang=en">Book here</a>
         </div>
         <div class="room reveal d2">
+          <img src="https://alchemyofbreath.com/wp-content/uploads/triple-ensuite-1-1-1-1-768x512.jpg" alt="Shared triple room" width="768" height="512" loading="lazy" decoding="async">
           <h3>Shared Triple Room</h3>
           <div class="rate">€65</div><div class="per">per person</div>
           <p>Each room features three single beds and a private bathroom. Ideal for friends or solo travelers seeking community and comfort.</p>
           <a class="go" href="https://asha.secure.retreat.guru/program/asha-6th-anniversary-party-june-13-2026/?form=1&amp;lang=en">Book here</a>
         </div>
         <div class="room reveal">
+          <img src="https://alchemyofbreath.com/wp-content/uploads/asha-glamping-1-1-1-768x512.jpg" alt="Furnished glamping bell tent" width="768" height="512" loading="lazy" decoding="async">
           <h3>Glamping in an ASHA tent</h3>
           <div class="rate">€55</div><div class="per">per person</div>
           <p>Sleep close to nature in a beautifully furnished bell tent, shared with one other guest. Note: May, September and October weather is unpredictable &mdash; use at your own risk.</p>
           <a class="go" href="https://asha.secure.retreat.guru/program/asha-6th-anniversary-party-june-13-2026/?form=1&amp;lang=en">Book here</a>
         </div>
         <div class="room reveal d1">
+          <img src="https://alchemyofbreath.com/wp-content/uploads/accommodation-camper-1-1-1-1-1-768x492.jpg" alt="Camper pitch at ASHA" width="768" height="492" loading="lazy" decoding="async">
           <h3>Come in a camper</h3>
           <div class="rate">€45</div><div class="per">per person</div>
           <p>Bring your camper and join the community. Limited spaces available with full access to our facilities. One of our most popular, nature-immersed options.</p>
           <a class="go" href="https://asha.secure.retreat.guru/program/asha-6th-anniversary-party-june-13-2026/?form=1&amp;lang=en">Book here</a>
         </div>
         <div class="room reveal d2">
+          <img src="https://alchemyofbreath.com/wp-content/uploads/accommodation-tent-1-1-1-1-1-768x453.jpg" alt="Tent pitch in the woods at ASHA" width="768" height="453" loading="lazy" decoding="async">
           <h3>Bring your own tent</h3>
           <div class="rate">€30</div><div class="per">per person</div>
           <p>Pitch your tent in our secluded woods. Bring your own bedding and essentials.</p>
@@ -568,7 +649,7 @@ html.menu-open .pill{opacity:0 !important;pointer-events:none !important}
         <a href="/breathwork-training/">Facilitator Training — Online</a>
         <a href="/live-residential-breathwork-facilitator-training/">Residential Training — Tuscany</a>
         <a href="/the-alchemist/">The Alchemist</a>
-        <a href="https://go.alchemyofbreath.com/alchemy-regulation-method">Alchemy Regulation Method</a>
+        <a href="/alchemy-regulation-method/">Alchemy Regulation Method</a>
       </nav>
       <nav class="foot-col" aria-label="Footer — at ASHA">
         <h3>At ASHA</h3>

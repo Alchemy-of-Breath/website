@@ -468,7 +468,72 @@ html.menu-open .pill{opacity:0 !important;pointer-events:none !important}
 .foot-bottom{border-top:1px solid rgba(225,182,104,.16);margin-top:68px;padding:26px 0 36px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;font-size:.76rem;color:#8d8276}
 .foot-legal{display:flex;gap:20px;flex-wrap:wrap}
 @media(max-width:1060px){.foot-grid{grid-template-columns:1fr 1fr;gap:36px 40px}.foot-brand{grid-column:1/-1;max-width:30em}}
-@media(max-width:520px){.foot-grid{grid-template-columns:1fr}.foot{padding-top:70px}.foot-bottom{flex-direction:column;align-items:flex-start}}
+@media(max-width:640px){.foot-grid{grid-template-columns:1fr}.foot{padding-top:70px}.foot-bottom{flex-direction:column;align-items:flex-start}}
+
+/* sitewide polish — lands after every page's own CSS, so it wins at equal
+   specificity. Three jobs: readable accent colors, tap targets, small
+   component consistency. No layout ownership — pages keep their designs. */
+
+/* 1 · CONTRAST.
+   The signature gold (#D6A652) measures 2.08:1 as text on cream, slate body
+   copy 4.37:1, teal micro-labels 2.99:1. Text usages darken in two tiers:
+   small text to #8A5F1C (>=4.5:1 on cream, white and gold-wash), large serif
+   accents to #A9762A (>=3:1, AA for large text, keeps the brand warmth).
+   Every FILL, rule, border, shadow and dark-background usage keeps the
+   original palette untouched. */
+:root{
+  --gold-text:#8A5F1C;      /* small gold text — full AA */
+  --gold-text-lg:#A9762A;   /* large serif accents — AA large-text */
+  --slate:#4A6070;          /* was #5B7889 */
+  --teal:#00727C;           /* was #00A5B2 — micro-labels; dots merely deepen */
+}
+
+/* the signature italic accent: large in headings, darker in running copy */
+main em,main .em-i{color:var(--gold-text-lg)}
+main p em,main li em{color:var(--gold-text)}
+/* dark-band exceptions stay light gold */
+.pathway em,.pull em,.pull .em-i,.schol em,.foot em{color:var(--gold)}
+
+/* gold text accents on light backgrounds — from an audit of every
+   `color: var(--gold[-deep])` usage sitewide. Small-text tier. */
+.hero .kicker,.why .n,.mod .n,.stat-chip b,.stage .n,.inst .role,.rate-line,
+.room .nightly,.bonus .val,.gift,.room .rate,.post .date,.post h2 a:hover,
+.date-card .dc-n,.dates-promo b,.dt-promo b,.fcard .num,.ch-num,
+.room-b .pr,.room-b .dep,.room-b .prx,.room .rm-more,.dt-row .n,.dt-note a,
+.rm-nav,.rm-price,.faq-cat,.lesson .num,.feature-list .fnum,
+.price-card .pc-eyebrow,.price-list li::before,.pc-ribbon,.hero-open strong,
+.cal-ev.bc .cal-tag,.rc .when,.ev.camp .ev-tag,.ev-date,.ev .dates,.tz a,
+.quote,.breath-line,.ev-card.bc .ev-tag,.c-name,.c-meta,
+.award-card .big sup,.award-off,.award-tiers li span:first-child,.step .when,
+.hook .lead.bridge em,.sol-block .tag,.person .role,.hv-cap span,
+.hv-duration,.dcard .num,.letter-card .pull,.byline,.card .price,
+.feature .price,.support .amt,.step .letter,.day .n,
+.faq-list summary .pm,.stage .pm,
+.nm-drop a[aria-current="page"],.mg-b a[aria-current="page"],.mg-b a:hover{
+  color:var(--gold-text)
+}
+/* large-tier accents re-raised to the warmer gold (all >=24px serif) */
+.stats-grid .stat .num,.stats-grid .stat .num sup,.room .nightly,
+.support .amt,.why .n,.step .letter,.lesson .num{
+  color:var(--gold-text-lg)
+}
+
+/* 2 · TAP TARGETS. The small ghost pills used as card CTAs sit at ~30-40px;
+   44px minimum below the desktop breakpoint. Labels unchanged. */
+@media(max-width:1120px){
+  .go,.ev-go,.more,.rm-more,.rc .go{
+    min-height:44px;display:inline-flex;align-items:center;justify-content:center;
+    padding:12px 22px
+  }
+}
+
+/* 3 · CONSISTENCY DETAILS. */
+/* card CTAs pin to the card floor so grid rows share a baseline */
+.card .go{margin-top:auto}
+.card .price{margin-top:14px}
+.card p{flex:1 1 auto}
+/* the arched portrait is the site's one portrait treatment */
+.author-photo{border-radius:280px 280px 18px 18px;aspect-ratio:4/4.4}
 
 </style>
 <script type="application/ld+json">
@@ -531,7 +596,7 @@ html.menu-open .pill{opacity:0 !important;pointer-events:none !important}
             <a class="nm-lead" href="/breathwork-training/">Online Facilitator Training</a>
             <a class="nm-lead" href="/live-residential-breathwork-facilitator-training/">Residential Training — Tuscany</a>
             <div class="nm-div" aria-hidden="true"></div>
-            <a href="https://go.alchemyofbreath.com/alchemy-regulation-method">Alchemy Regulation Method <span class="ext" aria-hidden="true">&nearr;</span></a>
+            <a href="/alchemy-regulation-method/">Alchemy Regulation Method</a>
             <a href="/the-alchemist/">The Alchemist</a>
           </div>
         </li>
@@ -584,7 +649,7 @@ html.menu-open .pill{opacity:0 !important;pointer-events:none !important}
       <div class="mg-b"><div class="mg-b-in">
         <a href="/breathwork-training/">Online Facilitator Training</a>
         <a href="/live-residential-breathwork-facilitator-training/">Residential Training — Tuscany</a>
-        <a href="https://go.alchemyofbreath.com/alchemy-regulation-method">Alchemy Regulation Method <span class="ext" aria-hidden="true">&nearr;</span></a>
+        <a href="/alchemy-regulation-method/">Alchemy Regulation Method</a>
         <a href="/the-alchemist/">The Alchemist</a>
       </div></div>
     </div>
@@ -694,7 +759,7 @@ html.menu-open .pill{opacity:0 !important;pointer-events:none !important}
       </a>
 
       <!-- 02 · ALCHEMY REGULATION METHOD (Vimeo) -->
-      <a class="aob3-panel aob3-arm" href="https://go.alchemyofbreath.com/alchemy-regulation-method" target="_blank" rel="noopener" aria-label="Alchemy Regulation Method">
+      <a class="aob3-panel aob3-arm" href="/alchemy-regulation-method/" aria-label="Alchemy Regulation Method">
         <div class="aob3-media"><div class="aob3-media-inner">
           <div class="aob3-ext">
             <iframe class="aob3-frame" loading="lazy"
@@ -751,7 +816,6 @@ html.menu-open .pill{opacity:0 !important;pointer-events:none !important}
       <ul class="ev-track" aria-label="ASHA 2026 events">
       <li class="ev-card"><img class="ev-img" src="https://alchemyofbreath.com/wp-content/uploads/elementor/thumbs/5F8A1159-1-rhx8e36rv5deq6ygkdwpj761gg95xsmkyqqy6by79g.jpg" alt="Community gathered at ASHA" width="250" height="250" loading="lazy" decoding="async"><div class="ev-body"><span class="ev-tag">Community</span><span class="ev-date">May &ndash; Nov 1</span><h4>ARC &middot; Alchemy Residential Club</h4><p>Co-live, work, and play with kindred visionaries on ancient Tuscan land.</p><a class="ev-go" href="https://www.asha.global/arc">Details</a></div></li>
       <li class="ev-card"><img class="ev-img" src="https://alchemyofbreath.com/wp-content/uploads/elementor/thumbs/WhatsApp-Image-2026-02-19-at-20.15.11-rjdtvqq8qd0hwuji0v5ebc0kpmf82sjqjekle81zyc.jpeg" alt="Retreat space at ASHA" width="250" height="250" loading="lazy" decoding="async"><div class="ev-body"><span class="ev-tag">Host your retreat</span><span class="ev-date">Jun 7 &ndash; Aug 1</span><h4>Co-Residential Retreats</h4><p>Lead your own retreat, with the venue, meals, and community handled.</p><a class="ev-go" href="https://alchemyofbreath.com/asha-hybrid-retreats/">Details</a></div></li>
-      <li class="ev-card"><img class="ev-img" src="https://alchemyofbreath.com/wp-content/uploads/elementor/thumbs/Rectangle-58-1-rettb583hm3rvmh8z5cm5rp9zg9lyitxabwkrdpav8.jpg" alt="Alchemy Regulation Method practice" width="250" height="250" loading="lazy" decoding="async"><div class="ev-body"><span class="ev-tag">Training</span><span class="ev-date">Jul 19 &ndash; 25</span><h4>Alchemy Regulation Method</h4><p>Certify as an ARM coach — taught live at ASHA by Anthony &amp; Amy.</p><a class="ev-go" href="https://go.alchemyofbreath.com/alchemy-regulation-method">Details</a></div></li>
       <li class="ev-card bc"><img class="ev-img" src="https://alchemyofbreath.com/wp-content/uploads/elementor/thumbs/Rectangle-54-2-rett9yxcy2hvd66ou52ejkdj9423c5604ijq5xg0n8.jpg" alt="Breathwork circle at BreathCamp" width="250" height="250" loading="lazy" decoding="async"><div class="ev-body"><span class="ev-tag">BreathCamp</span><span class="ev-date">Aug 16 &ndash; 22</span><h4>BreathCamp 1</h4><p>A seven-day breathwork immersion on the land — all welcome.</p><a class="ev-go" href="/breathcamps/">Details</a></div></li>
       <li class="ev-card bc"><img class="ev-img" src="https://alchemyofbreath.com/wp-content/uploads/asha-breathcamp-gallery-17-300x169.jpg" alt="BreathCamp gathering at ASHA" width="300" height="169" loading="lazy" decoding="async"><div class="ev-body"><span class="ev-tag">BreathCamp</span><span class="ev-date">Aug 30 &ndash; Sep 5</span><h4>BreathCamp 2</h4><p>A seven-day breathwork immersion on the land — all welcome.</p><a class="ev-go" href="/breathcamps/">Details</a></div></li>
       <li class="ev-card bc"><img class="ev-img" src="https://alchemyofbreath.com/wp-content/uploads/elementor/thumbs/DSCF0574-1-rbk1iti7cnyhb5g4jzi3b06qltkkzd2uagktwr68n8.jpg" alt="Breathwork session at BreathCamp" width="250" height="250" loading="lazy" decoding="async"><div class="ev-body"><span class="ev-tag">BreathCamp</span><span class="ev-date">Sep 6 &ndash; 12</span><h4>BreathCamp 3</h4><p>A seven-day breathwork immersion on the land — all welcome.</p><a class="ev-go" href="/breathcamps/">Details</a></div></li>
@@ -762,7 +826,6 @@ html.menu-open .pill{opacity:0 !important;pointer-events:none !important}
       <ul class="ev-track" aria-hidden="true">
       <li class="ev-card"><img class="ev-img" src="https://alchemyofbreath.com/wp-content/uploads/elementor/thumbs/5F8A1159-1-rhx8e36rv5deq6ygkdwpj761gg95xsmkyqqy6by79g.jpg" alt="Community gathered at ASHA" width="250" height="250" loading="lazy" decoding="async"><div class="ev-body"><span class="ev-tag">Community</span><span class="ev-date">May &ndash; Nov 1</span><h4>ARC &middot; Alchemy Residential Club</h4><p>Co-live, work, and play with kindred visionaries on ancient Tuscan land.</p><a class="ev-go" href="https://www.asha.global/arc">Details</a></div></li>
       <li class="ev-card"><img class="ev-img" src="https://alchemyofbreath.com/wp-content/uploads/elementor/thumbs/WhatsApp-Image-2026-02-19-at-20.15.11-rjdtvqq8qd0hwuji0v5ebc0kpmf82sjqjekle81zyc.jpeg" alt="Retreat space at ASHA" width="250" height="250" loading="lazy" decoding="async"><div class="ev-body"><span class="ev-tag">Host your retreat</span><span class="ev-date">Jun 7 &ndash; Aug 1</span><h4>Co-Residential Retreats</h4><p>Lead your own retreat, with the venue, meals, and community handled.</p><a class="ev-go" href="https://alchemyofbreath.com/asha-hybrid-retreats/">Details</a></div></li>
-      <li class="ev-card"><img class="ev-img" src="https://alchemyofbreath.com/wp-content/uploads/elementor/thumbs/Rectangle-58-1-rettb583hm3rvmh8z5cm5rp9zg9lyitxabwkrdpav8.jpg" alt="Alchemy Regulation Method practice" width="250" height="250" loading="lazy" decoding="async"><div class="ev-body"><span class="ev-tag">Training</span><span class="ev-date">Jul 19 &ndash; 25</span><h4>Alchemy Regulation Method</h4><p>Certify as an ARM coach — taught live at ASHA by Anthony &amp; Amy.</p><a class="ev-go" href="https://go.alchemyofbreath.com/alchemy-regulation-method">Details</a></div></li>
       <li class="ev-card bc"><img class="ev-img" src="https://alchemyofbreath.com/wp-content/uploads/elementor/thumbs/Rectangle-54-2-rett9yxcy2hvd66ou52ejkdj9423c5604ijq5xg0n8.jpg" alt="Breathwork circle at BreathCamp" width="250" height="250" loading="lazy" decoding="async"><div class="ev-body"><span class="ev-tag">BreathCamp</span><span class="ev-date">Aug 16 &ndash; 22</span><h4>BreathCamp 1</h4><p>A seven-day breathwork immersion on the land — all welcome.</p><a class="ev-go" href="/breathcamps/">Details</a></div></li>
       <li class="ev-card bc"><img class="ev-img" src="https://alchemyofbreath.com/wp-content/uploads/asha-breathcamp-gallery-17-300x169.jpg" alt="BreathCamp gathering at ASHA" width="300" height="169" loading="lazy" decoding="async"><div class="ev-body"><span class="ev-tag">BreathCamp</span><span class="ev-date">Aug 30 &ndash; Sep 5</span><h4>BreathCamp 2</h4><p>A seven-day breathwork immersion on the land — all welcome.</p><a class="ev-go" href="/breathcamps/">Details</a></div></li>
       <li class="ev-card bc"><img class="ev-img" src="https://alchemyofbreath.com/wp-content/uploads/elementor/thumbs/DSCF0574-1-rbk1iti7cnyhb5g4jzi3b06qltkkzd2uagktwr68n8.jpg" alt="Breathwork session at BreathCamp" width="250" height="250" loading="lazy" decoding="async"><div class="ev-body"><span class="ev-tag">BreathCamp</span><span class="ev-date">Sep 6 &ndash; 12</span><h4>BreathCamp 3</h4><p>A seven-day breathwork immersion on the land — all welcome.</p><a class="ev-go" href="/breathcamps/">Details</a></div></li>
@@ -832,7 +895,7 @@ html.menu-open .pill{opacity:0 !important;pointer-events:none !important}
         <div class="pd-level">Level 1 of 7</div>
         <h3>The Alchemy Regulation Method</h3>
         <p>Our nervous system regulation methodology. You graduate with a daily practice and a framework to regulate your own nervous system, and qualify to practice as a nervous system regulation coach.</p>
-        <div class="pd-links"><a class="pd-btn" href="https://go.alchemyofbreath.com/alchemy-regulation-method">Learn the method <span aria-hidden="true">&rarr;</span></a></div>
+        <div class="pd-links"><a class="pd-btn" href="/alchemy-regulation-method/">Learn the method <span aria-hidden="true">&rarr;</span></a></div>
       </div>
       <div class="path-nav"><button aria-label="Previous level" id="pathPrev" type="button">&larr;</button><button aria-label="Next level" id="pathNext" type="button">&rarr;</button></div>
     </div>
@@ -977,7 +1040,7 @@ html.menu-open .pill{opacity:0 !important;pointer-events:none !important}
         <a href="/breathwork-training/">Facilitator Training — Online</a>
         <a href="/live-residential-breathwork-facilitator-training/">Residential Training — Tuscany</a>
         <a href="/the-alchemist/">The Alchemist</a>
-        <a href="https://go.alchemyofbreath.com/alchemy-regulation-method">Alchemy Regulation Method</a>
+        <a href="/alchemy-regulation-method/">Alchemy Regulation Method</a>
       </nav>
       <nav class="foot-col" aria-label="Footer — at ASHA">
         <h3>At ASHA</h3>
@@ -1076,7 +1139,7 @@ html.menu-open .pill{opacity:0 !important;pointer-events:none !important}
 
   // Alchemy pathway: seven interactive levels
   var LV=[
-    {lvl:'Level 1 of 7',phase:'Student to facilitator',title:'The Alchemy Regulation Method',text:'Our nervous system regulation methodology. You graduate with a daily practice and a framework to regulate your own nervous system, and qualify to practice as a nervous system regulation coach.',links:[{t:'Learn the method',h:'https://go.alchemyofbreath.com/alchemy-regulation-method'}]},
+    {lvl:'Level 1 of 7',phase:'Student to facilitator',title:'The Alchemy Regulation Method',text:'Our nervous system regulation methodology. You graduate with a daily practice and a framework to regulate your own nervous system, and qualify to practice as a nervous system regulation coach.',links:[{t:'Learn the method',h:'/alchemy-regulation-method/'}]},
     {lvl:'Level 2 of 7',phase:'Student to facilitator',title:'The Inner Journey',text:'A deep, 14 week journey of inner work paired with group mentor sessions: the call, the inner child, shadow work, and beyond. Included in the Facilitator Training, or taken on its own.',links:[{t:'Begin the Inner Journey',h:'/the-alchemist/'}]},
     {lvl:'Level 3 of 7',phase:'Student to facilitator',title:'The Facilitator Training',text:'The triple accredited heart of the pathway. Learn to guide others with safety, ethics, and integrity — through the 8-month online training, or the 4-month live residential at ASHA.',links:[{t:'8-month online',h:'/breathwork-training/'},{t:'4-month residential',h:'/live-residential-breathwork-facilitator-training/',g:1}]},
     {lvl:'Level 4 of 7',phase:'Student to facilitator',title:'BreathCamp Graduation',text:'You lead real sessions, receive your certification, and step out into the world as a facilitator — with graduation held live at ASHA in Tuscany.',links:[{t:'Discover BreathCamps',h:'/breathcamps/'}]},
