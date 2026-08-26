@@ -1,6 +1,12 @@
 # Cloudflare Pages headers.
-# Belt and braces with robots.txt: fragments under /_shell/ are build inputs
-# that duplicate real page copy, so keep them out of search results even if
-# something links to one. Best is to exclude the directory from deploy entirely.
+# STAGING: the whole deploy duplicates content still live on
+# alchemyofbreath.com, so nothing may be indexed. Pages also carry a
+# noindex meta via the build's STAGING_NOINDEX switch — remove BOTH
+# (this /* block and the shell.py flag) at cutover.
+/*
+  X-Robots-Tag: noindex, nofollow
+
+# Keep after cutover: fragments under /_shell/ are build inputs that
+# duplicate real page copy. Best is to exclude the directory from deploy.
 /_shell/*
   X-Robots-Tag: noindex, nofollow
