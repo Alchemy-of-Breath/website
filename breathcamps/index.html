@@ -241,7 +241,7 @@ section>.wrap{position:relative;z-index:1}
 
 /* testimonials */
 .carousel{position:relative}
-.carousel-track{display:flex;gap:22px;overflow-x:auto;padding:8px 4px 16px;scroll-snap-type:x mandatory;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.carousel-track{display:flex;gap:22px;overflow-x:auto;padding:18px 18px 38px;margin:-18px -18px -24px;scroll-snap-type:x mandatory;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .carousel-track::-webkit-scrollbar{display:none}
 .testi-grid .t-card,.graduate-grid .graduate-card{flex:0 0 calc((100% - 44px)/3);scroll-snap-align:start}
 .carousel-controls{display:flex;justify-content:flex-end;gap:10px;margin-top:6px}
@@ -249,7 +249,7 @@ section>.wrap{position:relative;z-index:1}
 .carousel-btn:hover{background:var(--gold-wash);border-color:var(--gold-deep);transform:translateY(-2px)}
 .carousel-btn:focus-visible{outline:2px solid var(--teal);outline-offset:3px}
 @media(max-width:900px){.testi-grid .t-card,.graduate-grid .graduate-card{flex-basis:calc((100% - 20px)/2)}.carousel-track{gap:20px}}
-@media(max-width:560px){.testi-grid .t-card,.graduate-grid .graduate-card{flex-basis:calc(100% - 28px)}.carousel-track{gap:16px;padding:6px 0 14px}.carousel-controls{justify-content:center;margin-top:10px}.carousel-btn{width:48px;height:48px;font-size:1.45rem}}
+@media(max-width:560px){.testi-grid .t-card,.graduate-grid .graduate-card{flex-basis:calc(100% - 28px)}.carousel-track{gap:16px;padding:14px 14px 30px;margin:-14px -14px -20px}.carousel-controls{justify-content:center;margin-top:10px}.carousel-btn{width:48px;height:48px;font-size:1.45rem}}
 .t-card{background:#fff;border:1px solid rgba(225,182,104,.26);border-radius:16px;overflow:hidden;box-shadow:var(--shadow-soft);text-decoration:none;color:inherit;display:block;transition:transform .35s,box-shadow .35s}
 .t-card:hover{transform:translateY(-5px);box-shadow:var(--shadow-lift)}
 .t-card .thumb{position:relative;aspect-ratio:16/10;overflow:hidden;background:#221F20}
@@ -287,11 +287,34 @@ section>.wrap{position:relative;z-index:1}
 .gitem img{width:100%;height:100%;object-fit:cover;transition:transform .5s}
 .gitem:hover img{transform:scale(1.05)}
 
+/* lightbox */
+.gitem,.accom{cursor:pointer}
+.lb{position:fixed;inset:0;z-index:80;background:rgba(25,22,23,.86);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:24px}
+.lb.open{display:flex}
+.lb-box{position:relative;max-width:1000px;width:100%;max-height:calc(100vh - 48px);display:flex;flex-direction:column;align-items:center}
+.lb-stage{position:relative;width:100%;background:#0e0c09;border-radius:16px;overflow:hidden;outline:1px solid rgba(225,182,104,.45);outline-offset:6px;box-shadow:var(--shadow-lift)}
+.lb-img{width:100%;max-height:calc(100vh - 190px);object-fit:contain;display:block;background:#0e0c09}
+.lb-cap{color:#FBF7EF;text-align:center;margin-top:22px;font-size:.82rem;letter-spacing:.14em;text-transform:uppercase;font-weight:500}
+.lb-cap b{display:block;font-family:var(--serif);font-size:1.14rem;letter-spacing:0;text-transform:none;font-weight:400;color:#FBF7EF;margin-bottom:4px}
+.lb-count{color:var(--gold);font-size:.72rem;letter-spacing:.18em;margin-top:8px;display:block}
+.lb-nav{position:absolute;top:50%;transform:translateY(-50%);width:46px;height:46px;border-radius:50%;border:1px solid rgba(225,182,104,.6);background:rgba(255,255,255,.9);color:var(--ink);font-family:var(--serif);font-size:1.3rem;line-height:1;cursor:pointer;z-index:3;transition:background .25s}
+.lb-nav:hover{background:var(--gold-wash)}
+.lb-prev{left:14px}.lb-next{right:14px}
+.lb-close{position:absolute;top:-52px;right:0;width:42px;height:42px;border-radius:50%;border:none;background:rgba(255,255,255,.92);color:var(--ink);font-size:1.05rem;line-height:1;cursor:pointer;z-index:4;transition:background .25s}
+.lb-close:hover{background:var(--gold-wash)}
+.lb-plan{position:absolute;top:14px;left:14px;z-index:3;background:var(--grad-gold);color:var(--ink);font-size:.6rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;border-radius:999px;padding:6px 13px;display:none}
+.lb-plan.on{display:block}
+.lb-thumbs{display:flex;gap:8px;overflow-x:auto;margin-top:16px;max-width:100%;padding-bottom:4px;scrollbar-width:none}
+.lb-thumbs::-webkit-scrollbar{display:none}
+.lb-thumbs img{width:74px;height:52px;object-fit:cover;border-radius:7px;cursor:pointer;opacity:.5;flex:0 0 auto;transition:opacity .25s,outline-color .25s;outline:1px solid transparent}
+.lb-thumbs img.on{opacity:1;outline-color:var(--gold)}
+@media(max-width:560px){.lb{padding:14px}.lb-close{top:-46px}.lb-nav{width:40px;height:40px}.lb-img{max-height:calc(100vh - 210px)}.lb-thumbs img{width:60px;height:42px}}
+
 /* about ASHA */
 .about-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center}
 @media(max-width:900px){.about-grid{grid-template-columns:1fr;gap:38px}}
 .about-photo{border-radius:18px;overflow:hidden;outline:1px solid rgba(225,182,104,.5);outline-offset:8px;box-shadow:var(--shadow-lift);transform:rotate(.5deg)}
-.about-photo img{width:100%;aspect-ratio:4/3.2;object-fit:cover}
+.about-photo img,.about-photo video{width:100%;aspect-ratio:4/3.2;object-fit:cover;display:block}
 .about-list{list-style:none;margin-top:22px;display:grid;gap:12px}
 .about-list li{display:flex;gap:14px;align-items:flex-start;font-size:.96rem;line-height:1.55}
 .about-list li::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--grad-gold);flex-shrink:0;margin-top:9px}
@@ -746,7 +769,10 @@ footer{background:var(--foot);border-top:1px solid rgba(225,182,104,.35);padding
   <div class="wrap">
     <div class="about-grid">
       <div class="about-photo reveal">
-        <img src="https://alchemyofbreath.com/wp-content/uploads/Rectangle-106-900x600.jpg" alt="ASHA Retreat and Community Centre in Tuscany">
+        <video autoplay muted loop playsinline preload="metadata" poster="https://alchemyofbreath.com/wp-content/uploads/Rectangle-106-900x600.jpg" aria-label="ASHA Retreat and Community Centre in Tuscany">
+          <source src="https://video.wixstatic.com/video/f3bf23_85f6896706c6449fb4ecb06404b97006/1080p/mp4/file.mp4" type="video/mp4">
+          <img src="https://alchemyofbreath.com/wp-content/uploads/Rectangle-106-900x600.jpg" alt="ASHA Retreat and Community Centre in Tuscany">
+        </video>
       </div>
       <div class="reveal d1">
         <span class="eyebrow">Your retreat location</span>
@@ -817,16 +843,16 @@ footer{background:var(--foot);border-top:1px solid rgba(225,182,104,.35);padding
       <p class="reveal d2" style="margin-top:16px;font-size:1.04rem">After reserving your retreat ticket, choose an on-site room and meal plan directly with ASHA. ASHA stays begin at <strong>&euro;127 per night, including meals</strong>. Each card also shows the transparent six-night total.</p>
     </div>
     <div class="accom-grid reveal d1">
-      <div class="accom"><div class="ph"><img src="https://alchemyofbreath.com/wp-content/uploads/single-ensuite-1-1-1.jpg" alt="Single ensuite room at ASHA" loading="lazy"></div><div class="bd"><span class="tg">Private</span><h4>Single room ensuite</h4><p>A private room and bathroom in the Main House. Your own quiet oasis to rest and process.</p><div class="room-price">&euro;310<span style="font-size:.6em">/night</span></div><div class="room-note">Room and meals, per person</div><div class="room-total">Six-night stay: &euro;1,857</div></div></div>
-      <div class="accom"><div class="ph"><img src="https://alchemyofbreath.com/wp-content/uploads/twin-ensuite-1-1-1-768x512.jpg" alt="Twin ensuite room at ASHA" loading="lazy"></div><div class="bd"><span class="tg">Shared &middot; ensuite</span><h4>Twin room ensuite</h4><p>Share with one other guest, with a private ensuite bathroom. Simple, warm, and full of light.</p><div class="room-price">&euro;235<span style="font-size:.6em">/night</span></div><div class="room-note">Room and meals, per person</div><div class="room-total">Six-night stay: &euro;1,407</div></div></div>
-      <div class="accom"><div class="ph"><img src="https://alchemyofbreath.com/wp-content/uploads/twin-non-ensuite-1-1-1-768x512.jpg" alt="Twin non-ensuite room at ASHA" loading="lazy"></div><div class="bd"><span class="tg">Shared</span><h4>Twin non-ensuite</h4><p>Two single beds, shared same-sex, in a private cottage, with a bathroom shared between four.</p><div class="room-price">&euro;195<span style="font-size:.6em">/night</span></div><div class="room-note">Room and meals, per person</div><div class="room-total">Six-night stay: &euro;1,171</div></div></div>
-      <div class="accom"><div class="ph"><img src="https://alchemyofbreath.com/wp-content/uploads/triple-ensuite-1-1-1-1-768x512.jpg" alt="Triple ensuite room at ASHA" loading="lazy"></div><div class="bd"><span class="tg">Shared &middot; ensuite</span><h4>Triple ensuite</h4><p>Three single beds with a private bathroom, shared same-sex, in a cottage or the Main House.</p><div class="room-price">&euro;185<span style="font-size:.6em">/night</span></div><div class="room-note">Room and meals, per person</div><div class="room-total">Six-night stay: &euro;1,107</div></div></div>
-      <div class="accom"><div class="ph"><img src="https://alchemyofbreath.com/wp-content/uploads/asha-glamping-1-1-1.jpg" alt="Single glamping tent at ASHA" loading="lazy"></div><div class="bd"><span class="tg">Glamping</span><h4>Single ASHA tent</h4><p>A furnished bell tent with a single mattress and nearby toilets and showers.</p><div class="room-price">&euro;194<span style="font-size:.6em">/night</span></div><div class="room-note">Stay and meals, per person</div><div class="room-total">Six-night stay: &euro;1,161</div></div></div>
-      <div class="accom"><div class="ph"><img src="https://alchemyofbreath.com/wp-content/uploads/asha-glamping-5-1-1-768x512.jpg" alt="Twin glamping tent at ASHA" loading="lazy"></div><div class="bd"><span class="tg">Glamping &middot; shared</span><h4>Twin ASHA tent</h4><p>Two mattresses in a bell tent, shared with one other guest, with nearby toilets and showers.</p><div class="room-price">&euro;173<span style="font-size:.6em">/night</span></div><div class="room-note">Stay and meals, per person</div><div class="room-total">Six-night stay: &euro;1,037</div></div></div>
-      <div class="accom"><div class="ph"><img src="https://alchemyofbreath.com/wp-content/uploads/accommodation-camper-1-1-1-1-1.jpg" alt="Camper spot at ASHA" loading="lazy"></div><div class="bd"><span class="tg">Camper</span><h4>Come in a camper</h4><p>Bring your camper and join the community, with full access to all the facilities.</p><div class="room-price">&euro;135<span style="font-size:.6em">/night</span></div><div class="room-note">Stay and meals, per person</div><div class="room-total">Six-night stay: &euro;807</div></div></div>
-      <div class="accom"><div class="ph"><img src="https://alchemyofbreath.com/wp-content/uploads/accommodation-tent-1-1-1-1-1.jpg" alt="Own-tent camping at ASHA" loading="lazy"></div><div class="bd"><span class="tg">Tent</span><h4>Bring your own tent</h4><p>Pitch in the secluded woods with full use of the facilities. Bring your own bedding and gear.</p><div class="room-price">&euro;127<span style="font-size:.6em">/night</span></div><div class="room-note">Stay and meals, per person</div><div class="room-total">Six-night stay: &euro;761</div></div></div>
-      <div class="accom"><div class="ph"><img src="https://alchemyofbreath.com/wp-content/uploads/private-cottage-1-2-1-768x511.jpg" alt="Private cottage for one at ASHA" loading="lazy"></div><div class="bd"><span class="tg">Cottage &middot; private</span><h4>Private cottage for one</h4><p>A quiet cottage stay with your own bathroom, kitchen, and living space.</p><div class="room-price">&euro;792<span style="font-size:.6em">/night</span></div><div class="room-note">Stay and meals, for one</div><div class="room-total">Six-night stay: &euro;4,750</div></div></div>
-      <div class="accom"><div class="ph"><img src="https://alchemyofbreath.com/wp-content/uploads/Private-Cottage-1-1-1-768x512.jpg" alt="Private cottage for two at ASHA" loading="lazy"></div><div class="bd"><span class="tg">Cottage &middot; private</span><h4>Private cottage for two</h4><p>A two-room cottage with living space, kitchen, and private bathroom, ideal for couples or families.</p><div class="room-price">&euro;981<span style="font-size:.6em">/night</span></div><div class="room-note">Stay and meals, for two</div><div class="room-total">Six-night stay: &euro;5,885</div></div></div>
+      <div class="accom" data-gal="Single Room Ensuite" tabindex="0" role="button" aria-label="View photos of Single room ensuite"><div class="ph"><img src="https://alchemyofbreath.com/wp-content/uploads/single-ensuite-1-1-1.jpg" alt="Single ensuite room at ASHA" loading="lazy"></div><div class="bd"><span class="tg">Private</span><h4>Single room ensuite</h4><p>A private room and bathroom in the Main House. Your own quiet oasis to rest and process.</p><div class="room-price">&euro;310<span style="font-size:.6em">/night</span></div><div class="room-note">Room and meals, per person</div><div class="room-total">Six-night stay: &euro;1,857</div></div></div>
+      <div class="accom" data-gal="Twin Room Ensuite" tabindex="0" role="button" aria-label="View photos of Twin room ensuite"><div class="ph"><img src="https://alchemyofbreath.com/wp-content/uploads/twin-ensuite-1-1-1-768x512.jpg" alt="Twin ensuite room at ASHA" loading="lazy"></div><div class="bd"><span class="tg">Shared &middot; ensuite</span><h4>Twin room ensuite</h4><p>Share with one other guest, with a private ensuite bathroom. Simple, warm, and full of light.</p><div class="room-price">&euro;235<span style="font-size:.6em">/night</span></div><div class="room-note">Room and meals, per person</div><div class="room-total">Six-night stay: &euro;1,407</div></div></div>
+      <div class="accom" data-gal="Twin Room Non-Ensuite" tabindex="0" role="button" aria-label="View photos of Twin non-ensuite"><div class="ph"><img src="https://alchemyofbreath.com/wp-content/uploads/twin-non-ensuite-1-1-1-768x512.jpg" alt="Twin non-ensuite room at ASHA" loading="lazy"></div><div class="bd"><span class="tg">Shared</span><h4>Twin non-ensuite</h4><p>Two single beds, shared same-sex, in a private cottage, with a bathroom shared between four.</p><div class="room-price">&euro;195<span style="font-size:.6em">/night</span></div><div class="room-note">Room and meals, per person</div><div class="room-total">Six-night stay: &euro;1,171</div></div></div>
+      <div class="accom" data-gal="Triple Ensuite" tabindex="0" role="button" aria-label="View photos of Triple ensuite"><div class="ph"><img src="https://alchemyofbreath.com/wp-content/uploads/triple-ensuite-1-1-1-1-768x512.jpg" alt="Triple ensuite room at ASHA" loading="lazy"></div><div class="bd"><span class="tg">Shared &middot; ensuite</span><h4>Triple ensuite</h4><p>Three single beds with a private bathroom, shared same-sex, in a cottage or the Main House.</p><div class="room-price">&euro;185<span style="font-size:.6em">/night</span></div><div class="room-note">Room and meals, per person</div><div class="room-total">Six-night stay: &euro;1,107</div></div></div>
+      <div class="accom" data-gal="ASHA Bell Tent" tabindex="0" role="button" aria-label="View photos of Single ASHA tent"><div class="ph"><img src="https://alchemyofbreath.com/wp-content/uploads/asha-glamping-1-1-1.jpg" alt="Single glamping tent at ASHA" loading="lazy"></div><div class="bd"><span class="tg">Glamping</span><h4>Single ASHA tent</h4><p>A furnished bell tent with a single mattress and nearby toilets and showers.</p><div class="room-price">&euro;194<span style="font-size:.6em">/night</span></div><div class="room-note">Stay and meals, per person</div><div class="room-total">Six-night stay: &euro;1,161</div></div></div>
+      <div class="accom" data-gal="ASHA Bell Tent" tabindex="0" role="button" aria-label="View photos of Twin ASHA tent"><div class="ph"><img src="https://alchemyofbreath.com/wp-content/uploads/asha-glamping-5-1-1-768x512.jpg" alt="Twin glamping tent at ASHA" loading="lazy"></div><div class="bd"><span class="tg">Glamping &middot; shared</span><h4>Twin ASHA tent</h4><p>Two mattresses in a bell tent, shared with one other guest, with nearby toilets and showers.</p><div class="room-price">&euro;173<span style="font-size:.6em">/night</span></div><div class="room-note">Stay and meals, per person</div><div class="room-total">Six-night stay: &euro;1,037</div></div></div>
+      <div class="accom" data-gal="Come in a Camper" tabindex="0" role="button" aria-label="View photos of Come in a camper"><div class="ph"><img src="https://alchemyofbreath.com/wp-content/uploads/accommodation-camper-1-1-1-1-1.jpg" alt="Camper spot at ASHA" loading="lazy"></div><div class="bd"><span class="tg">Camper</span><h4>Come in a camper</h4><p>Bring your camper and join the community, with full access to all the facilities.</p><div class="room-price">&euro;135<span style="font-size:.6em">/night</span></div><div class="room-note">Stay and meals, per person</div><div class="room-total">Six-night stay: &euro;807</div></div></div>
+      <div class="accom" data-gal="Bring Your Own Tent" tabindex="0" role="button" aria-label="View photos of Bring your own tent"><div class="ph"><img src="https://alchemyofbreath.com/wp-content/uploads/accommodation-tent-1-1-1-1-1.jpg" alt="Own-tent camping at ASHA" loading="lazy"></div><div class="bd"><span class="tg">Tent</span><h4>Bring your own tent</h4><p>Pitch in the secluded woods with full use of the facilities. Bring your own bedding and gear.</p><div class="room-price">&euro;127<span style="font-size:.6em">/night</span></div><div class="room-note">Stay and meals, per person</div><div class="room-total">Six-night stay: &euro;761</div></div></div>
+      <div class="accom" data-gal="Private Cottage" tabindex="0" role="button" aria-label="View photos of Private cottage for one"><div class="ph"><img src="https://alchemyofbreath.com/wp-content/uploads/private-cottage-1-2-1-768x511.jpg" alt="Private cottage for one at ASHA" loading="lazy"></div><div class="bd"><span class="tg">Cottage &middot; private</span><h4>Private cottage for one</h4><p>A quiet cottage stay with your own bathroom, kitchen, and living space.</p><div class="room-price">&euro;792<span style="font-size:.6em">/night</span></div><div class="room-note">Stay and meals, for one</div><div class="room-total">Six-night stay: &euro;4,750</div></div></div>
+      <div class="accom" data-gal="Private Cottage" tabindex="0" role="button" aria-label="View photos of Private cottage for two"><div class="ph"><img src="https://alchemyofbreath.com/wp-content/uploads/Private-Cottage-1-1-1-768x512.jpg" alt="Private cottage for two at ASHA" loading="lazy"></div><div class="bd"><span class="tg">Cottage &middot; private</span><h4>Private cottage for two</h4><p>A two-room cottage with living space, kitchen, and private bathroom, ideal for couples or families.</p><div class="room-price">&euro;981<span style="font-size:.6em">/night</span></div><div class="room-note">Stay and meals, for two</div><div class="room-total">Six-night stay: &euro;5,885</div></div></div>
     </div>
     <p class="reveal d1" style="text-align:center;color:var(--slate);font-size:.9rem;max-width:44em;margin:32px auto 0">These stay-and-meal figures use ASHA's published September 20 to 26, 2026 full pricing, less the &euro;888 retreat ticket per guest. Availability and rates can vary by date. May and September weather can be variable, so tent and glamping options are used at your own risk. All guests stay on-site at ASHA.</p>
   </div>
@@ -942,6 +968,21 @@ footer{background:var(--foot);border-top:1px solid rgba(225,182,104,.35);padding
   </div>
 </footer>
 
+<!-- LIGHTBOX -->
+<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Image viewer">
+  <div class="lb-box">
+    <button class="lb-close" id="lbClose" type="button" aria-label="Close">&#10005;</button>
+    <div class="lb-stage">
+      <img class="lb-img" id="lbImg" alt="">
+      <span class="lb-plan" id="lbPlan">Floor plan</span>
+      <button class="lb-nav lb-prev" id="lbPrev" type="button" aria-label="Previous image">&#8592;</button>
+      <button class="lb-nav lb-next" id="lbNext" type="button" aria-label="Next image">&#8594;</button>
+    </div>
+    <div class="lb-thumbs" id="lbThumbs"></div>
+    <p class="lb-cap"><b id="lbTitle"></b><span class="lb-count" id="lbCount"></span></p>
+  </div>
+</div>
+
 <!-- STICKY PILL -->
 <a class="pill" href="#book" aria-label="Reserve your place">
   <span class="pill-label">Reserve your place</span>
@@ -1015,6 +1056,107 @@ footer{background:var(--foot);border-top:1px solid rgba(225,182,104,.35);padding
     if(prev)prev.addEventListener('click',function(){move(-1);});
     if(next)next.addEventListener('click',function(){move(1);});
   });
+
+
+  // Lightbox: ASHA gallery + accommodation photo sets
+  (function(){
+    var RG='https://asha.secure.retreat.guru/wp-content/uploads/sites/4977/';
+    var AOB='https://alchemyofbreath.com/wp-content/uploads/';
+    var CDN='https://cdn.jsdelivr.net/gh/Alchemy-of-Breath/website@main/assets/cottage/';
+    var GALLERIES={
+      'Single Room Ensuite':[{u:RG+'2024/02/single-bedroom-ensuite.jpeg'},{u:RG+'2024/10/Single-Ensuite-1024x683.jpg'},{u:RG+'2024/10/DSCF3137-1024x683.jpg'},{u:RG+'2024/10/5A-1007x1024.png',plan:1}],
+      'Twin Room Ensuite':[{u:RG+'2024/10/DSCF3034-1024x683.jpg'},{u:RG+'2024/10/DSCF3057-1024x683.jpg'},{u:RG+'2024/10/DSCF3066-1024x683.jpg'},{u:RG+'2024/10/DSCF3074-1024x683.jpg'},{u:RG+'2024/10/DSCF3079-1024x683.jpg'},{u:RG+'2024/10/1B-1007x1024.png',plan:1},{u:RG+'2024/10/4B-1007x1024.png',plan:1},{u:RG+'2024/10/4D-1007x1024.png',plan:1},{u:RG+'2024/10/5C-1007x1024.png',plan:1},{u:RG+'2024/10/House-2C-1007x1024.png',plan:1}],
+      'Twin Room Non-Ensuite':[{u:RG+'2024/10/DSCF3024-1024x683.jpg'},{u:RG+'2024/10/DSCF3029-1024x683.jpg'},{u:RG+'2024/10/DSCF3043-1024x683.jpg'},{u:RG+'2024/10/DSCF3114-1024x683.jpg'},{u:RG+'2024/10/1A-1007x1024.png',plan:1},{u:RG+'2024/10/1C-1007x1024.png',plan:1}],
+      'Triple Ensuite':[{u:RG+'2024/10/DSCF3116-1024x683.jpg'},{u:RG+'2024/10/DSCF3133-1024x683.jpg'},{u:RG+'2024/10/4A-1007x1024.png',plan:1},{u:RG+'2024/10/5B-1007x1024.png',plan:1}],
+      'ASHA Bell Tent':[{u:RG+'2024/10/Copy-of-DSCF3083-683x1024.jpg'},{u:RG+'2024/10/Copy-of-DSCF3088-1024x683.jpg'},{u:RG+'2024/10/Copy-of-DSCF3089-1024x683.jpg'},{u:RG+'2024/10/Glamping-single-1007x1024.png',plan:1},{u:RG+'2024/10/Copy-of-DSCF3097-1024x683.jpg'},{u:RG+'2024/10/Copy-of-DSCF3098-1024x683.jpg'},{u:RG+'2024/10/Copy-of-WhatsApp-Image-2024-07-14-at-16.49.43-685x1024.jpeg'},{u:RG+'2024/10/Glamping-Double-1007x1024.png',plan:1}],
+      'Come in a Camper':[{u:RG+'2024/10/accommodation-camper-1.jpg'},{u:RG+'2024/10/coffee-van-683x1024.jpg'},{u:RG+'2024/10/empty-campervan-near-tall-tree-1024x683.jpg'}],
+      'Bring Your Own Tent':[{u:RG+'2024/02/accommodation-tent-1.jpg'},{u:RG+'2024/10/DSCF2771-1024x683.jpg'},{u:RG+'2024/10/full-shot-man-sitting-tent-681x1024.jpg'},{u:RG+'2024/10/young-females-camping-forest_23-2148154976-1024x682.jpg'}],
+      'Private Cottage':[{u:CDN+'living-room.jpg'},{u:CDN+'bedroom.jpg'},{u:AOB+'private-cottage-1-2-1.jpg'},{u:AOB+'private-cottage-2-1-1.jpg'},{u:CDN+'plan-4c.png',plan:1},{u:CDN+'plan-3-solitude.png',plan:1}]
+    };
+
+    var lb=document.getElementById('lb');
+    if(!lb) return;
+    var img=document.getElementById('lbImg'),ttl=document.getElementById('lbTitle'),cnt=document.getElementById('lbCount'),
+        plan=document.getElementById('lbPlan'),thumbs=document.getElementById('lbThumbs'),
+        prev=document.getElementById('lbPrev'),next=document.getElementById('lbNext'),close=document.getElementById('lbClose');
+    var set=[],idx=0,title='',opener=null,parentVH=0;
+    window.addEventListener('message',function(e){
+      if(e.data&&e.data.type==='aob-embed-viewport'&&typeof e.data.vh==='number') parentVH=e.data.vh;
+    });
+    function show(i){
+      idx=(i+set.length)%set.length;
+      var it=set[idx];
+      img.src=it.u; img.alt=title+' — image '+(idx+1);
+      plan.classList.toggle('on',!!it.plan);
+      cnt.textContent=(idx+1)+' / '+set.length;
+      [].forEach.call(thumbs.children,function(t,j){ t.classList.toggle('on',j===idx); });
+      if(thumbs.children[idx]) thumbs.children[idx].scrollIntoView({block:'nearest',inline:'nearest'});
+      var n=set[(idx+1)%set.length]; if(n){var pi=new Image();pi.src=n.u;}
+      var showNav=set.length>1;
+      prev.style.display=next.style.display=showNav?'':'none';
+      thumbs.style.display=showNav?'':'none';
+    }
+    function open(list,name,trigger,start){
+      if(!list||!list.length) return;
+      set=list; title=name||''; opener=trigger||null;
+      ttl.textContent=title;
+      thumbs.innerHTML='';
+      set.forEach(function(it,i){
+        var t=document.createElement('img');
+        t.src=it.u; t.alt=''; t.loading='lazy'; t.decoding='async';
+        t.addEventListener('click',function(){ show(i); });
+        thumbs.appendChild(t);
+      });
+      if(window.self!==window.top){
+        try{ window.parent.postMessage({type:'aob-modal-open',top:Math.max(0,Math.round((trigger?trigger.getBoundingClientRect().top:0)))},'*'); }catch(err){}
+      }
+      lb.classList.add('open');
+      document.body.style.overflow='hidden';
+      show(start||0);
+      close.focus();
+    }
+    function shut(){
+      lb.classList.remove('open');
+      document.body.style.overflow='';
+      img.removeAttribute('src');
+      if(opener&&opener.focus){ try{opener.focus();}catch(e){} }
+      opener=null;
+    }
+    prev.addEventListener('click',function(){ show(idx-1); });
+    next.addEventListener('click',function(){ show(idx+1); });
+    close.addEventListener('click',shut);
+    lb.addEventListener('click',function(e){ if(e.target===lb) shut(); });
+    document.addEventListener('keydown',function(e){
+      if(!lb.classList.contains('open')) return;
+      if(e.key==='Escape') shut();
+      else if(e.key==='ArrowLeft') show(idx-1);
+      else if(e.key==='ArrowRight') show(idx+1);
+    });
+
+    // ASHA gallery marquee: one set (the duplicates are decorative)
+    var gset=[],seen={};
+    document.querySelectorAll('.gitem').forEach(function(g){
+      var im=g.querySelector('img'); if(!im) return;
+      if(!seen[im.src]){ seen[im.src]=gset.length; gset.push({u:im.src,alt:im.alt}); }
+      var at=seen[im.src];
+      g.setAttribute('role','button'); g.setAttribute('tabindex','0');
+      g.setAttribute('aria-label','View '+(im.alt||'ASHA photo')+' larger');
+      g.addEventListener('click',function(){ open(gset,'ASHA, Tuscany',g,at); });
+      g.addEventListener('keydown',function(e){ if(e.key==='Enter'||e.key===' '){e.preventDefault();open(gset,'ASHA, Tuscany',g,at);} });
+    });
+
+    // accommodation cards
+    document.querySelectorAll('.accom[data-gal]').forEach(function(card){
+      var key=card.getAttribute('data-gal'), name=(card.querySelector('h4')||{}).textContent||key;
+      var list=GALLERIES[key]; if(!list) return;
+      var more=document.createElement('div');
+      more.style.cssText='margin-top:10px;font-size:.66rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-deep)';
+      more.textContent='View photos'+(list.some(function(i){return i.plan;})?' & floor plan':'')+' \u2192';
+      (card.querySelector('.bd')||card).appendChild(more);
+      card.addEventListener('click',function(){ open(list,name,card,0); });
+      card.addEventListener('keydown',function(e){ if(e.key==='Enter'||e.key===' '){e.preventDefault();open(list,name,card,0);} });
+    });
+  })();
 
   // FAQ categories
   document.querySelectorAll('.faq-tab').forEach(function(tab){
