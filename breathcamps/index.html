@@ -204,6 +204,8 @@ section>.wrap{position:relative;z-index:1}
 .day-photo{height:300px;border-radius:16px;overflow:hidden;box-shadow:var(--shadow-soft);position:relative;background:var(--ink)}
 .day-photo img,.day-photo video{width:100%;height:100%;object-fit:cover;transition:opacity .28s ease,transform .7s ease}
 .day-photo video{display:none}
+.day-photo iframe{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:100.5%;min-height:100%;aspect-ratio:16/9;border:0;display:none;pointer-events:none}
+@media(prefers-reduced-motion:reduce){.day-photo iframe{display:none !important}}
 .day-photo:hover img,.day-photo:hover video{transform:scale(1.04)}
 .day-photo .caption{position:absolute;right:14px;bottom:12px;left:14px;color:#fff;font-size:.68rem;font-weight:500;letter-spacing:.16em;text-transform:uppercase;text-shadow:0 1px 14px rgba(0,0,0,.75)}
 .mobile-days{display:none}
@@ -553,10 +555,10 @@ footer{background:var(--foot);border-top:1px solid rgba(225,182,104,.35);padding
         <h3 id="dayTitle">Arrive at ASHA</h3>
         <p id="dayBody">Let the pace of ordinary life begin to fall away. Settle into the land, meet the people who will share the week, and allow yourself to arrive as you are.</p>
       </div>
-      <div class="day-photo"><img id="dayPhoto" src="https://assets.cdn.filesafe.space/5lz2Wm44CNDwLSZWgAPf/media/6a09060619e1ac5f5269f50f.jpg" alt="Welcome to BreathCamp at ASHA"><video id="dayVideo" muted playsinline loop preload="metadata" aria-label="Water and sound at BreathCamp"></video><span class="caption" id="dayCaption">Arrive, settle, meet your circle</span></div>
+      <div class="day-photo"><img id="dayPhoto" src="https://i.vimeocdn.com/video/1847386473-02ee83862e3ff2b622bbc3591567f504a7e8255b9ebec47aa55a322143c392ed-d_1280" alt="Welcome to BreathCamp at ASHA"><video id="dayVideo" muted playsinline loop preload="metadata" aria-label="Water and sound at BreathCamp"></video><iframe id="dayFrame" title="Arriving at ASHA" allow="autoplay; fullscreen; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin"></iframe><span class="caption" id="dayCaption">Arrive, settle, meet your circle</span></div>
     </div>
     <div class="mobile-days" aria-label="The seven-day BreathCamp journey">
-      <details open><summary><span>Day one: Arrive</span><small>01</small></summary><div class="mobile-day-body"><img src="https://assets.cdn.filesafe.space/5lz2Wm44CNDwLSZWgAPf/media/6a09060619e1ac5f5269f50f.jpg" alt="Welcome to BreathCamp at ASHA" loading="lazy"><p>Let the pace of ordinary life begin to fall away. Settle into the land, meet the people who will share the week, and allow yourself to arrive as you are.</p></div></details>
+      <details open><summary><span>Day one: Arrive</span><small>01</small></summary><div class="mobile-day-body"><img src="https://i.vimeocdn.com/video/1847386473-02ee83862e3ff2b622bbc3591567f504a7e8255b9ebec47aa55a322143c392ed-d_1280" alt="Welcome to BreathCamp at ASHA" loading="lazy"><p>Let the pace of ordinary life begin to fall away. Settle into the land, meet the people who will share the week, and allow yourself to arrive as you are.</p></div></details>
       <details><summary><span>Day two: Find ground</span><small>02</small></summary><div class="mobile-day-body"><img src="https://assets.cdn.filesafe.space/5lz2Wm44CNDwLSZWgAPf/media/69b2e9c0cab7f7b524790ab2.jpg" alt="Grounding breathwork practice at ASHA" loading="lazy"><p>Return to your body, your breath, and what is here now. The practices are taught with care, whether this is your first time or you have breathed for years.</p></div></details>
       <details><summary><span>Day three: Listen</span><small>03</small></summary><div class="mobile-day-body"><img src="https://alchemyofbreath.com/wp-content/uploads/Anthony-Amy-5.jpg" alt="Group breathwork practice at ASHA" loading="lazy"><p>Make room for the quieter truths you may have missed. There is space to hear yourself without needing to have an answer.</p></div></details>
       <details><summary><span>Day four: Meet what is here</span><small>04</small></summary><div class="mobile-day-body"><img src="https://assets.cdn.filesafe.space/5lz2Wm44CNDwLSZWgAPf/media/5f079a98-743b-4ae9-a49a-2306d51c3b6d.jpeg" alt="The Bridge practice at BreathCamp" loading="lazy"><p>Anthony's Bridge process offers a held space for the feelings and stories still asking for care. There is no need to force anything, only an invitation to stay present.</p></div></details>
@@ -979,7 +981,7 @@ footer{background:var(--foot);border-top:1px solid rgba(225,182,104,.35);padding
 
   // Seven days
   var DAYS={
-    1:{e:'Day one',t:'Arrive at ASHA',b:'Let the pace of ordinary life begin to fall away. Settle into the land, meet the people who will share the week, and allow yourself to arrive as you are.',i:'https://assets.cdn.filesafe.space/5lz2Wm44CNDwLSZWgAPf/media/6a09060619e1ac5f5269f50f.jpg',a:'Welcome to BreathCamp at ASHA',c:'Arrive, settle, meet your circle'},
+    1:{e:'Day one',t:'Arrive at ASHA',b:'Let the pace of ordinary life begin to fall away. Settle into the land, meet the people who will share the week, and allow yourself to arrive as you are.',i:'https://i.vimeocdn.com/video/1847386473-02ee83862e3ff2b622bbc3591567f504a7e8255b9ebec47aa55a322143c392ed-d_1280',f:'https://player.vimeo.com/video/943289488?h=7556a82a25&background=1&autoplay=1&loop=1&muted=1&autopause=0&dnt=1',a:'Welcome to BreathCamp at ASHA',c:'Arrive, settle, meet your circle'},
     2:{e:'Day two',t:'Find ground',b:'Return to your body, your breath, and what is here now. The practices are taught with care, whether this is your first time or you have breathed for years.',i:'https://assets.cdn.filesafe.space/5lz2Wm44CNDwLSZWgAPf/media/69b2e9c0cab7f7b524790ab2.jpg',a:'Grounding breathwork practice at ASHA',c:'Breath, body, and grounded practice'},
     3:{e:'Day three',t:'Listen',b:'Make room for the quieter truths you may have missed. Through breath, movement, and shared practice, there is space to hear yourself without needing to have an answer.',i:'https://alchemyofbreath.com/wp-content/uploads/Anthony-Amy-5.jpg',a:'Group breathwork practice at ASHA',c:'Practice together, in good company'},
     4:{e:'Day four',t:'Meet what is here',b:"Anthony's Bridge process offers a held space for the feelings and stories still asking for care. There is no need to force anything, only an invitation to stay present.",i:'https://assets.cdn.filesafe.space/5lz2Wm44CNDwLSZWgAPf/media/5f079a98-743b-4ae9-a49a-2306d51c3b6d.jpeg',a:'The Bridge practice at BreathCamp',c:'A quiet space to set things down'},
@@ -987,14 +989,15 @@ footer{background:var(--foot);border-top:1px solid rgba(225,182,104,.35);padding
     6:{e:'Day six',t:'Remember your strength',b:"Through Anthony's Mandala Breathwork and a shared closing feast, practice meeting yourself with more trust and less armor.",i:'https://assets.cdn.filesafe.space/5lz2Wm44CNDwLSZWgAPf/media/69b2e9c0e8487c3fda42d9b1.jpg',a:'Mandala Breathwork at ASHA',c:'The Mandala Breath and a shared feast'},
     7:{e:'Day seven',t:'Take it home',b:'Integration is not an ending. Leave with practices, people, and a clearer relationship to the life waiting for you when you return home.',i:'https://alchemyofbreath.com/wp-content/uploads/DSCF5832.jpg',a:'BreathCamp community at ASHA',c:'Integration, then the return home'}
   };
-  var dp=document.getElementById('dayPanel'),de=document.getElementById('dayEyebrow'),dt=document.getElementById('dayTitle'),db=document.getElementById('dayBody'),di=document.getElementById('dayPhoto'),dv=document.getElementById('dayVideo'),dc=document.getElementById('dayCaption');
+  var dp=document.getElementById('dayPanel'),de=document.getElementById('dayEyebrow'),dt=document.getElementById('dayTitle'),db=document.getElementById('dayBody'),di=document.getElementById('dayPhoto'),dv=document.getElementById('dayVideo'),dc=document.getElementById('dayCaption'),df=document.getElementById('dayFrame');
+  if(df&&DAYS[1].f){df.src=DAYS[1].f;df.style.display='block';}
   document.querySelectorAll('.day-tab').forEach(function(tab){
     tab.addEventListener('click',function(){
       document.querySelectorAll('.day-tab').forEach(function(t){t.classList.remove('active');t.setAttribute('aria-selected','false');});
       tab.classList.add('active');tab.setAttribute('aria-selected','true');
       var d=DAYS[tab.getAttribute('data-day')];
       dp.classList.remove('visible');
-      setTimeout(function(){de.textContent=d.e;dt.textContent=d.t;db.textContent=d.b;if(d.v&&dv&&di){di.style.display='none';dv.style.display='block';dv.src=d.v;dv.play().catch(function(){});}else if(di){if(dv){dv.pause();dv.removeAttribute('src');dv.load();dv.style.display='none';}di.style.display='block';di.style.opacity=0;setTimeout(function(){di.src=d.i;di.alt=d.a;di.style.opacity=1;},120)}if(dc)dc.textContent=d.c;dp.classList.add('visible');},160);
+      setTimeout(function(){de.textContent=d.e;dt.textContent=d.t;db.textContent=d.b;if(df){df.style.display='none';if(!d.f)df.removeAttribute('src');}if(d.f&&df&&di){if(dv){dv.pause();dv.removeAttribute('src');dv.load();dv.style.display='none';}di.style.display='block';di.src=d.i;di.alt=d.a;di.style.opacity=1;if(df.getAttribute('src')!==d.f)df.src=d.f;df.style.display='block';}else if(d.v&&dv&&di){di.style.display='none';dv.style.display='block';dv.src=d.v;dv.play().catch(function(){});}else if(di){if(dv){dv.pause();dv.removeAttribute('src');dv.load();dv.style.display='none';}di.style.display='block';di.style.opacity=0;setTimeout(function(){di.src=d.i;di.alt=d.a;di.style.opacity=1;},120)}if(dc)dc.textContent=d.c;dp.classList.add('visible');},160);
     });
   });
 
