@@ -25,6 +25,7 @@ function aob_pages_proxy_serve() {
 	// WordPress path (no slashes)  =>  path on the Pages deployment.
 	// Add or remove pages here — one line per page.
 	$routes = array(
+		'about'                => '/about/',
 		'breathcamps'          => '/breathcamps/',
 		'breathcamps/guide'    => '/breathcamps/guide/',
 		'calendar'             => '/calendar/',
