@@ -18,6 +18,14 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 add_action( 'template_redirect', 'aob_pages_proxy_serve', 0 );
 
+add_filter( 'old_slug_redirect_url', 'aob_pages_proxy_keep_our_slugs' );
+
+function aob_pages_proxy_keep_our_slugs( $url ) {
+	$ours = array( 'alchemy-regulation-method' );
+	$path = wp_parse_url( isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : '/', PHP_URL_PATH );
+	return ( is_string( $path ) && in_array( trim( $path, '/' ), $ours, true ) ) ? '' : $url;
+}
+
 function aob_pages_proxy_serve() {
 
 	$origin = 'https://website-5h3.pages.dev';
@@ -29,7 +37,7 @@ function aob_pages_proxy_serve() {
 		'breathcamps'          => '/breathcamps/',
 		'breathcamps/guide'    => '/breathcamps/guide/',
 		'calendar'             => '/calendar/',
-		'arm'                  => '/arm/',
+		'alchemy-regulation-method' => '/arm/',
 		'masterclass'          => '/masterclass/',
 		'legacy-scholarship'   => '/legacy-scholarship/',
 		'breathwork-training'  => '/facilitator-training/',
@@ -40,6 +48,7 @@ function aob_pages_proxy_serve() {
 	// links consolidate on the one canonical address.
 	$redirects = array(
 		'facilitator-training' => '/breathwork-training/',
+		'arm'                  => '/alchemy-regulation-method/',
 	);
 
 	$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : '/';
