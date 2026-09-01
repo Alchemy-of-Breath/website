@@ -1,0 +1,6 @@
+# Cloudflare Pages is the origin the WordPress proxy fetches from.
+# Visitors should reach these pages on alchemyofbreath.com, so keep the
+# pages.dev copies out of search results. The proxy sets its own headers,
+# so alchemyofbreath.com is unaffected.
+/*
+  X-Robots-Tag: noindex

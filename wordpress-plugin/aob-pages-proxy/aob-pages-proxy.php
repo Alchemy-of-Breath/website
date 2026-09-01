@@ -32,8 +32,13 @@ function aob_pages_proxy_serve() {
 		'masterclass'          => '/masterclass/',
 		'legacy-scholarship'   => '/legacy-scholarship/',
 		'breathwork-training'  => '/facilitator-training/',
-		'facilitator-training' => '/facilitator-training/',
 		'live-residential-breathwork-facilitator-training' => '/live-residential-breathwork-facilitator-training/',
+	);
+
+	// Old URLs that now live somewhere else. Redirected so search engines and
+	// links consolidate on the one canonical address.
+	$redirects = array(
+		'facilitator-training' => '/breathwork-training/',
 	);
 
 	$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : '/';
@@ -42,6 +47,16 @@ function aob_pages_proxy_serve() {
 		return;
 	}
 	$key = trim( $path, '/' );
+
+	if ( isset( $redirects[ $key ] ) ) {
+		$query = wp_parse_url( $request_uri, PHP_URL_QUERY );
+		$to    = home_url( $redirects[ $key ] );
+		if ( $query ) {
+			$to .= '?' . $query;
+		}
+		wp_redirect( $to, 301 );
+		exit;
+	}
 
 	if ( isset( $routes[ $key ] ) ) {
 		// One of our pages.
