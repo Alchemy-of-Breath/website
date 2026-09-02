@@ -1,14 +1,16 @@
 <?php
 /**
- * Plugin Name:  AoB Pages Proxy
- * Description:  Serves selected Alchemy of Breath pages directly from the Cloudflare Pages deployment on this domain — full content on the real URL, no iframes. Deactivate to instantly fall back to the previous pages.
- * Version:      1.0.0
- * Author:       Alchemy of Breath
+ * AoB Pages Proxy — standalone snippet
+ *
+ * Same behaviour as the aob-pages-proxy plugin, in a form you can paste into
+ * a snippet manager (Code Snippets → Add New → Run everywhere → Save & Activate).
+ *
+ * Use EITHER the plugin OR this snippet, never both at once — two copies would
+ * declare the same functions and WordPress would fatal on a duplicate name.
+ *
+ * Generated from wordpress-plugin/aob-pages-proxy/aob-pages-proxy.php.
+ * Edit that file and regenerate; don't hand-edit this one.
  */
-
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
 
 /**
  * Runs before WordPress renders anything. If the requested path is one of
