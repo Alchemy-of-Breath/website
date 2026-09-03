@@ -356,6 +356,14 @@ section>.wrap{position:relative;z-index:1}
 .accom .room-note{font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:var(--gold-deep);font-weight:500}
 .accom .room-total{font-size:.78rem;color:var(--slate);margin-top:8px;line-height:1.45}
 
+/* hero dates */
+.hero-dates{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:12px 16px;margin:24px auto 0;max-width:46em}
+.hero-dates .hd-label{font-family:var(--sans);font-size:.66rem;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--slate)}
+.hero-dates .hd-list{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.hero-dates .hd-item{display:inline-flex;align-items:center;gap:8px;font-family:var(--serif);font-size:.98rem;color:var(--ink);background:#fff;border:1px solid rgba(225,182,104,.45);border-radius:999px;padding:8px 16px;white-space:nowrap}
+.hero-dates .hd-flag{font-family:var(--sans);font-size:.55rem;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);background:var(--ink);border-radius:999px;padding:3px 8px}
+@media(max-width:560px){.hero-dates{gap:10px}.hero-dates .hd-item{font-size:.9rem;padding:7px 13px}}
+
 /* dates */
 .dates-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:900px;margin:0 auto}
 @media(max-width:760px){.dates-grid{grid-template-columns:1fr 1fr}}
@@ -480,6 +488,14 @@ footer{background:var(--foot);border-top:1px solid rgba(225,182,104,.35);padding
         <a class="btn btn-ghost" href="#days">See what the week holds</a>
       </div>
       <p class="cta-note reveal d3">Your retreat place is 888 euros. Choose your room and meals at ASHA separately.</p>
+      <p class="hero-dates reveal d3">
+        <span class="hd-label">Weeks still open in 2026</span>
+        <span class="hd-list">
+          <span class="hd-item">Sep 6 &ndash; 12</span>
+          <span class="hd-item">Sep 20 &ndash; 26 <span class="hd-flag">Almost sold out</span></span>
+          <span class="hd-item">Oct 25 &ndash; 31</span>
+        </span>
+      </p>
       <div class="hero-proof reveal d3">
         <img class="avatars" src="https://alchemyofbreath.com/wp-content/uploads/people-updated.png" alt="Alchemy of Breath community">
         <p><strong>More than 1 million lives reached</strong> through Alchemy of Breath practices and community.</p>
