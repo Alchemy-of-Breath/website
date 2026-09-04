@@ -37,6 +37,7 @@ function aob_pages_proxy_serve() {
 	$routes = array(
 		'about'                => '/about/',
 		'the-alchemist'        => '/the-alchemist/',
+		'refer'                => '/refer/',
 		'breathcamps'          => '/breathcamps/',
 		'breathcamps/guide'    => '/breathcamps/guide/',
 		'calendar'             => '/calendar/',
