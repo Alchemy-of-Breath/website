@@ -38,6 +38,7 @@ function aob_pages_proxy_serve() {
 		'about'                => '/about/',
 		'the-alchemist'        => '/the-alchemist/',
 		'refer'                => '/refer/',
+		'btw'                  => '/btw/',
 		'breathcamps'          => '/breathcamps/',
 		'breathcamps/guide'    => '/breathcamps/guide/',
 		'calendar'             => '/calendar/',
