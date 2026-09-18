@@ -75,6 +75,11 @@ function aob_pages_proxy_serve() {
 		// One of our pages.
 		$upstream = $origin . $routes[ $key ];
 		$is_html  = true;
+	} elseif ( preg_match( '#^btw/[a-z0-9/-]+$#', $key ) ) {
+		// Breathe The World: every weekly page and the archive live under /btw/,
+		// so new weeks go live without a plugin update.
+		$upstream = $origin . '/' . $key . '/';
+		$is_html  = true;
 	} elseif ( 0 === strpos( $path, '/assets/' ) ) {
 		// Images/media the pages load from /assets/… — proxy those too.
 		$upstream = $origin . $path;
