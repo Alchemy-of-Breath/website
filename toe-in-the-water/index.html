@@ -104,9 +104,7 @@ section>.wrap{position:relative;z-index:1}
 
 /* choose your class */
 .classes{background:linear-gradient(180deg,var(--paper-2),var(--cream))}
-.class-grid{display:grid;grid-template-columns:1fr 1fr;gap:26px;max-width:880px;margin:44px auto 0}
-.class-card{background:var(--paper);border:1px solid rgba(225,182,104,.4);border-radius:22px;padding:38px 34px;box-shadow:var(--shadow-soft);display:flex;flex-direction:column;transition:transform .3s,box-shadow .3s}
-.class-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lift)}
+.class-card{max-width:640px;margin:44px auto 0;background:var(--paper);border:1px solid rgba(225,182,104,.4);border-radius:22px;padding:40px 38px;box-shadow:var(--shadow-lift);display:flex;flex-direction:column}
 .class-card .tag{display:inline-flex;align-items:center;gap:8px;align-self:flex-start;font-family:var(--sans);font-size:.66rem;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-deep);border:1px solid rgba(225,182,104,.5);border-radius:999px;padding:6px 14px;margin-bottom:16px}
 .class-card .tag::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--grad-gold)}
 .class-card h3{font-size:1.7rem;margin-bottom:4px}
@@ -116,10 +114,12 @@ section>.wrap{position:relative;z-index:1}
 .class-price .now sup{font-size:.45em;top:-.9em;position:relative;color:var(--gold-deep)}
 .class-price .was{font-family:var(--serif);font-size:1.15rem;color:var(--slate);text-decoration:line-through}
 .class-card .pnote{font-size:.8rem;color:var(--slate);margin-bottom:20px}
-.class-list{list-style:none;flex:1;margin:0 0 26px;border-top:1px solid rgba(225,182,104,.3);padding-top:18px}
+.class-list{list-style:none;margin:0 0 26px;border-top:1px solid rgba(225,182,104,.3);padding-top:18px}
 .class-list li{position:relative;padding:7px 0 7px 26px;font-size:.92rem;line-height:1.55}
 .class-list li::before{content:"";position:absolute;left:2px;top:15px;width:7px;height:7px;border-radius:50%;background:var(--grad-gold)}
-.class-card .btn{justify-content:center;width:100%}
+.class-card .pick{font-family:var(--sans);font-size:.7rem;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--slate);text-align:center;margin-bottom:12px}
+.btn-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.btn-row .btn{justify-content:center;width:100%;padding:17px 20px}
 .class-foot{font-size:.78rem;color:var(--slate);text-align:center;margin-top:12px}
 .credit{max-width:720px;margin:34px auto 0;background:var(--paper);border-left:3px solid var(--gold);border-radius:0 14px 14px 0;padding:22px 26px;box-shadow:var(--shadow-soft)}
 .credit p{font-size:.95rem;line-height:1.7;margin:0}
@@ -190,7 +190,7 @@ section>.wrap{position:relative;z-index:1}
 @media(max-width:900px){
   section{padding:72px 0}
   .hero{padding:60px 0 64px}
-  .hero-grid,.m1-grid,.class-grid,.quotes-grid,.t-grid{grid-template-columns:1fr}
+  .hero-grid,.m1-grid,.quotes-grid,.t-grid{grid-template-columns:1fr}
   .hero-grid{gap:38px}
   .m1-img{max-width:520px;margin:0 auto}
   .about-grid{grid-template-columns:1fr;text-align:center}
@@ -201,6 +201,7 @@ section>.wrap{position:relative;z-index:1}
   .btn{width:100%;justify-content:center;padding:16px 24px;font-size:.9rem}
   .hero-actions{flex-direction:column;align-items:stretch}
   .class-card{padding:30px 22px}
+  .btn-row{grid-template-columns:1fr}
 }
 </style>
 <script type="application/ld+json">
@@ -355,41 +356,27 @@ section>.wrap{position:relative;z-index:1}
     <div class="center">
       <span class="eyebrow">Begin your journey here</span>
       <h2>Choose the class that <em>suits your day</em>.</h2>
-      <p class="lede">Both classes cover the same Module 1 material with Anthony, live on Zoom. Pick the morning or the evening, reserve your place, and your access begins right away.</p>
+      <p class="lede">One class, offered at two times of day. Reserve your place, and your access to Module 1 begins right away.</p>
     </div>
 
-    <div class="class-grid">
-      <div class="class-card">
-        <span class="tag">Morning class</span>
-        <h3>Module 1, AM</h3>
-        <p class="when">Two-hour live class &middot; UK time</p>
-        <div class="class-price"><span class="was">$300</span><span class="now"><sup>$</sup>149</span></div>
-        <p class="pnote">One-time payment, in USD</p>
-        <ul class="class-list">
-          <li>Two-hour live class with Anthony Abbagnano</li>
-          <li>Full access to Module 1 materials for one month</li>
-          <li>$149 credited toward the full program if you continue</li>
-          <li>Early bird benefits on the full Inner Journey</li>
-        </ul>
-        <a class="btn btn-primary" href="https://iamalchemy.community/plans/1970846?bundle_token=0bf6092d1fae65d126f115bfd31554a8&amp;utm_source=manual">Reserve the morning class <span class="arr">&rarr;</span></a>
-        <p class="class-foot">Secure checkout on I Am Alchemy</p>
+    <div class="class-card">
+      <span class="tag">Module 1 &middot; Live class</span>
+      <h3>Opening the Book of Your Life</h3>
+      <p class="when">Two-hour live class with Anthony &middot; UK time &middot; offered twice, morning and evening</p>
+      <div class="class-price"><span class="was">$300</span><span class="now"><sup>$</sup>149</span></div>
+      <p class="pnote">One-time payment, in USD</p>
+      <ul class="class-list">
+        <li>Two-hour live class with Anthony Abbagnano</li>
+        <li>Full access to Module 1 materials for one month</li>
+        <li>$149 credited toward the full program if you continue</li>
+        <li>Early bird benefits on the full Inner Journey</li>
+      </ul>
+      <p class="pick">Pick the time that suits your day</p>
+      <div class="btn-row">
+        <a class="btn btn-primary" href="https://iamalchemy.community/plans/1970846?bundle_token=0bf6092d1fae65d126f115bfd31554a8&amp;utm_source=manual">Morning class <span class="arr">&rarr;</span></a>
+        <a class="btn btn-primary" href="https://iamalchemy.community/plans/2001721?bundle_token=29f5e5adcae30551288294c50e778763&amp;utm_source=manual">Evening class <span class="arr">&rarr;</span></a>
       </div>
-
-      <div class="class-card">
-        <span class="tag">Evening class</span>
-        <h3>Module 1, PM</h3>
-        <p class="when">Two-hour live class &middot; UK time</p>
-        <div class="class-price"><span class="was">$300</span><span class="now"><sup>$</sup>149</span></div>
-        <p class="pnote">One-time payment, in USD</p>
-        <ul class="class-list">
-          <li>Two-hour live class with Anthony Abbagnano</li>
-          <li>Full access to Module 1 materials for one month</li>
-          <li>$149 credited toward the full program if you continue</li>
-          <li>Early bird benefits on the full Inner Journey</li>
-        </ul>
-        <a class="btn btn-primary" href="https://iamalchemy.community/plans/2001721?bundle_token=29f5e5adcae30551288294c50e778763&amp;utm_source=manual">Reserve the evening class <span class="arr">&rarr;</span></a>
-        <p class="class-foot">Secure checkout on I Am Alchemy</p>
-      </div>
+      <p class="class-foot">Same class, same materials. Secure checkout on I Am Alchemy.</p>
     </div>
 
     <div class="credit">
