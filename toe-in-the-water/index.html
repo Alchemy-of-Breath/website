@@ -77,6 +77,9 @@ section>.wrap{position:relative;z-index:1}
 
 /* hero */
 .hero{padding:88px 0 80px;overflow:hidden;background:radial-gradient(120% 90% at 50% 0%,var(--cream) 0%,var(--paper) 66%)}
+.hero-bg{position:absolute;inset:0;z-index:0;pointer-events:none;background:url('https://alchemyofbreath.com/wp-content/uploads/DSC01980-3-1-1.jpg') center 40%/cover no-repeat;opacity:.16}
+.hero-bg::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(253,246,233,.55) 0%,rgba(255,255,255,.35) 55%,var(--paper) 100%)}
+.hero .wrap{position:relative;z-index:1}
 .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center}
 .hero h1{font-size:clamp(2.3rem,5vw,3.6rem);margin:0 0 20px}
 .hero .lede{font-size:1.08rem;color:var(--ink)}
@@ -103,7 +106,22 @@ section>.wrap{position:relative;z-index:1}
 .m1 .sub{font-family:var(--serif);font-size:1.2rem;color:var(--gold-deep);margin-bottom:14px}
 
 /* choose your class */
-.classes{background:linear-gradient(180deg,var(--paper-2),var(--cream))}
+.classes{background:var(--cream) url('https://alchemyofbreath.com/wp-content/uploads/inner-journey-cta-bg-2.jpg') center/cover no-repeat;overflow:hidden}
+.classes::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(253,246,233,.94) 0%,rgba(253,246,233,.86) 50%,rgba(251,247,239,.96) 100%)}
+.classes .wrap{position:relative;z-index:1}
+.classes .class-card{box-shadow:var(--shadow-lift),0 0 0 1px rgba(255,255,255,.6)}
+/* photo band */
+.band{position:relative;min-height:420px;background:url('https://alchemyofbreath.com/wp-content/uploads/DSC03899-2-1-2.jpg') center 35%/cover no-repeat;display:flex;align-items:center;padding:0}
+.band::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(25,22,23,.72) 0%,rgba(25,22,23,.45) 55%,rgba(25,22,23,.15) 100%)}
+.band .wrap{position:relative;z-index:1;padding-top:80px;padding-bottom:80px}
+.band .eyebrow{color:var(--gold)}
+.band .eyebrow::before{background:var(--gold)}
+.band h2{color:#FBF7EF;max-width:15em;margin-bottom:16px}
+.band p{color:rgba(251,247,239,.85);max-width:32em;font-size:1.02rem;line-height:1.7}
+/* shala strip */
+.strip{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:1120px;margin:0 auto 0;padding:0 26px}
+.strip img{width:100%;aspect-ratio:3/2;object-fit:cover;border-radius:16px;box-shadow:var(--shadow-soft)}
+.about{padding-top:40px}
 .class-card{max-width:640px;margin:44px auto 0;background:var(--paper);border:1px solid rgba(225,182,104,.4);border-radius:22px;padding:40px 38px;box-shadow:var(--shadow-lift);display:flex;flex-direction:column}
 .class-card .tag{display:inline-flex;align-items:center;gap:8px;align-self:flex-start;font-family:var(--sans);font-size:.66rem;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-deep);border:1px solid rgba(225,182,104,.5);border-radius:999px;padding:6px 14px;margin-bottom:16px}
 .class-card .tag::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--grad-gold)}
@@ -189,6 +207,9 @@ section>.wrap{position:relative;z-index:1}
 
 @media(max-width:900px){
   section{padding:72px 0}
+  .band{min-height:340px}
+  .strip{grid-template-columns:1fr 1fr}
+  .strip img:last-child{grid-column:1/-1;aspect-ratio:2/1}
   .hero{padding:60px 0 64px}
   .hero-grid,.m1-grid,.quotes-grid,.t-grid{grid-template-columns:1fr}
   .hero-grid{gap:38px}
@@ -201,6 +222,8 @@ section>.wrap{position:relative;z-index:1}
   .btn{width:100%;justify-content:center;padding:16px 24px;font-size:.9rem}
   .hero-actions{flex-direction:column;align-items:stretch}
   .class-card{padding:30px 22px}
+  .strip{grid-template-columns:1fr;gap:12px;padding:0 20px}
+  .strip img,.strip img:last-child{aspect-ratio:3/2;grid-column:auto}
   .btn-row{grid-template-columns:1fr}
 }
 </style>
@@ -306,6 +329,7 @@ section>.wrap{position:relative;z-index:1}
 
 <!-- HERO -->
 <section class="hero">
+  <div class="hero-bg" aria-hidden="true"></div>
   <div class="orb g" style="width:600px;height:600px;top:-260px;left:-240px" aria-hidden="true"></div>
   <div class="orb t" style="width:560px;height:560px;bottom:-280px;right:-220px" aria-hidden="true"></div>
   <div class="wrap hero-grid">
@@ -412,9 +436,9 @@ section>.wrap{position:relative;z-index:1}
       <p class="lede">Developed from 40+ years of research and experience, and curated by Anthony Abbagnano, <em>The Alchemist</em> program is your chance to take back control. Module 1 is where it begins.</p>
     </div>
     <div class="mod-grid">
-      <div class="mod now"><img src="https://alchemyofbreath.com/wp-content/uploads/Inner-Journey-Module-1-800x450.jpg" alt="" width="800" height="450" loading="lazy"><div class="bd"><span class="num">Module 1</span><h3>Opening the Book of Your Life</h3><p class="sub">Pre and perinatal experiences</p><p>Determine the starting point of your journey and understand what you were born into.</p></div></div>
-      <div class="mod"><img src="https://alchemyofbreath.com/wp-content/uploads/Inner-Journey-Module-2-800x450.jpg" alt="" width="800" height="450" loading="lazy"><div class="bd"><span class="num">Module 2</span><h3>The Call</h3><p class="sub">Self-responsibility for change</p><p>Reveal insights about your desire and self-responsibility for change. Learning the values of teaching by example.</p></div></div>
-      <div class="mod"><img src="https://alchemyofbreath.com/wp-content/uploads/Inner-Journey-Module-3-800x450.jpg" alt="" width="800" height="450" loading="lazy"><div class="bd"><span class="num">Module 3</span><h3>The Inner Child</h3><p class="sub">Understanding the aspects of the inner child</p><p>Uncover and replace unhealthy past conditions that dictate how you show up in the world.</p></div></div>
+      <div class="mod now"><img src="https://alchemyofbreath.com/wp-content/uploads/Inner-Journey-Module-1-1024x576.jpg" alt="" width="1024" height="576" loading="lazy"><div class="bd"><span class="num">Module 1</span><h3>Opening the Book of Your Life</h3><p class="sub">Pre and perinatal experiences</p><p>Determine the starting point of your journey and understand what you were born into.</p></div></div>
+      <div class="mod"><img src="https://alchemyofbreath.com/wp-content/uploads/Inner-Journey-Module-2-1024x576.jpg" alt="" width="1024" height="576" loading="lazy"><div class="bd"><span class="num">Module 2</span><h3>The Call</h3><p class="sub">Self-responsibility for change</p><p>Reveal insights about your desire and self-responsibility for change. Learning the values of teaching by example.</p></div></div>
+      <div class="mod"><img src="https://alchemyofbreath.com/wp-content/uploads/Inner-Journey-Module-3-1024x576.jpg" alt="" width="1024" height="576" loading="lazy"><div class="bd"><span class="num">Module 3</span><h3>The Inner Child</h3><p class="sub">Understanding the aspects of the inner child</p><p>Uncover and replace unhealthy past conditions that dictate how you show up in the world.</p></div></div>
       <div class="mod"><div class="bd"><span class="num">Module 4</span><h3>Embracing Your Shadows</h3><p class="sub">Exploration of the unconscious mind</p><p>Explore the people and situations that trigger you in order to learn more about your own shadows.</p></div></div>
       <div class="mod"><div class="bd"><span class="num">Module 5</span><h3>Finding the Treasure</h3><p class="sub">The road to mastery</p><p>Acknowledge and consolidate your accomplishments in life. From family to work and beyond.</p></div></div>
       <div class="mod"><div class="bd"><span class="num">Module 6</span><h3>Atonement and Return</h3><p class="sub">Transition from mastery to mystery</p><p>Preparing for the transition from mastery to mystery in your life.</p></div></div>
@@ -440,6 +464,15 @@ section>.wrap{position:relative;z-index:1}
   </div>
 </section>
 
+<!-- PHOTO BAND -->
+<section class="band">
+  <div class="wrap">
+    <span class="eyebrow">Held, not pushed</span>
+    <h2>Guided, nurtured, and <em>never alone</em>.</h2>
+    <p>Every class is held live by a facilitator who has walked this journey themselves. You are supported before, during, and after you breathe.</p>
+  </div>
+</section>
+
 <!-- FAQ -->
 <section class="alt">
   <div class="wrap">
@@ -455,6 +488,13 @@ section>.wrap{position:relative;z-index:1}
     </div>
   </div>
 </section>
+
+<!-- SHALA STRIP -->
+<div class="strip" aria-label="Alchemy of Breath sessions">
+  <img src="https://alchemyofbreath.com/wp-content/uploads/IMG_6795-1.jpg" alt="A facilitator leading a breathwork session in an open-air shala" width="700" height="467" loading="lazy">
+  <img src="https://alchemyofbreath.com/wp-content/uploads/IMG_6844-1.jpg" alt="A facilitator sitting with students during a session" width="700" height="467" loading="lazy">
+  <img src="https://alchemyofbreath.com/wp-content/uploads/IMG_7165-1.jpg" alt="Students sharing in a circle after breathwork" width="700" height="467" loading="lazy">
+</div>
 
 <!-- ABOUT -->
 <section class="about">
