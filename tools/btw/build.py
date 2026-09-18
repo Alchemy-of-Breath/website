@@ -46,6 +46,21 @@ EXTRA_CSS = '''
 .arch-item.now{background:var(--paper);border-color:var(--gold)}
 .arch-item .badge{display:inline-block;margin-left:8px;background:var(--ink);color:var(--gold);border-radius:999px;padding:3px 10px;font-size:.58rem;letter-spacing:.14em;vertical-align:middle}
 @media(max-width:560px){.arch-item{flex-direction:column;align-items:flex-start;gap:10px}.past{padding:0 16px}.past-card{padding:24px 20px}}
+/* countdown to each session */
+.cd{margin-top:12px}
+.cd-lbl{font-family:var(--sans);font-size:.62rem;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--slate);margin-bottom:6px}
+.cd-row{display:flex;gap:6px}
+.cd-u{flex:1;min-width:0;background:var(--paper);border:1px solid rgba(225,182,104,.4);border-radius:10px;padding:7px 4px 6px;text-align:center}
+.cd-u b{display:block;font-family:var(--serif);font-weight:400;font-size:1.35rem;line-height:1.05;color:var(--ink);font-variant-numeric:tabular-nums}
+.cd-u span{display:block;font-family:var(--sans);font-size:.56rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--slate);margin-top:3px}
+.cd-live{display:inline-flex;align-items:center;gap:9px;font-family:var(--sans);font-size:.78rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:#2A2114;background:var(--grad-gold);border-radius:999px;padding:9px 16px;text-decoration:none}
+.cd-live::before{content:"";width:8px;height:8px;border-radius:50%;background:#B3261E;box-shadow:0 0 0 0 rgba(179,38,30,.6);animation:cdpulse 1.8s ease-out infinite}
+@keyframes cdpulse{0%{box-shadow:0 0 0 0 rgba(179,38,30,.55)}70%{box-shadow:0 0 0 9px rgba(179,38,30,0)}100%{box-shadow:0 0 0 0 rgba(179,38,30,0)}}
+.cd-done{font-size:.84rem;color:var(--slate);font-style:italic}
+@media(prefers-reduced-motion:reduce){.cd-live::before{animation:none}}
+/* facilitator photo on a session */
+.host.with-ph{display:flex;align-items:center;gap:12px}
+.host .av{width:52px;height:52px;border-radius:50%;object-fit:cover;flex:none;outline:1px solid rgba(225,182,104,.55);outline-offset:3px}
 '''
 
 EMBED_JS = """<script>(function(){if(window.self!==window.top){var st=document.createElement('style');st.textContent='.cv{content-visibility:visible !important}';document.head.appendChild(st);}function reportHeight(){var h=document.documentElement.scrollHeight;window.parent.postMessage({type:'aob-embed-resize',height:h},'*');}window.addEventListener('load',reportHeight);window.addEventListener('resize',reportHeight);var mo=new MutationObserver(reportHeight);mo.observe(document.body,{childList:true,subtree:true,attributes:true});setInterval(reportHeight,800);})();</script>"""
@@ -145,12 +160,20 @@ FOOT = '''
 def session(i, which):
     am = which == 'AM'
     host, role = (i['am_host'], i['am_role']) if am else (i['pm_host'], i['pm_role'])
+    photo = i.get('am_photo' if am else 'pm_photo')
     ics = 'am' if am else 'pm'
+    key = 'Am' if am else 'Pm'
+    if photo:
+        host_html = (f'<p class="host with-ph"><img class="av" src="{photo}" alt="{host}" width="52" height="52" loading="lazy">'
+                     f'<span>Sharing this week: <b>{host}</b>, {role}</span></p>')
+    else:
+        host_html = f'<p class="host">Sharing this week: <b>{host}</b>, {role}</p>'
     return f'''      <div class="sess">
         <p class="lbl">{'Morning' if am else 'Evening'} session</p>
         <p class="time">{'9:30 AM' if am else '5:00 PM'}<small>{i['short']} &middot; London time</small></p>
-        <p class="local" id="local{'Am' if am else 'Pm'}"></p>
-        <p class="host">Sharing this week: <b>{host}</b>, {role}</p>
+        <p class="local" id="local{key}"></p>
+        <div class="cd" id="cd{key}" aria-live="polite"></div>
+        {host_html}
         <div class="cal">
           <a href="{gcal(i, which)}" target="_blank" rel="noopener">Google Calendar</a>
           <a href="https://website-5h3.pages.dev/free-breathwork-sessions/welcome/breathe-the-world-{ics}.ics" download>Apple / Outlook</a>
@@ -281,6 +304,29 @@ def page(i, current, canonical, style):
   }}
   show('localAm',{AM[0]},{AM[1]});
   show('localPm',{PM[0]},{PM[1]});
+
+  // live countdown to each session; turns into a join button while it runs
+  var ZOOM='{ZOOM}', LEN=75*60000;
+  function pad(n){{ return (n<10?'0':'')+n; }}
+  function unit(v,l){{ return '<div class="cd-u"><b>'+v+'</b><span>'+l+'</span></div>'; }}
+  var sessions=[['cdAm',londonToLocal({AM[0]},{AM[1]})],['cdPm',londonToLocal({PM[0]},{PM[1]})]], last={{}};
+  function tick(){{
+    var now=Date.now();
+    sessions.forEach(function(s){{
+      var el=document.getElementById(s[0]); if(!el||!s[1]) return;
+      var start=s[1].getTime(), left=start-now, html;
+      if(left>0){{
+        var t=Math.floor(left/1000), d=Math.floor(t/86400), h=Math.floor(t%86400/3600), m=Math.floor(t%3600/60), sec=t%60;
+        html='<p class="cd-lbl">Starts in</p><div class="cd-row">'+(d>0?unit(d,d===1?'day':'days'):'')+unit(pad(h),'hrs')+unit(pad(m),'min')+unit(pad(sec),'sec')+'</div>';
+      }}else if(now<start+LEN){{
+        html='<a class="cd-live" href="'+ZOOM+'" target="_blank" rel="noopener">Live now &middot; join the room</a>';
+      }}else{{
+        html='<p class="cd-done">This session has ended. See you next Sunday.</p>';
+      }}
+      if(last[s[0]]!==html){{ el.innerHTML=html; last[s[0]]=html; }}
+    }});
+  }}
+  tick(); setInterval(tick,1000);
 }})();
 </script>
 '''

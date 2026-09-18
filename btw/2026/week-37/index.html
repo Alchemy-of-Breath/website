@@ -153,6 +153,21 @@ h1,h2,h3{font-family:var(--serif);font-weight:400;color:var(--ink);line-height:1
 .arch-item.now{background:var(--paper);border-color:var(--gold)}
 .arch-item .badge{display:inline-block;margin-left:8px;background:var(--ink);color:var(--gold);border-radius:999px;padding:3px 10px;font-size:.58rem;letter-spacing:.14em;vertical-align:middle}
 @media(max-width:560px){.arch-item{flex-direction:column;align-items:flex-start;gap:10px}.past{padding:0 16px}.past-card{padding:24px 20px}}
+/* countdown to each session */
+.cd{margin-top:12px}
+.cd-lbl{font-family:var(--sans);font-size:.62rem;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--slate);margin-bottom:6px}
+.cd-row{display:flex;gap:6px}
+.cd-u{flex:1;min-width:0;background:var(--paper);border:1px solid rgba(225,182,104,.4);border-radius:10px;padding:7px 4px 6px;text-align:center}
+.cd-u b{display:block;font-family:var(--serif);font-weight:400;font-size:1.35rem;line-height:1.05;color:var(--ink);font-variant-numeric:tabular-nums}
+.cd-u span{display:block;font-family:var(--sans);font-size:.56rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--slate);margin-top:3px}
+.cd-live{display:inline-flex;align-items:center;gap:9px;font-family:var(--sans);font-size:.78rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:#2A2114;background:var(--grad-gold);border-radius:999px;padding:9px 16px;text-decoration:none}
+.cd-live::before{content:"";width:8px;height:8px;border-radius:50%;background:#B3261E;box-shadow:0 0 0 0 rgba(179,38,30,.6);animation:cdpulse 1.8s ease-out infinite}
+@keyframes cdpulse{0%{box-shadow:0 0 0 0 rgba(179,38,30,.55)}70%{box-shadow:0 0 0 9px rgba(179,38,30,0)}100%{box-shadow:0 0 0 0 rgba(179,38,30,0)}}
+.cd-done{font-size:.84rem;color:var(--slate);font-style:italic}
+@media(prefers-reduced-motion:reduce){.cd-live::before{animation:none}}
+/* facilitator photo on a session */
+.host.with-ph{display:flex;align-items:center;gap:12px}
+.host .av{width:52px;height:52px;border-radius:50%;object-fit:cover;flex:none;outline:1px solid rgba(225,182,104,.55);outline-offset:3px}
 </style>
 </head>
 <body>
