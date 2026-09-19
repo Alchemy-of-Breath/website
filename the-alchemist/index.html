@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The Alchemist | An Inner Journey to Yourself | Alchemy of Breath</title>
-<meta name="description" content="A seven week live journey of self-discovery, opened to the public by Anthony Abbagnano. Founded on the hero's journey, 40+ years in the making. Walked together, in a small held cohort.">
+<meta name="description" content="A fifteen week live journey of self-discovery, opened to the public by Anthony Abbagnano. Founded on the hero's journey, 40+ years in the making. Walked together, in a small held cohort.">
 <meta name="robots" content="index, follow, max-image-preview:large">
 <link rel="canonical" href="https://alchemyofbreath.com/the-alchemist/">
 <meta property="og:type" content="website">
@@ -352,6 +352,7 @@ section>.wrap{position:relative;z-index:1}
 .path-price .now{font-family:var(--serif);font-size:2.6rem;color:var(--ink);line-height:1}
 .path-price .now sup{font-size:.45em;top:-.9em;font-style:italic;color:var(--gold-deep)}
 .path-price .was{font-size:1rem;color:var(--slate);text-decoration:line-through;text-decoration-color:rgba(91,120,137,.6)}
+.pp-flag{display:inline-block;align-self:flex-start;margin:20px 0 -8px;background:var(--ink);color:var(--gold);border-radius:999px;padding:6px 14px;font-size:.66rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase}
 .path-price-note{font-size:.82rem;color:var(--slate);margin-bottom:22px}
 .path-list{list-style:none;flex:1;margin:18px 0 28px;border-top:1px solid rgba(225,182,104,.25);padding-top:20px}
 .path-list li{display:flex;gap:12px;font-size:.92rem;padding:8px 0;align-items:flex-start;line-height:1.5}
@@ -540,10 +541,11 @@ section>.wrap{position:relative;z-index:1}
   "description":"A seven chapter inner journey of self-discovery and transformation, founded on the hero's journey framework and 40+ years of Anthony Abbagnano's work.",
   "provider":{"@type":"Organization","name":"Alchemy of Breath","url":"https://alchemyofbreath.com/","logo":"https://alchemyofbreath.com/wp-content/uploads/AOB-Gold-Black-Transparant.png"},
   "hasCourseInstance":[
-    {"@type":"CourseInstance","name":"The Inner Journey","courseMode":"Online","courseWorkload":"P7W"}
+    {"@type":"CourseInstance","name":"The Inner Journey","courseMode":"Online","courseWorkload":"P15W"}
   ],
   "offers":[
-    {"@type":"Offer","name":"The Inner Journey, 7 week live cohort","price":"3097","priceCurrency":"USD","availability":"https://schema.org/InStock"}
+    {"@type":"Offer","name":"The Inner Journey, 15 week live cohort, Super Early Bird","price":"2297","priceCurrency":"USD","availability":"https://schema.org/InStock","validThrough":"2026-09-25T23:59:59+01:00"},
+    {"@type":"Offer","name":"The Inner Journey, 15 week live cohort, Early Bird","price":"2497","priceCurrency":"USD","availability":"https://schema.org/InStock","validFrom":"2026-09-26T00:00:00+01:00"}
   ]
 }
 </script>
@@ -572,7 +574,7 @@ section>.wrap{position:relative;z-index:1}
         <div class="hero-actions reveal d3">
           <a class="btn btn-primary" href="#pathways">Book your discovery call <span class="arr">&rarr;</span></a>
           <a class="btn btn-ghost" href="#chapters">See the seven chapters</a>
-          <p class="cta-note">Seven weeks of live classes, walked together.</p>
+          <p class="cta-note">Fifteen weeks of live classes, walked together.</p>
         </div>
         <div class="hero-proof reveal d3">
           <img class="avatars" src="https://alchemyofbreath.com/wp-content/uploads/people-updated.png" alt="Alchemy of Breath community">
@@ -791,7 +793,7 @@ section>.wrap{position:relative;z-index:1}
   <div class="wrap">
     <div class="paths-intro">
       <span class="eyebrow reveal" style="justify-content:center">How it is held</span>
-      <h2 class="reveal d1">Seven weeks. <em>Held together.</em></h2>
+      <h2 class="reveal d1">Fifteen weeks. <em>Held together.</em></h2>
       <p class="reveal d2" style="margin-top:18px;color:var(--ink);font-size:1.04rem">The seven chapters open as you walk them, in real time, in a small group with a teacher. One weekly live class. A cohort that stays together for the duration. The depth that only happens in held community.</p>
     </div>
 
@@ -799,14 +801,16 @@ section>.wrap{position:relative;z-index:1}
       <div class="path-card feat reveal d1">
         <span class="tag">Next cohort &middot; September 2026</span>
         <h3>The Inner Journey</h3>
-        <p class="lede">Seven weeks of live classes, walked together. The seven chapters opened in real time, with a teacher and a circle of others doing the same work.</p>
+        <p class="lede">Fifteen weeks of live classes, walked together. The seven chapters opened in real time, with a teacher and a circle of others doing the same work.</p>
+        <span class="pp-flag" id="ppFlag">Super Early Bird &middot; until 25 September</span>
         <div class="path-price">
-          <span class="now"><sup>$</sup>3,097</span>
+          <span class="was">$3,097</span>
+          <span class="now" id="ppNow"><sup>$</sup>2,297</span>
         </div>
-        <p class="path-price-note">Place held exclusively for you.</p>
+        <p class="path-price-note" id="ppNote">Then $2,497 Early Bird from 26 September. Place held exclusively for you.</p>
         <ul class="path-list">
-          <li>Seven weekly live classes, the seven chapters in real time</li>
-          <li>Held in a small cohort for the full seven weeks</li>
+          <li>Weekly live classes, the seven chapters in real time</li>
+          <li>Held in a small cohort for the full fifteen weeks</li>
           <li>Workbook with reflection prompts for each week</li>
           <li>Recordings of every class to return to, for life</li>
           <li>"The Bridge" workshop, included</li>
@@ -920,7 +924,7 @@ section>.wrap{position:relative;z-index:1}
       </details>
       <details>
         <summary>What does a week in the live cohort look like?<span class="pm">+</span></summary>
-        <div class="faq-a"><p>One live class each week with the teacher, opening that week's chapter together. The cohort stays the same for the full seven weeks, so the group deepens as the work deepens. Between classes you have the workbook and reflection prompts. Every class is recorded and stays in your dashboard.</p></div>
+        <div class="faq-a"><p>One live class each week with the teacher, opening that week's chapter together. The cohort stays the same for the full fifteen weeks, so the group deepens as the work deepens. Between classes you have the workbook and reflection prompts. Every class is recorded and stays in your dashboard.</p></div>
       </details>
       <details>
         <summary>Is this only for people who want to become facilitators?<span class="pm">+</span></summary>
@@ -943,7 +947,7 @@ section>.wrap{position:relative;z-index:1}
   <div class="wrap">
     <span class="eyebrow reveal" style="justify-content:center">The path is open</span>
     <h2 class="reveal d1">Come home to <em>who you have always been</em>.</h2>
-    <p class="lead reveal d2">Seven weeks of live classes, walked together. Begin when you are ready.</p>
+    <p class="lead reveal d2">Fifteen weeks of live classes, walked together. Begin when you are ready.</p>
     <div class="actions reveal d2">
       <a class="btn btn-primary" href="#pathways">Book your discovery call <span class="arr">&rarr;</span></a>
       <a class="btn btn-ghost" href="https://go.alchemyofbreath.com/book-842709">Speak with an advisor</a>
@@ -1041,5 +1045,16 @@ section>.wrap{position:relative;z-index:1}
 })();
 </script>
 <script>(function(){if(window.self!==window.top){var st=document.createElement('style');st.textContent='.cv{content-visibility:visible !important}';document.head.appendChild(st);}function reportHeight(){var h=document.documentElement.scrollHeight;window.parent.postMessage({type:'aob-embed-resize',height:h},'*');}window.addEventListener('load',reportHeight);window.addEventListener('resize',reportHeight);var mo=new MutationObserver(reportHeight);mo.observe(document.body,{childList:true,subtree:true,attributes:true});setInterval(reportHeight,800);})();</script>
+<script>
+(function(){
+  /* Super Early Bird ends 25 Sep 2026 23:59 UK, then Early Bird $2,497 */
+  if(Date.now() > Date.UTC(2026, 8, 25, 22, 59, 59)){
+    var f=document.getElementById('ppFlag'), n=document.getElementById('ppNow'), t=document.getElementById('ppNote');
+    if(f) f.textContent='Early Bird';
+    if(n) n.innerHTML='<sup>$</sup>2,497';
+    if(t) t.textContent='Early Bird tuition. Place held exclusively for you.';
+  }
+})();
+</script>
 </body>
 </html>
