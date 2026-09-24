@@ -24,5 +24,17 @@
     "letter": "2026-38.html",
     "pm_photo": "https://cdn.jsdelivr.net/gh/Alchemy-of-Breath/website@main/assets/btw/adam.jpg",
     "am_photo": "https://cdn.jsdelivr.net/gh/Alchemy-of-Breath/website@main/assets/btw/angela.jpg"
+  },
+  {
+    "date": "2026-09-27",
+    "title": "Feeling & Facts",
+    "title_html": "Feeling &amp; <em>Facts</em>",
+    "description": "Feeling and facts. Breathe The World with Amy Rachelle and Alchemy of Breath facilitators Linda and Rhiannon.",
+    "am_host": "Linda",
+    "am_role": "Alchemy of Breath facilitator, Switzerland",
+    "pm_host": "Rhiannon",
+    "pm_role": "Alchemy of Breath facilitator, UK",
+    "closing": "Take an extra breath.",
+    "letter": "2026-39.html"
   }
 ]
