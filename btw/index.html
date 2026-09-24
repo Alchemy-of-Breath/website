@@ -165,6 +165,9 @@ h1,h2,h3{font-family:var(--serif);font-weight:400;color:var(--ink);line-height:1
 @keyframes cdpulse{0%{box-shadow:0 0 0 0 rgba(179,38,30,.55)}70%{box-shadow:0 0 0 9px rgba(179,38,30,0)}100%{box-shadow:0 0 0 0 rgba(179,38,30,0)}}
 .cd-done{font-size:.84rem;color:var(--slate);font-style:italic}
 @media(prefers-reduced-motion:reduce){.cd-live::before{animation:none}}
+/* video message in place of the portrait */
+.portrait-frame.video{aspect-ratio:9/16;border-radius:22px;transform:none;background:var(--ink)}
+.portrait-frame.video video{width:100%;height:100%;object-fit:cover;display:block}
 /* facilitator photo on a session */
 .host.with-ph{display:flex;align-items:center;gap:12px}
 .host .av{width:52px;height:52px;border-radius:50%;object-fit:cover;flex:none;outline:1px solid rgba(225,182,104,.55);outline-offset:3px}

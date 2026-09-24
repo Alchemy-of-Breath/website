@@ -58,6 +58,9 @@ EXTRA_CSS = '''
 @keyframes cdpulse{0%{box-shadow:0 0 0 0 rgba(179,38,30,.55)}70%{box-shadow:0 0 0 9px rgba(179,38,30,0)}100%{box-shadow:0 0 0 0 rgba(179,38,30,0)}}
 .cd-done{font-size:.84rem;color:var(--slate);font-style:italic}
 @media(prefers-reduced-motion:reduce){.cd-live::before{animation:none}}
+/* video message in place of the portrait */
+.portrait-frame.video{aspect-ratio:9/16;border-radius:22px;transform:none;background:var(--ink)}
+.portrait-frame.video video{width:100%;height:100%;object-fit:cover;display:block}
 /* facilitator photo on a session */
 .host.with-ph{display:flex;align-items:center;gap:12px}
 .host .av{width:52px;height:52px;border-radius:50%;object-fit:cover;flex:none;outline:1px solid rgba(225,182,104,.55);outline-offset:3px}
@@ -181,6 +184,18 @@ def session(i, which):
       </div>'''
 
 
+def portrait(i):
+    """Amy's photo beside the letter, or a video message when the week has one."""
+    if i.get('video'):
+        return f'''        <div class="portrait-frame video">
+          <video src="{i['video']}" poster="{i.get('poster', '')}" controls playsinline preload="metadata"
+                 aria-label="A video message from Amy Rachelle"></video>
+        </div>'''
+    return '''        <div class="portrait-frame">
+          <img src="https://alchemyofbreath.com/wp-content/uploads/amy-rachelle-1.jpg" alt="Amy Rachelle, co-founder of Alchemy of Breath" width="600" height="705">
+        </div>'''
+
+
 def page(i, current, canonical, style):
     wk = f"Week {i['week']} &middot; {i['year']}"
     out = head(f"{i['title']} · Breathe The World | Alchemy of Breath", i['description'], canonical, style)
@@ -233,9 +248,7 @@ def page(i, current, canonical, style):
   <div class="wrap">
     <div class="letter-grid">
       <div class="portrait">
-        <div class="portrait-frame">
-          <img src="https://alchemyofbreath.com/wp-content/uploads/amy-rachelle-1.jpg" alt="Amy Rachelle, co-founder of Alchemy of Breath" width="600" height="705">
-        </div>
+{portrait(i)}
         <div class="portrait-cap"><strong>Amy Rachelle</strong><span>Co-founder, Alchemy of Breath &amp; ASHA</span></div>
       </div>
 
