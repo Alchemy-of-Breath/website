@@ -71,7 +71,7 @@
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth;overflow-x:clip}
-body{font-family:var(--sans);font-weight:300;font-size:18px;line-height:1.7;color:var(--ink);background:var(--paper);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body{font-family:var(--sans);font-weight:300;font-size:18px;line-height:1.7;color:var(--ink);background:var(--paper);-webkit-font-smoothing:antialiased;overflow-x:hidden;overflow-x:clip}
 ::selection{background:var(--gold-wash);color:var(--ink)}
 img{max-width:100%;height:auto;display:block}
 a{color:var(--ink)}
@@ -116,6 +116,8 @@ section>.wrap{position:relative;z-index:1}
 .btn-ghost{color:var(--ink);border:1px solid rgba(34,31,32,.28);background:transparent}
 .btn-ghost:hover{border-color:var(--ink);background:rgba(34,31,32,.04);transform:translateY(-2px)}
 .cta-note{font-size:.82rem;color:var(--slate);margin-top:14px;letter-spacing:.02em}
+.cta-note .ns-dot{display:inline-block;margin-right:9px;vertical-align:1px}
+.cta-note b{font-weight:500;color:var(--ink)}
 .mid-cta{text-align:center;margin-top:62px;position:relative;z-index:1}
 .mid-cta .cta-note{max-width:30em;margin-left:auto;margin-right:auto}
 
@@ -153,7 +155,7 @@ section>.wrap{position:relative;z-index:1}
 @keyframes float{0%,100%{translate:0 0}50%{translate:0 -9px}}
 @media(max-width:1360px){.hero .chip{display:none}}
 @media(max-width:960px){.ring.r5{display:none}}
-@media(max-width:560px){.hero{padding-top:140px}.ring.r4{display:none}.btn{padding:16px 26px;font-size:.88rem;width:100%;justify-content:center}.hero-actions{flex-direction:column;align-items:stretch;width:100%}}
+@media(max-width:560px){.hero{padding-top:118px;padding-bottom:84px}.breath-line{margin-bottom:12px}.hero-sub{margin-top:20px}.hero-sub+.hero-sub{font-size:.96rem;line-height:1.66}.hero-actions{margin-top:26px}.ring.r4{display:none}.btn{padding:16px 26px;font-size:.88rem;width:100%;justify-content:center}.hero-actions{flex-direction:column;align-items:stretch;width:100%}}
 
 /* logo strip */
 .logos{padding:72px 0;border-top:1px solid rgba(225,182,104,.3);border-bottom:1px solid rgba(225,182,104,.3);background:var(--paper-2);position:relative;overflow:hidden}
@@ -218,37 +220,64 @@ div.aob3-panel{cursor:default}
 }
 @media(prefers-reduced-motion:reduce){.aob3-panel,.aob3-media,.aob3-media-inner,.aob3-full{animation:none!important;transition:opacity .3s ease!important}}
 
-/* 2026 events carousel — full-bleed infinite drift */
-.ev-bleed{position:relative;width:100vw;max-width:100vw;margin:140px 0 0 calc(50% - 50vw)}
-.ev-head{max-width:1016px;margin:0 auto 20px;padding:0 28px;display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap}
-.ev-head h3{font-size:1.45rem}
-.ev-head .ev-sub{font-size:.82rem;color:var(--slate);margin-top:4px}
-.ev-nav{display:flex;gap:10px}
-.ev-nav button{width:44px;height:44px;border-radius:50%;border:1px solid rgba(214,166,82,.55);background:#fff;color:var(--gold-deep);font-size:1rem;cursor:pointer;transition:background .25s,border-color .25s}
-.ev-nav button:hover{background:var(--gold-wash);border-color:var(--gold-deep)}
-.ev-marquee{display:flex;gap:18px;overflow-x:auto;overflow-y:hidden;padding:30px 0 88px;margin:-18px 0 -62px;scrollbar-width:none;-webkit-overflow-scrolling:touch;cursor:grab}
-.ev-marquee.dragging{cursor:grabbing;user-select:none;-webkit-user-select:none}
-.ev-img{-webkit-user-drag:none}
-.ev-marquee::-webkit-scrollbar{display:none}
-.ev-track{display:flex;gap:18px;flex:none;list-style:none;margin:0}
-.ev-card{flex:0 0 300px;background:#fff;border:1px solid rgba(225,182,104,.28);border-radius:18px;overflow:hidden;box-shadow:var(--shadow-soft);display:flex;flex-direction:column;transition:transform .35s,box-shadow .35s,border-color .35s}
-.ev-track li:nth-child(odd){transform:rotate(-.5deg)}
-.ev-track li:nth-child(even){transform:rotate(.4deg)}
-.ev-track .ev-card:hover{transform:translateY(-5px) rotate(0);box-shadow:var(--shadow-lift);border-color:rgba(225,182,104,.6)}
-.ev-img{width:100%;height:200px;object-fit:cover;display:block;border-bottom:1px solid rgba(225,182,104,.2)}
-.ev-body{padding:18px 22px 20px;display:flex;flex-direction:column;flex:1}
-.ev-tag{font-size:.6rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--teal);margin-bottom:9px}
-.ev-card.bc .ev-tag{color:var(--gold-deep)}
-.ev-date{font-family:var(--serif);font-size:.95rem;color:var(--gold-deep);margin-bottom:5px}
-.ev-card h4{font-family:var(--serif);font-weight:400;font-size:1.08rem;line-height:1.25;color:var(--ink);margin-bottom:8px}
-.ev-card p{font-size:.8rem;color:var(--slate);line-height:1.55;flex:1}
-.ev-card .ev-go{margin-top:14px;align-self:flex-start;font-size:.7rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;color:var(--ink);border:1px solid rgba(34,31,32,.3);border-radius:999px;padding:9px 18px;transition:background .25s,border-color .25s}
-.ev-card .ev-go:hover{background:var(--grad-gold);border-color:var(--gold-deep)}
-.ev-bleed::before,.ev-bleed::after{content:"";position:absolute;top:64px;bottom:0;width:64px;z-index:2;pointer-events:none}
-.ev-bleed::before{left:0;background:linear-gradient(90deg,var(--paper-2),rgba(251,247,239,0))}
-.ev-bleed::after{right:0;background:linear-gradient(90deg,rgba(251,247,239,0),var(--paper-2))}
-@media(max-width:560px){.ev-card{flex-basis:250px}.ev-bleed::before,.ev-bleed::after{display:none}}
-@media(prefers-reduced-motion:reduce){.ev-marquee{scroll-behavior:auto}}
+/* Coming up: a date-driven rail. Every card carries data-start / data-end
+   (YYYY-MM-DD); a script removes a card once its end date has passed, writes
+   its status chip and puts bookable dates first, so the row never shows an
+   expired date. When nothing is left it shows the free-session fallback. */
+.up{position:relative;margin-top:120px}
+.up-head{max-width:1140px;margin:0 auto 26px;padding:0 28px;display:flex;align-items:flex-end;justify-content:space-between;gap:18px 32px;flex-wrap:wrap}
+.up-head .eyebrow{margin-bottom:14px}
+.up-head h3{font-size:clamp(1.65rem,2.8vw,2.2rem);line-height:1.15}
+.up-head h3 em{color:var(--gold-text-lg)}
+.up-sub{font-size:.92rem;color:var(--slate);margin-top:8px}
+.up-ctrl{display:flex;align-items:center;gap:22px}
+.up-all{font-size:.8rem;font-weight:500;letter-spacing:.05em;color:var(--ink);text-decoration:none;border-bottom:1px solid rgba(214,166,82,.75);padding:10px 0 3px;white-space:nowrap}
+.up-all:hover{border-color:var(--ink)}
+.up-nav{display:flex;gap:10px}
+.up-btn{width:46px;height:46px;border-radius:50%;border:1px solid rgba(214,166,82,.6);background:#fff;color:var(--gold-text);font-size:1.05rem;line-height:1;cursor:pointer;transition:background .25s,border-color .25s,opacity .25s}
+.up-btn:hover:not(:disabled){background:var(--gold-wash);border-color:var(--gold-deep)}
+.up-btn:disabled{opacity:.32;cursor:default}
+.up-btn:focus-visible{outline:2px solid var(--teal);outline-offset:3px}
+.up.static .up-nav,.up.static .up-progress,.up.empty .up-nav,.up.empty .up-progress{display:none}
+.up-rail{--edge:max(28px,calc((100% - 1140px) / 2 + 28px));overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scroll-padding-inline:var(--edge);padding:14px var(--edge) 56px;margin:-6px 0 -30px;scrollbar-width:none;overscroll-behavior-x:contain}
+.up-rail::-webkit-scrollbar{display:none}
+.up-rail:focus-visible{outline:2px solid var(--teal);outline-offset:-4px;border-radius:14px}
+@media(hover:hover) and (pointer:fine){.up-rail{cursor:grab}}
+.up-rail.drag{cursor:grabbing;scroll-snap-type:none;user-select:none;-webkit-user-select:none}
+.up-list{display:flex;gap:22px;list-style:none;margin:0;padding:0;width:max-content}
+.up-card{position:relative;flex:0 0 304px;scroll-snap-align:start;background:#fff;border:1px solid rgba(225,182,104,.3);border-radius:20px;overflow:hidden;box-shadow:var(--shadow-soft);display:flex;flex-direction:column;transition:transform .35s,box-shadow .35s,border-color .35s}
+.up-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lift);border-color:rgba(214,166,82,.65)}
+.up-img{width:100%;height:188px;object-fit:cover;display:block;background:var(--gold-wash);-webkit-user-drag:none}
+.up-status{position:absolute;top:14px;left:14px;z-index:2;pointer-events:none;display:inline-flex;align-items:center;gap:8px;padding:7px 13px 7px 11px;border-radius:999px;background:rgba(255,255,255,.95);color:var(--ink);font-size:.64rem;font-weight:500;letter-spacing:.13em;text-transform:uppercase;line-height:1.2;box-shadow:0 4px 14px rgba(34,31,32,.14)}
+.up-status[hidden]{display:none}
+.up-status::before,.cta-note .ns-dot{content:"";width:7px;height:7px;border-radius:50%;background:var(--gold-deep);flex:none}
+.up-status.now::before,.cta-note.live .ns-dot{background:var(--teal);animation:upPulse 2.2s ease-out infinite}
+@keyframes upPulse{0%{box-shadow:0 0 0 0 rgba(0,165,178,.55)}75%,100%{box-shadow:0 0 0 7px rgba(0,165,178,0)}}
+.up-body{padding:20px 22px 22px;display:flex;flex-direction:column;flex:1}
+.up-tag{font-size:.62rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:#00737C;margin-bottom:10px}
+.up-card.bc .up-tag{color:var(--gold-text)}
+.up-card h4{font-family:var(--serif);font-weight:400;font-size:1.2rem;line-height:1.25;color:var(--ink)}
+.up-when{display:flex;align-items:center;gap:8px;margin:8px 0 12px;font-family:var(--serif);font-size:1rem;line-height:1.3;color:var(--gold-text)}
+.up-when svg{width:15px;height:15px;flex:none;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round}
+.up-desc{font-size:.84rem;line-height:1.6;color:var(--slate);flex:1}
+.up-price{margin-top:12px;font-size:.78rem;letter-spacing:.04em;color:var(--slate)}
+.up-price s{margin-right:6px}
+.up-price b{font-family:var(--serif);font-weight:400;font-size:1.25rem;letter-spacing:0;color:var(--ink);margin-right:6px}
+.up .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.up-go{margin-top:18px;align-self:flex-start;display:inline-flex;align-items:center;gap:10px;min-height:44px;padding:0 20px;border-radius:999px;border:1px solid rgba(34,31,32,.28);font-size:.72rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;color:var(--ink);transition:background .25s,border-color .25s,filter .25s}
+.up-go::after{content:"";position:absolute;inset:0;z-index:1;border-radius:20px}
+.up-go.pri{background:var(--grad-gold);border-color:transparent;box-shadow:0 8px 20px rgba(214,166,82,.32)}
+.up-card:hover .up-go{border-color:var(--gold-deep);background:var(--gold-wash)}
+.up-card:hover .up-go.pri{background:var(--grad-gold);filter:brightness(1.05)}
+.up-go:focus-visible{outline:none}
+.up-go:focus-visible::after{outline:2px solid var(--teal);outline-offset:-3px}
+.up-progress{position:relative;width:calc(100% - 56px);max-width:1084px;height:2px;margin:0 auto;background:rgba(91,120,137,.18);border-radius:2px;overflow:hidden}
+.up-progress span{position:absolute;top:0;left:0;height:100%;width:40%;background:var(--gold-deep);border-radius:2px}
+.up-empty{max-width:1140px;margin:0 auto;padding:0 28px;font-size:1rem;color:var(--slate)}
+.up-empty a{color:var(--ink)}
+@media(max-width:760px){.up{margin-top:88px}}
+@media(max-width:560px){.up-head{padding:0 20px;margin-bottom:16px}.up-ctrl{width:100%}.up-nav{display:none}.up-rail{--edge:20px}.up-card{flex-basis:min(80vw,300px)}.up-progress{width:calc(100% - 40px)}.up-empty{padding:0 20px}}
+@media(prefers-reduced-motion:reduce){.up-card,.up-card:hover{transition:none;transform:none}}
 
 /* founder letter */
 .letter{background:linear-gradient(180deg,var(--paper) 0%,var(--paper-2) 100%)}
@@ -709,7 +738,7 @@ main p em,main li em{color:var(--gold-text)}
           <a class="btn btn-primary" href="/free-breathwork-sessions/">Breathe with us — free <span class="arr">&rarr;</span></a>
           <a class="btn btn-ghost" href="#programs">Explore the programs</a>
         </div>
-        <p class="cta-note reveal d3">Free live sessions every Sunday. No experience needed — just you, and your breath.</p>
+        <p class="cta-note reveal d3" id="nextSess">Free live sessions every Sunday. No experience needed — just you, and your breath.</p>
         <div class="hero-proof reveal d3">
           <img class="avatars" src="https://alchemyofbreath.com/wp-content/uploads/people-updated.png" alt="Alchemy of Breath community" width="686" height="78" decoding="async">
           <p><strong>2,000+ certified facilitators</strong> trained over 12 years — and a community breathing with us on every continent.</p>
@@ -802,40 +831,86 @@ main p em,main li em{color:var(--gold-text)}
     </div>
   </div>
 
-  <!-- 2026 at ASHA — dates & images from alchemyofbreath.com/calendar-2026/ as of 5 Jul 2026 -->
-  <div class="ev-bleed reveal">
-    <div class="ev-head">
+  <!-- COMING UP: dates from /calendar-2026/, /breathcamps/ and /breathwork-training/
+       on main, 27 Sep 2026. Add a card with data-start/data-end and it appears;
+       it removes itself the day after its end date. -->
+  <div class="up" id="dates">
+    <div class="up-head reveal">
       <div>
-        <h3>BreathCamps &amp; retreats at ASHA, <em class="em-i">2026</em></h3>
-        <p class="ev-sub">Live in Tuscany &middot; drifting gently &mdash; scroll or step through</p>
+        <span class="eyebrow">Dates for your diary</span>
+        <h3 id="upTitle">Where to <em>breathe with us next</em>.</h3>
+        <p class="up-sub">Live at ASHA in Tuscany, and online.</p>
       </div>
-      <div class="ev-nav">
-        <button type="button" id="evPrev" aria-label="Scroll events back">&larr;</button>
-        <button type="button" id="evNext" aria-label="Scroll events forward">&rarr;</button>
+      <div class="up-ctrl">
+        <a class="up-all" href="/calendar-2026/">Full 2026 calendar <span aria-hidden="true">&rarr;</span></a>
+        <div class="up-nav">
+          <button type="button" class="up-btn" id="upPrev" aria-controls="upRail" aria-label="Earlier dates">&larr;</button>
+          <button type="button" class="up-btn" id="upNext" aria-controls="upRail" aria-label="Later dates">&rarr;</button>
+        </div>
       </div>
     </div>
-    <div class="ev-marquee" id="evScroll">
-      <ul class="ev-track" aria-label="ASHA 2026 events">
-      <li class="ev-card"><img class="ev-img" src="https://alchemyofbreath.com/wp-content/uploads/elementor/thumbs/5F8A1159-1-rhx8e36rv5deq6ygkdwpj761gg95xsmkyqqy6by79g.jpg" alt="Community gathered at ASHA" width="250" height="250" loading="lazy" decoding="async"><div class="ev-body"><span class="ev-tag">Community</span><span class="ev-date">May &ndash; Nov 1</span><h4>ARC &middot; Alchemy Residential Club</h4><p>Co-live, work, and play with kindred visionaries on ancient Tuscan land.</p><a class="ev-go" href="https://www.asha.global/arc">Details</a></div></li>
-      <li class="ev-card"><img class="ev-img" src="https://alchemyofbreath.com/wp-content/uploads/elementor/thumbs/WhatsApp-Image-2026-02-19-at-20.15.11-rjdtvqq8qd0hwuji0v5ebc0kpmf82sjqjekle81zyc.jpeg" alt="Retreat space at ASHA" width="250" height="250" loading="lazy" decoding="async"><div class="ev-body"><span class="ev-tag">Host your retreat</span><span class="ev-date">Jun 7 &ndash; Aug 1</span><h4>Co-Residential Retreats</h4><p>Lead your own retreat, with the venue, meals, and community handled.</p><a class="ev-go" href="https://alchemyofbreath.com/asha-hybrid-retreats/">Details</a></div></li>
-      <li class="ev-card bc"><img class="ev-img" src="https://alchemyofbreath.com/wp-content/uploads/elementor/thumbs/Rectangle-54-2-rett9yxcy2hvd66ou52ejkdj9423c5604ijq5xg0n8.jpg" alt="Breathwork circle at BreathCamp" width="250" height="250" loading="lazy" decoding="async"><div class="ev-body"><span class="ev-tag">BreathCamp</span><span class="ev-date">Aug 16 &ndash; 22</span><h4>BreathCamp 1</h4><p>A seven-day breathwork immersion on the land — all welcome.</p><a class="ev-go" href="/breathcamps/">Details</a></div></li>
-      <li class="ev-card bc"><img class="ev-img" src="https://alchemyofbreath.com/wp-content/uploads/asha-breathcamp-gallery-17-300x169.jpg" alt="BreathCamp gathering at ASHA" width="300" height="169" loading="lazy" decoding="async"><div class="ev-body"><span class="ev-tag">BreathCamp</span><span class="ev-date">Aug 30 &ndash; Sep 5</span><h4>BreathCamp 2</h4><p>A seven-day breathwork immersion on the land — all welcome.</p><a class="ev-go" href="/breathcamps/">Details</a></div></li>
-      <li class="ev-card bc"><img class="ev-img" src="https://alchemyofbreath.com/wp-content/uploads/elementor/thumbs/DSCF0574-1-rbk1iti7cnyhb5g4jzi3b06qltkkzd2uagktwr68n8.jpg" alt="Breathwork session at BreathCamp" width="250" height="250" loading="lazy" decoding="async"><div class="ev-body"><span class="ev-tag">BreathCamp</span><span class="ev-date">Sep 6 &ndash; 12</span><h4>BreathCamp 3</h4><p>A seven-day breathwork immersion on the land — all welcome.</p><a class="ev-go" href="/breathcamps/">Details</a></div></li>
-      <li class="ev-card bc"><img class="ev-img" src="https://alchemyofbreath.com/wp-content/uploads/DSC00695-1-1-1-300x200.jpg" alt="BreathCamp on the land at ASHA" width="300" height="200" loading="lazy" decoding="async"><div class="ev-body"><span class="ev-tag">BreathCamp</span><span class="ev-date">Sep 20 &ndash; 26</span><h4>BreathCamp 4</h4><p>A seven-day breathwork immersion on the land — all welcome.</p><a class="ev-go" href="/breathcamps/">Details</a></div></li>
-      <li class="ev-card"><img class="ev-img" src="https://alchemyofbreath.com/wp-content/uploads/elementor/thumbs/people-image-rjbn88mj9uwe85gh0fkmrcqcf8jfyioewrlsq8cpj8.png" alt="Facilitator training circle at ASHA" width="250" height="250" loading="lazy" decoding="async"><div class="ev-body"><span class="ev-tag">Training</span><span class="ev-date">Sep 27 &ndash; Oct 17</span><h4>Live Residential Facilitator Training</h4><p>Twenty-one days in person, then online — graduate certified.</p><a class="ev-go" href="/live-residential-breathwork-facilitator-training/">Details</a></div></li>
-      <li class="ev-card bc"><img class="ev-img" src="https://alchemyofbreath.com/wp-content/uploads/DSCF5832-300x200.jpg" alt="Sunset breathwork at BreathCamp" width="300" height="200" loading="lazy" decoding="async"><div class="ev-body"><span class="ev-tag">BreathCamp</span><span class="ev-date">Oct 25 &ndash; 31</span><h4>BreathCamp 5</h4><p>A seven-day breathwork immersion on the land — all welcome.</p><a class="ev-go" href="/breathcamps/">Details</a></div></li>
-      </ul>
-      <ul class="ev-track" aria-hidden="true">
-      <li class="ev-card"><img class="ev-img" src="https://alchemyofbreath.com/wp-content/uploads/elementor/thumbs/5F8A1159-1-rhx8e36rv5deq6ygkdwpj761gg95xsmkyqqy6by79g.jpg" alt="Community gathered at ASHA" width="250" height="250" loading="lazy" decoding="async"><div class="ev-body"><span class="ev-tag">Community</span><span class="ev-date">May &ndash; Nov 1</span><h4>ARC &middot; Alchemy Residential Club</h4><p>Co-live, work, and play with kindred visionaries on ancient Tuscan land.</p><a class="ev-go" href="https://www.asha.global/arc">Details</a></div></li>
-      <li class="ev-card"><img class="ev-img" src="https://alchemyofbreath.com/wp-content/uploads/elementor/thumbs/WhatsApp-Image-2026-02-19-at-20.15.11-rjdtvqq8qd0hwuji0v5ebc0kpmf82sjqjekle81zyc.jpeg" alt="Retreat space at ASHA" width="250" height="250" loading="lazy" decoding="async"><div class="ev-body"><span class="ev-tag">Host your retreat</span><span class="ev-date">Jun 7 &ndash; Aug 1</span><h4>Co-Residential Retreats</h4><p>Lead your own retreat, with the venue, meals, and community handled.</p><a class="ev-go" href="https://alchemyofbreath.com/asha-hybrid-retreats/">Details</a></div></li>
-      <li class="ev-card bc"><img class="ev-img" src="https://alchemyofbreath.com/wp-content/uploads/elementor/thumbs/Rectangle-54-2-rett9yxcy2hvd66ou52ejkdj9423c5604ijq5xg0n8.jpg" alt="Breathwork circle at BreathCamp" width="250" height="250" loading="lazy" decoding="async"><div class="ev-body"><span class="ev-tag">BreathCamp</span><span class="ev-date">Aug 16 &ndash; 22</span><h4>BreathCamp 1</h4><p>A seven-day breathwork immersion on the land — all welcome.</p><a class="ev-go" href="/breathcamps/">Details</a></div></li>
-      <li class="ev-card bc"><img class="ev-img" src="https://alchemyofbreath.com/wp-content/uploads/asha-breathcamp-gallery-17-300x169.jpg" alt="BreathCamp gathering at ASHA" width="300" height="169" loading="lazy" decoding="async"><div class="ev-body"><span class="ev-tag">BreathCamp</span><span class="ev-date">Aug 30 &ndash; Sep 5</span><h4>BreathCamp 2</h4><p>A seven-day breathwork immersion on the land — all welcome.</p><a class="ev-go" href="/breathcamps/">Details</a></div></li>
-      <li class="ev-card bc"><img class="ev-img" src="https://alchemyofbreath.com/wp-content/uploads/elementor/thumbs/DSCF0574-1-rbk1iti7cnyhb5g4jzi3b06qltkkzd2uagktwr68n8.jpg" alt="Breathwork session at BreathCamp" width="250" height="250" loading="lazy" decoding="async"><div class="ev-body"><span class="ev-tag">BreathCamp</span><span class="ev-date">Sep 6 &ndash; 12</span><h4>BreathCamp 3</h4><p>A seven-day breathwork immersion on the land — all welcome.</p><a class="ev-go" href="/breathcamps/">Details</a></div></li>
-      <li class="ev-card bc"><img class="ev-img" src="https://alchemyofbreath.com/wp-content/uploads/DSC00695-1-1-1-300x200.jpg" alt="BreathCamp on the land at ASHA" width="300" height="200" loading="lazy" decoding="async"><div class="ev-body"><span class="ev-tag">BreathCamp</span><span class="ev-date">Sep 20 &ndash; 26</span><h4>BreathCamp 4</h4><p>A seven-day breathwork immersion on the land — all welcome.</p><a class="ev-go" href="/breathcamps/">Details</a></div></li>
-      <li class="ev-card"><img class="ev-img" src="https://alchemyofbreath.com/wp-content/uploads/elementor/thumbs/people-image-rjbn88mj9uwe85gh0fkmrcqcf8jfyioewrlsq8cpj8.png" alt="Facilitator training circle at ASHA" width="250" height="250" loading="lazy" decoding="async"><div class="ev-body"><span class="ev-tag">Training</span><span class="ev-date">Sep 27 &ndash; Oct 17</span><h4>Live Residential Facilitator Training</h4><p>Twenty-one days in person, then online — graduate certified.</p><a class="ev-go" href="/live-residential-breathwork-facilitator-training/">Details</a></div></li>
-      <li class="ev-card bc"><img class="ev-img" src="https://alchemyofbreath.com/wp-content/uploads/DSCF5832-300x200.jpg" alt="Sunset breathwork at BreathCamp" width="300" height="200" loading="lazy" decoding="async"><div class="ev-body"><span class="ev-tag">BreathCamp</span><span class="ev-date">Oct 25 &ndash; 31</span><h4>BreathCamp 5</h4><p>A seven-day breathwork immersion on the land — all welcome.</p><a class="ev-go" href="/breathcamps/">Details</a></div></li>
+    <div class="up-rail reveal d1" id="upRail" tabindex="0" role="region" aria-labelledby="upTitle">
+      <ul class="up-list">
+      <li class="up-card bc" data-start="2026-10-25" data-end="2026-10-31">
+        <img class="up-img" src="https://alchemyofbreath.com/wp-content/uploads/DSCF5832-300x200.jpg" srcset="https://alchemyofbreath.com/wp-content/uploads/DSCF5832-300x200.jpg 300w, https://alchemyofbreath.com/wp-content/uploads/DSCF5832-768x512.jpg 768w" sizes="(max-width:560px) 80vw, 304px" alt="BreathCamp graduates at ASHA holding their certificates" width="300" height="200" loading="lazy" decoding="async">
+        <span class="up-status" hidden></span>
+        <div class="up-body">
+          <span class="up-tag">BreathCamp &middot; all welcome</span>
+          <h4>BreathCamp 5</h4>
+          <p class="up-when"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.75" y="2.75" width="12.5" height="11.5" rx="2"/><path d="M1.75 6.5h12.5M5 1.25v3M11 1.25v3"/></svg>Oct 25 &ndash; 31, 2026</p>
+          <p class="up-desc">The last BreathCamp of the season &mdash; seven days of breathwork, healing, and community as autumn settles over the Tuscan hills.</p>
+          <a class="up-go pri" href="/breathcamps/">Reserve your place <span aria-hidden="true">&rarr;</span></a>
+        </div>
+      </li>
+      <li class="up-card" data-start="2026-11-19" data-end="2026-11-19">
+        <img class="up-img" src="https://alchemyofbreath.com/wp-content/uploads/discover-1.jpg" style="object-position:50% 8%" alt="A student breathing with eyes closed" width="468" height="468" loading="lazy" decoding="async">
+        <span class="up-status" hidden></span>
+        <div class="up-body">
+          <span class="up-tag">Training &middot; online</span>
+          <h4>Online Facilitator Training</h4>
+          <p class="up-when"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.75" y="2.75" width="12.5" height="11.5" rx="2"/><path d="M1.75 6.5h12.5M5 1.25v3M11 1.25v3"/></svg>Next cohort Nov 19, 2026</p>
+          <p class="up-desc">The triple accredited 8-month certification, with weekly live calls. Walk it from home, at your own pace.</p>
+          <p class="up-price"><s><span class="vh">Was </span>$7,200</s> <b><span class="vh">now </span>$5,900</b>Super Early Bird</p>
+          <a class="up-go pri" href="/breathwork-training/">See the training <span aria-hidden="true">&rarr;</span></a>
+        </div>
+      </li>
+      <li class="up-card" data-start="2026-09-27" data-end="2026-10-03">
+        <img class="up-img" src="https://alchemyofbreath.com/wp-content/uploads/Rectangle-58-3-300x200.jpg" srcset="https://alchemyofbreath.com/wp-content/uploads/Rectangle-58-3-300x200.jpg 300w, https://alchemyofbreath.com/wp-content/uploads/Rectangle-58-3-768x512.jpg 768w" sizes="(max-width:560px) 80vw, 304px" alt="Alchemy Regulation Method practice" width="300" height="200" loading="lazy" decoding="async">
+        <span class="up-status" hidden></span>
+        <div class="up-body">
+          <span class="up-tag">Training &middot; at ASHA</span>
+          <h4>Alchemy Regulation Method</h4>
+          <p class="up-when"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.75" y="2.75" width="12.5" height="11.5" rx="2"/><path d="M1.75 6.5h12.5M5 1.25v3M11 1.25v3"/></svg>Sep 27 &ndash; Oct 3, 2026</p>
+          <p class="up-desc">Become a certified Alchemy Regulation Method coach. For yourself first. For the people you guide after.</p>
+          <a class="up-go" href="/alchemy-regulation-method/">Learn the method <span aria-hidden="true">&rarr;</span></a>
+        </div>
+      </li>
+      <li class="up-card" data-start="2026-09-27" data-end="2026-10-17">
+        <img class="up-img" src="https://alchemyofbreath.com/wp-content/uploads/people-image-300x166.png" alt="Facilitator training circle at ASHA" width="300" height="166" loading="lazy" decoding="async">
+        <span class="up-status" hidden></span>
+        <div class="up-body">
+          <span class="up-tag">Training &middot; at ASHA</span>
+          <h4>Live Residential Facilitator Training</h4>
+          <p class="up-when"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.75" y="2.75" width="12.5" height="11.5" rx="2"/><path d="M1.75 6.5h12.5M5 1.25v3M11 1.25v3"/></svg>Sep 27 &ndash; Oct 17, 2026</p>
+          <p class="up-desc">Twenty-one days in person, then online &mdash; graduate certified.</p>
+          <a class="up-go" href="/live-residential-breathwork-facilitator-training/">See the training <span aria-hidden="true">&rarr;</span></a>
+        </div>
+      </li>
+      <li class="up-card" data-start="2026-05-01" data-end="2026-11-01" data-now="Open now">
+        <img class="up-img" src="https://alchemyofbreath.com/wp-content/uploads/5F8A1159-1-300x230.jpg" alt="Community gathered around the table at ASHA" width="300" height="230" loading="lazy" decoding="async">
+        <span class="up-status" hidden></span>
+        <div class="up-body">
+          <span class="up-tag">Community &middot; at ASHA</span>
+          <h4>ARC &middot; Alchemy Residential Club</h4>
+          <p class="up-when"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.75" y="2.75" width="12.5" height="11.5" rx="2"/><path d="M1.75 6.5h12.5M5 1.25v3M11 1.25v3"/></svg>Until Nov 1, 2026</p>
+          <p class="up-desc">Co-live, work, and play with kindred visionaries on ancient Tuscan land.</p>
+          <a class="up-go" href="https://www.asha.global/arc">Explore ARC <span aria-hidden="true">&nearr;</span></a>
+        </div>
+      </li>
       </ul>
     </div>
+    <div class="up-progress" aria-hidden="true"><span id="upBar"></span></div>
+    <p class="up-empty" hidden>New dates are on their way. Until then, the door is open every Sunday: <a href="/free-breathwork-sessions/">breathe with us for free</a>.</p>
   </div>
 </section>
 
@@ -1062,7 +1137,7 @@ main p em,main li em{color:var(--gold-text)}
       <p>&copy; 2026 Alchemy of Breath. All rights reserved.</p>
       <div class="foot-legal">
         <a href="/privacy-policy/">Privacy Policy</a>
-        <a href="/terms-and-conditions/">Refund Policy</a>
+        <a href="/terms-and-conditions/">Terms &amp; Conditions</a>
         <a href="/waiver-and-release/">Disclaimer</a>
         <a href="/cookie-policy/">Cookie Policy</a>
       </div>
@@ -1142,7 +1217,7 @@ main p em,main li em{color:var(--gold-text)}
   // Alchemy pathway: seven interactive levels
   var LV=[
     {lvl:'Level 1 of 7',phase:'Student to facilitator',title:'The Alchemy Regulation Method',text:'Our nervous system regulation methodology. You graduate with a daily practice and a framework to regulate your own nervous system, and qualify to practice as a nervous system regulation coach.',links:[{t:'Learn the method',h:'/alchemy-regulation-method/'}]},
-    {lvl:'Level 2 of 7',phase:'Student to facilitator',title:'The Inner Journey',text:'A deep, 14 week journey of inner work paired with group mentor sessions: the call, the inner child, shadow work, and beyond. Included in the Facilitator Training, or taken on its own.',links:[{t:'Begin the Inner Journey',h:'/the-alchemist/'}]},
+    {lvl:'Level 2 of 7',phase:'Student to facilitator',title:'The Inner Journey',text:'A deep, 15 week journey of inner work paired with group mentor sessions: the call, the inner child, shadow work, and beyond. Included in the Facilitator Training, or taken on its own.',links:[{t:'Begin the Inner Journey',h:'/the-alchemist/'}]},
     {lvl:'Level 3 of 7',phase:'Student to facilitator',title:'The Facilitator Training',text:'The triple accredited heart of the pathway. Learn to guide others with safety, ethics, and integrity — through the 8-month online training, or the 4-month live residential at ASHA.',links:[{t:'8-month online',h:'/breathwork-training/'},{t:'4-month residential',h:'/live-residential-breathwork-facilitator-training/',g:1}]},
     {lvl:'Level 4 of 7',phase:'Student to facilitator',title:'BreathCamp Graduation',text:'You lead real sessions, receive your certification, and step out into the world as a facilitator — with graduation held live at ASHA in Tuscany.',links:[{t:'Discover BreathCamps',h:'/breathcamps/'}]},
     {lvl:'Level 5 of 7',phase:'Facilitator to founder',title:'Breathwork Business in a Box',text:'Your bridge to full time facilitation, with the marketing and infrastructure already built in, so you can focus on the work itself.'},
@@ -1174,60 +1249,130 @@ main p em,main li em{color:var(--gold-text)}
   }
 
 
-  // 2026 events: slow auto-drift + manual scroll + arrows, seamless loop
-  var evScroll=document.getElementById('evScroll');
-  if(evScroll){
-    var evTrack0=evScroll.querySelector('.ev-track');
-    var evW=0, evPos=null, evPaused=false, evResume=null, evLast=null;
-    var evMeasure=function(){ evW=evTrack0.getBoundingClientRect().width+18; };
-    var evHold=function(ms){ evPaused=true; if(evResume) clearTimeout(evResume); evResume=setTimeout(function(){ evPaused=false; },ms); };
-    evMeasure(); window.addEventListener('resize',evMeasure);
-    evScroll.scrollLeft=evW; evPos=evW;
-    evScroll.addEventListener('pointerenter',function(){ evPaused=true; if(evResume) clearTimeout(evResume); });
-    evScroll.addEventListener('pointerleave',function(){ evHold(900); });
-    evScroll.addEventListener('touchstart',function(){ evHold(3000); },{passive:true});
-    evScroll.addEventListener('focusin',function(){ evPaused=true; if(evResume) clearTimeout(evResume); });
-    evScroll.addEventListener('focusout',function(){ evHold(900); });
-    var evPrevB=document.getElementById('evPrev'), evNextB=document.getElementById('evNext');
-    var evStep=function(dir){ evHold(1800); evScroll.scrollBy({left:dir*954,behavior:reduce?'auto':'smooth'}); };
-    if(evPrevB) evPrevB.addEventListener('click',function(){ evStep(-1); });
-    if(evNextB) evNextB.addEventListener('click',function(){ evStep(1); });
-    // click-drag to scroll — capture engages only after real movement, so card links stay clickable
-    var evDrag=false, evPend=false, evDragX=0, evDragStart=0, evMoved=0;
-    evScroll.addEventListener('pointerdown',function(e){
-      if(e.pointerType!=='mouse'||e.button!==0) return;
-      evPend=true; evDrag=false; evMoved=0; evDragX=e.clientX; evDragStart=evScroll.scrollLeft;
-      evPaused=true; if(evResume) clearTimeout(evResume);
-    });
-    evScroll.addEventListener('pointermove',function(e){
-      if(!evPend&&!evDrag) return;
-      var dx=e.clientX-evDragX;
-      if(Math.abs(dx)>evMoved) evMoved=Math.abs(dx);
-      if(!evDrag){
-        if(Math.abs(dx)<6) return;
-        evDrag=true; evPend=false;
-        evScroll.classList.add('dragging');
-        try{ evScroll.setPointerCapture(e.pointerId); }catch(err){}
+  // Coming up: drop cards whose end date has passed, write each status chip,
+  // and order bookable dates first (then what is running now, soonest-ending
+  // first). Dates compare as YYYY-MM-DD strings in the visitor's calendar.
+  var up=document.getElementById('dates'), upRail=document.getElementById('upRail');
+  var upList=upRail && upRail.querySelector('.up-list');
+  if(up && upList){
+    var two=function(n){ return (n<10?'0':'')+n; };
+    var nowD=new Date(), today=nowD.getFullYear()+'-'+two(nowD.getMonth()+1)+'-'+two(nowD.getDate());
+    var utc=function(iso){ var p=iso.split('-'); return Date.UTC(+p[0],+p[1]-1,+p[2]); };
+    var MONTH=['January','February','March','April','May','June','July','August','September','October','November','December'];
+    var keep=[];
+    [].slice.call(upList.querySelectorAll('.up-card')).forEach(function(c){
+      var st=c.getAttribute('data-start'), en=c.getAttribute('data-end');
+      if(!st || !en) return;
+      if(en<today){ c.parentNode.removeChild(c); return; }
+      var chip=c.querySelector('.up-status'), txt, cls;
+      if(st<=today){
+        cls='now'; txt=(st===today)?'Starts today':(c.getAttribute('data-now')||'Happening now');
+      } else {
+        var d=Math.round((utc(st)-utc(today))/864e5);
+        cls='soon'; txt=d===1?'Starts tomorrow':(d<=60?'In '+d+' days':'Opens in '+MONTH[+st.slice(5,7)-1]);
       }
-      e.preventDefault();
-      evScroll.scrollLeft=evDragStart-dx;
+      if(chip){ chip.textContent=txt; chip.className='up-status '+cls; chip.hidden=false; }
+      keep.push({el:c, key:(st>today?'0'+st:'1'+en)});
     });
-    var evEndDrag=function(){ evPend=false; if(!evDrag) return; evDrag=false; evScroll.classList.remove('dragging'); evHold(1200); };
-    evScroll.addEventListener('dragstart',function(e){ e.preventDefault(); });
-    evScroll.addEventListener('pointerup',evEndDrag);
-    evScroll.addEventListener('pointercancel',evEndDrag);
-    evScroll.addEventListener('click',function(e){ if(evMoved>6){ e.preventDefault(); e.stopPropagation(); } evMoved=0; },true);
-    (function evFrame(t){
-      if(evPos===null) evPos=evScroll.scrollLeft;
-      if(Math.abs(evScroll.scrollLeft-evPos)>2) evPos=evScroll.scrollLeft; // user or smooth-scroll moved it
-      if(!reduce && !evPaused && evLast!==null) evPos+=Math.min(t-evLast,50)*0.033;
-      if(evW){
-        if(evPos<evW*0.25){ evPos+=evW; if(evDrag) evDragStart+=evW; }
-        else if(evPos>=evW*1.25){ evPos-=evW; if(evDrag) evDragStart-=evW; }
+    keep.sort(function(a,b){ return a.key<b.key?-1:(a.key>b.key?1:0); }).forEach(function(k){ upList.appendChild(k.el); });
+    if(!keep.length){
+      up.classList.add('empty'); upRail.hidden=true;
+      var upEmpty=up.querySelector('.up-empty'); if(upEmpty) upEmpty.hidden=false;
+    } else {
+      var upPrev=document.getElementById('upPrev'), upNext=document.getElementById('upNext'), upBar=document.getElementById('upBar');
+      var upStep=function(){
+        var c=upList.querySelector('.up-card'); if(!c) return 320;
+        return c.getBoundingClientRect().width+(parseFloat(getComputedStyle(upList).columnGap)||22);
+      };
+      var upUpdate=function(){
+        var max=upRail.scrollWidth-upRail.clientWidth, x=upRail.scrollLeft;
+        up.classList.toggle('static',max<6);
+        if(upPrev) upPrev.disabled=x<=4;
+        if(upNext) upNext.disabled=x>=max-4;
+        if(upBar && upRail.scrollWidth){
+          var w=upRail.clientWidth/upRail.scrollWidth;
+          upBar.style.width=(w*100).toFixed(2)+'%';
+          upBar.style.left=(max>0?(x/max)*(1-w)*100:0).toFixed(2)+'%';
+        }
+      };
+      var upGo=function(dir){
+        var st=upStep(), per=Math.max(1,Math.floor((upRail.clientWidth-60)/st));
+        upRail.scrollBy({left:dir*per*st,behavior:reduce?'auto':'smooth'});
+      };
+      if(upPrev) upPrev.addEventListener('click',function(){ upGo(-1); });
+      if(upNext) upNext.addEventListener('click',function(){ upGo(1); });
+      upRail.addEventListener('scroll',upUpdate,{passive:true});
+      window.addEventListener('resize',upUpdate);
+      if('IntersectionObserver' in window){ new IntersectionObserver(function(es){ if(es[0].isIntersecting) upUpdate(); }).observe(upRail); }
+      upUpdate();
+      // mouse drag to scroll; a real drag swallows the click so card links stay usable
+      var dDown=false, dX=0, dLeft=0, dMoved=0;
+      upRail.addEventListener('pointerdown',function(e){
+        if(e.pointerType!=='mouse' || e.button!==0) return;
+        dDown=true; dMoved=0; dX=e.clientX; dLeft=upRail.scrollLeft;
+      });
+      window.addEventListener('pointermove',function(e){
+        if(!dDown) return;
+        var dx=e.clientX-dX;
+        if(!dMoved && Math.abs(dx)<6) return;
+        if(!dMoved) upRail.classList.add('drag');
+        dMoved=Math.max(dMoved,Math.abs(dx));
+        upRail.scrollLeft=dLeft-dx;
+      });
+      window.addEventListener('pointerup',function(){
+        if(!dDown) return;
+        dDown=false;
+        if(dMoved){
+          var st=upStep(), target=Math.round(upRail.scrollLeft/st)*st;
+          upRail.classList.remove('drag');
+          upRail.scrollTo({left:target,behavior:reduce?'auto':'smooth'});
+        }
+      });
+      upRail.addEventListener('click',function(e){ if(dMoved>6){ e.preventDefault(); e.stopPropagation(); } dMoved=0; },true);
+      upRail.addEventListener('dragstart',function(e){ e.preventDefault(); });
+    }
+  }
+
+  // Hero: name the next free Breathe The World session (Sundays, 9:30 AM and
+  // 5:00 PM London time, 75 minutes each) instead of a generic "every Sunday"
+  var ns=document.getElementById('nextSess');
+  if(ns && window.Intl && Intl.DateTimeFormat.prototype.formatToParts){
+    try{
+      var LON='Europe/London', SLOTS=[[9,30,'9:30 AM'],[17,0,'5:00 PM']], LEN=75*60000;
+      var lonParts=function(t){
+        var o={};
+        new Intl.DateTimeFormat('en-GB',{timeZone:LON,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'})
+          .formatToParts(new Date(t)).forEach(function(p){ o[p.type]=p.value; });
+        return o;
+      };
+      var lonOffset=function(t){ var o=lonParts(t); return Date.UTC(+o.year,+o.month-1,+o.day,+o.hour%24,+o.minute)-Math.floor(t/60000)*60000; };
+      var lonToUtc=function(y,m,d,h,mi){ var g=Date.UTC(y,m,d,h,mi); return g-lonOffset(g-lonOffset(g)); };
+      var tNow=Date.now(), L=lonParts(tNow), hit=null;
+      for(var k=0;k<8 && !hit;k++){
+        var day=new Date(Date.UTC(+L.year,+L.month-1,+L.day+k));
+        if(day.getUTCDay()!==0) continue;
+        for(var j=0;j<SLOTS.length;j++){
+          var t0=lonToUtc(day.getUTCFullYear(),day.getUTCMonth(),day.getUTCDate(),SLOTS[j][0],SLOTS[j][1]);
+          if(tNow<t0+LEN){ hit={t:t0,k:k,slot:SLOTS[j][2],day:day}; break; }
+        }
       }
-      if(Math.abs(evScroll.scrollLeft-evPos)>=1) evScroll.scrollLeft=evPos;
-      evLast=t; requestAnimationFrame(evFrame);
-    })(performance.now());
+      if(hit){
+        var fmt=function(opt,tz){ var o={hour:'numeric',minute:'2-digit'}; for(var x in opt) o[x]=opt[x]; if(tz) o.timeZone=tz; return new Intl.DateTimeFormat('en-US',o).format(new Date(hit.t)); };
+        var localT=fmt({}), lonT=fmt({},LON), yours='';
+        if(localT!==lonT){
+          var sameDay=fmt({weekday:'long',hour:undefined,minute:undefined})===fmt({weekday:'long',hour:undefined,minute:undefined},LON);
+          yours=' ('+localT+(sameDay?'':' '+fmt({weekday:'long',hour:undefined,minute:undefined}))+' your time)';
+        }
+        var nd=new Date(tNow), localToday=nd.getFullYear()+'-'+nd.getMonth()+'-'+nd.getDate(), lonToday=(+L.year)+'-'+(+L.month-1)+'-'+(+L.day);
+        var dayTxt=(localToday===lonToday && hit.k===0)?'today':((localToday===lonToday && hit.k===1)?'tomorrow':'Sunday '+hit.day.getUTCDate()+' '+['January','February','March','April','May','June','July','August','September','October','November','December'][hit.day.getUTCMonth()]);
+        if(tNow>=hit.t){
+          ns.classList.add('live');
+          ns.innerHTML='<span class="ns-dot" aria-hidden="true"></span><b>Live now:</b> the '+hit.slot+' session (London time) is under way. No experience needed &mdash; just you, and your breath.';
+        } else {
+          ns.innerHTML='<span class="ns-dot" aria-hidden="true"></span><b>Next free session:</b> '+dayTxt+', '+hit.slot+' London time'+yours+'. No experience needed &mdash; just you, and your breath.';
+        }
+      }
+    }catch(err){}
   }
 
   // in-page anchors: force-render .cv sections first, else Chrome cancels the
