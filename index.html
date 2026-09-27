@@ -140,13 +140,12 @@ section>.wrap{position:relative;z-index:1}
 .breath-line .w-a{opacity:1}
 .hero .eyebrow::after{content:"";width:34px;height:1px;background:var(--gold)}
 .vh-h1{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-.hero-sub:first-of-type{margin-top:0}
-.hero h1{text-wrap:balance;max-width:12.5em}
+.hero h1{text-wrap:balance}
 .hero-sub{font-size:1.16rem;line-height:1.7;max-width:36em;margin:26px auto 8px}
 .hero-sub+.hero-sub{margin-top:0;font-size:1.02rem;color:var(--slate)}
 /* hero lead: the first sentence carries the headline weight now the h1 is visually hidden */
-.hero .hero-sub:first-of-type{font-family:var(--serif);font-size:clamp(1.9rem,3.4vw,2.75rem);line-height:1.22;color:var(--ink);max-width:22em;margin:0 auto 26px;text-wrap:balance;letter-spacing:-.005em}
-.hero .hero-sub+.hero-sub{font-size:clamp(1.2rem,1.5vw,1.36rem);line-height:1.72;color:#3F4E58;max-width:40em}
+.hero .hero-lead{font-family:var(--serif);font-weight:400;font-size:clamp(1.9rem,3.4vw,2.75rem);line-height:1.22;color:var(--ink);max-width:22em;margin:0 auto 26px;text-wrap:balance;letter-spacing:-.005em}
+.hero .hero-lead+.hero-sub{font-size:clamp(1.2rem,1.5vw,1.36rem);line-height:1.72;color:#3F4E58;max-width:40em}
 .hero-byline{font-family:var(--sans);font-size:.76rem;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--slate);margin-top:18px}
 .hero-actions{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:18px;margin-top:34px}
 .hero-proof{display:flex;align-items:center;justify-content:center;gap:18px;margin-top:44px;flex-wrap:wrap}
@@ -160,7 +159,7 @@ section>.wrap{position:relative;z-index:1}
 @keyframes float{0%,100%{translate:0 0}50%{translate:0 -9px}}
 @media(max-width:1360px){.hero .chip{display:none}}
 @media(max-width:960px){.ring.r5{display:none}}
-@media(max-width:560px){.hero{padding-top:118px;padding-bottom:84px}.breath-line{margin-bottom:12px}.hero-sub{margin-top:20px}.hero .hero-sub:first-of-type{font-size:1.72rem;margin-bottom:20px}.hero .hero-sub+.hero-sub{font-size:1.14rem;line-height:1.68}.hero-actions{margin-top:26px}.ring.r4{display:none}.btn{padding:16px 26px;font-size:.88rem;width:100%;justify-content:center}.hero-actions{flex-direction:column;align-items:stretch;width:100%}}
+@media(max-width:560px){.hero{padding-top:118px;padding-bottom:84px}.breath-line{margin-bottom:12px}.hero-sub{margin-top:20px}.hero .hero-lead{font-size:1.72rem;margin-bottom:20px}.hero .hero-lead+.hero-sub{font-size:1.14rem;line-height:1.68}.hero-actions{margin-top:26px}.ring.r4{display:none}.btn{padding:16px 26px;font-size:.88rem;width:100%;justify-content:center}.hero-actions{flex-direction:column;align-items:stretch;width:100%}}
 
 /* logo strip */
 .logos{padding:72px 0;border-top:1px solid rgba(225,182,104,.3);border-bottom:1px solid rgba(225,182,104,.3);background:var(--paper-2);position:relative;overflow:hidden}
@@ -574,27 +573,9 @@ main p em,main li em{color:var(--gold-text)}
 .author-photo{border-radius:280px 280px 18px 18px;aspect-ratio:4/4.4}
 
 </style>
-<script type="application/ld+json">
-{
-  "@context":"https://schema.org",
-  "@type":"Organization",
-  "name":"Alchemy of Breath",
-  "url":"https://alchemyofbreath.com/",
-  "logo":"https://alchemyofbreath.com/wp-content/uploads/AOB-Gold-Black-Transparant.png",
-  "description":"The world's first online breathwork school: free weekly breathwork sessions, certified facilitator training, and BreathCamps in Tuscany.",
-  "founder":{"@type":"Person","name":"Anthony Abbagnano"},
-  "sameAs":["https://www.facebook.com/AOB.Breathwork/","https://www.instagram.com/alchemyofbreath/"]
-}
-</script>
-<script type="application/ld+json">
-{
-  "@context":"https://schema.org",
-  "@type":"WebSite",
-  "name":"Alchemy of Breath",
-  "url":"https://alchemyofbreath.com/"
-}
-</script>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is breathwork?","acceptedAnswer":{"@type":"Answer","text":"Breathwork is the conscious use of your breathing to shift how you feel, think, and heal. At Alchemy of Breath we practice Conscious Connected Breathwork, where inhalation and exhalation flow seamlessly without pauses, calming the nervous system and creating space for deep emotional release."}},{"@type":"Question","name":"What can breathwork help with?","acceptedAnswer":{"@type":"Answer","text":"Studies have shown breathwork can help reduce symptoms associated with stress, anxiety, depression, insomnia, and PTSD. Beyond the biological effects, practitioners report greater self-awareness, emotional freedom, and a deeper sense of connection and peace. Breathwork is not a substitute for medical or psychological treatment."}},{"@type":"Question","name":"I am completely new. Where do I start?","acceptedAnswer":{"@type":"Answer","text":"Start by breathing with us. We host free live online breathwork sessions every Sunday, open to everyone, and they are the gentlest way to experience the work first-hand before choosing a program."}},{"@type":"Question","name":"Do I need experience to join a training?","acceptedAnswer":{"@type":"Answer","text":"No. Our trainings are designed for all levels, from complete newcomers to experienced practitioners, and meet you exactly where you are. Many students join purely for their own growth and healing."}},{"@type":"Question","name":"How do I become a certified breathwork facilitator?","acceptedAnswer":{"@type":"Answer","text":"Through the Alchemy of Breath Facilitator Training, a triple accredited certification you can walk two ways: an 8 month online training with weekly live calls, or a 4 month accelerated path that begins with 21 days live and residential at ASHA in Tuscany."}}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":["Organization","EducationalOrganization"],"name":"Alchemy of Breath","url":"https://alchemyofbreath.com/","logo":"https://alchemyofbreath.com/wp-content/uploads/AOB-Gold-Black-Transparant.png","description":"The world's first online breathwork school: free weekly breathwork sessions, certified facilitator training, and BreathCamps in Tuscany.","founder":{"@type":"Person","name":"Anthony Abbagnano","jobTitle":"Founder"},"sameAs":["https://www.facebook.com/AOB.Breathwork/","https://www.instagram.com/alchemyofbreath/"],"@id":"https://alchemyofbreath.com/#organization","hasCredential":[{"@type":"EducationalOccupationalCredential","credentialCategory":"Accreditation","recognizedBy":{"@type":"Organization","name":"Federation of Holistic Therapists"}},{"@type":"EducationalOccupationalCredential","credentialCategory":"Accreditation","recognizedBy":{"@type":"Organization","name":"Global Professional Breathwork Alliance"}},{"@type":"EducationalOccupationalCredential","credentialCategory":"Accreditation","recognizedBy":{"@type":"Organization","name":"American Association of Drugless Practitioners"}}],"memberOf":{"@type":"Organization","name":"International Breathwork Foundation"}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"Alchemy of Breath","url":"https://alchemyofbreath.com/","@id":"https://alchemyofbreath.com/#website","publisher":{"@id":"https://alchemyofbreath.com/#organization"},"potentialAction":{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"https://alchemyofbreath.com/?s={search_term_string}"},"query-input":"required name=search_term_string"}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is breathwork?","acceptedAnswer":{"@type":"Answer","text":"Breathwork is the conscious use of your breathing to shift how you feel, think, and heal. At Alchemy of Breath we practice Conscious Connected Breathwork, where inhalation and exhalation flow seamlessly without pauses, calming the nervous system and creating space for deep emotional release."}},{"@type":"Question","name":"What can breathwork help with?","acceptedAnswer":{"@type":"Answer","text":"Studies have shown breathwork can help reduce symptoms associated with stress, anxiety, depression, insomnia, and PTSD. Beyond the biological effects, practitioners report greater self-awareness, emotional freedom, and a deeper sense of connection and peace. Breathwork is not a substitute for medical or psychological treatment."}},{"@type":"Question","name":"I am completely new. Where do I start?","acceptedAnswer":{"@type":"Answer","text":"Start by breathing with us. We host free live online breathwork sessions every Sunday, open to everyone. They are the gentlest way to experience the work first-hand before choosing a program."}},{"@type":"Question","name":"When are the free breathwork sessions?","acceptedAnswer":{"@type":"Answer","text":"Every Sunday, at 9:30 AM and 5:00 PM London time, live on Zoom. The sessions are called Breathe The World: free, open to everyone, and you can reserve your spot here."}},{"@type":"Question","name":"What is a BreathCamp?","acceptedAnswer":{"@type":"Answer","text":"A seven-day breathwork immersion at ASHA, our retreat and community centre in Tuscany, Italy. BreathCamps are open to everyone, whatever your experience. See the BreathCamp dates."}},{"@type":"Question","name":"Do I need experience to join a training?","acceptedAnswer":{"@type":"Answer","text":"No. Our trainings are designed for all levels, from complete newcomers to experienced practitioners, and meet you exactly where you are. Many students join purely for their own growth and healing."}},{"@type":"Question","name":"How do I become a certified breathwork facilitator?","acceptedAnswer":{"@type":"Answer","text":"Through the Alchemy of Breath Facilitator Training, a triple accredited certification you can walk two ways: the 8 month online training with weekly live calls, or the 4 month accelerated path that begins with 21 days live at ASHA in Tuscany."}}]}</script>
 </head>
 <body>
 
@@ -721,8 +702,7 @@ main p em,main li em{color:var(--gold-text)}
         <div class="ring r5"></div><div class="ring r4"></div><div class="ring r3"></div><div class="ring r2"></div><div class="ring r1"></div>
       </div>
       <div class="hero-core">
-        <h1 class="vh-h1">Alchemy of Breath: breathwork that brings you home to yourself</h1>
-        <p class="hero-sub reveal d2">Alchemy of Breath is a system of breathing techniques that&rsquo;ll immediately affect your sense of clarity, connection, and peace</p>
+        <h1 class="hero-sub hero-lead reveal d2">Alchemy of Breath is a system of breathing techniques that&rsquo;ll immediately affect your sense of clarity, connection, and peace</h1>
         <p class="hero-sub reveal d2">By working with us, you&rsquo;ll discover a natural remedy for stress and anxiety, along with greater self-awareness, love, and compassion, all from the comfort of your own home. The practices taught by Alchemy of Breath were developed by amalgamating the most effective breathwork patterns from different styles around the world. They can be incorporated instantly into your daily life, improving relationships, generating greater mental clarity, purpose, and direction in life.</p>
         <div class="hero-actions reveal d3">
           <a class="btn btn-primary" href="/free-breathwork-sessions/">Breathe with us — free <span class="arr">&rarr;</span></a>
@@ -821,7 +801,7 @@ main p em,main li em{color:var(--gold-text)}
     </div>
     <div class="up-rail reveal d1" id="upRail" tabindex="0" role="region" aria-labelledby="upTitle">
       <ul class="up-list">
-      <li class="up-card bc" data-start="2026-10-25" data-end="2026-10-31">
+      <li class="up-card bc" data-start="2026-10-25" data-end="2026-10-31" data-event="1">
         <img class="up-img" src="https://alchemyofbreath.com/wp-content/uploads/DSCF5832-300x200.jpg" srcset="https://alchemyofbreath.com/wp-content/uploads/DSCF5832-300x200.jpg 300w, https://alchemyofbreath.com/wp-content/uploads/DSCF5832-768x512.jpg 768w" sizes="(max-width:560px) 80vw, 304px" alt="BreathCamp graduates at ASHA holding their certificates" width="300" height="200" loading="lazy" decoding="async">
         <span class="up-status" hidden></span>
         <div class="up-body">
@@ -844,7 +824,7 @@ main p em,main li em{color:var(--gold-text)}
           <a class="up-go pri" href="/breathwork-training/">See the training <span aria-hidden="true">&rarr;</span></a>
         </div>
       </li>
-      <li class="up-card" data-start="2026-09-27" data-end="2026-10-17">
+      <li class="up-card" data-start="2026-09-27" data-end="2026-10-17" data-event="1">
         <img class="up-img" src="https://alchemyofbreath.com/wp-content/uploads/people-image-300x166.png" alt="Facilitator training circle at ASHA" width="300" height="166" loading="lazy" decoding="async">
         <span class="up-status" hidden></span>
         <div class="up-body">
@@ -917,22 +897,22 @@ main p em,main li em{color:var(--gold-text)}
       <p class="reveal d2" style="margin-top:16px;color:#C9BFA9;font-size:1rem">Wherever you begin, there is a next step: from your first regulated breath all the way to your own licensed school. Tap a level to explore it.</p>
     </div>
     <div class="path-track reveal d2" id="pathTrack" role="tablist" aria-label="The Alchemy pathway levels">
-      <button class="path-node active" data-i="0" type="button" role="tab" aria-selected="true"><span class="pn-ph"><svg viewBox="0 0 48 26" width="40" height="22" aria-hidden="true"><path d="M4 2a20 20 0 0 0 40 0"/></svg></span><span class="pn-label">Regulation<br>method</span></button>
-      <button class="path-node" data-i="1" type="button" role="tab" aria-selected="false"><span class="pn-ph"><svg viewBox="0 0 36 36" width="32" height="32" aria-hidden="true"><circle cx="18" cy="18" r="16"/></svg></span><span class="pn-label">Inner<br>journey</span></button>
-      <button class="path-node" data-i="2" type="button" role="tab" aria-selected="false"><span class="pn-ph"><svg viewBox="0 0 64 32" width="46" height="23" aria-hidden="true"><circle cx="16" cy="16" r="14"/><circle cx="48" cy="16" r="14"/></svg></span><span class="pn-label">Facilitator<br>training</span></button>
-      <button class="path-node" data-i="3" type="button" role="tab" aria-selected="false"><span class="pn-ph"><svg viewBox="0 0 52 36" width="42" height="29" aria-hidden="true"><circle cx="18" cy="18" r="16"/><circle cx="34" cy="18" r="16"/></svg></span><span class="pn-label">BreathCamp<br>graduation</span></button>
-      <button class="path-node" data-i="4" type="button" role="tab" aria-selected="false"><span class="pn-ph"><svg viewBox="0 0 36 36" width="30" height="30" aria-hidden="true"><rect x="2" y="2" width="32" height="32" rx="2"/><circle cx="18" cy="18" r="11"/></svg></span><span class="pn-label">Business<br>in a box</span></button>
-      <button class="path-node" data-i="5" type="button" role="tab" aria-selected="false"><span class="pn-ph"><svg viewBox="0 0 36 36" width="32" height="32" aria-hidden="true"><circle cx="18" cy="18" r="16"/><circle cx="18" cy="18" r="7"/></svg></span><span class="pn-label">Junior<br>trainer</span></button>
-      <button class="path-node" data-i="6" type="button" role="tab" aria-selected="false"><span class="pn-ph"><svg viewBox="0 0 44 41" width="36" height="34" aria-hidden="true"><circle cx="22" cy="14" r="12"/><circle cx="15" cy="27" r="12"/><circle cx="29" cy="27" r="12"/></svg></span><span class="pn-label">Your own<br>school</span></button>
+      <button class="path-node active" id="pn0" data-i="0" type="button" role="tab" aria-controls="pdBody0" aria-selected="true"><span class="pn-ph"><svg viewBox="0 0 48 26" width="40" height="22" aria-hidden="true"><path d="M4 2a20 20 0 0 0 40 0"/></svg></span><span class="pn-label">Regulation<br>method</span></button>
+      <button class="path-node" id="pn1" data-i="1" type="button" role="tab" aria-controls="pdBody1" aria-selected="false"><span class="pn-ph"><svg viewBox="0 0 36 36" width="32" height="32" aria-hidden="true"><circle cx="18" cy="18" r="16"/></svg></span><span class="pn-label">Inner<br>journey</span></button>
+      <button class="path-node" id="pn2" data-i="2" type="button" role="tab" aria-controls="pdBody2" aria-selected="false"><span class="pn-ph"><svg viewBox="0 0 64 32" width="46" height="23" aria-hidden="true"><circle cx="16" cy="16" r="14"/><circle cx="48" cy="16" r="14"/></svg></span><span class="pn-label">Facilitator<br>training</span></button>
+      <button class="path-node" id="pn3" data-i="3" type="button" role="tab" aria-controls="pdBody3" aria-selected="false"><span class="pn-ph"><svg viewBox="0 0 52 36" width="42" height="29" aria-hidden="true"><circle cx="18" cy="18" r="16"/><circle cx="34" cy="18" r="16"/></svg></span><span class="pn-label">BreathCamp<br>graduation</span></button>
+      <button class="path-node" id="pn4" data-i="4" type="button" role="tab" aria-controls="pdBody4" aria-selected="false"><span class="pn-ph"><svg viewBox="0 0 36 36" width="30" height="30" aria-hidden="true"><rect x="2" y="2" width="32" height="32" rx="2"/><circle cx="18" cy="18" r="11"/></svg></span><span class="pn-label">Business<br>in a box</span></button>
+      <button class="path-node" id="pn5" data-i="5" type="button" role="tab" aria-controls="pdBody5" aria-selected="false"><span class="pn-ph"><svg viewBox="0 0 36 36" width="32" height="32" aria-hidden="true"><circle cx="18" cy="18" r="16"/><circle cx="18" cy="18" r="7"/></svg></span><span class="pn-label">Junior<br>trainer</span></button>
+      <button class="path-node" id="pn6" data-i="6" type="button" role="tab" aria-controls="pdBody6" aria-selected="false"><span class="pn-ph"><svg viewBox="0 0 44 41" width="36" height="34" aria-hidden="true"><circle cx="22" cy="14" r="12"/><circle cx="15" cy="27" r="12"/><circle cx="29" cy="27" r="12"/></svg></span><span class="pn-label">Your own<br>school</span></button>
     </div>
     <div class="path-detail reveal d2" id="pathDetail">
-      <div class="pd-body" id="pdBody" role="tabpanel" aria-live="polite">
-        <div class="pd-eb">Student to facilitator</div>
-        <div class="pd-level">Level 1 of 7</div>
-        <h3>The Alchemy Regulation Method</h3>
-        <p>Our nervous system regulation methodology. You graduate with a daily practice and a framework to regulate your own nervous system, and qualify to practice as a nervous system regulation coach.</p>
-        <div class="pd-links"><a class="pd-btn" href="/alchemy-regulation-method/">Learn the method <span aria-hidden="true">&rarr;</span></a></div>
-      </div>
+      <div class="pd-body" id="pdBody0" role="tabpanel" aria-labelledby="pn0"><div class="pd-eb">Student to facilitator</div><div class="pd-level">Level 1 of 7</div><h3>The Alchemy Regulation Method</h3><p>Our nervous system regulation methodology. You graduate with a daily practice and a framework to regulate your own nervous system, and qualify to practice as a nervous system regulation coach.</p><div class="pd-links"><a class="pd-btn" href="/alchemy-regulation-method/">Learn the method <span aria-hidden="true">&rarr;</span></a></div></div>
+      <div class="pd-body" id="pdBody1" role="tabpanel" aria-labelledby="pn1" hidden><div class="pd-eb">Student to facilitator</div><div class="pd-level">Level 2 of 7</div><h3>The Inner Journey</h3><p>A deep, 15 week journey of inner work paired with group mentor sessions: the call, the inner child, shadow work, and beyond. Included in the Facilitator Training, or taken on its own.</p><div class="pd-links"><a class="pd-btn" href="/the-alchemist/">Begin the Inner Journey <span aria-hidden="true">&rarr;</span></a></div></div>
+      <div class="pd-body" id="pdBody2" role="tabpanel" aria-labelledby="pn2" hidden><div class="pd-eb">Student to facilitator</div><div class="pd-level">Level 3 of 7</div><h3>The Facilitator Training</h3><p>The triple accredited heart of the pathway. Learn to guide others with safety, ethics, and integrity — through the 8-month online training, or the 4-month live residential at ASHA.</p><div class="pd-links"><a class="pd-btn" href="/breathwork-training/">8-month online <span aria-hidden="true">&rarr;</span></a><a class="pd-btn ghost" href="/live-residential-breathwork-facilitator-training/">4-month residential <span aria-hidden="true">&rarr;</span></a></div></div>
+      <div class="pd-body" id="pdBody3" role="tabpanel" aria-labelledby="pn3" hidden><div class="pd-eb">Student to facilitator</div><div class="pd-level">Level 4 of 7</div><h3>BreathCamp Graduation</h3><p>You lead real sessions, receive your certification, and step out into the world as a facilitator — with graduation held live at ASHA in Tuscany.</p><div class="pd-links"><a class="pd-btn" href="/breathcamps/">Discover BreathCamps <span aria-hidden="true">&rarr;</span></a></div></div>
+      <div class="pd-body" id="pdBody4" role="tabpanel" aria-labelledby="pn4" hidden><div class="pd-eb">Facilitator to founder</div><div class="pd-level">Level 5 of 7</div><h3>Breathwork Business in a Box</h3><p>Your bridge to full time facilitation, with the marketing and infrastructure already built in, so you can focus on the work itself.</p></div>
+      <div class="pd-body" id="pdBody5" role="tabpanel" aria-labelledby="pn5" hidden><div class="pd-eb">Facilitator to founder</div><div class="pd-level">Level 6 of 7</div><h3>Shadow Facilitator to Junior Trainer</h3><p>Assist at live events and step into the junior trainer role, the bridge from one to one sessions to confidently holding a room full of breathers.</p></div>
+      <div class="pd-body" id="pdBody6" role="tabpanel" aria-labelledby="pn6" hidden><div class="pd-eb">Facilitator to founder</div><div class="pd-level">Level 7 of 7</div><h3>Your Own Licensed School</h3><p>Launch your own breathwork school under the Alchemy brand: full brand license, full curriculum access, and ongoing support from Anthony and Amy.</p></div>
       <div class="path-nav"><button aria-label="Previous level" id="pathPrev" type="button">&larr;</button><button aria-label="Next level" id="pathNext" type="button">&rarr;</button></div>
     </div>
     <div class="curr-foot reveal">
@@ -1014,6 +994,14 @@ main p em,main li em{color:var(--gold-text)}
       <details>
         <summary>I am completely new. Where do I start?<span class="pm">+</span></summary>
         <div class="faq-a"><p>Start by breathing with us. We host <a href="/free-breathwork-sessions/">free live online breathwork sessions</a> every Sunday, open to everyone. They are the gentlest way to experience the work first-hand before choosing a program.</p></div>
+      </details>
+      <details>
+        <summary>When are the free breathwork sessions?<span class="pm">+</span></summary>
+        <div class="faq-a"><p>Every Sunday, at 9:30 AM and 5:00 PM London time, live on Zoom. The sessions are called Breathe The World: free, open to everyone, and <a href="/free-breathwork-sessions/">you can reserve your spot here</a>.</p></div>
+      </details>
+      <details>
+        <summary>What is a BreathCamp?<span class="pm">+</span></summary>
+        <div class="faq-a"><p>A seven-day breathwork immersion at ASHA, our retreat and community centre in Tuscany, Italy. BreathCamps are open to everyone, whatever your experience. <a href="/breathcamps/">See the BreathCamp dates</a>.</p></div>
       </details>
       <details>
         <summary>Do I need experience to join a training?<span class="pm">+</span></summary>
@@ -1169,32 +1157,17 @@ main p em,main li em{color:var(--gold-text)}
     })();
   }
 
-  // Alchemy pathway: seven interactive levels
-  var LV=[
-    {lvl:'Level 1 of 7',phase:'Student to facilitator',title:'The Alchemy Regulation Method',text:'Our nervous system regulation methodology. You graduate with a daily practice and a framework to regulate your own nervous system, and qualify to practice as a nervous system regulation coach.',links:[{t:'Learn the method',h:'/alchemy-regulation-method/'}]},
-    {lvl:'Level 2 of 7',phase:'Student to facilitator',title:'The Inner Journey',text:'A deep, 15 week journey of inner work paired with group mentor sessions: the call, the inner child, shadow work, and beyond. Included in the Facilitator Training, or taken on its own.',links:[{t:'Begin the Inner Journey',h:'/the-alchemist/'}]},
-    {lvl:'Level 3 of 7',phase:'Student to facilitator',title:'The Facilitator Training',text:'The triple accredited heart of the pathway. Learn to guide others with safety, ethics, and integrity — through the 8-month online training, or the 4-month live residential at ASHA.',links:[{t:'8-month online',h:'/breathwork-training/'},{t:'4-month residential',h:'/live-residential-breathwork-facilitator-training/',g:1}]},
-    {lvl:'Level 4 of 7',phase:'Student to facilitator',title:'BreathCamp Graduation',text:'You lead real sessions, receive your certification, and step out into the world as a facilitator — with graduation held live at ASHA in Tuscany.',links:[{t:'Discover BreathCamps',h:'/breathcamps/'}]},
-    {lvl:'Level 5 of 7',phase:'Facilitator to founder',title:'Breathwork Business in a Box',text:'Your bridge to full time facilitation, with the marketing and infrastructure already built in, so you can focus on the work itself.'},
-    {lvl:'Level 6 of 7',phase:'Facilitator to founder',title:'Shadow Facilitator to Junior Trainer',text:'Assist at live events and step into the junior trainer role, the bridge from one to one sessions to confidently holding a room full of breathers.'},
-    {lvl:'Level 7 of 7',phase:'Facilitator to founder',title:'Your Own Licensed School',text:'Launch your own breathwork school under the Alchemy brand: full brand license, full curriculum access, and ongoing support from Anthony and Amy.'}
-  ];
+  // Alchemy pathway: seven levels, all rendered in the HTML (so search engines
+  // read every level); the tabs just show one panel at a time
   var pNodes=[].slice.call(document.querySelectorAll('#pathTrack .path-node'));
-  var pBody=document.getElementById('pdBody'), pCur=0;
+  var pBodies=[].slice.call(document.querySelectorAll('#pathDetail .pd-body')), pCur=0;
   function renderLevel(i){
-    pCur=(i+LV.length)%LV.length;
-    var d=LV[pCur];
+    pCur=(i+pNodes.length)%pNodes.length;
     pNodes.forEach(function(n,idx){
       n.classList.toggle('active',idx===pCur);
       n.setAttribute('aria-selected',idx===pCur?'true':'false');
     });
-    if(pBody){
-      var lk='';
-      if(d.links){
-        lk='<div class="pd-links">'+d.links.map(function(l){ return '<a class="pd-btn'+(l.g?' ghost':'')+'" href="'+l.h+'">'+l.t+' <span aria-hidden="true">&rarr;</span></a>'; }).join('')+'</div>';
-      }
-      pBody.innerHTML='<div class="pd-eb">'+d.phase+'</div><div class="pd-level">'+d.lvl+'</div><h3>'+d.title+'</h3><p>'+d.text+'</p>'+lk;
-    }
+    pBodies.forEach(function(b,idx){ b.hidden=(idx!==pCur); });
   }
   if(pNodes.length){
     pNodes.forEach(function(n){ n.addEventListener('click',function(){ renderLevel(parseInt(n.getAttribute('data-i'),10)); }); });
@@ -1230,6 +1203,23 @@ main p em,main li em{color:var(--gold-text)}
       keep.push({el:c, key:(st>today?'0'+st:'1'+en)});
     });
     keep.sort(function(a,b){ return a.key<b.key?-1:(a.key>b.key?1:0); }).forEach(function(k){ upList.appendChild(k.el); });
+    // Event structured data for the in-person dates still on the rail, so the
+    // markup expires together with the cards
+    var evs=keep.filter(function(k){ return k.el.getAttribute('data-event'); }).map(function(k){
+      var c=k.el, a=c.querySelector('.up-go'), im=c.querySelector('.up-img');
+      return {"@type":"Event","name":c.querySelector('h4').textContent,
+        "description":c.querySelector('.up-desc').textContent,
+        "startDate":c.getAttribute('data-start'),"endDate":c.getAttribute('data-end'),
+        "eventStatus":"https://schema.org/EventScheduled","eventAttendanceMode":"https://schema.org/OfflineEventAttendanceMode",
+        "location":{"@type":"Place","name":"ASHA Retreat and Community Centre","address":{"@type":"PostalAddress","addressRegion":"Tuscany","addressCountry":"IT"}},
+        "image":im?im.src:undefined,"url":new URL(a.getAttribute('href'),'https://alchemyofbreath.com/').href,
+        "organizer":{"@type":"Organization","name":"Alchemy of Breath","url":"https://alchemyofbreath.com/"}};
+    });
+    if(evs.length){
+      var ld=document.createElement('script'); ld.type='application/ld+json';
+      ld.textContent=JSON.stringify({"@context":"https://schema.org","@graph":evs});
+      document.head.appendChild(ld);
+    }
     if(!keep.length){
       up.classList.add('empty'); upRail.hidden=true;
       var upEmpty=up.querySelector('.up-empty'); if(upEmpty) upEmpty.hidden=false;
