@@ -144,6 +144,9 @@ section>.wrap{position:relative;z-index:1}
 .hero h1{text-wrap:balance;max-width:12.5em}
 .hero-sub{font-size:1.16rem;line-height:1.7;max-width:36em;margin:26px auto 8px}
 .hero-sub+.hero-sub{margin-top:0;font-size:1.02rem;color:var(--slate)}
+/* hero lead: the first sentence carries the headline weight now the h1 is visually hidden */
+.hero .hero-sub:first-of-type{font-family:var(--serif);font-size:clamp(1.9rem,3.4vw,2.75rem);line-height:1.22;color:var(--ink);max-width:22em;margin:0 auto 26px;text-wrap:balance;letter-spacing:-.005em}
+.hero .hero-sub+.hero-sub{font-size:clamp(1.2rem,1.5vw,1.36rem);line-height:1.72;color:#3F4E58;max-width:40em}
 .hero-byline{font-family:var(--sans);font-size:.76rem;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--slate);margin-top:18px}
 .hero-actions{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:18px;margin-top:34px}
 .hero-proof{display:flex;align-items:center;justify-content:center;gap:18px;margin-top:44px;flex-wrap:wrap}
@@ -157,7 +160,7 @@ section>.wrap{position:relative;z-index:1}
 @keyframes float{0%,100%{translate:0 0}50%{translate:0 -9px}}
 @media(max-width:1360px){.hero .chip{display:none}}
 @media(max-width:960px){.ring.r5{display:none}}
-@media(max-width:560px){.hero{padding-top:118px;padding-bottom:84px}.breath-line{margin-bottom:12px}.hero-sub{margin-top:20px}.hero-sub+.hero-sub{font-size:.96rem;line-height:1.66}.hero-actions{margin-top:26px}.ring.r4{display:none}.btn{padding:16px 26px;font-size:.88rem;width:100%;justify-content:center}.hero-actions{flex-direction:column;align-items:stretch;width:100%}}
+@media(max-width:560px){.hero{padding-top:118px;padding-bottom:84px}.breath-line{margin-bottom:12px}.hero-sub{margin-top:20px}.hero .hero-sub:first-of-type{font-size:1.72rem;margin-bottom:20px}.hero .hero-sub+.hero-sub{font-size:1.14rem;line-height:1.68}.hero-actions{margin-top:26px}.ring.r4{display:none}.btn{padding:16px 26px;font-size:.88rem;width:100%;justify-content:center}.hero-actions{flex-direction:column;align-items:stretch;width:100%}}
 
 /* logo strip */
 .logos{padding:72px 0;border-top:1px solid rgba(225,182,104,.3);border-bottom:1px solid rgba(225,182,104,.3);background:var(--paper-2);position:relative;overflow:hidden}
