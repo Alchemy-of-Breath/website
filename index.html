@@ -483,7 +483,7 @@ html.menu-open .pill{opacity:0 !important;pointer-events:none !important}
   .nav-cta{padding:10px 14px;font-size:.68rem;letter-spacing:.06em;min-width:0;max-width:46vw;overflow:hidden;text-overflow:ellipsis}
   .mnav{padding:88px 22px 36px}
 }
-.reviews-sec{background:var(--paper-2);border-top:1px solid rgba(225,182,104,.25)}
+.reviews-sec{background:var(--paper)}
 .reviews-frame{max-width:1080px;margin:44px auto 0}
 .reviews-frame iframe{display:block;border:0;min-height:420px}
 /* footer */
@@ -726,7 +726,7 @@ main p em,main li em{color:var(--gold-text)}
         <p class="hero-sub reveal d2">By working with us, you&rsquo;ll discover a natural remedy for stress and anxiety, along with greater self-awareness, love, and compassion, all from the comfort of your own home. The practices taught by Alchemy of Breath were developed by amalgamating the most effective breathwork patterns from different styles around the world. They can be incorporated instantly into your daily life, improving relationships, generating greater mental clarity, purpose, and direction in life.</p>
         <div class="hero-actions reveal d3">
           <a class="btn btn-primary" href="/free-breathwork-sessions/">Breathe with us — free <span class="arr">&rarr;</span></a>
-          <a class="btn btn-ghost" href="#programs">Explore the programs</a>
+          <a class="btn btn-ghost" href="#pathway">Explore the programs</a>
         </div>
         <p class="cta-note reveal d3" id="nextSess">Free live sessions every Sunday. No experience needed — just you, and your breath.</p>
       </div>
@@ -909,7 +909,7 @@ main p em,main li em{color:var(--gold-text)}
 </section>
 
 <!-- THE ALCHEMY PATHWAY -->
-<section class="pathway cv">
+<section class="pathway cv" id="pathway" style="scroll-margin-top:70px">
   <div class="wrap">
     <div style="text-align:center;max-width:38em;margin:0 auto 50px;position:relative;z-index:1">
       <span class="eyebrow reveal" style="justify-content:center">From first breath to founder</span>
@@ -943,32 +943,20 @@ main p em,main li em{color:var(--gold-text)}
   </div>
 </section>
 
-<!-- TESTIMONIALS -->
-<section class="cv">
-  <div class="orb g" style="width:420px;height:420px;top:60px;right:-180px" aria-hidden="true"></div>
+<!-- REVIEWS: the GHL review widget that WPCode snippet 15627 ([wpcode id="15627"])
+     renders on the WordPress site. Shortcodes don't run on a static page, so
+     this is the snippet's own output. The script sizes the iframe to its content. -->
+<section class="reviews-sec">
   <div class="wrap">
     <div style="text-align:center;max-width:38em;margin:0 auto">
-      <span class="eyebrow reveal" style="justify-content:center">In their words</span>
-      <h2 class="reveal d1">What people say after they <em>find their breath</em>.</h2>
+      <span class="eyebrow reveal" style="justify-content:center">Reviews</span>
+      <h2 class="reveal d1">In the words of <em>our community</em>.</h2>
     </div>
-    <div class="testi-grid reveal d1">
-      <div class="t-card">
-        <span class="q">&ldquo;</span>
-        <p>It creates the space for deep insight, connection, and transformation in a safe and loving container. I deeply recommend Alchemy of Breath as an incredible experience to harness the power of true presence.</p>
-        <div class="t-who"><img src="https://alchemyofbreath.com/wp-content/uploads/tanya.jpg" alt="Tanya Lopez" width="724" height="240" loading="lazy" decoding="async"><div><strong>Tanya Lopez</strong><span>Graduate</span></div></div>
-      </div>
-      <div class="t-card">
-        <span class="q">&ldquo;</span>
-        <p>An hour later, I knew this had just turned my life around. I feel like my heart has opened up again for the first time in decades, and the training group has become a new little community for all of us.</p>
-        <div class="t-who"><img src="https://alchemyofbreath.com/wp-content/uploads/Nick.jpg" alt="Nick" width="300" height="300" loading="lazy" decoding="async"><div><strong>Nick</strong><span>Graduate</span></div></div>
-      </div>
-      <div class="t-card">
-        <span class="q">&ldquo;</span>
-        <p>Breathwork continues to open doors, and the training allows me to fully investigate and be supported in my experiences. I feel like I am growing and opening toward life's untapped potential.</p>
-        <div class="t-who"><img src="https://alchemyofbreath.com/wp-content/uploads/hannah-2.jpg" alt="Hannah Goodman" width="724" height="240" loading="lazy" decoding="async"><div><strong>Hannah Goodman</strong><span>Graduate</span></div></div>
-      </div>
+    <div class="reviews-frame reveal d1">
+      <iframe class="lc_reviews_widget" src="https://link.alchemyofbreath.com/reputation/widgets/review_widget/5lz2Wm44CNDwLSZWgAPf" title="Alchemy of Breath reviews" frameborder="0" scrolling="no" style="min-width:100%;width:100%"></iframe>
     </div>
   </div>
+  <script src="https://link.alchemyofbreath.com/reputation/assets/review-widget.js" defer></script>
 </section>
 
 <!-- ACCREDITATION -->
@@ -1039,22 +1027,6 @@ main p em,main li em{color:var(--gold-text)}
   </div>
 </section>
 
-<!-- REVIEWS: the GHL review widget that WPCode snippet 15627 ([wpcode id="15627"])
-     renders on the WordPress site. Shortcodes don't run on a static page, so
-     this is the snippet's own output. The script sizes the iframe to its content. -->
-<section class="reviews-sec">
-  <div class="wrap">
-    <div style="text-align:center;max-width:38em;margin:0 auto">
-      <span class="eyebrow reveal" style="justify-content:center">Reviews</span>
-      <h2 class="reveal d1">In the words of <em>our community</em>.</h2>
-    </div>
-    <div class="reviews-frame reveal d1">
-      <iframe class="lc_reviews_widget" src="https://link.alchemyofbreath.com/reputation/widgets/review_widget/5lz2Wm44CNDwLSZWgAPf" title="Alchemy of Breath reviews" frameborder="0" scrolling="no" style="min-width:100%;width:100%"></iframe>
-    </div>
-  </div>
-  <script src="https://link.alchemyofbreath.com/reputation/assets/review-widget.js" defer></script>
-</section>
-
 <!-- FINAL CTA -->
 <section class="final cv">
   <div class="wrap">
@@ -1063,7 +1035,7 @@ main p em,main li em{color:var(--gold-text)}
     <p class="lead reveal d2">Join a free live breathwork session this Sunday. No experience, no belief, no obligation — just an hour with your breath, guided by people who have given their lives to it.</p>
     <div class="actions reveal d2">
       <a class="btn btn-primary" href="/free-breathwork-sessions/">Breathe with us — free <span class="arr">&rarr;</span></a>
-      <a class="btn btn-ghost" href="#programs">Explore the programs</a>
+      <a class="btn btn-ghost" href="#pathway">Explore the programs</a>
     </div>
     <img class="avatars reveal d3" src="https://alchemyofbreath.com/wp-content/uploads/people-updated.png" alt="Alchemy of Breath community" width="686" height="78" loading="lazy" decoding="async">
   </div>
