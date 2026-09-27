@@ -483,6 +483,9 @@ html.menu-open .pill{opacity:0 !important;pointer-events:none !important}
   .nav-cta{padding:10px 14px;font-size:.68rem;letter-spacing:.06em;min-width:0;max-width:46vw;overflow:hidden;text-overflow:ellipsis}
   .mnav{padding:88px 22px 36px}
 }
+.reviews-sec{background:var(--paper-2);border-top:1px solid rgba(225,182,104,.25)}
+.reviews-frame{max-width:1080px;margin:44px auto 0}
+.reviews-frame iframe{display:block;border:0;min-height:420px}
 /* footer */
 .foot{background:var(--foot);color:#B9AE99;padding:88px 0 0;position:relative;overflow:hidden}
 .foot::before{content:"";position:absolute;top:-180px;left:50%;transform:translateX(-50%);width:900px;height:420px;background:radial-gradient(ellipse,rgba(225,182,104,.13) 0%,rgba(225,182,104,0) 70%);pointer-events:none}
@@ -1034,6 +1037,22 @@ main p em,main li em{color:var(--gold-text)}
       </details>
     </div>
   </div>
+</section>
+
+<!-- REVIEWS: the GHL review widget that WPCode snippet 15627 ([wpcode id="15627"])
+     renders on the WordPress site. Shortcodes don't run on a static page, so
+     this is the snippet's own output. The script sizes the iframe to its content. -->
+<section class="reviews-sec">
+  <div class="wrap">
+    <div style="text-align:center;max-width:38em;margin:0 auto">
+      <span class="eyebrow reveal" style="justify-content:center">Reviews</span>
+      <h2 class="reveal d1">In the words of <em>our community</em>.</h2>
+    </div>
+    <div class="reviews-frame reveal d1">
+      <iframe class="lc_reviews_widget" src="https://link.alchemyofbreath.com/reputation/widgets/review_widget/5lz2Wm44CNDwLSZWgAPf" title="Alchemy of Breath reviews" frameborder="0" scrolling="no" style="min-width:100%;width:100%"></iframe>
+    </div>
+  </div>
+  <script src="https://link.alchemyofbreath.com/reputation/assets/review-widget.js" defer></script>
 </section>
 
 <!-- FINAL CTA -->
