@@ -40,7 +40,7 @@ function aob_pages_proxy_serve() {
 		'toe-in-the-water'     => '/toe-in-the-water/',
 		'breathcamps'          => '/breathcamps/',
 		'breathcamps/guide'    => '/breathcamps/guide/',
-		'calendar'             => '/calendar/',
+		'calendar-2026'        => '/calendar-2026/',
 		'alchemy-regulation-method' => '/arm/',
 		'masterclass'          => '/masterclass/',
 		'legacy-scholarship'   => '/legacy-scholarship/',
@@ -54,6 +54,7 @@ function aob_pages_proxy_serve() {
 	$redirects = array(
 		'facilitator-training' => '/breathwork-training/',
 		'arm'                  => '/alchemy-regulation-method/',
+		'calendar'             => '/calendar-2026/',
 	);
 
 	$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : '/';
