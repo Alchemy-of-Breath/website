@@ -742,7 +742,22 @@ main p em,main li em{color:var(--gold-text)}
   <div class="aob3-root">
     <div class="aob3-stage">
 
-      <!-- 01 · FACILITATOR TRAINING (Vimeo) -->
+      <!-- 01 · FREE BREATHWORK — BREATHE THE WORLD (local video) -->
+      <a class="aob3-panel aob3-free" href="/free-breathwork-sessions/" target="_blank" rel="noopener" aria-label="Free breathwork every Sunday — Breathe The World">
+        <div class="aob3-media"><div class="aob3-media-inner">
+          <!-- served via jsDelivr: Cloudflare Pages ignores HTTP range requests, which Safari requires for video playback -->
+          <video src="https://cdn.jsdelivr.net/gh/Alchemy-of-Breath/website@main/assets/breathe-the-world.mp4" poster="/assets/breathe-the-world-poster.jpg" autoplay muted loop playsinline preload="metadata" aria-hidden="true"></video>
+        </div></div>
+        <div class="aob3-ov"></div><div class="aob3-grain"></div>
+        <div class="aob3-full">
+          <h3 class="aob3-title">Breathe <em>The World</em></h3>
+          <div class="aob3-rule"></div>
+          <p class="aob3-sub">Free breathwork every Sunday &middot; live online, open to everyone</p>
+          <div class="aob3-ctawrap"><span class="aob3-cta"><span>Breathe with us — free</span><span class="ar">&rarr;</span></span></div>
+        </div>
+      </a>
+
+      <!-- 02 · FACILITATOR TRAINING (Vimeo) -->
       <div class="aob3-panel aob3-train" aria-label="Facilitator Training">
         <div class="aob3-media"><div class="aob3-media-inner">
           <div class="aob3-ext">
@@ -764,8 +779,8 @@ main p em,main li em{color:var(--gold-text)}
       </div>
 
 
-      <!-- 02 · BREATHCAMPS: the ASHA loop from /breathcamps/ (Wix CDN, honours byte ranges for Safari) -->
-      <a class="aob3-panel aob3-free aob3-camp" href="/breathcamps/" aria-label="BreathCamps at ASHA in Tuscany">
+      <!-- 03 · BREATHCAMPS: the ASHA loop from /breathcamps/ (Wix CDN, honours byte ranges for Safari) -->
+      <a class="aob3-panel aob3-camp" href="/breathcamps/" aria-label="BreathCamps at ASHA in Tuscany">
         <div class="aob3-media"><div class="aob3-media-inner">
           <video src="https://video.wixstatic.com/video/f3bf23_85f6896706c6449fb4ecb06404b97006/720p/mp4/file.mp4" poster="https://alchemyofbreath.com/wp-content/uploads/Rectangle-106-900x600.jpg" autoplay muted loop playsinline preload="metadata" aria-hidden="true"></video>
         </div></div>
@@ -1125,11 +1140,11 @@ main p em,main li em{color:var(--gold-text)}
   }
   window.addEventListener('scroll',onScroll,{passive:true}); onScroll();
 
-  // BreathCamps loop: the browser pauses videos inside skipped
+  // Panel video loops: the browser pauses videos inside skipped
   // content-visibility sections (and hidden tabs) without ever resuming
   // them — replay whenever the panel is back on a visible screen
-  var btw=document.querySelector('.aob3-free video');
-  if(btw && !window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+  [].slice.call(document.querySelectorAll('.aob3-panel video')).forEach(function(btw){
+    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     var btwOn=false;
     var btwPlay=function(){ if(btwOn && !document.hidden && btw.paused){ var pr=btw.play(); if(pr&&pr.catch) pr.catch(function(){}); } };
     var vio=new IntersectionObserver(function(es){
@@ -1138,7 +1153,7 @@ main p em,main li em{color:var(--gold-text)}
     vio.observe(btw);
     btw.addEventListener('pause',function(){ setTimeout(btwPlay,150); });
     document.addEventListener('visibilitychange',btwPlay);
-  }
+  });
 
   document.querySelectorAll('img').forEach(function(img){
     img.addEventListener('error',function(){ img.style.display='none'; });
