@@ -74,7 +74,20 @@ function aob_pages_proxy_serve() {
 		exit;
 	}
 
-	if ( isset( $routes[ $key ] ) ) {
+	if ( '' === $key ) {
+		// The homepage. WordPress also answers on the root with query strings
+		// (/?s= search, ?p= / ?page_id= previews, ?feed=), so only the bare
+		// address is proxied; tracking parameters are fine. Anything else on
+		// the root stays with WordPress.
+		parse_str( (string) wp_parse_url( $request_uri, PHP_URL_QUERY ), $query_vars );
+		foreach ( array_keys( $query_vars ) as $var ) {
+			if ( ! preg_match( '/^(utm_[a-z_]+|fbclid|gclid|gbraid|wbraid|msclkid|mc_cid|mc_eid|_gl|ref|cb)$/i', $var ) ) {
+				return;
+			}
+		}
+		$upstream = $origin . '/';
+		$is_html  = true;
+	} elseif ( isset( $routes[ $key ] ) ) {
 		// One of our pages.
 		$upstream = $origin . $routes[ $key ];
 		$is_html  = true;
