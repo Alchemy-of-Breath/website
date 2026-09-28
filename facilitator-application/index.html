@@ -140,11 +140,14 @@ button{font:inherit;color:inherit}
 .nav button:hover{background:var(--gold)}
 .nav button[disabled]{cursor:default;background:var(--gold-soft);color:rgba(34,31,32,.35)}
 
+/* on alchemyofbreath.com the site's chat bubble sits bottom-right, so the arrows move left */
+.embedded .nav{right:auto;left:24px}
 @media(max-width:560px){
   body{font-size:17px}
   .bar{padding-inline:16px}
   .screen{padding-inline:16px}
   .nav{right:16px}
+  .embedded .nav{right:auto;left:16px}
   .choice{padding:11px 12px 11px 10px}
   .pill-more{display:none}
 }
@@ -684,6 +687,7 @@ button{font:inherit;color:inherit}
 
   /* ================= BOOT ================= */
   document.body.classList.add('no-anim');
+  if (params.has('embed_page')) document.body.classList.add('embedded');
   if (isDemo()) document.getElementById('demoPill').hidden = false;
   renderWelcome();
   QUESTIONS.forEach(renderQuestion);
