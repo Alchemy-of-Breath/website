@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Facilitator Training Application | Alchemy of Breath</title>
+<meta name="description" content="Apply for the Alchemy of Breath Certified Breathwork Facilitator Training, then choose a time for your discovery call.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#FBF7EF">
+<link rel="icon" type="image/png" href="https://alchemyofbreath.com/wp-content/uploads/AOB-Gold-Black-Transparant-symbol.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FFFFFF;
+  --ground:#FBF7EF;
+  --ink:#221F20;
+  --ink-soft:#4A4546;
+  --gold:#E1B668;
+  --gold-deep:#D6A652;
+  --gold-soft:#EFDCB6;
+  --gold-wash:#F7EBD2;
+  --gold-text:#8A5F1C;
+  --slate:#4A6070;
+  --error:#A8391F;
+  --error-wash:#FBE9E4;
+  --grad-gold:linear-gradient(135deg,#E1B668 0%,#D6A652 100%);
+  --serif:'Marcellus', Georgia, 'Times New Roman', serif;
+  --sans:'Roboto', -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+  --ease:cubic-bezier(.22,.61,.36,1);
+  --bar-h:64px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{font-family:var(--sans);font-weight:300;font-size:18px;line-height:1.55;color:var(--ink);background:var(--ground);-webkit-font-smoothing:antialiased;overflow:hidden}
+::selection{background:var(--gold-wash);color:var(--ink)}
+a{color:inherit}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--gold-deep);outline-offset:3px}
+
+/* ambient glow, breathing at 5.5 breaths a minute (one cycle every 11 s) */
+.orb{position:fixed;z-index:0;pointer-events:none;width:min(80vmax,920px);aspect-ratio:1;max-width:none;border-radius:50%;
+  right:calc(min(80vmax,920px) * -.34);top:50%;translate:0 -50%;
+  background:radial-gradient(circle,rgba(225,182,104,.36) 0%,rgba(225,182,104,.15) 36%,rgba(225,182,104,0) 68%);
+  animation:breathe 11s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:scale(.82)}50%{transform:scale(1.05)}}
+@media(max-width:700px){.orb{top:8%;right:calc(min(80vmax,920px) * -.45)}}
+
+/* top bar + progress */
+.progress{position:fixed;top:0;left:0;right:0;height:3px;background:var(--gold-soft);z-index:5}
+.progress i{display:block;height:100%;width:0;background:var(--gold-deep);transition:width .5s var(--ease)}
+.bar{position:fixed;top:0;left:0;right:0;z-index:4;display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:calc(env(safe-area-inset-top,0px) + 14px) 24px 0;height:calc(var(--bar-h) + env(safe-area-inset-top,0px));
+  background:linear-gradient(var(--ground) 62%,rgba(251,247,239,0))}
+.mark{white-space:nowrap;font-family:var(--serif);font-size:1.05rem;letter-spacing:.05em;text-decoration:none;color:var(--ink);display:inline-flex;align-items:center;gap:10px}
+.mark svg{flex:none}
+.pill{white-space:nowrap;font-size:.72rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-text);border:1px solid var(--gold);border-radius:999px;padding:5px 11px;background:var(--paper)}
+
+/* screens */
+.stage{position:fixed;inset:0;z-index:1}
+.screen{position:absolute;inset:0;overflow-y:auto;overscroll-behavior:contain;display:flex;
+  padding:calc(var(--bar-h) + env(safe-area-inset-top,0px) + 24px) 24px calc(104px + env(safe-area-inset-bottom,0px));
+  opacity:0;visibility:hidden;transform:translateY(44px);
+  transition:opacity .35s var(--ease),transform .5s var(--ease),visibility 0s linear .5s}
+.screen.is-past{transform:translateY(-44px)}
+.screen.is-active{opacity:1;visibility:visible;transform:none;
+  transition:opacity .45s var(--ease) .1s,transform .6s var(--ease) .1s,visibility 0s}
+.screen.no-trans,.no-anim .screen{transition:none!important}
+.q{margin:auto;width:100%;max-width:680px;position:relative}
+
+.q-head{position:relative;font-size:clamp(1.4rem,1.05rem + 1.35vw,2rem)}
+.q-title{font-family:var(--serif);font-weight:400;font-size:1em;line-height:1.28;text-wrap:balance;outline:none}
+.q-num{display:flex;align-items:center;gap:5px;margin-bottom:12px;font:500 .9rem/1 var(--sans);color:var(--gold-text);letter-spacing:.02em}
+@media(min-width:900px){
+  .q-num{position:absolute;right:100%;top:0;height:1.28em;margin:0 18px 0 0;font-size:inherit}
+  .q-num span{font-size:.46em}
+  .q-num svg{width:.4em;height:.4em}
+}
+.q-help{margin-top:12px;color:var(--slate);font-size:1.02rem;max-width:60ch}
+.q-help a{color:var(--gold-text)}
+
+.choices{display:flex;flex-direction:column;gap:10px;margin-top:30px;max-width:580px}
+.choice{display:flex;align-items:center;gap:14px;width:100%;text-align:left;cursor:pointer;
+  padding:12px 16px 12px 12px;border:1px solid var(--gold-soft);border-radius:10px;background:rgba(255,255,255,.78);
+  font-size:1.02rem;line-height:1.4;transition:background-color .15s,border-color .15s,box-shadow .15s}
+.choice:hover{background:var(--gold-wash);border-color:var(--gold)}
+.choice .key{flex:none;width:26px;height:26px;display:grid;place-items:center;border:1px solid var(--gold);border-radius:6px;background:var(--paper);
+  font-size:.76rem;font-weight:500;color:var(--gold-text);transition:background-color .15s,color .15s}
+.choice .tick{flex:none;margin-left:auto;color:var(--gold-text);opacity:0;transition:opacity .15s}
+.choice[aria-checked="true"]{background:var(--gold-wash);border-color:var(--gold-deep);box-shadow:inset 0 0 0 1px var(--gold-deep)}
+.choice[aria-checked="true"] .key{background:var(--gold-deep);border-color:var(--gold-deep);color:var(--ink)}
+.choice[aria-checked="true"] .tick{opacity:1}
+.choice.blink{animation:blink .14s steps(1) 3}
+@keyframes blink{50%{background:var(--paper)}}
+
+.field{margin-top:34px}
+.field input,.field textarea{display:block;width:100%;border:0;border-bottom:1px solid var(--gold);border-radius:0;background:transparent;outline:none;
+  font-family:var(--sans);font-weight:300;font-size:clamp(1.2rem,1rem + .9vw,1.55rem);line-height:1.4;color:var(--ink);padding:6px 0 10px;
+  transition:border-color .2s,box-shadow .2s}
+.field textarea{resize:none;overflow:hidden;min-height:2.6em}
+.field input:focus,.field textarea:focus{border-bottom-color:var(--gold-deep);box-shadow:0 1px 0 var(--gold-deep)}
+.field ::placeholder{color:#A99D88;opacity:1}
+
+.err{margin-top:16px;display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:6px;background:var(--error-wash);color:var(--error);font-size:.92rem;font-weight:400}
+.status{margin-top:16px;color:var(--slate);font-size:.95rem}
+.actions{display:flex;align-items:center;flex-wrap:wrap;gap:12px 16px;margin-top:28px}
+.btn{display:inline-flex;align-items:center;gap:9px;border:0;border-radius:999px;cursor:pointer;text-decoration:none;
+  background:var(--grad-gold);color:var(--ink);padding:13px 26px;font:500 1rem/1 var(--sans);letter-spacing:.02em;
+  box-shadow:0 6px 18px rgba(214,166,82,.28);transition:transform .15s,box-shadow .15s,filter .15s}
+.btn:hover{transform:translateY(-1px);box-shadow:0 10px 24px rgba(214,166,82,.34);filter:brightness(1.03)}
+.btn[disabled]{cursor:progress;filter:saturate(.6);transform:none}
+.btn-quiet{background:transparent;box-shadow:none;border:1px solid var(--gold);color:var(--gold-text)}
+.btn-quiet:hover{background:var(--gold-wash);box-shadow:none}
+.hint{font-size:.82rem;color:var(--slate)}
+.hint b{font-weight:500}
+.shake{animation:shake .38s}
+@keyframes shake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+
+/* welcome + end */
+.eyebrow{display:inline-flex;align-items:center;gap:14px;margin-bottom:22px;font-size:.74rem;font-weight:500;letter-spacing:.24em;text-transform:uppercase;color:var(--slate)}
+.eyebrow::before{content:"";width:34px;height:1px;background:var(--gold)}
+.display{font-family:var(--serif);font-weight:400;font-size:clamp(2.1rem,1.35rem + 2.8vw,3.3rem);line-height:1.1;letter-spacing:-.01em;text-wrap:balance;outline:none}
+.display em{font-style:normal;color:var(--gold-text)}
+.lede{margin-top:20px;font-size:1.12rem;color:var(--ink-soft);max-width:54ch}
+.meta{margin-top:30px;display:flex;flex-wrap:wrap;gap:8px 22px;font-size:.88rem;color:var(--slate)}
+.meta span{display:inline-flex;align-items:center;gap:7px}
+.note{margin-top:14px;font-size:.95rem;color:var(--slate)}
+
+.demo{margin-top:36px;border:1px dashed var(--gold);border-radius:12px;background:rgba(255,255,255,.72);max-width:680px}
+.demo summary{cursor:pointer;padding:12px 16px;font-size:.9rem;font-weight:500;color:var(--gold-text)}
+.demo p{padding:0 16px 12px;font-size:.88rem;color:var(--slate)}
+.demo pre{margin:0 16px 14px;padding:14px;max-height:320px;overflow:auto;border-radius:8px;background:#221F20;color:#F3E6CB;font:12.5px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-space:pre-wrap;word-break:break-word}
+
+/* up / down */
+.nav{position:fixed;z-index:4;right:24px;bottom:calc(24px + env(safe-area-inset-bottom,0px));display:flex;border-radius:10px;overflow:hidden;box-shadow:0 6px 18px rgba(34,31,32,.12)}
+.nav button{width:44px;height:40px;border:0;background:var(--gold-deep);color:var(--ink);display:grid;place-items:center;cursor:pointer}
+.nav button+button{border-left:1px solid rgba(34,31,32,.18)}
+.nav button:hover{background:var(--gold)}
+.nav button[disabled]{cursor:default;background:var(--gold-soft);color:rgba(34,31,32,.35)}
+
+@media(max-width:560px){
+  body{font-size:17px}
+  .bar{padding-inline:16px}
+  .screen{padding-inline:16px}
+  .nav{right:16px}
+  .choice{padding:11px 12px 11px 10px}
+  .pill-more{display:none}
+}
+@media(prefers-reduced-motion:reduce){
+  .orb{animation:none;transform:scale(.95)}
+  .screen,.screen.is-past,.screen.is-active{transform:none!important;transition:opacity .2s,visibility 0s linear .2s}
+  .screen.is-active{transition:opacity .2s}
+  .choice.blink,.shake{animation:none}
+}
+</style>
+</head>
+<body class="no-anim">
+
+<div class="orb" aria-hidden="true"></div>
+<div class="progress" role="progressbar" aria-label="Application progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="progress"></i></div>
+<header class="bar">
+  <a class="mark" href="https://alchemyofbreath.com/" target="_top">
+    <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10.5" fill="none" stroke="#D6A652" stroke-width="1.2"/><circle cx="12" cy="12" r="5" fill="none" stroke="#D6A652" stroke-width="1.2"/><circle cx="12" cy="12" r="1.6" fill="#D6A652"/></svg>
+    Alchemy of Breath
+  </a>
+  <span class="pill" id="demoPill" hidden>Demo<span class="pill-more"> · nothing is sent</span></span>
+</header>
+
+<main class="stage" id="stage"></main>
+
+<nav class="nav" aria-label="Question navigation">
+  <button type="button" id="navUp" aria-label="Previous question"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 10l4-4 4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+  <button type="button" id="navDown" aria-label="Next question"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+</nav>
+
+<noscript><p style="position:relative;z-index:9;padding:120px 24px;max-width:640px;margin:0 auto">This application needs JavaScript. You can also reach us at info@alchemyofbreath.com.</p></noscript>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ================= SETTINGS ================= */
+  var CONFIG = {
+    // GHL: Automation → Workflows → new workflow → trigger "Inbound Webhook" → copy its URL here.
+    // Leave empty for demo mode: nothing is sent and the last screen shows the payload instead.
+    webhookUrl: 'https://services.leadconnectorhq.com/hooks/5lz2Wm44CNDwLSZWgAPf/webhook-trigger/9ee817cd-6f28-49af-8b32-57e6f4cfd150',
+    // Step 2, the discovery-call booking page. Name, email and phone ride along as query params
+    // so the calendar form arrives prefilled and the booking lands on the same GHL contact.
+    calendarUrl: 'https://go.alchemyofbreath.com/book-842709',
+    prefillCalendar: true,
+    freeSessionsUrl: 'https://alchemyofbreath.com/free-breathwork-sessions/',
+    privacyUrl: 'https://alchemyofbreath.com/privacy-policy/',
+    source: 'facilitator-application'
+  };
+
+  var NOT_READY = 'I am not in a position to invest anything right now';
+
+  var QUESTIONS = [
+    { id: 'facilitator_intent', type: 'choice',
+      title: 'Are you looking to become a certified breathwork facilitator so you can hold sessions for other people?',
+      options: ['Yes', 'No'] },
+    { id: 'what_pulled_you', type: 'choice',
+      title: 'What pulled you toward breathwork facilitation?',
+      options: ['Healing something in myself that I now want to help others with',
+                'I already work with people and want a deeper tool',
+                'I feel called to this as my work in the world',
+                'I’m here for my own healing and personal development',
+                'I am curious and exploring'] },
+    { id: 'twelve_months', type: 'choice',
+      title: 'Where do you want to be twelve months from now?',
+      options: ['Running my own breathwork sessions',
+                'Adding breathwork to work I already do',
+                'Certified and building slowly',
+                'Running my own retreats',
+                'Not sure yet'] },
+    { id: 'current_work', type: 'short',
+      title: 'What do you do for work right now?' },
+    { id: 'tried_so_far', type: 'long',
+      title: 'What have you already tried to go deeper with breath, and what stopped it from going further?' },
+    { id: 'why_now', type: 'long',
+      title: 'Why is becoming certified a priority for you now rather than next year?',
+      help: 'Please be specific, this is what we use to tailor your call.' },
+    { id: 'time_commitment', type: 'long',
+      title: 'Our training runs 8 months with live sessions, practice groups and supervision. What would you need to move in your life to give it that time?' },
+    { id: 'investment_readiness', type: 'choice',
+      title: 'Training at this level is a serious investment in yourself. Where are you with that?',
+      options: ['I am ready and able to invest in this now',
+                'I am resourceful and would find a way if it is the right fit',
+                NOT_READY] },
+    { id: 'first_name', type: 'short', contact: true, autocomplete: 'given-name',
+      title: 'First name',
+      helpHtml: 'A few details so we can confirm your call. <a href="' + CONFIG.privacyUrl + '" target="_blank" rel="noopener">Privacy policy</a>' },
+    { id: 'last_name', type: 'short', contact: true, autocomplete: 'family-name',
+      title: 'Last name' },
+    { id: 'email', type: 'email', contact: true, autocomplete: 'email', placeholder: 'name@example.com',
+      title: 'Email' },
+    { id: 'phone', type: 'tel', contact: true, autocomplete: 'tel', placeholder: '+44 7700 900123',
+      title: 'Phone, with country code' },
+    { id: 'call_commitment', type: 'choice',
+      title: 'On the next page you will choose a time to speak with one of our team. Will you be able to make the time you choose?',
+      help: 'We hold these slots for you and we do not reschedule no-shows.',
+      options: ['Yes', 'No'] }
+  ];
+
+  /* ================= BRANCHING ================= */
+  // Q1 "No"  → skip to name + email, then a free-sessions ending (no phone, no calendar).
+  // Q8 "not in a position to invest" → collect contact details, skip the calendar.
+  // Final "No" → saved in GHL, no calendar.  Final "Yes" → calendar.
+  function isVisible(q) {
+    if (answers.facilitator_intent === 'No')
+      return ['facilitator_intent', 'first_name', 'last_name', 'email'].indexOf(q.id) > -1;
+    if (q.id === 'call_commitment' && answers.investment_readiness === NOT_READY) return false;
+    return true;
+  }
+  function outcome() {
+    if (answers.facilitator_intent === 'No') return 'not_facilitator';
+    if (answers.investment_readiness === NOT_READY) return 'not_ready_to_invest';
+    if (answers.call_commitment === 'No') return 'cannot_commit';
+    return 'booking';
+  }
+
+  /* ================= STATE ================= */
+  var DRAFT_KEY = 'aob-facilitator-application-v1';
+  var LETTERS = 'ABCDEFGHIJ';
+  var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  var mq = function (s) { return !!(window.matchMedia && window.matchMedia(s).matches); };
+  var coarse = mq('(pointer: coarse)');
+  var reduceMotion = mq('(prefers-reduced-motion: reduce)');
+  var answers = loadDraft();
+  var hadDraft = Object.keys(answers).length > 0;
+  var screens = {};
+  var currentId = null;
+  var busy = false;
+  var advanceTimer = null;
+
+  var params = new URLSearchParams(location.search);
+  var tracking = {};
+  ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'gclid', 'fbclid'].forEach(function (k) {
+    tracking[k] = params.get(k) || '';
+  });
+  // When embedded on alchemyofbreath.com the parent page forwards its own URL, referrer and query string.
+  tracking.referrer = params.get('embed_ref') || document.referrer || '';
+  tracking.page_url = params.get('embed_page') || (location.origin + location.pathname);
+
+  QUESTIONS.forEach(function (q) {
+    if (q.options) q.keys = q.options.map(function (o, i) {
+      return (q.options.length === 2 && q.options[0] === 'Yes') ? o.charAt(0) : LETTERS.charAt(i);
+    });
+  });
+
+  /* ================= HELPERS ================= */
+  function h(tag, props, kids) {
+    var n = document.createElement(tag);
+    if (props) Object.keys(props).forEach(function (k) {
+      var v = props[k];
+      if (v == null) return;
+      if (k === 'class') n.className = v;
+      else if (k === 'text') n.textContent = v;
+      else if (k === 'html') n.innerHTML = v;
+      else if (k.indexOf('on') === 0) n.addEventListener(k.slice(2), v);
+      else n.setAttribute(k, v);
+    });
+    (kids || []).forEach(function (c) { if (c) n.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); });
+    return n;
+  }
+  function svg(path, size) {
+    var s = size || 14;
+    return h('span', { 'aria-hidden': 'true', style: 'display:inline-flex',
+      html: '<svg width="' + s + '" height="' + s + '" viewBox="0 0 16 16"><path d="' + path + '" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>' });
+  }
+  var ARROW = 'M3 8h9M8.5 4.5 12 8l-3.5 3.5';
+  var CHECK = 'M3 8.5l3.2 3.2L13 4.8';
+
+  function isDemo() { return !CONFIG.webhookUrl; }
+  function qById(id) { for (var i = 0; i < QUESTIONS.length; i++) if (QUESTIONS[i].id === id) return QUESTIONS[i]; return null; }
+  function visibleList() { return QUESTIONS.filter(isVisible); }
+  function val(id) { return String(answers[id] || '').trim(); }
+
+  function loadDraft() {
+    try {
+      var d = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null');
+      if (d && d.answers && Date.now() - d.at < 14 * 864e5) return d.answers;
+    } catch (e) {}
+    return {};
+  }
+  function saveDraft() { try { localStorage.setItem(DRAFT_KEY, JSON.stringify({ answers: answers, at: Date.now() })); } catch (e) {} }
+  function clearDraft() { try { localStorage.removeItem(DRAFT_KEY); } catch (e) {} }
+
+  /* ================= RENDER ================= */
+  var stage = document.getElementById('stage');
+
+  function renderWelcome() {
+    var start = h('button', { type: 'button', class: 'btn', onclick: next }, ['Begin', svg(ARROW)]);
+    var el = h('section', { class: 'screen', id: 's-welcome' }, [
+      h('div', { class: 'q' }, [
+        h('p', { class: 'eyebrow', text: 'Certified Breathwork Facilitator Training' }),
+        h('h1', { class: 'display', tabindex: '-1', html: 'Your application, and a call <em>shaped around it</em>' }),
+        h('p', { class: 'lede', text: 'A few questions about where you are and where you want to go. Our Success Advisors read every answer before your discovery call, so the conversation starts where you are.' }),
+        hadDraft ? h('p', { class: 'note', text: 'Welcome back. Your earlier answers are still here.' }) : null,
+        h('div', { class: 'actions' }, [start, coarse ? null : h('span', { class: 'hint', html: 'press <b>Enter ↵</b>' })]),
+        h('p', { class: 'meta' }, [
+          h('span', { text: 'About 5 minutes' }),
+          h('span', { text: 'The glow breathes at 5.5 breaths a minute. Breathe with it, if you like.' })
+        ])
+      ])
+    ]);
+    screens.welcome = { el: el, focus: el.querySelector('h1') };
+    stage.appendChild(el);
+  }
+
+  function renderQuestion(q) {
+    var num = h('span', { class: 'n' });
+    var title = h('h2', { class: 'q-title', id: 't-' + q.id, tabindex: '-1', text: q.title });
+    var head = h('div', { class: 'q-head' }, [h('div', { class: 'q-num', 'aria-hidden': 'true' }, [num, svg(ARROW, 12)]), title]);
+    var help = q.helpHtml ? h('p', { class: 'q-help', html: q.helpHtml }) : (q.help ? h('p', { class: 'q-help', text: q.help }) : null);
+    var err = h('p', { class: 'err', role: 'alert', hidden: '' });
+    var status = h('p', { class: 'status', role: 'status', hidden: '' });
+    var s = { q: q, num: num, err: err, status: status };
+    var body, actions = null;
+
+    if (q.type === 'choice') {
+      s.choiceBtns = [];
+      body = h('div', { class: 'choices', role: 'radiogroup', 'aria-labelledby': 't-' + q.id });
+      q.options.forEach(function (opt, i) {
+        var b = h('button', { type: 'button', class: 'choice', role: 'radio', 'aria-checked': String(answers[q.id] === opt) }, [
+          h('span', { class: 'key', 'aria-hidden': 'true', text: q.keys[i] }),
+          h('span', { text: opt }),
+          h('span', { class: 'tick' }, [svg(CHECK, 16)])
+        ]);
+        b.addEventListener('click', function () { choose(q, i); });
+        s.choiceBtns.push(b);
+        body.appendChild(b);
+      });
+    } else {
+      var input = q.type === 'long'
+        ? h('textarea', { id: 'f-' + q.id, rows: '1', placeholder: 'Type your answer here…', 'aria-labelledby': 't-' + q.id })
+        : h('input', { id: 'f-' + q.id, type: q.type === 'short' ? 'text' : q.type, placeholder: q.placeholder || 'Type your answer here…',
+            autocomplete: q.autocomplete || 'off', inputmode: q.type === 'tel' ? 'tel' : null, 'aria-labelledby': 't-' + q.id,
+            autocapitalize: q.type === 'email' ? 'off' : null, spellcheck: q.contact ? 'false' : null });
+      input.value = answers[q.id] || '';
+      input.addEventListener('input', function () {
+        answers[q.id] = input.value;
+        if (!err.hidden) setError(q, '');
+        if (q.type === 'long') autosize(input);
+        saveDraft();
+      });
+      body = h('div', { class: 'field' }, [input]);
+      s.input = input;
+      s.btn = h('button', { type: 'button', class: 'btn', onclick: next });
+      var hint = coarse ? null : h('span', { class: 'hint', html: q.type === 'long'
+        ? 'press <b>Enter ↵</b> · <b>Shift + Enter</b> for a new line' : 'press <b>Enter ↵</b>' });
+      actions = h('div', { class: 'actions' }, [s.btn, hint]);
+    }
+
+    var inner = h('div', { class: 'q' }, [head, help, body, err, status, actions]);
+    s.el = h('section', { class: 'screen', id: 's-' + q.id, 'aria-labelledby': 't-' + q.id }, [inner]);
+    s.inner = inner;
+    s.focus = s.input || title;
+    screens[q.id] = s;
+    stage.appendChild(s.el);
+  }
+
+  function renderEndShell() {
+    var el = h('section', { class: 'screen', id: 's-end' }, [h('div', { class: 'q', id: 'endInner' })]);
+    screens.end = { el: el };
+    stage.appendChild(el);
+  }
+
+  function autosize(t) { t.style.height = 'auto'; t.style.height = t.scrollHeight + 'px'; }
+
+  /* ================= NAVIGATION ================= */
+  function show(id, dir) {
+    var prev = currentId && screens[currentId];
+    var nxt = screens[id];
+    if (prev && prev !== nxt) {
+      prev.el.classList.remove('is-active');
+      prev.el.classList.toggle('is-past', dir > 0);
+      prev.el.setAttribute('aria-hidden', 'true');
+      prev.el.inert = true;
+    }
+    nxt.el.classList.add('no-trans');
+    nxt.el.classList.toggle('is-past', dir < 0);
+    void nxt.el.offsetWidth;
+    nxt.el.classList.remove('no-trans');
+    nxt.el.classList.remove('is-past');
+    nxt.el.classList.add('is-active');
+    nxt.el.removeAttribute('aria-hidden');
+    nxt.el.inert = false;
+    nxt.el.scrollTop = 0;
+    currentId = id;
+
+    var q = qById(id);
+    if (q) {
+      var list = visibleList();
+      var idx = list.indexOf(q);
+      nxt.num.textContent = String(idx + 1);
+      if (nxt.btn) {
+        nxt.btn.textContent = '';
+        var last = idx === list.length - 1;
+        nxt.btn.appendChild(document.createTextNode(last ? 'Submit' : 'OK'));
+        nxt.btn.appendChild(svg(last ? ARROW : CHECK, 14));
+      }
+      if (nxt.input && q.type === 'long') setTimeout(function () { autosize(nxt.input); }, 0);
+      setProgress(idx / list.length * 100);
+    } else setProgress(id === 'end' ? 100 : 0);
+
+    document.getElementById('navUp').disabled = (id === 'welcome' || id === 'end');
+    document.getElementById('navDown').disabled = (id === 'end');
+
+    setTimeout(function () {
+      if (currentId !== id || !nxt.focus) return;
+      var useInput = nxt.input && !coarse;
+      (useInput ? nxt.input : (nxt.input ? nxt.el.querySelector('.q-title') : nxt.focus)).focus({ preventScroll: true });
+    }, reduceMotion ? 20 : 120);
+  }
+
+  function setProgress(p) {
+    document.getElementById('progress').style.width = p + '%';
+    document.querySelector('.progress').setAttribute('aria-valuenow', String(Math.round(p)));
+  }
+
+  function next() {
+    if (busy) return;
+    clearTimeout(advanceTimer);
+    if (currentId === 'welcome') { show(visibleList()[0].id, 1); return; }
+    var q = qById(currentId);
+    if (!q) return;
+    var msg = validate(q);
+    setError(q, msg);
+    if (msg) { shake(screens[q.id].inner); return; }
+    if (q.type === 'tel') answers.phone = val('phone');
+    saveDraft();
+    var list = visibleList();
+    var i = list.indexOf(q);
+    if (i < list.length - 1) show(list[i + 1].id, 1);
+    else submit(q);
+  }
+
+  function prev() {
+    if (busy) return;
+    clearTimeout(advanceTimer);
+    var q = qById(currentId);
+    if (!q) return;
+    var list = visibleList();
+    var i = list.indexOf(q);
+    show(i > 0 ? list[i - 1].id : 'welcome', -1);
+  }
+
+  function choose(q, i) {
+    if (busy) return;
+    var s = screens[q.id];
+    answers[q.id] = q.options[i];
+    saveDraft();
+    s.choiceBtns.forEach(function (b, j) { b.setAttribute('aria-checked', String(i === j)); });
+    setError(q, '');
+    var b = s.choiceBtns[i];
+    b.classList.remove('blink'); void b.offsetWidth; b.classList.add('blink');
+    clearTimeout(advanceTimer);
+    advanceTimer = setTimeout(function () { if (currentId === q.id) next(); }, reduceMotion ? 150 : 450);
+  }
+
+  function validate(q) {
+    var v = val(q.id);
+    if (!v) return q.type === 'choice' ? 'Choose one of the options to continue' : 'Please fill this in to continue';
+    if (q.type === 'email' && !EMAIL_RE.test(v)) return 'That email looks incomplete. Use the format name@example.com';
+    if (q.type === 'tel') {
+      if (v.charAt(0) !== '+') return 'Start with your country code, for example +44 or +1';
+      var d = v.replace(/\D/g, '');
+      if (d.length < 7 || d.length > 15) return 'That number looks too short or too long. Check it and try again';
+    }
+    return '';
+  }
+
+  function setError(q, msg) {
+    var e = screens[q.id].err;
+    e.textContent = msg;
+    e.hidden = !msg;
+  }
+  function shake(node) {
+    node.classList.remove('shake'); void node.offsetWidth; node.classList.add('shake');
+  }
+
+  /* ================= SUBMIT ================= */
+  function buildPayload(o) {
+    var p = { source: CONFIG.source, outcome: o, outcome_tag: 'fa-' + o.replace(/_/g, '-'), submitted_at: new Date().toISOString() };
+    QUESTIONS.forEach(function (q) { p[q.id] = isVisible(q) ? val(q.id) : ''; });
+    if (p.phone) p.phone = '+' + p.phone.replace(/\D/g, '');
+    p.summary = QUESTIONS.filter(function (q) { return isVisible(q) && !q.contact; })
+      .map(function (q) { return q.title + '\n→ ' + (val(q.id) || '—'); }).join('\n\n');
+    Object.keys(tracking).forEach(function (k) { p[k] = tracking[k]; });
+    return p;
+  }
+
+  function post(payload) {
+    var ctrl = window.AbortController ? new AbortController() : null;
+    var timer = setTimeout(function () { if (ctrl) ctrl.abort(); }, 10000);
+    return fetch(CONFIG.webhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      keepalive: true,
+      signal: ctrl ? ctrl.signal : undefined
+    }).then(function (r) {
+      clearTimeout(timer);
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+    }, function (e) { clearTimeout(timer); throw e; });
+  }
+
+  function send(payload) {
+    if (isDemo()) return Promise.resolve();
+    return post(payload).catch(function () {
+      return new Promise(function (res) { setTimeout(res, 1500); }).then(function () { return post(payload); });
+    });
+  }
+
+  function submit(q) {
+    busy = true;
+    var s = screens[q.id];
+    var o = outcome();
+    var payload = buildPayload(o);
+    if (s.btn) { s.btn.disabled = true; s.btn.textContent = 'Sending…'; }
+    s.status.textContent = 'Sending your answers…';
+    s.status.hidden = false;
+    send(payload).then(function () {
+      busy = false;
+      s.status.hidden = true;
+      if (s.btn) s.btn.disabled = false;
+      clearDraft();
+      renderEnd(o, payload);
+      show('end', 1);
+    }, function () {
+      busy = false;
+      s.status.hidden = true;
+      if (s.btn) { s.btn.disabled = false; s.btn.textContent = 'Submit'; }
+      setError(q, 'We couldn’t send your answers. Check your connection and ' + (q.type === 'choice' ? 'choose again.' : 'press Submit again.'));
+    });
+  }
+
+  function calendarLink(p) {
+    var u;
+    try { u = new URL(CONFIG.calendarUrl); } catch (e) { return CONFIG.calendarUrl; }
+    if (CONFIG.prefillCalendar) {
+      // The GHL booking form's name field is full_name; first/last ride along for any form that splits them.
+      u.searchParams.set('full_name', (p.first_name + ' ' + p.last_name).trim());
+      ['first_name', 'last_name', 'email', 'phone'].forEach(function (k) { if (p[k]) u.searchParams.set(k, p[k]); });
+    }
+    ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'].forEach(function (k) { if (p[k]) u.searchParams.set(k, p[k]); });
+    return u.toString();
+  }
+
+  function goTop(url) {
+    try { (window.top !== window.self ? window.top : window).location.href = url; }
+    catch (e) { window.location.href = url; }
+  }
+
+  function renderEnd(o, p) {
+    var name = p.first_name;
+    var copy = {
+      booking: {
+        title: 'Thank you, ' + name + '.',
+        body: 'Your answers are with our team. Now choose a time to speak with a Success Advisor.',
+        cta: 'Choose your time', href: calendarLink(p)
+      },
+      cannot_commit: {
+        title: 'Thank you, ' + name + '.',
+        body: 'We only hold a call slot for someone who knows they can be there, so we won’t send you to the calendar just yet. Your answers are saved with us, and our team will be in touch by email.',
+        cta: 'Breathe with us free on Sunday', href: CONFIG.freeSessionsUrl, quiet: true
+      },
+      not_facilitator: {
+        title: 'Thank you, ' + name + '.',
+        body: 'This application is for people training to hold sessions for others. For your own practice, the best place to begin is Breathe The World, our free live session every Sunday.',
+        cta: 'See the free sessions', href: CONFIG.freeSessionsUrl
+      },
+      not_ready_to_invest: {
+        title: 'Thank you for your honesty, ' + name + '.',
+        body: 'The training is a real commitment, and it should arrive at the right time. Until then, breathe with us for free every Sunday. We’ll stay in touch by email.',
+        cta: 'See the free sessions', href: CONFIG.freeSessionsUrl
+      }
+    }[o];
+
+    var box = document.getElementById('endInner');
+    box.textContent = '';
+    box.appendChild(h('p', { class: 'eyebrow', text: o === 'booking' ? 'Application received · Step 2 of 2' : 'Application received' }));
+    box.appendChild(h('h1', { class: 'display', tabindex: '-1', text: copy.title }));
+    box.appendChild(h('p', { class: 'lede', text: copy.body }));
+    box.appendChild(h('div', { class: 'actions' }, [
+      h('a', { class: 'btn' + (copy.quiet ? ' btn-quiet' : ''), href: copy.href, target: '_top' }, [copy.cta, svg(ARROW)])
+    ]));
+    screens.end.focus = box.querySelector('h1');
+
+    if (isDemo()) {
+      box.appendChild(h('details', { class: 'demo', open: '' }, [
+        h('summary', { text: 'Demo mode: this is what GHL would receive' }),
+        h('p', { text: 'Nothing was sent. Outcome: ' + o + (o === 'booking' ? '. Live, this screen forwards to the calendar on its own.' : '.') }),
+        h('pre', { text: JSON.stringify(p, null, 2) }),
+        h('div', { class: 'actions', style: 'margin:0 16px 16px' }, [
+          h('button', { type: 'button', class: 'btn btn-quiet', onclick: restart }, ['Try another path'])
+        ])
+      ]));
+    } else if (o === 'booking') {
+      box.appendChild(h('p', { class: 'note', text: 'Opening the calendar…' }));
+      setTimeout(function () { goTop(copy.href); }, 1600);
+    }
+  }
+
+  function restart() {
+    answers = {};
+    clearDraft();
+    QUESTIONS.forEach(function (q) {
+      var s = screens[q.id];
+      if (s.input) { s.input.value = ''; s.input.style.height = ''; }
+      if (s.choiceBtns) s.choiceBtns.forEach(function (b) { b.setAttribute('aria-checked', 'false'); });
+      setError(q, '');
+    });
+    show('welcome', -1);
+  }
+
+  /* ================= KEYBOARD ================= */
+  document.addEventListener('keydown', function (e) {
+    if (e.isComposing || e.altKey) return;
+    var t = e.target || {};
+    var tag = t.tagName;
+    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); next(); return; }
+    if (e.metaKey || e.ctrlKey) return;
+    if (currentId === 'end') return;
+    if (e.key === 'Enter') {
+      if (tag === 'TEXTAREA' && (e.shiftKey || coarse)) return;
+      if (tag === 'BUTTON' || tag === 'A') return;
+      e.preventDefault();
+      next();
+      return;
+    }
+    var q = qById(currentId);
+    if (q && q.type === 'choice' && tag !== 'INPUT' && tag !== 'TEXTAREA' && e.key.length === 1) {
+      var i = q.keys.indexOf(e.key.toUpperCase());
+      if (i > -1) { e.preventDefault(); choose(q, i); }
+    }
+  });
+
+  document.getElementById('navUp').addEventListener('click', prev);
+  document.getElementById('navDown').addEventListener('click', next);
+
+  /* ================= BOOT ================= */
+  document.body.classList.add('no-anim');
+  if (isDemo()) document.getElementById('demoPill').hidden = false;
+  renderWelcome();
+  QUESTIONS.forEach(renderQuestion);
+  renderEndShell();
+  Object.keys(screens).forEach(function (id) { screens[id].el.setAttribute('aria-hidden', 'true'); screens[id].el.inert = true; });
+  show('welcome', 1);
+  setTimeout(function () { document.body.classList.remove('no-anim'); }, 60);
+
+  window.AOBApplication = { config: CONFIG, answers: function () { return answers; } };
+})();
+</script>
+</body>
+</html>
