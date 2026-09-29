@@ -2,6 +2,75 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<!-- AOB-UTM:start -->
+<script>
+/* AoB UTM keeper: remembers the campaign tags a visitor arrived with and hands
+   them to GoHighLevel on whatever page they later sign up on.
+   - Stores utm_*, fbclid, gclid, msclkid from the landing URL for 90 days
+     (latest campaign wins), in localStorage and an .alchemyofbreath.com cookie.
+   - Seeds GHL's own form_embed.js memory (sessionStorage "UPS"), so GHL forms
+     attribute the contact to the campaign even when the form page has no tags.
+   - Adds the tags to GHL form/booking iframes and to links into GHL funnels
+     (go. / breathcamp. / link.alchemyofbreath.com), so hidden fields with a
+     matching query key are filled too.
+   Source: tools/utm/aob-utm.js. Inlined into every page by tools/utm/inject.py. */
+(function(){
+  var KEYS=['utm_source','utm_medium','utm_campaign','utm_term','utm_content','utm_id','fbclid','gclid','msclkid'];
+  var STORE='aob_utm', DAYS=90, MS=DAYS*864e5;
+  var ls=function(k,v){ try{ if(v===undefined) return localStorage.getItem(k); localStorage.setItem(k,v); }catch(e){ return null; } };
+  var qs=new URLSearchParams(location.search), got={}, any=false;
+  KEYS.forEach(function(k){ var v=qs.get(k); if(v){ got[k]=v.slice(0,250); any=true; } });
+  var rec=null;
+  if(any){
+    rec={p:got,t:Date.now(),landing:location.origin+location.pathname};
+    ls(STORE,JSON.stringify(rec));
+    try{ document.cookie=STORE+'='+encodeURIComponent(JSON.stringify(got))+';path=/;max-age='+(DAYS*86400)+';SameSite=Lax'+
+      (/(^|\.)alchemyofbreath\.com$/.test(location.hostname)?';domain=.alchemyofbreath.com':''); }catch(e){}
+  } else {
+    try{ rec=JSON.parse(ls(STORE)||'null'); }catch(e){ rec=null; }
+    if(!rec || !rec.p || Date.now()-rec.t>MS) return;
+  }
+  var P=rec.p;
+
+  // GHL form_embed.js falls back to sessionStorage "UPS" when the page URL has no utm_ tags
+  try{
+    var ups=new URLSearchParams(sessionStorage.getItem('UPS')||''), changed=false;
+    for(var k in P){ if(k.indexOf('utm_')===0 && ups.get(k)!==P[k]){ ups.set(k,P[k]); changed=true; } }
+    if(changed) sessionStorage.setItem('UPS','?'+ups.toString());
+  }catch(e){}
+
+  var GHL=/^https:\/\/((link|api)\.(alchemyofbreath\.com|leadconnectorhq\.com)\/widget\/(form|survey|booking|quiz)\/|(go|breathcamp)\.alchemyofbreath\.com\/)/;
+  var withTags=function(url){
+    var u; try{ u=new URL(url,location.href); }catch(e){ return null; }
+    if(!GHL.test(u.href)) return null;
+    var ch=false;
+    for(var k in P){ if(!u.searchParams.has(k)){ u.searchParams.set(k,P[k]); ch=true; } }
+    return ch?u.href:null;
+  };
+  var fixFrame=function(f){
+    ['src','data-src'].forEach(function(a){ var v=f.getAttribute(a), n=v&&withTags(v); if(n) f.setAttribute(a,n); });
+  };
+  var scan=function(root){
+    if(root.tagName==='IFRAME'){ fixFrame(root); return; }
+    if(root.querySelectorAll) [].forEach.call(root.querySelectorAll('iframe'),fixFrame);
+  };
+  scan(document);
+  if('MutationObserver' in window){
+    new MutationObserver(function(ms){ ms.forEach(function(m){ [].forEach.call(m.addedNodes,function(n){ if(n.nodeType===1) scan(n); }); }); })
+      .observe(document.documentElement,{childList:true,subtree:true});
+  }
+  // links into GHL funnels: tag them at click time (covers links built by scripts too)
+  var tagLink=function(e){
+    var a=e.target && e.target.closest && e.target.closest('a[href]'); if(!a) return;
+    var n=withTags(a.getAttribute('href')); if(n) a.setAttribute('href',n);
+  };
+  document.addEventListener('mousedown',tagLink,true);
+  document.addEventListener('touchstart',tagLink,{capture:true,passive:true});
+  document.addEventListener('keydown',function(e){ if(e.key==='Enter') tagLink(e); },true);
+  document.addEventListener('click',tagLink,true);
+})();
+</script>
+<!-- AOB-UTM:end -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The Alchemist | An Inner Journey to Yourself | Alchemy of Breath</title>
 <meta name="description" content="A fifteen week live journey of self-discovery, opened to the public by Anthony Abbagnano. Founded on the hero's journey, 40+ years in the making. Walked together, in a small held cohort.">

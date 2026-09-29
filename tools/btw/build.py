@@ -14,6 +14,9 @@ The newest entry in issues.json is "this week". Every older week is rebuilt
 as an archive page that points readers on to the current session.
 """
 import datetime, html, json, os, urllib.parse
+import sys
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'utm'))
+from inject import snippet as utm_snippet  # tools/utm: UTM keeper, inlined into every page
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -105,6 +108,7 @@ def head(title, desc, canonical, css):
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+{utm_snippet()}
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{html.escape(title)}</title>
 <meta name="description" content="{html.escape(desc)}">
