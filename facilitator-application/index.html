@@ -55,7 +55,7 @@ button{font:inherit;color:inherit}
   padding:calc(env(safe-area-inset-top,0px) + 14px) 24px 0;height:calc(var(--bar-h) + env(safe-area-inset-top,0px));
   background:linear-gradient(var(--ground) 62%,rgba(251,247,239,0))}
 .mark{white-space:nowrap;font-family:var(--serif);font-size:1.05rem;letter-spacing:.05em;text-decoration:none;color:var(--ink);display:inline-flex;align-items:center;gap:10px}
-.mark svg{flex:none}
+.mark img{display:block;height:34px;width:auto;max-width:none}
 .pill{white-space:nowrap;font-size:.72rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-text);border:1px solid var(--gold);border-radius:999px;padding:5px 11px;background:var(--paper)}
 
 /* screens */
@@ -145,6 +145,7 @@ button{font:inherit;color:inherit}
 @media(max-width:560px){
   body{font-size:17px}
   .bar{padding-inline:16px}
+  .mark img{height:30px}
   .screen{padding-inline:16px}
   .nav{right:16px}
   .embedded .nav{right:auto;left:16px}
@@ -164,9 +165,8 @@ button{font:inherit;color:inherit}
 <div class="orb" aria-hidden="true"></div>
 <div class="progress" role="progressbar" aria-label="Application progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="progress"></i></div>
 <header class="bar">
-  <a class="mark" href="https://alchemyofbreath.com/" target="_top">
-    <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10.5" fill="none" stroke="#D6A652" stroke-width="1.2"/><circle cx="12" cy="12" r="5" fill="none" stroke="#D6A652" stroke-width="1.2"/><circle cx="12" cy="12" r="1.6" fill="#D6A652"/></svg>
-    Alchemy of Breath
+  <a class="mark" href="https://alchemyofbreath.com/" target="_top" aria-label="Alchemy of Breath home">
+    <img src="https://alchemyofbreath.com/wp-content/uploads/AOB-Gold-Black-Transparant.png" alt="Alchemy of Breath" width="252" height="72" decoding="async">
   </a>
   <span class="pill" id="demoPill" hidden>Demo<span class="pill-more"> · nothing is sent</span></span>
 </header>
