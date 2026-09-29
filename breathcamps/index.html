@@ -453,6 +453,26 @@ footer{background:var(--foot);border-top:1px solid rgba(225,182,104,.35);padding
 @media(max-width:560px){.pill{right:16px;bottom:16px}}
 :focus-visible{outline:2px solid var(--gold-deep);outline-offset:3px;border-radius:6px}
 </style>
+<!-- Meta Pixel 713374525487066: PageView + ViewContent (retreat landing page).
+     Only on the live domain, so preview deploys on *.pages.dev never reach Ads Manager. -->
+<script>
+if(/(^|\.)alchemyofbreath\.com$/.test(location.hostname)){
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+
+fbq('init', '713374525487066');
+fbq('track', 'PageView');
+fbq('track', 'ViewContent', {content_name: 'Retreat Landing Page'});
+}
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=713374525487066&ev=PageView&noscript=1"/></noscript>
 </head>
 <body>
 
@@ -1195,5 +1215,12 @@ footer{background:var(--foot);border-top:1px solid rgba(225,182,104,.35);padding
 })();
 </script>
 <script>(function(){if(window.self!==window.top){var st=document.createElement('style');st.textContent='.cv{content-visibility:visible !important}';document.head.appendChild(st);}function reportHeight(){var h=document.documentElement.scrollHeight;window.parent.postMessage({type:'aob-embed-resize',height:h},'*');}window.addEventListener('load',reportHeight);window.addEventListener('resize',reportHeight);var mo=new MutationObserver(reportHeight);mo.observe(document.body,{childList:true,subtree:true,attributes:true});setInterval(reportHeight,800);})();</script>
+<!-- Meta Pixel: InitiateCheckout when a retreat.guru booking link is clicked -->
+<script>
+document.addEventListener('click', function(e){
+  var a = e.target.closest('a[href*="retreat.guru"]');
+  if (a && window.fbq) fbq('track', 'InitiateCheckout', {content_name: 'Retreat Booking'});
+});
+</script>
 </body>
 </html>
