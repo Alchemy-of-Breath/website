@@ -228,6 +228,26 @@ button{font:inherit;color:inherit}
   .choice.blink,.shake{animation:none}
 }
 </style>
+<!-- Meta Pixel 713374525487066: SubmitApplication when an application reaches GHL.
+     PageView is not sent here: the WordPress page that frames this form already
+     sends it (behind its cookie-consent banner). Loads only when the form is shown
+     on alchemyofbreath.com, embedded (embed_page) or served directly. -->
+<script>
+(function(){
+  var ep=new URLSearchParams(location.search).get('embed_page')||'';
+  var live=/(^|\.)alchemyofbreath\.com$/.test(location.hostname)||/^https:\/\/(www\.)?alchemyofbreath\.com\//.test(ep);
+  if(!live) return;
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', '713374525487066');
+})();
+</script>
 </head>
 <body class="no-anim">
 
@@ -640,6 +660,7 @@ button{font:inherit;color:inherit}
       s.status.hidden = true;
       if (s.btn) s.btn.disabled = false;
       clearDraft();
+      if (window.fbq && !isDemo()) fbq('track', 'SubmitApplication', { content_name: 'Facilitator Application', outcome: o });
       renderEnd(o, payload);
       show('end', 1);
     }, function () {
