@@ -21,9 +21,12 @@ from inject import snippet as utm_snippet  # tools/utm: UTM keeper, inlined into
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 HERE = os.path.dirname(os.path.abspath(__file__))
 SITE = 'https://alchemyofbreath.com'
-ZOOM = 'https://us06web.zoom.us/j/88515813912'
-MEETING_ID = '885 1581 3912'
-PASSCODE = 'Breathe'
+# Registration replaces the public Zoom link: the same GHL form as the live
+# alchemyofbreath.com/free-breathwork-sessions/ page ("AOB | Free Lead | Free
+# Breathwork Sessions - Website"). GHL sends the room details after sign-up.
+FORM_ID = '6ssfkrUSnSdcJlkFos3D'
+FORM_NAME = 'AOB | Free Lead | Free Breathwork Sessions - Website'
+REGISTER = SITE + '/btw/#register'
 AM, PM = (9, 30), (17, 0)  # London time, every Sunday
 
 EXTRA_CSS = '''
@@ -38,6 +41,13 @@ EXTRA_CSS = '''
 .past-card{background:var(--paper);border:1px solid rgba(225,182,104,.45);border-radius:22px;box-shadow:var(--shadow-soft);padding:30px 34px;text-align:center}
 .past-card p{color:var(--slate);margin-bottom:20px}
 .past-card .zoom-btn{display:inline-flex;margin:0}
+.reg{margin-top:26px;padding-top:24px;border-top:1px solid rgba(225,182,104,.3);scroll-margin-top:90px}
+.reg h2{text-align:center}
+.reg .reg-lede{text-align:center;color:var(--slate);font-size:.92rem;margin:6px 0 16px}
+.reg-form{width:100%;min-height:620px;border-radius:12px;overflow:hidden}
+.reg-form iframe{width:100%;min-height:620px;display:block;border:0;background:transparent}
+.reg .reg-small{text-align:center;font-size:.74rem;color:var(--slate);margin-top:10px}
+@media(max-width:560px){.reg-form,.reg-form iframe{min-height:680px}}
 .arch{padding:64px 0 90px;background:var(--paper)}
 .arch-list{max-width:760px;margin:40px auto 0;display:grid;gap:14px}
 .arch-item{display:flex;align-items:center;justify-content:space-between;gap:20px;text-decoration:none;background:var(--paper-2);border:1px solid rgba(225,182,104,.28);border-radius:16px;padding:22px 26px;transition:transform .25s,box-shadow .25s,border-color .25s}
@@ -97,8 +107,8 @@ def gcal(i, which):
         'text': f"Breathe The World — {i['title']} ({which})",
         'dates': f'{start}/{end}',
         'ctz': 'Europe/London',
-        'location': 'Zoom',
-        'details': f'Join here: {ZOOM}\nMeeting ID: {MEETING_ID}\nPasscode: {PASSCODE}',
+        'location': 'Online',
+        'details': f'Free live breathwork with Alchemy of Breath. Reserve your free spot: {REGISTER}',
     }, quote_via=urllib.parse.quote)
     return html.escape('https://calendar.google.com/calendar/render?' + q)
 
@@ -133,7 +143,7 @@ def head(title, desc, canonical, css):
 
 
 def nav(current):
-    cta = (f'<a class="nav-cta" href="{ZOOM}" target="_blank" rel="noopener">Join on Zoom</a>' if current
+    cta = ('<a class="nav-cta" href="#register">Reserve your spot</a>' if current
            else '<a class="nav-cta" href="/btw/">This week&rsquo;s session</a>')
     return f'''
 <header class="nav">
@@ -222,16 +232,22 @@ def page(i, current, canonical, style):
         out += f'''
 <div class="join">
   <div class="join-card">
-    <div class="join-head">
-      <h2>Your room access</h2>
-      <div class="creds"><span>Meeting ID: <b>{MEETING_ID}</b></span><span>Passcode: <b>{PASSCODE}</b></span></div>
-    </div>
-    <a class="zoom-btn" href="{ZOOM}" target="_blank" rel="noopener">Join Breathe The World on Zoom &rarr;</a>
     <div class="sessions">
 {session(i, 'AM')}
 {session(i, 'PM')}
     </div>
-    <p class="join-note">Same link and passcode for both sessions. Come to whichever suits your day, or both.</p>
+    <div class="reg" id="register">
+      <h2>Reserve your <em>free spot</em></h2>
+      <p class="reg-lede">Sign up once, then come to either session, or both.</p>
+      <div class="reg-form">
+        <iframe src="https://link.alchemyofbreath.com/widget/form/{FORM_ID}" style="width:100%;height:100%;border:none;border-radius:10px"
+          id="inline-{FORM_ID}" data-layout="{{'id':'INLINE'}}" data-trigger-type="alwaysShow" data-trigger-value=""
+          data-activation-type="alwaysActivated" data-activation-value="" data-deactivation-type="neverDeactivate"
+          data-deactivation-value="" data-form-name="{FORM_NAME}" data-height="620"
+          data-layout-iframe-id="inline-{FORM_ID}" data-form-id="{FORM_ID}" title="{FORM_NAME}"></iframe>
+      </div>
+      <p class="reg-small">Your details stay with us. You can unsubscribe anytime.</p>
+    </div>
   </div>
   <p class="more">Missed a Sunday? <a href="/btw/archive/">Read past weeks&rsquo; messages</a></p>
 </div>
@@ -271,8 +287,8 @@ def page(i, current, canonical, style):
   <div class="wrap">
     <span class="eyebrow" style="justify-content:center">This Sunday, {i['d'].day} {i['d'].strftime('%B')}</span>
     <h2>{html.escape(i['closing'])}</h2>
-    <p>9:30 AM or 5:00 PM London time. Meeting ID {MEETING_ID}, passcode <b>{PASSCODE}</b>.</p>
-    <a class="zoom-btn" href="{ZOOM}" target="_blank" rel="noopener">Join on Zoom &rarr;</a>
+    <p>9:30 AM or 5:00 PM London time. Free, online, and open to everyone.</p>
+    <a class="zoom-btn" href="#register">Reserve your free spot &rarr;</a>
   </div>
 </section>
 '''
@@ -323,7 +339,7 @@ def page(i, current, canonical, style):
   show('localPm',{PM[0]},{PM[1]});
 
   // live countdown to each session; turns into a join button while it runs
-  var ZOOM='{ZOOM}', LEN=75*60000;
+  var LEN=75*60000;
   function pad(n){{ return (n<10?'0':'')+n; }}
   function unit(v,l){{ return '<div class="cd-u"><b>'+v+'</b><span>'+l+'</span></div>'; }}
   var sessions=[['cdAm',londonToLocal({AM[0]},{AM[1]})],['cdPm',londonToLocal({PM[0]},{PM[1]})]], last={{}};
@@ -336,7 +352,7 @@ def page(i, current, canonical, style):
         var t=Math.floor(left/1000), d=Math.floor(t/86400), h=Math.floor(t%86400/3600), m=Math.floor(t%3600/60), sec=t%60;
         html='<p class="cd-lbl">Starts in</p><div class="cd-row">'+(d>0?unit(d,d===1?'day':'days'):'')+unit(pad(h),'hrs')+unit(pad(m),'min')+unit(pad(sec),'sec')+'</div>';
       }}else if(now<start+LEN){{
-        html='<a class="cd-live" href="'+ZOOM+'" target="_blank" rel="noopener">Live now &middot; join the room</a>';
+        html='<a class="cd-live" href="#register">Live now &middot; register to join</a>';
       }}else{{
         html='<p class="cd-done">This session has ended. See you next Sunday.</p>';
       }}
@@ -347,6 +363,8 @@ def page(i, current, canonical, style):
 }})();
 </script>
 '''
+    if current:
+        out += '<script src="https://link.alchemyofbreath.com/js/form_embed.js"></script>\n'
     out += EMBED_JS + '\n</body>\n</html>\n'
     return out
 
