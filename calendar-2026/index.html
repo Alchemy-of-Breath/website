@@ -429,6 +429,8 @@ main p em,main li em{color:var(--gold-text)}
 .cal-ev.past .btn{display:none}
 .cal-ev.past .cal-past{display:inline-block;font-family:var(--sans);font-size:.7rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--slate);border:1px solid rgba(91,120,137,.35);border-radius:999px;padding:8px 14px}
 .cal-past{display:none}
+/* trainings already underway: greyed like past events, labelled "Underway" until they end */
+.cal-ev.closed .cal-tag::before{content:"Underway \00b7  "}
 </style>
 <script type="application/ld+json">
 {
@@ -685,7 +687,7 @@ main p em,main li em{color:var(--gold-text)}
           <a class="btn btn-primary btn-sm" href="/breathcamps/">I'm so ready! <span class="arr">&rarr;</span></a><span class="cal-past">This one has passed</span>
         </div>
       </article>
-      <article data-end="2026-10-03" class="cal-ev reveal">
+      <article data-end="2026-10-03" class="cal-ev past closed reveal">
         <img src="https://alchemyofbreath.com/wp-content/uploads/Rectangle-58-3-768x512.jpg" alt="Alchemy Regulation Method practice" width="768" height="512" loading="lazy" decoding="async">
         <div>
           <span class="cal-tag">Training &middot; at ASHA</span>
@@ -694,10 +696,10 @@ main p em,main li em{color:var(--gold-text)}
         </div>
         <div class="cal-side">
           <span class="cal-when"><span class="cw-yr">2026</span><span class="cw-d">Sep 27 &ndash; Oct 3</span></span>
-          <a class="btn btn-ghost btn-sm" href="/alchemy-regulation-method/">Learn live <span class="arr">&rarr;</span></a><span class="cal-past">This one has passed</span>
+          <a class="btn btn-ghost btn-sm" href="/alchemy-regulation-method/">Learn live <span class="arr">&rarr;</span></a><span class="cal-past">Bookings closed</span>
         </div>
       </article>
-      <article data-end="2026-10-17" class="cal-ev reveal">
+      <article data-end="2026-10-17" class="cal-ev past closed reveal">
         <img src="https://alchemyofbreath.com/wp-content/uploads/people-image.png" alt="Facilitator training circle at ASHA" width="720" height="399" loading="lazy" decoding="async">
         <div>
           <span class="cal-tag">Training &middot; at ASHA</span>
@@ -706,7 +708,7 @@ main p em,main li em{color:var(--gold-text)}
         </div>
         <div class="cal-side">
           <span class="cal-when"><span class="cw-yr">2026</span><span class="cw-d">Sep 27 &ndash; Oct 17</span></span>
-          <a class="btn btn-ghost btn-sm" href="/live-residential-breathwork-facilitator-training/">Learn live <span class="arr">&rarr;</span></a><span class="cal-past">This one has passed</span>
+          <a class="btn btn-ghost btn-sm" href="/live-residential-breathwork-facilitator-training/">Learn live <span class="arr">&rarr;</span></a><span class="cal-past">Bookings closed</span>
         </div>
       </article>
     </div>
@@ -949,7 +951,7 @@ main p em,main li em{color:var(--gold-text)}
   var today=new Date(); today.setHours(0,0,0,0);
   document.querySelectorAll('.cal-ev[data-end]').forEach(function(ev){
     var end=new Date(ev.getAttribute('data-end')+'T23:59:59');
-    if(end<today) ev.classList.add('past');
+    if(end<today){ ev.classList.add('past'); ev.classList.remove('closed'); var lb=ev.querySelector('.cal-past'); if(lb) lb.textContent='This one has passed'; }
   });
 })();
 </script>
