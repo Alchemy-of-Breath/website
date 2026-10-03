@@ -392,6 +392,26 @@ h2[tabindex="-1"]:focus,h2[tabindex="-1"]:focus-visible{outline:none}
 footer{position:relative;z-index:1;text-align:center;font-size:.78rem;color:var(--slate);padding:0 24px 40px}
 footer a{color:var(--slate)}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
+
+/* v2: rooms first · name and price on the photo · whole card selects */
+.steps ol{grid-template-columns:repeat(3,1fr)}
+.room.pickable{cursor:pointer}
+.room.pickable:hover{border-color:rgba(214,166,82,.7)}
+.ph-cap{position:absolute;left:0;right:0;bottom:0;z-index:1;display:flex;align-items:flex-end;justify-content:space-between;gap:12px;padding:60px 18px 16px;background:linear-gradient(180deg,rgba(18,15,16,0) 0%,rgba(18,15,16,.5) 42%,rgba(18,15,16,.86) 100%);color:#fff;pointer-events:none}
+.ph.has-dots .ph-cap{padding-bottom:28px}
+.room .ph-cap h3{color:#fff;font-size:1.3rem;line-height:1.15;text-shadow:0 1px 14px rgba(0,0,0,.35);margin:0}
+.ph-cap .pp{margin:0;text-align:right;white-space:nowrap;flex:none}
+.ph-cap .pp b{display:block;font-family:var(--serif);font-weight:400;font-size:1.6rem;line-height:1}
+.ph-cap .pp small{display:block;font-size:.68rem;letter-spacing:.04em;opacity:.92;margin-top:5px}
+.ph-dots{bottom:9px}
+.room.out .ph-cap .pp b{text-decoration:line-through;text-decoration-thickness:1px}
+.rb .rk{margin-bottom:6px}
+.rb .rs{margin-top:0}
+.pn{font-size:.78rem;color:var(--slate);line-height:1.45;max-width:16em}
+.fol-cta{width:100%;margin-top:18px}
+.fol-cta:disabled{opacity:.45}
+.mbar .btn:disabled{opacity:.45;box-shadow:none}
+@media(max-width:420px){.room .ph-cap h3{font-size:1.12rem}.ph-cap .pp b{font-size:1.35rem}}
 </style>
 </head>
 <body>
@@ -422,10 +442,9 @@ footer a{color:var(--slate)}
 
 <nav class="steps" id="steps" aria-label="Booking steps">
   <ol>
-    <li data-step="1"><button type="button"><span class="dot"><span>1</span></span><span class="lbl">Guests</span></button></li>
-    <li data-step="2"><button type="button"><span class="dot"><span>2</span></span><span class="lbl">Your room</span></button></li>
-    <li data-step="3"><button type="button"><span class="dot"><span>3</span></span><span class="lbl">Guest details</span></button></li>
-    <li data-step="4"><button type="button"><span class="dot"><span>4</span></span><span class="lbl">Review &amp; pay</span></button></li>
+    <li data-step="1"><button type="button"><span class="dot"><span>1</span></span><span class="lbl">Your room</span></button></li>
+    <li data-step="2"><button type="button"><span class="dot"><span>2</span></span><span class="lbl">Guest details</span></button></li>
+    <li data-step="3"><button type="button"><span class="dot"><span>3</span></span><span class="lbl">Review &amp; pay</span></button></li>
   </ol>
 </nav>
 
@@ -433,58 +452,54 @@ footer a{color:var(--slate)}
   <div class="bk-main">
     <div class="alert info" id="topNote" hidden></div>
 
-    <!-- STEP 1 -->
+    <!-- STEP 1 · ROOM -->
     <section class="step card" id="step1" aria-labelledby="h1s">
-      <h2 id="h1s">Who's <em>coming</em>?</h2>
-      <p class="sub">Tell us how many are in your group and who's booking. You'll add everyone else's details in step 3.</p>
+      <h2 id="h1s">Choose where you'll <em>rest</em>.</h2>
+      <p class="sub" id="roomsSub"></p>
       <div class="alert" id="err1" role="alert" hidden></div>
       <div class="count">
-        <div><h3>Guests in this booking</h3><p id="countHint"></p></div>
+        <div><h3>How many guests?</h3><p id="countHint"></p></div>
         <div class="stepper"><button type="button" id="gMinus" aria-label="One guest fewer">&minus;</button><output id="gCount" aria-live="polite">1 guest</output><button type="button" id="gPlus" aria-label="One guest more">+</button></div>
       </div>
-      <p class="who"><span class="n">1</span>You, the lead guest</p>
-      <div class="grid2" id="leadFields"></div>
-      <div class="actions"><span></span><button type="button" class="btn btn-primary" data-next="2">Choose your room <span class="arr">&rarr;</span></button></div>
-    </section>
-
-    <!-- STEP 2 -->
-    <section class="step card" id="step2" aria-labelledby="h2s" hidden>
-      <h2 id="h2s">Choose where you'll <em>rest</em>.</h2>
-      <p class="sub" id="roomsSub"></p>
-      <div class="alert" id="err2" role="alert" hidden></div>
       <div class="filters" role="group" aria-label="Filter rooms" id="filters"></div>
       <div class="mixed-toggle" id="mixedRow" hidden>
         <label class="switch"><input type="checkbox" id="mixedToggle"><span class="tr"></span><span>Different rooms for different guests</span></label>
         <span id="placedNote" class="placed" aria-live="polite"></span>
       </div>
       <div class="rooms" id="rooms"></div>
-      <p class="shared-note"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v5h1"/></svg><span>Shared rooms and tents are shared with guests of the same gender. Booking with a friend? Book together here, or tell us their name in step 3.</span></p>
-      <div class="actions"><button type="button" class="back" data-back="1">&larr; Guests</button><button type="button" class="btn btn-primary" data-next="3">Continue <span class="arr">&rarr;</span></button></div>
+      <p class="shared-note"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v5h1"/></svg><span>Shared rooms and tents are shared with guests of the same gender. Booking with a friend? Add them as a guest here, or tell us their name in the next step.</span></p>
+      <div class="actions"><span></span><button type="button" class="btn btn-primary" data-next="2">Continue to guest details <span class="arr">&rarr;</span></button></div>
     </section>
 
-    <!-- STEP 3 -->
-    <section class="step card" id="step3" aria-labelledby="h3s" hidden>
-      <h2 id="h3s">Guest <em>details</em>.</h2>
+    <!-- STEP 2 · DETAILS -->
+    <section class="step card" id="step2" aria-labelledby="h2s" hidden>
+      <h2 id="h2s">Guest <em>details</em>.</h2>
       <p class="sub" id="detailsSub"></p>
-      <div class="alert" id="err3" role="alert" hidden></div>
+      <div class="alert" id="err2" role="alert" hidden></div>
+      <div class="gcard">
+        <p class="who"><span class="n">1</span>You, the lead guest</p>
+        <p class="rtag" id="leadRoom"></p>
+        <div id="leadRoomSel"></div>
+        <div class="grid2" id="leadFields"></div>
+      </div>
       <div id="guestCards"></div>
       <div class="f full" id="roommateField">
         <label for="roommate">Requested roommate <small>(optional)</small></label>
         <input id="roommate" type="text" maxlength="200" placeholder="Name of the friend you'd like to share with">
         <span class="hint">Only if they booked separately. We'll do our best to put you together.</span>
       </div>
-      <div class="actions"><button type="button" class="back" data-back="2">&larr; Your room</button><button type="button" class="btn btn-primary" data-next="4">Review your booking <span class="arr">&rarr;</span></button></div>
+      <div class="actions"><button type="button" class="back" data-back="1">&larr; Your room</button><button type="button" class="btn btn-primary" data-next="3">Review your booking <span class="arr">&rarr;</span></button></div>
     </section>
 
-    <!-- STEP 4 -->
-    <section class="step card" id="step4" aria-labelledby="h4s" hidden>
-      <h2 id="h4s">Review and <em>pay</em>.</h2>
+    <!-- STEP 3 · REVIEW & PAY -->
+    <section class="step card" id="step3" aria-labelledby="h3s" hidden>
+      <h2 id="h3s">Review and <em>pay</em>.</h2>
       <p class="sub">Check everything looks right, choose how you'd like to pay, and you'll go to Stripe's secure checkout.</p>
-      <div class="alert" id="err4" role="alert" hidden></div>
+      <div class="alert" id="err3" role="alert" hidden></div>
       <ul class="review" id="review"></ul>
       <div class="pay" role="radiogroup" aria-label="How would you like to pay?" id="payOpts"></div>
       <label class="terms" id="termsRow"><input type="checkbox" id="terms"><span>I agree to the <a id="termsLink" href="#" target="_blank" rel="noopener">BreathCamp terms and conditions</a>.</span></label>
-      <div class="actions"><button type="button" class="back" data-back="3">&larr; Guest details</button><button type="button" class="btn btn-primary" id="payBtn">Pay securely <span class="arr">&rarr;</span></button></div>
+      <div class="actions"><button type="button" class="back" data-back="2">&larr; Guest details</button><button type="button" class="btn btn-primary" id="payBtn">Pay securely <span class="arr">&rarr;</span></button></div>
       <p class="paynote"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>You'll pay on Stripe's secure checkout page: cards, Apple Pay and Google Pay. Your receipt and invoice arrive by email.</p>
     </section>
 
@@ -514,7 +529,7 @@ footer a{color:var(--slate)}
   var P = JSON.parse(document.getElementById('programData').textContent);
   var API = /(^|\.)website-5h3\.pages\.dev$/.test(location.hostname) ? '' : 'https://website-5h3.pages.dev';
   var IMG = /alchemyofbreath\.com$/.test(location.hostname) ? 'https://cdn.jsdelivr.net/gh/Alchemy-of-Breath/website@main/assets/booking/rooms/' : '/assets/booking/rooms/';
-  var STORE = 'aob_book_' + P.id;
+  var STORE = 'aob_book_' + P.id, VERSION = 2;
   var ROOMS = {}; P.rooms.forEach(function(r){ ROOMS[r.id] = r; });
   var MAXG = P.max_guests_per_booking || 6;
   var $ = function(id){ return document.getElementById(id); };
@@ -522,6 +537,7 @@ footer a{color:var(--slate)}
   var money = function(c){ return '€' + (c/100).toLocaleString('en-GB', { minimumFractionDigits: c % 100 ? 2 : 0, maximumFractionDigits: 2 }); };
   var wa = 'https://wa.me/' + P.contact.whatsapp.replace(/\D/g,'') + '?text=' + encodeURIComponent('Hi! I have a question about booking ' + P.edition + ' (' + P.dates.short + ').');
   var CATS = { shared:'Shared room', glamping:'Glamping', camping:'Camping', private:'Private' };
+  var FILTER = { all:'All', shared:'Shared rooms', glamping:'Glamping', camping:'Camping', private:'Private' };
   var ICON = {
     bed:'<svg viewBox="0 0 24 24"><path d="M3 18v-7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v7M3 14h18M3 18v2M21 18v2M7 9V6h4v3"/></svg>',
     bath:'<svg viewBox="0 0 24 24"><path d="M4 12h16v3a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4v-3zM6 12V5a2 2 0 0 1 4 0"/></svg>',
@@ -533,16 +549,16 @@ footer a{color:var(--slate)}
   var blankGuest = function(){ return { first:'', last:'', email:'', gender:'' }; };
   var state = { step:1, guests:1, lead:{ first:'', last:'', email:'', whatsapp:'', gender:'' }, others:[], mixed:false, room:null, assign:{}, guestRooms:[], roommate:'', payment:'deposit', terms:false, filter:'all' };
   var avail = null, availLive = false;
-  try { var saved = JSON.parse(localStorage.getItem(STORE) || 'null'); if (saved && saved.v === 1) { Object.assign(state, saved.s); state.terms = false; } } catch(e){}
-  function save(){ try { localStorage.setItem(STORE, JSON.stringify({ v:1, s: Object.assign({}, state, { terms:false }) })); } catch(e){} }
+  try { var saved = JSON.parse(localStorage.getItem(STORE) || 'null'); if (saved && saved.v === VERSION) { Object.assign(state, saved.s); state.terms = false; } } catch(e){}
+  function save(){ try { localStorage.setItem(STORE, JSON.stringify({ v:VERSION, s: Object.assign({}, state, { terms:false }) })); } catch(e){} }
 
   /* ---------------- availability ---------------- */
+  function progLeft(){ return avail ? avail.program_left : P.program_spaces; }
   function left(id){
     var r = ROOMS[id]; if (!r) return 0;
     var a = avail && avail.rooms && avail.rooms[id];
     return a ? a.left : Math.min(r.capacity, progLeft());
   }
-  function progLeft(){ return avail ? avail.program_left : P.program_spaces; }
   function loadAvail(){
     return fetch(API + '/api/booking/availability?program=' + encodeURIComponent(P.id), { cache:'no-store' })
       .then(function(r){ return r.ok ? r.json() : null; })
@@ -556,12 +572,10 @@ footer a{color:var(--slate)}
     return state.guestRooms.slice(0, state.guests);
   }
   function syncGuestRooms(){
-    // rebuild the per-guest room list from the per-room counts, keeping guests where they were when possible
     var need = Object.assign({}, state.assign), list = [];
     state.guestRooms.slice(0, state.guests).forEach(function(rid){ if (need[rid] > 0) { list.push(rid); need[rid]--; } else list.push(null); });
     while (list.length < state.guests) list.push(null);
-    list = list.map(function(rid){ if (rid) return rid; for (var k in need) { if (need[k] > 0) { need[k]--; return k; } } return null; });
-    state.guestRooms = list;
+    state.guestRooms = list.map(function(rid){ if (rid) return rid; for (var k in need) { if (need[k] > 0) { need[k]--; return k; } } return null; });
   }
   function assigned(){ var n = 0; for (var k in state.assign) n += state.assign[k]; return n; }
   function counts(){ var c = {}; guestRoomList().forEach(function(rid){ if (rid) c[rid] = (c[rid] || 0) + 1; }); return c; }
@@ -574,10 +588,7 @@ footer a{color:var(--slate)}
     var dep = Math.round(total * P.deposit.percent / 100), due = state.payment === 'full' ? total : dep;
     return { lines:lines, total:total, deposit:dep, due:due, balance: total - due };
   }
-  function roomsComplete(){
-    if (!state.mixed) return !!state.room && left(state.room) >= state.guests;
-    return assigned() === state.guests;
-  }
+  function roomsComplete(){ return state.mixed ? assigned() === state.guests : (!!state.room && left(state.room) >= state.guests); }
 
   /* ---------------- fields ---------------- */
   function field(id, label, opts){
@@ -600,17 +611,13 @@ footer a{color:var(--slate)}
       field('g0-email', 'Email', { value:L.email, type:'email', ac:'email', ph:'name@example.com', suggest:true, hint:'Your confirmation, receipt and invoice go here.' }) +
       field('g0-whatsapp', 'WhatsApp number', { value:L.whatsapp, type:'tel', ac:'tel', im:'tel', ph:'+44 7700 900123', hint:'Include the country code. We use it for arrival details.', max:32 }) +
       field('g0-gender', 'Gender <small>(for room sharing)</small>', { pills:true, value:L.gender });
-    bindLead();
-  }
-  function bindLead(){
     ['first','last','email','whatsapp'].forEach(function(k){
-      var el = $('g0-' + k); if (!el) return;
-      el.addEventListener('input', function(){ state.lead[k] = el.value; clearErr('g0-' + k); if (k === 'email') emailSuggest('g0-email'); save(); renderFolio(); });
+      var el = $('g0-' + k);
+      el.addEventListener('input', function(){ state.lead[k] = el.value; clearErr('g0-' + k); if (k === 'email') emailSuggest('g0-email'); save(); });
     });
     document.querySelectorAll('input[name="g0-gender"]').forEach(function(r){ r.addEventListener('change', function(){ state.lead.gender = r.value; clearErr('g0-gender'); save(); }); });
   }
 
-  /* email typo help */
   var DOMAINS = ['gmail.com','hotmail.com','yahoo.com','outlook.com','icloud.com','live.com','me.com','aol.com','proton.me','protonmail.com','gmx.com','web.de','hotmail.co.uk','yahoo.co.uk'];
   function lev(a,b){ var m = []; for (var i=0;i<=a.length;i++){ m[i]=[i]; for (var j=1;j<=b.length;j++) m[i][j] = i===0 ? j : Math.min(m[i-1][j]+1, m[i][j-1]+1, m[i-1][j-1]+(a[i-1]===b[j-1]?0:1)); } return m[a.length][b.length]; }
   function emailSuggest(id){
@@ -621,17 +628,15 @@ footer a{color:var(--slate)}
     var best = null, bd = 3; DOMAINS.forEach(function(x){ var k = lev(d, x); if (k < bd) { bd = k; best = x; } });
     if (best && bd <= 2) { var fix = v.slice(0, at + 1) + best; s.textContent = 'Did you mean ' + fix + '?'; s.hidden = false; s.onclick = function(){ el.value = fix; el.dispatchEvent(new Event('input')); s.hidden = true; }; }
   }
-
-  /* errors */
   function setErr(id, msg){ var f = $('f-' + id), e = $('e-' + id); if (f) f.classList.add('bad'); if (e) e.textContent = msg; }
   function clearErr(id){ var f = $('f-' + id); if (f) f.classList.remove('bad'); }
   function showAlert(n, msg){ var a = $('err' + n); if (!a) return; if (msg) { a.textContent = msg; a.hidden = false; } else a.hidden = true; }
   var EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
-  /* ---------------- step 1 ---------------- */
+  /* ---------------- step 1 · rooms ---------------- */
   function renderCount(){
     var maxG = Math.max(1, Math.min(MAXG, progLeft()));
-    if (state.guests > maxG) setGuests(maxG);
+    if (state.guests > maxG) { setGuests(maxG); return; }
     $('gCount').textContent = state.guests + (state.guests === 1 ? ' guest' : ' guests');
     $('gMinus').disabled = state.guests <= 1; $('gPlus').disabled = state.guests >= maxG;
     $('countHint').textContent = 'Up to ' + MAXG + ' per booking · ' + progLeft() + ' ' + (progLeft() === 1 ? 'place' : 'places') + ' left this week';
@@ -641,37 +646,24 @@ footer a{color:var(--slate)}
     while (state.others.length < n - 1) state.others.push(blankGuest());
     state.others = state.others.slice(0, Math.max(0, n - 1));
     if (state.mixed) {
-      // trim counts from the most recently added rooms if there are now too many
       var over = assigned() - n;
       Object.keys(state.assign).reverse().forEach(function(k){ while (over > 0 && state.assign[k] > 0) { state.assign[k]--; over--; } if (!state.assign[k]) delete state.assign[k]; });
       syncGuestRooms();
+      if (n === 1) { var only = Object.keys(state.assign)[0]; state.mixed = false; state.room = only || state.room; state.assign = {}; }
     }
-    if (n === 1 && state.mixed) { state.mixed = false; var only = Object.keys(state.assign)[0]; state.room = only || state.room; state.assign = {}; }
     save(); render();
   }
-  function validate1(){
-    var L = state.lead, ok = true;
-    if (!L.first.trim()) { setErr('g0-first', 'Please add your first name.'); ok = false; }
-    if (!L.last.trim()) { setErr('g0-last', 'Please add your last name.'); ok = false; }
-    if (!EMAIL.test(L.email.trim())) { setErr('g0-email', 'Please add a valid email address.'); ok = false; }
-    if (!/^\+\d{7,15}$/.test(L.whatsapp.replace(/[\s().-]/g, ''))) { setErr('g0-whatsapp', 'Add your number with the country code, starting with +.'); ok = false; }
-    if (!L.gender) { setErr('g0-gender', 'Please choose an option.'); ok = false; }
-    showAlert(1, ok ? '' : 'A few details need your attention.');
-    return ok;
-  }
-
-  /* ---------------- step 2 ---------------- */
   function renderFilters(){
     var cats = ['all'].concat(Object.keys(CATS).filter(function(c){ return P.rooms.some(function(r){ return r.category === c; }); }));
-    $('filters').innerHTML = cats.map(function(c){ return '<button type="button" data-f="' + c + '" aria-pressed="' + (state.filter === c) + '">' + (c === 'all' ? 'All' : CATS[c] + (c === 'private' ? '' : c === 'shared' ? 's' : '')) + '</button>'; }).join('');
+    $('filters').innerHTML = cats.map(function(c){ return '<button type="button" data-f="' + c + '" aria-pressed="' + (state.filter === c) + '">' + FILTER[c] + '</button>'; }).join('');
     $('filters').querySelectorAll('button').forEach(function(b){ b.onclick = function(){ state.filter = b.getAttribute('data-f'); save(); renderFilters(); renderRooms(); }; });
   }
-  function photosHtml(r){
+  function photosHtml(r, captionHtml, overlays){
     var figs = r.photos.map(function(p, i){ return '<figure><img src="' + IMG + p + '" alt="' + esc(r.name) + ', photo ' + (i + 1) + '" loading="lazy" decoding="async" width="1100" height="733"></figure>'; });
     if (r.plan) figs.push('<figure class="plan"><img src="' + IMG + r.plan + '" alt="Floor plan of the ' + esc(r.name) + '" loading="lazy" decoding="async" width="560" height="569"><figcaption>Floor plan</figcaption></figure>');
     var n = figs.length;
-    return '<div class="ph"><div class="ph-track" tabindex="0" aria-label="Photos of ' + esc(r.name) + '">' + figs.join('') + '</div>' +
-      (n > 1 ? '<button type="button" class="ph-nav prev" aria-label="Previous photo"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><button type="button" class="ph-nav next" aria-label="Next photo"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button><div class="ph-dots">' + Array.from({ length:n }, function(_, i){ return '<i' + (i ? '' : ' class="on"') + '></i>'; }).join('') + '</div>' : '');
+    return '<div class="ph' + (n > 1 ? ' has-dots' : '') + '"><div class="ph-track" tabindex="0" aria-label="Photos of ' + esc(r.name) + '">' + figs.join('') + '</div>' + overlays + captionHtml +
+      (n > 1 ? '<button type="button" class="ph-nav prev" aria-label="Previous photo"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><button type="button" class="ph-nav next" aria-label="Next photo"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button><div class="ph-dots">' + Array.from({ length:n }, function(_, i){ return '<i' + (i ? '' : ' class="on"') + '></i>'; }).join('') + '</div>' : '') + '</div>';
   }
   function renderRooms(){
     var list = P.rooms.slice().sort(function(a, b){ return (left(a.id) <= 0) - (left(b.id) <= 0); })
@@ -679,39 +671,50 @@ footer a{color:var(--slate)}
     var nights = P.dates.nights;
     $('rooms').innerHTML = list.map(function(r){
       var l = left(r.id), out = l <= 0, sel = state.mixed ? (state.assign[r.id] > 0) : state.room === r.id;
+      var fits = l >= state.guests, pickable = !out && !state.mixed && fits;
       var badge = out ? '<span class="badge out">Sold out</span>' : '<span class="badge' + (l <= 3 ? ' low' : '') + '">' + (l <= 3 ? 'Only ' + l + ' left' : l + ' places left') + '</span>';
-      var perNight = Math.round(r.price / nights);
-      var priceLbl = r.unit === 'person' ? 'per person · ' + nights + ' nights, meals included' : 'per cottage (2 guests) · ' + nights + ' nights, meals';
-      var facts = '<li>' + ICON.bed + (r.sleeps === 1 ? 'Sleeps 1' : 'Sleeps ' + r.sleeps) + '</li><li>' + ICON.bath + esc(r.bath) + '</li>' + (r.shared_with ? '<li>' + ICON.ppl + 'Shared with ' + esc(r.shared_with) + '</li>' : '') + '<li>' + ICON.meal + 'All meals</li>';
+      var caption = '<div class="ph-cap"><h3>' + esc(r.name) + '</h3><p class="pp"><b>' + money(r.price * 100) + '</b><small>' + (r.unit === 'person' ? 'per person' : 'for 2 guests') + ' · ' + nights + ' nights</small></p></div>';
+      var facts = '<li>' + ICON.bed + 'Sleeps ' + r.sleeps + '</li><li>' + ICON.bath + esc(r.bath) + '</li>' + (r.shared_with ? '<li>' + ICON.ppl + 'Shared with ' + esc(r.shared_with) + '</li>' : '') + '<li>' + ICON.meal + 'All meals</li>';
       var action;
       if (out) action = '<button type="button" class="pick" disabled>Sold out</button>';
       else if (state.mixed) {
         var c = state.assign[r.id] || 0;
         action = '<div class="ctr" role="group" aria-label="Guests in ' + esc(r.name) + '"><button type="button" data-dec="' + r.id + '" aria-label="One guest fewer here"' + (c <= 0 ? ' disabled' : '') + '>&minus;</button><output>' + c + (c === 1 ? ' guest' : ' guests') + '</output><button type="button" data-inc="' + r.id + '" aria-label="One guest more here"' + (c >= l || assigned() >= state.guests ? ' disabled' : '') + '>+</button></div>';
       } else {
-        var fits = l >= state.guests;
-        action = '<button type="button" class="pick" data-pick="' + r.id + '"' + (fits ? '' : ' disabled') + '>' + (sel ? 'Selected' : 'Choose this room') + '</button>' +
-          (fits ? '' : '<p class="limit">Only ' + l + ' ' + (l === 1 ? 'place' : 'places') + ' left: book fewer guests, or turn on "different rooms".</p>');
+        action = '<button type="button" class="pick" data-pick="' + r.id + '"' + (fits ? '' : ' disabled') + ' aria-pressed="' + sel + '">' + (sel ? 'Selected &#10003;' : 'Choose this room') + '</button>';
       }
-      return '<article class="room' + (sel ? ' sel' : '') + (out ? ' out' : '') + '" data-room="' + r.id + '">' + photosHtml(r) + badge + '<span class="check" aria-hidden="true"></span>' +
-        '<div class="rb"><p class="rk">' + esc(CATS[r.category] || '') + ' · ' + esc(r.bath) + '</p><h3>' + esc(r.name) + '</h3><p class="rs">' + esc(r.summary) + '</p><ul class="facts">' + facts + '</ul>' +
+      var perNight = r.unit === 'person' ? 'About ' + money(Math.round(r.price / nights) * 100) + ' a night, meals included' : 'Whole cottage for two, meals included';
+      return '<article class="room' + (sel ? ' sel' : '') + (out ? ' out' : '') + (pickable ? ' pickable' : '') + '" data-room="' + r.id + '">' +
+        photosHtml(r, caption, badge + '<span class="check" aria-hidden="true"></span>') +
+        '<div class="rb"><p class="rk">' + esc(CATS[r.category] || '') + ' · ' + esc(r.bath) + '</p><p class="rs">' + esc(r.summary) + '</p><ul class="facts">' + facts + '</ul>' +
         '<button type="button" class="more" aria-expanded="false">More about this room</button><p class="desc" hidden>' + esc(r.description) + '</p>' +
-        '<div class="rf"><div class="price"><b>' + money(r.price * 100) + '</b><span>' + priceLbl + '</span>' + (r.unit === 'person' ? '<span>About ' + money(perNight * 100) + ' a night</span>' : '') + '</div>' + action + '</div></div></article>';
+        (!out && !state.mixed && !fits ? '<p class="limit">Only ' + l + ' ' + (l === 1 ? 'place' : 'places') + ' left here: choose fewer guests, or turn on "different rooms".</p>' : '') +
+        '<div class="rf"><span class="pn">' + perNight + '</span>' + action + '</div></div></article>';
     }).join('') || '<p class="fol-empty">No rooms in this category.</p>';
     bindRooms();
-    var sub = state.guests === 1 ? 'Every price includes ' + P.dates.nights + ' nights and all meals. Live availability, straight from our booking system.' :
-      'Choose one room type for all ' + state.guests + ' guests, or turn on "different rooms" to split your group. Prices include ' + P.dates.nights + ' nights and all meals.';
-    $('roomsSub').textContent = sub;
+    $('roomsSub').textContent = state.guests === 1
+      ? 'Tap a room to choose it. Prices include ' + nights + ' nights and all meals, and availability updates live.'
+      : 'Choose one room type for all ' + state.guests + ' guests, or turn on "different rooms" to split your group. Prices include ' + nights + ' nights and all meals.';
     $('mixedRow').hidden = state.guests < 2;
     $('mixedToggle').checked = state.mixed;
     var a = assigned();
     $('placedNote').textContent = state.mixed ? (a === state.guests ? 'All ' + state.guests + ' guests placed' : a + ' of ' + state.guests + ' guests placed') : '';
     $('placedNote').classList.toggle('okk', state.mixed && a === state.guests);
   }
+  function pickRoom(id){
+    if (left(id) < state.guests) { showAlert(1, ROOMS[id].name + ' only has ' + left(id) + ' ' + (left(id) === 1 ? 'place' : 'places') + ' left. Choose fewer guests, or turn on "different rooms".'); return; }
+    state.room = id; showAlert(1, ''); save(); render();
+  }
   function bindRooms(){
     var root = $('rooms');
-    root.querySelectorAll('[data-pick]').forEach(function(b){ b.onclick = function(){ state.room = b.getAttribute('data-pick'); showAlert(2, ''); save(); render(); }; });
-    root.querySelectorAll('[data-inc]').forEach(function(b){ b.onclick = function(){ var id = b.getAttribute('data-inc'); state.assign[id] = (state.assign[id] || 0) + 1; syncGuestRooms(); showAlert(2, ''); save(); render(); }; });
+    root.querySelectorAll('[data-pick]').forEach(function(b){ b.onclick = function(e){ e.stopPropagation(); pickRoom(b.getAttribute('data-pick')); }; });
+    root.querySelectorAll('.room.pickable').forEach(function(card){
+      card.addEventListener('click', function(e){
+        if (e.target.closest('button, a, input, select, .ctr')) return;
+        pickRoom(card.getAttribute('data-room'));
+      });
+    });
+    root.querySelectorAll('[data-inc]').forEach(function(b){ b.onclick = function(){ var id = b.getAttribute('data-inc'); state.assign[id] = (state.assign[id] || 0) + 1; syncGuestRooms(); showAlert(1, ''); save(); render(); }; });
     root.querySelectorAll('[data-dec]').forEach(function(b){ b.onclick = function(){ var id = b.getAttribute('data-dec'); state.assign[id] = Math.max(0, (state.assign[id] || 0) - 1); if (!state.assign[id]) delete state.assign[id]; syncGuestRooms(); save(); render(); }; });
     root.querySelectorAll('.more').forEach(function(b){ b.onclick = function(){ var d = b.nextElementSibling, open = d.hidden; d.hidden = !open; b.setAttribute('aria-expanded', open); b.textContent = open ? 'Show less' : 'More about this room'; }; });
     root.querySelectorAll('.ph').forEach(function(ph){
@@ -730,34 +733,37 @@ footer a{color:var(--slate)}
     else { var ks = Object.keys(state.assign); state.room = ks.length === 1 ? ks[0] : (state.room || null); state.assign = {}; }
     save(); render();
   });
-  function validate2(){
+  function validateRooms(){
     if (state.mixed) {
       var a = assigned();
-      if (a !== state.guests) { showAlert(2, a < state.guests ? 'Place ' + (state.guests - a) + ' more ' + (state.guests - a === 1 ? 'guest' : 'guests') + ' in a room to continue.' : 'You have placed more guests than are in your booking.'); return false; }
-      for (var k in state.assign) if (state.assign[k] > left(k)) { showAlert(2, ROOMS[k].name + ' only has ' + left(k) + ' places left.'); return false; }
-      return true;
+      if (a !== state.guests) { showAlert(1, a < state.guests ? 'Place ' + (state.guests - a) + ' more ' + (state.guests - a === 1 ? 'guest' : 'guests') + ' in a room to continue.' : 'You have placed more guests than are in your booking.'); return false; }
+      for (var k in state.assign) if (state.assign[k] > left(k)) { showAlert(1, ROOMS[k].name + ' only has ' + left(k) + ' places left.'); return false; }
+      showAlert(1, ''); return true;
     }
-    if (!state.room) { showAlert(2, 'Choose a room to continue.'); return false; }
-    if (left(state.room) < state.guests) { showAlert(2, ROOMS[state.room].name + ' only has ' + left(state.room) + ' places left.'); return false; }
-    return true;
+    if (!state.room) { showAlert(1, 'Choose a room to continue: tap any room card above.'); return false; }
+    if (left(state.room) < state.guests) { showAlert(1, ROOMS[state.room].name + ' only has ' + left(state.room) + ' places left.'); return false; }
+    showAlert(1, ''); return true;
   }
 
-  /* ---------------- step 3 ---------------- */
+  /* ---------------- step 2 · details ---------------- */
+  function roomSelect(i, cur, opts){
+    return '<div class="f" style="margin:-4px 0 16px;max-width:360px"><label for="gr' + i + '">Sleeps in</label><select id="gr' + i + '" data-guestroom="' + i + '">' +
+      opts.map(function(o){ return '<option value="' + o + '"' + (o === cur ? ' selected' : '') + '>' + esc(ROOMS[o].name) + '</option>'; }).join('') + '</select></div>';
+  }
   function renderGuests(){
-    var rooms = guestRoomList();
+    var rooms = guestRoomList(), opts = state.mixed ? Object.keys(state.assign) : [];
     var shared = rooms.some(function(id){ return id && ROOMS[id] && ROOMS[id].category !== 'private' && ROOMS[id].sleeps > 1; });
     $('roommateField').hidden = !shared;
     $('roommate').value = state.roommate;
-    $('detailsSub').textContent = state.guests === 1
-      ? (shared ? 'Want to share with a friend who booked separately? Tell us below. Otherwise, you\'re ready to review.' : 'Nothing else needed: you\'re ready to review your booking.')
-      : 'Add each guest\'s details so we can send them arrival information and allocate beds.' + (state.mixed ? ' Check who sleeps where.' : '');
-    var opts = state.mixed ? Object.keys(state.assign) : [];
+    $('detailsSub').textContent = state.guests === 1 ? 'Tell us who you are. We\'ll send your confirmation and arrival details here.' : 'Your details first, then each guest\'s, so we can send everyone arrival information and allocate beds.';
+    var tag = function(id){ return id ? ICON.bed.replace('<svg', '<svg width="15" height="15" style="stroke:#D6A652;fill:none;stroke-width:1.6"') + esc(ROOMS[id].name) : ''; };
+    $('leadRoom').innerHTML = tag(rooms[0]);
+    $('leadRoomSel').innerHTML = state.mixed && opts.length > 1 ? roomSelect(0, rooms[0], opts) : '';
     var html = '';
-    html += '<div class="gcard"><p class="who"><span class="n">1</span>' + esc((state.lead.first + ' ' + state.lead.last).trim() || 'Lead guest') + '</p><p class="rtag">' + ICON.bed.replace('<svg', '<svg width="15" height="15" style="stroke:#D6A652;fill:none;stroke-width:1.6"') + esc(rooms[0] ? ROOMS[rooms[0]].name : '') + '</p>' + (state.mixed && opts.length > 1 ? roomSelect(0, rooms[0], opts) : '') + '</div>';
     state.others.forEach(function(g, i){
       var n = i + 1, id = 'g' + n;
       html += '<div class="gcard"><p class="who"><span class="n">' + (n + 1) + '</span>Guest ' + (n + 1) + '</p>' +
-        (state.mixed && opts.length > 1 ? roomSelect(n, rooms[n], opts) : '<p class="rtag">' + esc(rooms[n] ? ROOMS[rooms[n]].name : '') + '</p>') +
+        (state.mixed && opts.length > 1 ? roomSelect(n, rooms[n], opts) : '<p class="rtag">' + tag(rooms[n]) + '</p>') +
         '<div class="grid2">' + field(id + '-first', 'First name', { value:g.first }) + field(id + '-last', 'Last name', { value:g.last }) +
         field(id + '-email', 'Email', { value:g.email, type:'email', ph:'name@example.com', suggest:true, full:true }) + field(id + '-gender', 'Gender', { pills:true, value:g.gender }) + '</div></div>';
     });
@@ -767,15 +773,16 @@ footer a{color:var(--slate)}
       ['first','last','email'].forEach(function(k){ var el = $(id + '-' + k); el.addEventListener('input', function(){ g[k] = el.value; clearErr(id + '-' + k); if (k === 'email') emailSuggest(id + '-email'); save(); }); });
       document.querySelectorAll('input[name="' + id + '-gender"]').forEach(function(r){ r.addEventListener('change', function(){ g.gender = r.value; clearErr(id + '-gender'); save(); }); });
     });
-    document.querySelectorAll('[data-guestroom]').forEach(function(s){ s.addEventListener('change', function(){ state.guestRooms[+s.getAttribute('data-guestroom')] = s.value; showAlert(3, ''); save(); renderFolio(); }); });
-  }
-  function roomSelect(i, cur, opts){
-    return '<div class="f" style="margin:-4px 0 16px;max-width:360px"><label for="gr' + i + '">Sleeps in</label><select id="gr' + i + '" data-guestroom="' + i + '">' +
-      opts.map(function(o){ return '<option value="' + o + '"' + (o === cur ? ' selected' : '') + '>' + esc(ROOMS[o].name) + '</option>'; }).join('') + '</select></div>';
+    document.querySelectorAll('[data-guestroom]').forEach(function(s){ s.addEventListener('change', function(){ state.guestRooms[+s.getAttribute('data-guestroom')] = s.value; showAlert(2, ''); save(); renderFolio(); renderGuests(); }); });
   }
   $('roommate').addEventListener('input', function(e){ state.roommate = e.target.value; save(); });
-  function validate3(){
-    var ok = true;
+  function validateDetails(){
+    var ok = true, L = state.lead;
+    if (!L.first.trim()) { setErr('g0-first', 'Please add your first name.'); ok = false; }
+    if (!L.last.trim()) { setErr('g0-last', 'Please add your last name.'); ok = false; }
+    if (!EMAIL.test(L.email.trim())) { setErr('g0-email', 'Please add a valid email address.'); ok = false; }
+    if (!/^\+\d{7,15}$/.test(L.whatsapp.replace(/[\s().-]/g, ''))) { setErr('g0-whatsapp', 'Add your number with the country code, starting with +.'); ok = false; }
+    if (!L.gender) { setErr('g0-gender', 'Please choose an option.'); ok = false; }
     state.others.forEach(function(g, i){
       var id = 'g' + (i + 1);
       if (!g.first.trim()) { setErr(id + '-first', 'Please add a first name.'); ok = false; }
@@ -783,70 +790,74 @@ footer a{color:var(--slate)}
       if (!EMAIL.test(g.email.trim())) { setErr(id + '-email', 'Please add a valid email.'); ok = false; }
       if (!g.gender) { setErr(id + '-gender', 'Please choose an option.'); ok = false; }
     });
+    var mismatch = '';
     if (state.mixed) {
       var c = counts();
-      for (var k in state.assign) if ((c[k] || 0) !== state.assign[k]) { showAlert(3, ROOMS[k].name + ' has ' + state.assign[k] + ' ' + (state.assign[k] === 1 ? 'place' : 'places') + ' booked but ' + (c[k] || 0) + ' assigned. Check who sleeps where.'); return false; }
+      for (var k in state.assign) if ((c[k] || 0) !== state.assign[k]) { mismatch = ROOMS[k].name + ' has ' + state.assign[k] + ' ' + (state.assign[k] === 1 ? 'place' : 'places') + ' booked but ' + (c[k] || 0) + ' assigned. Check who sleeps where.'; break; }
     }
-    showAlert(3, ok ? '' : 'A few details need your attention.');
-    return ok;
+    showAlert(2, mismatch || (ok ? '' : 'A few details need your attention.'));
+    return ok && !mismatch;
   }
 
-  /* ---------------- step 4 ---------------- */
+  /* ---------------- step 3 · review & pay ---------------- */
   function renderReview(){
     var t = totals(), rooms = guestRoomList();
     var people = [{ n:(state.lead.first + ' ' + state.lead.last).trim(), r:rooms[0] }].concat(state.others.map(function(g, i){ return { n:(g.first + ' ' + g.last).trim(), r:rooms[i + 1] }; }));
     $('review').innerHTML =
       '<li><span class="k">Dates</span><span class="v">' + esc(P.dates.label) + ' · ' + P.dates.nights + ' nights</span></li>' +
-      people.map(function(p, i){ return '<li><span class="k">' + (i ? 'Guest ' + (i + 1) : 'Lead guest') + '</span><span class="v">' + esc(p.n || '—') + ' · ' + esc(p.r ? ROOMS[p.r].name : '') + '<button type="button" class="edit" data-go="' + (i ? 3 : 1) + '">Edit</button></span></li>'; }).join('') +
+      '<li><span class="k">Accommodation</span><span class="v">' + t.lines.map(function(l){ return esc(l.name) + ' × ' + l.n; }).join(', ') + '<button type="button" class="edit" data-go="1">Change</button></span></li>' +
+      people.map(function(p, i){ return '<li><span class="k">' + (i ? 'Guest ' + (i + 1) : 'Lead guest') + '</span><span class="v">' + esc(p.n || '—') + (state.mixed ? ' · ' + esc(p.r ? ROOMS[p.r].name : '') : '') + '<button type="button" class="edit" data-go="2">Edit</button></span></li>'; }).join('') +
       '<li><span class="k">Contact</span><span class="v">' + esc(state.lead.email) + ' · ' + esc(state.lead.whatsapp) + '</span></li>' +
       (state.roommate ? '<li><span class="k">Roommate request</span><span class="v">' + esc(state.roommate) + '</span></li>' : '');
     $('review').querySelectorAll('[data-go]').forEach(function(b){ b.onclick = function(){ goStep(+b.getAttribute('data-go')); }; });
-    var dep = t.deposit, full = t.total;
     $('payOpts').innerHTML =
-      '<label class="opt"><input type="radio" name="pay" value="deposit"' + (state.payment === 'deposit' ? ' checked' : '') + '><span class="rad"></span><span class="t"><b>Pay a ' + P.deposit.percent + '% deposit today</b><span>Then ' + money(full - dep) + '. ' + esc(P.deposit.balance_note) + '</span></span><span class="amt">' + money(dep) + '</span></label>' +
-      '<label class="opt"><input type="radio" name="pay" value="full"' + (state.payment === 'full' ? ' checked' : '') + '><span class="rad"></span><span class="t"><b>Pay in full</b><span>Settle everything now. Nothing more to pay before you arrive.</span></span><span class="amt">' + money(full) + '</span></label>';
+      '<label class="opt"><input type="radio" name="pay" value="deposit"' + (state.payment === 'deposit' ? ' checked' : '') + '><span class="rad"></span><span class="t"><b>Pay a ' + P.deposit.percent + '% deposit today</b><span>Then ' + money(t.total - t.deposit) + '. ' + esc(P.deposit.balance_note) + '</span></span><span class="amt">' + money(t.deposit) + '</span></label>' +
+      '<label class="opt"><input type="radio" name="pay" value="full"' + (state.payment === 'full' ? ' checked' : '') + '><span class="rad"></span><span class="t"><b>Pay in full</b><span>Settle everything now. Nothing more to pay before you arrive.</span></span><span class="amt">' + money(t.total) + '</span></label>';
     document.querySelectorAll('input[name="pay"]').forEach(function(r){ r.onchange = function(){ state.payment = r.value; save(); renderFolio(); payLabel(); }; });
     $('terms').checked = state.terms;
     payLabel();
   }
-  function payLabel(){ var t = totals(); $('payBtn').innerHTML = 'Pay ' + money(t.due) + ' securely <span class="arr">&rarr;</span>'; }
-  $('terms').addEventListener('change', function(e){ state.terms = e.target.checked; $('termsRow').classList.remove('bad'); });
+  function payLabel(){ $('payBtn').innerHTML = 'Pay ' + money(totals().due) + ' securely <span class="arr">&rarr;</span>'; }
+  $('terms').addEventListener('change', function(e){ state.terms = e.target.checked; $('termsRow').classList.remove('bad'); showAlert(3, ''); });
 
   function pay(){
-    if (!validate1()) return goStep(1);
-    if (!validate2()) return goStep(2);
-    if (!validate3()) return goStep(3);
-    if (!state.terms) { $('termsRow').classList.add('bad'); showAlert(4, 'Please agree to the terms and conditions to continue.'); return; }
-    showAlert(4, '');
+    if (!validateRooms()) return goStep(1, false, true);
+    if (!validateDetails()) return goStep(2, false, true);
+    if (!state.terms) { $('termsRow').classList.add('bad'); showAlert(3, 'Please agree to the terms and conditions to continue.'); return; }
+    showAlert(3, '');
     var rooms = guestRoomList();
     var guests = [{ first:state.lead.first, last:state.lead.last, email:state.lead.email, gender:state.lead.gender, room:rooms[0] }]
       .concat(state.others.map(function(g, i){ return { first:g.first, last:g.last, email:g.email, gender:g.gender, room:rooms[i + 1] }; }));
     var utm = {}; try { utm = (JSON.parse(localStorage.getItem('aob_utm') || 'null') || {}).p || {}; } catch(e){}
     var body = { program:P.id, payment:state.payment, guests:guests, whatsapp:state.lead.whatsapp, roommate:state.roommate, terms:true,
       return_url: location.origin + location.pathname, page: location.origin + location.pathname, utm: utm };
-    var btn = $('payBtn'), old = btn.innerHTML; btn.disabled = true; btn.innerHTML = '<span class="spin"></span> Opening secure checkout…';
+    var btns = [$('payBtn'), $('mbarNext')].concat(Array.prototype.slice.call(document.querySelectorAll('[data-fcta]')));
+    var olds = btns.map(function(b){ return b.innerHTML; });
+    btns.forEach(function(b){ b.disabled = true; }); $('payBtn').innerHTML = '<span class="spin"></span> Opening secure checkout…';
+    var restore = function(){ btns.forEach(function(b, i){ b.disabled = false; b.innerHTML = olds[i]; }); };
     fetch(API + '/api/booking/checkout', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify(body) })
       .then(function(r){ return r.json().then(function(d){ return { s:r.status, d:d }; }); })
       .then(function(res){
         var d = res.d;
         if (d.url) { save(); location.href = d.url; return; }
-        btn.disabled = false; btn.innerHTML = old;
+        restore();
         if (d.demo) return demo(d);
-        if (res.s === 409) { avail = d.availability || avail; render(); showAlert(2, d.error + ' Please choose again.'); return goStep(2); }
-        if (d.fields) { mapServerErrors(d.fields); }
-        showAlert(4, d.error || 'Something went wrong. Please try again.');
+        if (res.s === 409) { avail = d.availability || avail; render(); showAlert(1, d.error + ' Please choose again.'); return goStep(1); }
+        if (d.fields) mapServerErrors(d.fields);
+        showAlert(3, d.error || 'Something went wrong. Please try again.');
       })
-      .catch(function(){ btn.disabled = false; btn.innerHTML = old; showAlert(4, 'We could not reach the booking system. Check your connection and try again, or message us on WhatsApp.'); });
+      .catch(function(){ restore(); showAlert(3, 'We could not reach the booking system. Check your connection and try again, or message us on WhatsApp.'); });
   }
   function mapServerErrors(fields){
-    var first = 4;
-    Object.keys(fields).forEach(function(k){
+    var keys = Object.keys(fields), toDetails = keys.some(function(k){ return /^guests\.\d+\.(first|last|email|gender)$/.test(k) || k === 'whatsapp'; });
+    if (toDetails) goStep(2);
+    keys.forEach(function(k){
       var m = k.match(/^guests\.(\d+)\.(\w+)$/);
-      if (m) { setErr('g' + m[1] + '-' + m[2], fields[k]); first = Math.min(first, +m[1] === 0 ? 1 : 3); }
-      else if (k === 'whatsapp') { setErr('g0-whatsapp', fields[k]); first = 1; }
-      else if (k === 'terms') { $('termsRow').classList.add('bad'); }
+      if (m) { if (m[2] !== 'room') setErr('g' + m[1] + '-' + m[2], fields[k]); }
+      else if (k === 'whatsapp') setErr('g0-whatsapp', fields[k]);
+      else if (k === 'terms') $('termsRow').classList.add('bad');
     });
-    if (first < 4) goStep(first);
+    if (toDetails) showAlert(2, 'A few details need your attention.');
   }
   function demo(d){
     var q = d.quote;
@@ -858,11 +869,16 @@ footer a{color:var(--slate)}
   $('payBtn').onclick = pay;
 
   /* ---------------- summary ---------------- */
+  function ctaLabel(){
+    if (state.step === 1) return 'Continue to guest details <span class="arr">&rarr;</span>';
+    if (state.step === 2) return 'Review your booking <span class="arr">&rarr;</span>';
+    return 'Pay ' + money(totals().due) + ' securely <span class="arr">&rarr;</span>';
+  }
   function folioHtml(){
     var t = totals(), sel = guestRoomList()[0], img = sel ? ROOMS[sel].photos[0] : P.hero_image;
     var lines = t.lines.length ? t.lines.map(function(l){
       return '<div class="fol-line"><span class="k"><b>' + esc(l.name) + '</b><small>' + l.n + ' ' + (l.n === 1 ? 'guest' : 'guests') + (l.unit === 'person' ? ' × ' + money(l.per) : '') + '</small></span><span>' + money(l.amt) + '</span></div>';
-    }).join('') : '<p class="fol-empty">Choose a room to see your total.</p>';
+    }).join('') : '<p class="fol-empty">Tap a room to see your total.</p>';
     return '<div class="fol-top" style="background-image:url(\'' + IMG + img + '\')"><p><small>' + esc(P.edition) + ' · ' + esc(P.venue.region) + '</small>' + esc(P.dates.medium || P.dates.label) + '</p></div>' +
       '<div class="fol-b"><div class="fol-row"><span class="k">Stay</span><span class="v">' + P.dates.nights + ' nights · all meals</span></div>' +
       '<div class="fol-row"><span class="k">Guests</span><span class="v">' + state.guests + '</span></div><div class="fol-lines">' + lines + '</div>' +
@@ -870,40 +886,54 @@ footer a{color:var(--slate)}
       '<div class="fol-total"><span class="k">Total</span><span class="v">' + money(t.total) + '</span></div>' +
       '<div class="fol-due"><span class="k">' + (state.payment === 'full' ? 'Due today' : 'Due today · ' + P.deposit.percent + '%') + '</span><span class="v">' + money(t.total ? t.due : 0) + '</span></div>' +
       (t.total && t.balance ? '<p class="fol-bal">Then ' + money(t.balance) + ' before you arrive</p>' : '') +
+      '<button type="button" class="btn btn-primary fol-cta" data-fcta' + (state.step === 1 && !roomsComplete() ? ' disabled' : '') + '>' + ctaLabel() + '</button>' +
       '<div class="trust"><span><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Secure payment by Stripe</span><span><svg viewBox="0 0 24 24"><path d="M4 12l5 5L20 6"/></svg>Receipt and invoice by email</span><span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>' + (availLive ? 'Live availability' : 'Availability as of ' + esc(P.source.snapshot)) + '</span></div></div>';
   }
+  function primary(){ if (state.step === 3) pay(); else goStep(state.step + 1); }
   function renderFolio(){
     var h = folioHtml(); $('folio').innerHTML = h; $('folioSheet').innerHTML = h;
+    document.querySelectorAll('[data-fcta]').forEach(function(b){ b.onclick = function(){ if ($('sheet').classList.contains('open')) $('sumBtn').click(); primary(); }; });
     var t = totals();
     $('mbarAmt').textContent = money(t.total ? t.due : 0);
-    $('mbarLbl').textContent = t.total ? (state.payment === 'full' ? 'Due today' : 'Due today · ' + P.deposit.percent + '%') : 'Choose a room';
+    $('mbarLbl').textContent = t.total ? (state.payment === 'full' ? 'Due today' : 'Due today · ' + P.deposit.percent + '%') : 'Tap a room';
+    $('mbarNext').innerHTML = state.step === 3 ? 'Pay ' + money(t.due) + ' <span class="arr">&rarr;</span>' : 'Continue <span class="arr">&rarr;</span>';
+    $('mbarNext').disabled = state.step === 1 && !roomsComplete();
   }
 
   /* ---------------- steps ---------------- */
-  function validateUpTo(n){ for (var i = 1; i < n; i++) { if (i === 1 && !validate1()) return 1; if (i === 2 && !validate2()) return 2; if (i === 3 && !validate3()) return 3; } return n; }
-  function goStep(n, noScroll){
-    if (n > state.step) n = validateUpTo(n);
+  function validateUpTo(n){
+    if (n > 1 && !validateRooms()) return 1;
+    if (n > 2 && !validateDetails()) return 2;
+    return n;
+  }
+  function goStep(n, noScroll, showErrs){
+    var want = n;
+    if (n > state.step || (n > 1 && noScroll)) n = validateUpTo(n);
+    var redirected = want !== n;
     state.step = n; save();
-    for (var i = 1; i <= 4; i++) $('step' + i).hidden = i !== n;
-    if (n === 3) renderGuests();
-    if (n === 4) renderReview();
-    renderSteps();
-    $('mbarNext').innerHTML = n === 4 ? 'Pay ' + money(totals().due) + ' <span class="arr">&rarr;</span>' : (n === 1 ? 'Choose your room' : 'Continue') + ' <span class="arr">&rarr;</span>';
+    for (var i = 1; i <= 3; i++) $('step' + i).hidden = i !== n;
+    // re-render first, then re-apply any validation messages so redrawn fields keep them
+    if (n === 1 && (redirected || showErrs)) validateRooms();
+    if (n === 2) { renderGuests(); if (redirected || showErrs) validateDetails(); }
+    if (n === 3) renderReview();
+    renderSteps(); renderFolio();
     try { history.replaceState(null, '', location.pathname + location.search + '#step-' + n); } catch(e){}
-    if (!noScroll) { var top = $('steps').getBoundingClientRect().top + window.scrollY - 70; window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' }); }
-    var h = document.querySelector('#step' + n + ' h2'); if (h && !noScroll) { h.setAttribute('tabindex', '-1'); h.focus({ preventScroll:true }); }
+    if (!noScroll) {
+      var top = $('steps').getBoundingClientRect().top + window.scrollY - 70; window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+      var h = document.querySelector('#step' + n + ' h2'); if (h) { h.setAttribute('tabindex', '-1'); h.focus({ preventScroll:true }); }
+    }
   }
   function renderSteps(){
     document.querySelectorAll('#steps li').forEach(function(li){
       var s = +li.getAttribute('data-step');
       li.classList.toggle('cur', s === state.step); li.classList.toggle('done', s < state.step);
-      li.querySelector('button').setAttribute('aria-current', s === state.step ? 'step' : 'false');
-      li.querySelector('button').onclick = function(){ if (s < state.step) goStep(s); };
+      var b = li.querySelector('button'); b.setAttribute('aria-current', s === state.step ? 'step' : 'false');
+      b.onclick = function(){ if (s < state.step) goStep(s); };
     });
   }
   document.querySelectorAll('[data-next]').forEach(function(b){ b.onclick = function(){ goStep(+b.getAttribute('data-next')); }; });
   document.querySelectorAll('[data-back]').forEach(function(b){ b.onclick = function(){ goStep(+b.getAttribute('data-back')); }; });
-  $('mbarNext').onclick = function(){ state.step === 4 ? pay() : goStep(state.step + 1); };
+  $('mbarNext').onclick = primary;
   $('gMinus').onclick = function(){ if (state.guests > 1) setGuests(state.guests - 1); };
   $('gPlus').onclick = function(){ setGuests(state.guests + 1); };
   var sheet = $('sheet');
@@ -914,8 +944,8 @@ footer a{color:var(--slate)}
   function render(){
     $('placesLeft').textContent = progLeft();
     renderCount(); renderFilters(); renderRooms(); renderFolio();
-    if (state.step === 3) renderGuests();
-    if (state.step === 4) renderReview();
+    if (state.step === 2) renderGuests();
+    if (state.step === 3) renderReview();
   }
 
   /* ---------------- static text ---------------- */
@@ -939,7 +969,7 @@ footer a{color:var(--slate)}
   function showDone(s){
     ['hero','steps'].forEach(function(id){ $(id).hidden = true; });
     document.querySelector('.folio').hidden = true; $('mbar').hidden = true;
-    for (var i = 1; i <= 4; i++) $('step' + i).hidden = true;
+    for (var i = 1; i <= 3; i++) $('step' + i).hidden = true;
     $('bk').style.gridTemplateColumns = '1fr'; $('done').hidden = false;
     var paid = s && s.amount_paid_cents, bal = s && s.balance_cents;
     var name = s && s.first_name ? ', ' + esc(s.first_name) : '';
@@ -959,16 +989,16 @@ footer a{color:var(--slate)}
       .then(function(r){ return r.json(); }).then(function(s){ if (s && !s.error && !s.demo) showDone(s); }).catch(function(){});
     return;
   }
-  if (qp.get('status') === 'cancelled') { $('topNote').textContent = 'Your payment wasn\'t completed, so nothing was charged. Your choices are saved below whenever you\'re ready.'; $('topNote').hidden = false; state.step = 4; }
+  if (qp.get('status') === 'cancelled') { $('topNote').textContent = 'Your payment wasn\'t completed, so nothing was charged. Your choices are saved whenever you\'re ready.'; $('topNote').hidden = false; state.step = 3; }
 
   /* ---------------- start ---------------- */
-  if (!state.others) state.others = [];
+  if (!Array.isArray(state.others)) state.others = [];
   setGuests(Math.max(1, Math.min(state.guests || 1, MAXG)));
   renderLead();
-  var startStep = (location.hash.match(/step-(\d)/) || [])[1];
-  goStep(Math.min(4, +(startStep || state.step || 1)), true);
+  var startStep = +((location.hash.match(/step-(\d)/) || [])[1] || state.step || 1);
+  goStep(Math.max(1, Math.min(3, startStep)), true);
   loadAvail();
-  setInterval(function(){ if (!document.hidden && state.step <= 2) loadAvail(); }, 60000);
+  setInterval(function(){ if (!document.hidden && state.step === 1) loadAvail(); }, 60000);
 })();
 </script>
 </body>
