@@ -47,6 +47,7 @@ function aob_pages_proxy_serve() {
 		'breathwork-training'  => '/facilitator-training/',
 		'live-residential-breathwork-facilitator-training' => '/live-residential-breathwork-facilitator-training/',
 		'the-bridge-workshop'  => '/the-bridge-workshop/',
+		'on-site-offer'        => '/on-site-offer/',
 	);
 
 	// Old URLs that now live somewhere else. Redirected so search engines and

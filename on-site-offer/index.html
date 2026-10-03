@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<!-- AOB-UTM:start -->
+<script>
+/* AoB UTM keeper: remembers the campaign tags a visitor arrived with and hands
+   them to GoHighLevel on whatever page they later sign up on.
+   - Stores utm_*, fbclid, gclid, msclkid from the landing URL for 90 days
+     (latest campaign wins), in localStorage and an .alchemyofbreath.com cookie.
+   - Seeds GHL's own form_embed.js memory (sessionStorage "UPS"), so GHL forms
+     attribute the contact to the campaign even when the form page has no tags.
+   - Adds the tags to GHL form/booking iframes and to links into GHL funnels
+     (go. / breathcamp. / link.alchemyofbreath.com), so hidden fields with a
+     matching query key are filled too.
+   Source: tools/utm/aob-utm.js. Inlined into every page by tools/utm/inject.py. */
+(function(){
+  var KEYS=['utm_source','utm_medium','utm_campaign','utm_term','utm_content','utm_id','fbclid','gclid','msclkid'];
+  var STORE='aob_utm', DAYS=90, MS=DAYS*864e5;
+  var ls=function(k,v){ try{ if(v===undefined) return localStorage.getItem(k); localStorage.setItem(k,v); }catch(e){ return null; } };
+  var qs=new URLSearchParams(location.search), got={}, any=false;
+  KEYS.forEach(function(k){ var v=qs.get(k); if(v){ got[k]=v.slice(0,250); any=true; } });
+  var rec=null;
+  if(any){
+    rec={p:got,t:Date.now(),landing:location.origin+location.pathname};
+    ls(STORE,JSON.stringify(rec));
+    try{ document.cookie=STORE+'='+encodeURIComponent(JSON.stringify(got))+';path=/;max-age='+(DAYS*86400)+';SameSite=Lax'+
+      (/(^|\.)alchemyofbreath\.com$/.test(location.hostname)?';domain=.alchemyofbreath.com':''); }catch(e){}
+  } else {
+    try{ rec=JSON.parse(ls(STORE)||'null'); }catch(e){ rec=null; }
+    if(!rec || !rec.p || Date.now()-rec.t>MS) return;
+  }
+  var P=rec.p;
+
+  // GHL form_embed.js falls back to sessionStorage "UPS" when the page URL has no utm_ tags
+  try{
+    var ups=new URLSearchParams(sessionStorage.getItem('UPS')||''), changed=false;
+    for(var k in P){ if(k.indexOf('utm_')===0 && ups.get(k)!==P[k]){ ups.set(k,P[k]); changed=true; } }
+    if(changed) sessionStorage.setItem('UPS','?'+ups.toString());
+  }catch(e){}
+
+  var GHL=/^https:\/\/((link|api)\.(alchemyofbreath\.com|leadconnectorhq\.com)\/widget\/(form|survey|booking|quiz)\/|(go|breathcamp)\.alchemyofbreath\.com\/)/;
+  var withTags=function(url){
+    var u; try{ u=new URL(url,location.href); }catch(e){ return null; }
+    if(!GHL.test(u.href)) return null;
+    var ch=false;
+    for(var k in P){ if(!u.searchParams.has(k)){ u.searchParams.set(k,P[k]); ch=true; } }
+    return ch?u.href:null;
+  };
+  var fixFrame=function(f){
+    ['src','data-src'].forEach(function(a){ var v=f.getAttribute(a), n=v&&withTags(v); if(n) f.setAttribute(a,n); });
+  };
+  var scan=function(root){
+    if(root.tagName==='IFRAME'){ fixFrame(root); return; }
+    if(root.querySelectorAll) [].forEach.call(root.querySelectorAll('iframe'),fixFrame);
+  };
+  scan(document);
+  if('MutationObserver' in window){
+    new MutationObserver(function(ms){ ms.forEach(function(m){ [].forEach.call(m.addedNodes,function(n){ if(n.nodeType===1) scan(n); }); }); })
+      .observe(document.documentElement,{childList:true,subtree:true});
+  }
+  // links into GHL funnels: tag them at click time (covers links built by scripts too)
+  var tagLink=function(e){
+    var a=e.target && e.target.closest && e.target.closest('a[href]'); if(!a) return;
+    var n=withTags(a.getAttribute('href')); if(n) a.setAttribute('href',n);
+  };
+  document.addEventListener('mousedown',tagLink,true);
+  document.addEventListener('touchstart',tagLink,{capture:true,passive:true});
+  document.addEventListener('keydown',function(e){ if(e.key==='Enter') tagLink(e); },true);
+  document.addEventListener('click',tagLink,true);
+})();
+</script>
+<!-- AOB-UTM:end -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>On-site Special Offer | Alchemy of Breath</title>
+<meta name="description" content="On-site special offer: the Inner Journey for $2,097 (standard price $3,097) or the Facilitator Training for $5,900 (standard price $7,200). Choose the AM or PM group.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="canonical" href="https://alchemyofbreath.com/on-site-offer/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Alchemy of Breath">
+<meta property="og:title" content="On-site special offer">
+<meta property="og:description" content="The Inner Journey for $2,097 or the Facilitator Training for $5,900. Choose the AM or PM group.">
+<meta property="og:image" content="https://alchemyofbreath.com/wp-content/uploads/glow-head-578x600.jpg">
+<meta property="og:url" content="https://alchemyofbreath.com/on-site-offer/">
+<meta name="theme-color" content="#FBF7EF">
+<link rel="icon" type="image/png" href="https://alchemyofbreath.com/wp-content/uploads/AOB-Gold-Black-Transparant-symbol.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://link.alchemyofbreath.com">
+<link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FFFFFF;--cream:#FDF6E9;
+  --gold:#E1B668;--gold-deep:#D6A652;--gold-wash:#F7EBD2;
+  --teal:#00A5B2;--slate:#5B7889;--ink:#221F20;--foot:#191617;
+  --grad-gold:linear-gradient(135deg,#E1B668 0%,#D6A652 100%);
+  --shadow-soft:0 1px 2px rgba(34,31,32,.04),0 8px 24px rgba(34,31,32,.06),0 24px 64px rgba(34,31,32,.07);
+  --shadow-lift:0 2px 4px rgba(34,31,32,.05),0 14px 34px rgba(34,31,32,.10),0 34px 80px rgba(34,31,32,.10);
+  --serif:'Marcellus',Georgia,'Times New Roman',serif;
+  --sans:'Roboto',-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{overflow-x:clip}
+body{font-family:var(--sans);font-weight:300;font-size:17px;line-height:1.65;color:var(--ink);background:var(--paper);-webkit-font-smoothing:antialiased;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column}
+main{flex:1 0 auto;display:flex;flex-direction:column}
+::selection{background:var(--gold-wash);color:var(--ink)}
+img{max-width:100%;height:auto;display:block}
+h1,h2{font-family:var(--serif);font-weight:400;line-height:1.16}
+.wrap{max-width:1040px;margin:0 auto;padding:0 26px}
+
+/* nav */
+.nav{position:sticky;top:0;z-index:40;background:rgba(255,255,255,.86);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid rgba(225,182,104,.2)}
+.nav-in{max-width:1040px;margin:0 auto;padding:13px 26px;display:flex;align-items:center;justify-content:center}
+.nav-logo img{height:32px;width:auto}
+
+/* stage */
+.stage{flex:1 0 auto;position:relative;overflow:hidden;padding:56px 0 64px;background:radial-gradient(120% 80% at 50% 0%,var(--cream) 0%,var(--paper) 62%)}
+.stage::before{content:"";position:absolute;top:-220px;left:-180px;width:620px;height:620px;border-radius:50%;background:radial-gradient(circle,rgba(225,182,104,.22) 0%,rgba(225,182,104,0) 68%);pointer-events:none}
+.stage::after{content:"";position:absolute;bottom:-260px;right:-200px;width:680px;height:680px;border-radius:50%;background:radial-gradient(circle,rgba(0,165,178,.10) 0%,rgba(0,165,178,0) 68%);pointer-events:none}
+.intro{position:relative;z-index:1;text-align:center;max-width:34em;margin:0 auto 40px}
+.eyebrow{font-size:.72rem;font-weight:500;letter-spacing:.24em;text-transform:uppercase;color:var(--slate);display:inline-flex;align-items:center;gap:14px;margin-bottom:16px}
+.eyebrow::before,.eyebrow::after{content:"";width:28px;height:1px;background:var(--gold)}
+.intro h1{font-size:clamp(2.1rem,5.4vw,3.1rem);margin-bottom:12px}
+.intro p{font-size:1.02rem;color:var(--slate)}
+.intro h1,.intro p,.desc{text-wrap:balance}
+
+/* offers */
+.offers{position:relative;z-index:1;display:grid;grid-template-columns:1fr auto 1fr;gap:20px;align-items:stretch}
+.offer{background:var(--paper);border:1px solid rgba(225,182,104,.42);border-radius:22px;box-shadow:var(--shadow-lift);padding:34px 30px 30px;display:flex;flex-direction:column;text-align:center}
+.offer h2{font-size:clamp(1.6rem,3vw,1.95rem);margin-bottom:8px}
+.desc{font-size:.95rem;color:var(--slate);line-height:1.6;max-width:24em;margin:0 auto}
+.price{margin:24px 0;padding:22px 0 20px;border-top:1px solid rgba(225,182,104,.32);border-bottom:1px solid rgba(225,182,104,.32)}
+.now{display:flex;align-items:baseline;justify-content:center;gap:8px}
+.num{display:inline-block;font-family:var(--serif);font-size:clamp(3.1rem,10vw,4rem);line-height:1;letter-spacing:-.01em;
+  background:linear-gradient(135deg,#E1B668 0%,#D6A652 45%,#B8862F 100%);-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 8px 22px rgba(214,166,82,.28))}
+.num sup{font-size:.42em;position:relative;top:.14em;vertical-align:top;margin-right:.04em}
+.usd{font-size:.74rem;font-weight:500;letter-spacing:.2em;color:var(--slate)}
+.was{margin-top:10px;font-size:.92rem;color:var(--slate)}
+.was s{color:var(--ink);font-weight:400;text-decoration-color:var(--gold-deep);text-decoration-thickness:2px;margin-left:4px}
+.save{display:inline-block;margin-top:12px;background:var(--gold-wash);color:#8A6420;border-radius:999px;padding:5px 14px;font-size:.72rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase}
+.choose{margin-top:auto}
+.pick{font-size:.72rem;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--slate);margin-bottom:12px}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.btn{display:flex;align-items:center;justify-content:center;gap:10px;min-height:58px;padding:14px 16px;border-radius:999px;background:var(--grad-gold);color:var(--ink);font-weight:500;font-size:1.02rem;letter-spacing:.03em;text-decoration:none;box-shadow:0 8px 20px rgba(214,166,82,.32);transition:transform .2s ease,box-shadow .2s ease}
+.btn:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(214,166,82,.42)}
+.btn:focus-visible{outline:3px solid var(--teal);outline-offset:3px}
+.btn span{transition:transform .2s ease}
+.btn:hover span{transform:translateX(3px)}
+
+/* the training card is the dark one */
+.offer.dark{background:radial-gradient(120% 70% at 50% 0%,#332D2E 0%,var(--ink) 62%);border-color:rgba(225,182,104,.5);color:#fff}
+.offer.dark h2{color:#fff}
+.offer.dark .desc{color:rgba(255,255,255,.74)}
+.offer.dark .price{border-color:rgba(225,182,104,.24)}
+.offer.dark .usd,.offer.dark .pick{color:rgba(255,255,255,.62)}
+.offer.dark .was{color:rgba(255,255,255,.68)}
+.offer.dark .was s{color:#fff}
+.offer.dark .save{background:rgba(225,182,104,.16);color:var(--gold)}
+.offer.dark .btn{box-shadow:0 8px 24px rgba(0,0,0,.35)}
+
+.or{display:flex;align-items:center;justify-content:center}
+.or span{width:52px;height:52px;border-radius:50%;background:var(--paper);border:1px solid rgba(225,182,104,.5);box-shadow:var(--shadow-soft);display:grid;place-items:center;font-family:var(--serif);font-size:1.12rem;color:var(--gold-deep)}
+
+.fine{position:relative;z-index:1;text-align:center;font-size:.84rem;color:var(--slate);margin-top:30px}
+
+/* footer */
+.foot{background:var(--foot);color:rgba(255,255,255,.72);padding:40px 0;text-align:center;font-size:.85rem}
+.foot a{color:var(--gold);text-decoration:none}
+.foot a:hover{text-decoration:underline}
+.foot-links{margin-top:12px;display:flex;gap:18px;justify-content:center;flex-wrap:wrap;font-size:.8rem}
+
+@media(max-width:820px){
+  .offers{grid-template-columns:1fr;gap:0;max-width:480px;margin:0 auto}
+  .or{margin:-8px 0;position:relative;z-index:2}
+}
+@media(max-width:560px){
+  .wrap{padding:0 16px}
+  .stage{padding:38px 0 48px}
+  .intro{margin-bottom:28px}
+  .offer{padding:28px 20px 22px;border-radius:20px}
+  .btn{min-height:56px}
+}
+@media(prefers-reduced-motion:reduce){.btn,.btn span{transition:none}.btn:hover{transform:none}}
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="nav-in">
+    <a class="nav-logo" href="https://alchemyofbreath.com/" aria-label="Alchemy of Breath">
+      <img src="https://alchemyofbreath.com/wp-content/uploads/AOB-Gold-Black-Transparant.png" alt="Alchemy of Breath" width="150" height="32">
+    </a>
+  </div>
+</header>
+
+<main>
+<section class="stage">
+  <div class="wrap">
+    <header class="intro">
+      <span class="eyebrow">On-site special offer</span>
+      <h1>Choose your next step</h1>
+      <p>Two programs at a special on-site price. Pick one, then choose your group: AM or PM.</p>
+    </header>
+
+    <div class="offers">
+      <article class="offer" aria-labelledby="ij-title">
+        <h2 id="ij-title">The Inner Journey</h2>
+        <p class="desc">15 weeks of deep inner work, with group mentor sessions.</p>
+        <div class="price">
+          <p class="now"><span class="num"><sup>$</sup>2,097</span><span class="usd">USD</span></p>
+          <p class="was">Standard price <s>$3,097</s></p>
+          <p class="save">You save $1,000</p>
+        </div>
+        <div class="choose">
+          <p class="pick">Choose your group</p>
+          <div class="btns">
+            <a class="btn" href="https://link.alchemyofbreath.com/payment-link/6ac0b6ea075ea22a20cdc071" aria-label="The Inner Journey, AM group, pay $2,097">AM group <span aria-hidden="true">&rarr;</span></a>
+            <a class="btn" href="https://link.alchemyofbreath.com/payment-link/6ac0b702c0e70c7fefb723a6" aria-label="The Inner Journey, PM group, pay $2,097">PM group <span aria-hidden="true">&rarr;</span></a>
+          </div>
+        </div>
+      </article>
+
+      <div class="or" aria-hidden="true"><span>or</span></div>
+
+      <article class="offer dark" aria-labelledby="ft-title">
+        <h2 id="ft-title">Facilitator Training</h2>
+        <p class="desc">8 months, 400 hours. Graduate as a certified breathwork facilitator. The Inner Journey is included.</p>
+        <div class="price">
+          <p class="now"><span class="num"><sup>$</sup>5,900</span><span class="usd">USD</span></p>
+          <p class="was">Standard price <s>$7,200</s></p>
+          <p class="save">You save $1,300</p>
+        </div>
+        <div class="choose">
+          <p class="pick">Choose your group</p>
+          <div class="btns">
+            <a class="btn" href="https://link.alchemyofbreath.com/payment-link/6a9b2998a7f78e147447efbf" aria-label="Facilitator Training, AM group, pay $5,900">AM group <span aria-hidden="true">&rarr;</span></a>
+            <a class="btn" href="https://link.alchemyofbreath.com/payment-link/6a9b230ca7f78e147447ef98" aria-label="Facilitator Training, PM group, pay $5,900">PM group <span aria-hidden="true">&rarr;</span></a>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <p class="fine">Prices in US dollars. You&rsquo;ll complete your payment on our secure checkout page.</p>
+  </div>
+</section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <p>&copy; Alchemy of Breath</p>
+    <div class="foot-links">
+      <a href="https://alchemyofbreath.com/">Home</a>
+      <a href="https://alchemyofbreath.com/privacy-policy/">Privacy</a>
+      <a href="https://alchemyofbreath.com/terms-and-conditions/">Terms</a>
+    </div>
+  </div>
+</footer>
+
+<script>(function(){if(window.self!==window.top){var st=document.createElement('style');st.textContent='.cv{content-visibility:visible !important}';document.head.appendChild(st);}function reportHeight(){var h=document.documentElement.scrollHeight;window.parent.postMessage({type:'aob-embed-resize',height:h},'*');}window.addEventListener('load',reportHeight);window.addEventListener('resize',reportHeight);var mo=new MutationObserver(reportHeight);mo.observe(document.body,{childList:true,subtree:true,attributes:true});setInterval(reportHeight,800);})();</script>
+</body>
+</html>
