@@ -458,7 +458,7 @@ footer a{color:var(--slate)}
 .progbox .sw:focus-visible{outline:2px solid var(--gold-deep);outline-offset:3px;border-radius:4px}
 .progbox.paid{background:linear-gradient(120deg,#fff,#F2FAFA);border-color:rgba(0,165,178,.28)}
 .progbox.paid .pic{background:#E3F4F5}.progbox.paid .pic svg{stroke:var(--teal-text)}
-@media(max-width:480px){.progbox{gap:12px;padding:16px}.progbox .pic{width:36px;height:36px}.progbox .pic svg{width:18px;height:18px}}
+@media(max-width:480px){.progbox{padding:16px}.progbox .pic{display:none}}
 </style>
 </head>
 <body>
@@ -985,7 +985,7 @@ footer a{color:var(--slate)}
   }
   function demo(d){
     var q = d.quote;
-    var how = q.payment === 'full' ? 'paid in full' : q.payment === 'plan' && q.plan ? 'first of ' + q.plan.installments + ' monthly payments, then ' + (q.plan.installments - 1) + ' × ' + money(q.plan.installment_cents) + ' automatically' : P.deposit.percent + '% deposit, balance ' + money(q.balance_cents);
+    var how = q.payment === 'full' ? 'paid in full' : q.payment === 'plan' && q.plan ? 'first of ' + q.plan.installments + ' monthly payments, then ' + (q.plan.installments - 1) + ' × ' + money(q.plan.installment_cents) + ' automatically' : (q.programme_cents ? 'programme fee ' + money(q.programme_cents) + ' + ' : '') + P.deposit.percent + '% room deposit, balance ' + money(q.balance_cents);
     $('demoText').innerHTML = 'Stripe isn\'t connected yet, so this booking stopped here. With Stripe connected, the guest would now be on the secure checkout page paying <b>' + money(q.due_now_cents) + '</b> (' + how + ') for booking <b>' + esc(d.ref) + '</b>.';
     $('demoPre').textContent = JSON.stringify({ ref: d.ref, quote: q, line_item: d.stripe_params && d.stripe_params.line_items, metadata: d.stripe_params && d.stripe_params.metadata }, null, 2);
     $('demoModal').hidden = false; $('demoClose').focus();
