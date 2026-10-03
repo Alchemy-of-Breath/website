@@ -394,7 +394,7 @@ footer a{color:var(--slate)}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
 
 /* v2: rooms first · name and price on the photo · whole card selects */
-.steps ol{grid-template-columns:repeat(4,1fr)}
+.steps ol{grid-template-columns:repeat(3,1fr)}
 .room.pickable{cursor:pointer}
 .room.pickable:hover{border-color:rgba(214,166,82,.7)}
 .ph-cap{position:absolute;left:0;right:0;bottom:0;z-index:1;display:flex;align-items:flex-end;justify-content:space-between;gap:12px;padding:60px 18px 16px;background:linear-gradient(180deg,rgba(18,15,16,0) 0%,rgba(18,15,16,.5) 42%,rgba(18,15,16,.86) 100%);color:#fff;pointer-events:none}
@@ -431,6 +431,17 @@ footer a{color:var(--slate)}
 .arow select{flex:1;min-width:220px;max-width:430px;border:1px solid rgba(34,31,32,.18);border-radius:12px;padding:11px 12px;background:#fff;font-size:.95rem}
 .rtag .edit{all:unset;cursor:pointer;color:var(--gold-text);font-size:.78rem;text-decoration:underline;margin-left:6px}
 @media(max-width:480px){.grow .pills{width:100%}.grow .pills label{flex:1}.grow .pills span{min-width:0;width:100%}}
+
+/* v4: who's coming = gender + details in one step */
+.gpick{display:flex;align-items:center;gap:10px 14px;flex-wrap:wrap;margin:0 0 16px}
+.gpick .lbl{font-size:.8rem;font-weight:500;letter-spacing:.03em}
+.gpick .pills span{min-width:104px;text-align:center}
+.gpick .err{display:none;width:100%;font-size:.8rem;color:#A33A1B}
+.gpick.bad .pills span{border-color:#C9502A;box-shadow:0 0 0 3px rgba(201,80,42,.10)}
+.gpick.bad .err{display:block}
+.roommate{margin-top:22px}
+.roommate[hidden]{display:none}
+@media(max-width:480px){.gpick .pills{width:100%}.gpick .pills label{flex:1}.gpick .pills span{min-width:0;width:100%}}
 </style>
 </head>
 <body>
@@ -461,10 +472,9 @@ footer a{color:var(--slate)}
 
 <nav class="steps" id="steps" aria-label="Booking steps">
   <ol>
-    <li data-step="1"><button type="button"><span class="dot"><span>1</span></span><span class="lbl">Guests</span></button></li>
+    <li data-step="1"><button type="button"><span class="dot"><span>1</span></span><span class="lbl">Who's coming</span></button></li>
     <li data-step="2"><button type="button"><span class="dot"><span>2</span></span><span class="lbl">Your room</span></button></li>
-    <li data-step="3"><button type="button"><span class="dot"><span>3</span></span><span class="lbl">Details</span></button></li>
-    <li data-step="4"><button type="button"><span class="dot"><span>4</span></span><span class="lbl">Review &amp; pay</span></button></li>
+    <li data-step="3"><button type="button"><span class="dot"><span>3</span></span><span class="lbl">Review &amp; pay</span></button></li>
   </ol>
 </nav>
 
@@ -472,16 +482,16 @@ footer a{color:var(--slate)}
   <div class="bk-main">
     <div class="alert info" id="topNote" hidden></div>
 
-    <!-- STEP 1 · GUESTS -->
+    <!-- STEP 1 · WHO'S COMING (gender + details) -->
     <section class="step card" id="step1" aria-labelledby="h1s">
       <h2 id="h1s">Who's <em>coming</em>?</h2>
-      <p class="sub">Shared rooms and tents at ASHA are for guests of the same gender, so we start with who's coming. Then we'll show you every room with space for your group.</p>
+      <p class="sub">Shared rooms and tents at ASHA are for guests of the same gender, so tell us who's coming first. Next you'll see every room with space for your group.</p>
       <div class="alert" id="err1" role="alert" hidden></div>
       <div class="count">
         <div><h3>How many guests?</h3><p id="countHint"></p></div>
         <div class="stepper"><button type="button" id="gMinus" aria-label="One guest fewer">&minus;</button><output id="gCount" aria-live="polite">1 guest</output><button type="button" id="gPlus" aria-label="One guest more">+</button></div>
       </div>
-      <div class="grows" id="genderRows"></div>
+      <div id="guestForms"></div>
       <div class="actions"><span></span><button type="button" class="btn btn-primary" data-next="2">See available rooms <span class="arr">&rarr;</span></button></div>
     </section>
 
@@ -498,37 +508,23 @@ footer a{color:var(--slate)}
       <div class="assign" id="assignBox" hidden></div>
       <div class="rooms" id="rooms"></div>
       <p class="shared-note"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v5h1"/></svg><span>Shared rooms and tents are single-gender. In a mixed group, everyone can still choose the same room type: each guest sleeps in a room with guests of their own gender.</span></p>
-      <div class="actions"><button type="button" class="back" data-back="1">&larr; Guests</button><button type="button" class="btn btn-primary" data-next="3">Continue to details <span class="arr">&rarr;</span></button></div>
+      <div class="f full roommate" id="roommateField" hidden>
+        <label for="roommate">Sharing with a friend who booked separately? <small>(optional)</small></label>
+        <input id="roommate" type="text" maxlength="200" placeholder="Their name">
+        <span class="hint">They need to be the same gender. We'll do our best to put you together.</span>
+      </div>
+      <div class="actions"><button type="button" class="back" data-back="1">&larr; Who's coming</button><button type="button" class="btn btn-primary" data-next="3">Review your booking <span class="arr">&rarr;</span></button></div>
     </section>
 
-    <!-- STEP 3 · DETAILS -->
+    <!-- STEP 3 · REVIEW & PAY -->
     <section class="step card" id="step3" aria-labelledby="h3s" hidden>
-      <h2 id="h3s">Guest <em>details</em>.</h2>
-      <p class="sub" id="detailsSub"></p>
-      <div class="alert" id="err3" role="alert" hidden></div>
-      <div class="gcard">
-        <p class="who"><span class="n">1</span>You, the lead guest</p>
-        <p class="rtag" id="leadTag"></p>
-        <div class="grid2" id="leadFields"></div>
-      </div>
-      <div id="guestCards"></div>
-      <div class="f full" id="roommateField">
-        <label for="roommate">Requested roommate <small>(optional)</small></label>
-        <input id="roommate" type="text" maxlength="200" placeholder="Name of the friend you'd like to share with">
-        <span class="hint">Only if they booked separately and are the same gender. We'll do our best to put you together.</span>
-      </div>
-      <div class="actions"><button type="button" class="back" data-back="2">&larr; Your room</button><button type="button" class="btn btn-primary" data-next="4">Review your booking <span class="arr">&rarr;</span></button></div>
-    </section>
-
-    <!-- STEP 4 · REVIEW & PAY -->
-    <section class="step card" id="step4" aria-labelledby="h4s" hidden>
-      <h2 id="h4s">Review and <em>pay</em>.</h2>
+      <h2 id="h3s">Review and <em>pay</em>.</h2>
       <p class="sub">Check everything looks right, choose how you'd like to pay, and you'll go to Stripe's secure checkout.</p>
-      <div class="alert" id="err4" role="alert" hidden></div>
+      <div class="alert" id="err3" role="alert" hidden></div>
       <ul class="review" id="review"></ul>
       <div class="pay" role="radiogroup" aria-label="How would you like to pay?" id="payOpts"></div>
       <label class="terms" id="termsRow"><input type="checkbox" id="terms"><span>I agree to the <a id="termsLink" href="#" target="_blank" rel="noopener">BreathCamp terms and conditions</a>.</span></label>
-      <div class="actions"><button type="button" class="back" data-back="3">&larr; Details</button><button type="button" class="btn btn-primary" id="payBtn">Pay securely <span class="arr">&rarr;</span></button></div>
+      <div class="actions"><button type="button" class="back" data-back="2">&larr; Your room</button><button type="button" class="btn btn-primary" id="payBtn">Pay securely <span class="arr">&rarr;</span></button></div>
       <p class="paynote"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>You'll pay on Stripe's secure checkout page: cards, Apple Pay and Google Pay. Your receipt and invoice arrive by email.</p>
     </section>
 
@@ -558,7 +554,7 @@ footer a{color:var(--slate)}
   var P = JSON.parse(document.getElementById('programData').textContent);
   var API = /(^|\.)website-5h3\.pages\.dev$/.test(location.hostname) ? '' : 'https://website-5h3.pages.dev';
   var IMG = /alchemyofbreath\.com$/.test(location.hostname) ? 'https://cdn.jsdelivr.net/gh/Alchemy-of-Breath/website@main/assets/booking/rooms/' : '/assets/booking/rooms/';
-  var STORE = 'aob_book_' + P.id, VERSION = 3;
+  var STORE = 'aob_book_' + P.id, VERSION = 4;
   var ROOMS = {}; P.rooms.forEach(function(r){ ROOMS[r.id] = r; });
   var MAXG = P.max_guests_per_booking || 6;
   var $ = function(id){ return document.getElementById(id); };
@@ -680,17 +676,31 @@ footer a{color:var(--slate)}
     $('gMinus').disabled = state.guests <= 1; $('gPlus').disabled = state.guests >= maxG;
     $('countHint').textContent = 'Up to ' + MAXG + ' per booking · ' + progLeft() + ' ' + (progLeft() === 1 ? 'place' : 'places') + ' left this week';
   }
-  function renderGenderRows(){
-    $('genderRows').innerHTML = people().map(function(p, i){
-      var id = 'g' + i + '-gender';
-      return '<div class="grow" id="f-' + id + '"><span class="who"><span class="n">' + (i + 1) + '</span>' + (i ? 'Guest ' + (i + 1) : 'You') + '</span>' +
-        '<div class="pills" role="radiogroup" aria-label="Gender of ' + (i ? 'guest ' + (i + 1) : 'you') + '">' +
-        P.genders.map(function(g){ return '<label><input type="radio" name="' + id + '" value="' + esc(g) + '"' + (p.gender === g ? ' checked' : '') + '><span>' + esc(g) + '</span></label>'; }).join('') +
-        '</div><span class="err" id="e-' + id + '"></span></div>';
-    }).join('');
+  var formsFor = -1;
+  function guestCard(p, i){
+    var id = 'g' + i, gid = id + '-gender';
+    var pills = '<div class="gpick" id="f-' + gid + '"><span class="lbl" id="l-' + gid + '">Gender</span><div class="pills" role="radiogroup" aria-labelledby="l-' + gid + '">' +
+      P.genders.map(function(g){ return '<label><input type="radio" name="' + gid + '" value="' + esc(g) + '"' + (p.gender === g ? ' checked' : '') + '><span>' + esc(g) + '</span></label>'; }).join('') +
+      '</div><span class="err" id="e-' + gid + '"></span></div>';
+    var fields = field(id + '-first', 'First name', { value:p.first, ac: i ? '' : 'given-name' }) + field(id + '-last', 'Last name', { value:p.last, ac: i ? '' : 'family-name' }) +
+      (i ? field(id + '-email', 'Email', { value:p.email, type:'email', ph:'name@example.com', suggest:true, full:true })
+         : field(id + '-email', 'Email', { value:p.email, type:'email', ac:'email', ph:'name@example.com', suggest:true, hint:'Your confirmation, receipt and invoice go here.' }) +
+           field(id + '-whatsapp', 'WhatsApp number', { value:p.whatsapp, type:'tel', ac:'tel', im:'tel', ph:'+44 7700 900123', hint:'Include the country code. We use it for arrival details.', max:32 }));
+    return '<div class="gcard"><p class="who"><span class="n">' + (i + 1) + '</span>' + (i ? 'Guest ' + (i + 1) : 'You, the lead guest') + '</p>' + pills + '<div class="grid2">' + fields + '</div></div>';
+  }
+  function renderGuestForms(force){
+    // only redraw when the number of guests changes, so typing is never interrupted
+    if (!force && formsFor === state.guests) return;
+    formsFor = state.guests;
+    $('guestForms').innerHTML = people().map(guestCard).join('');
     people().forEach(function(p, i){
-      document.querySelectorAll('input[name="g' + i + '-gender"]').forEach(function(r){
-        r.addEventListener('change', function(){ p.gender = r.value; clearErr('g' + i + '-gender'); showAlert(1, ''); tidyRooms(); save(); renderRooms(); renderFolio(); });
+      var id = 'g' + i;
+      ['first','last','email','whatsapp'].forEach(function(k){
+        var el = $(id + '-' + k); if (!el) return;
+        el.addEventListener('input', function(){ p[k] = el.value; clearErr(id + '-' + k); if (k === 'email') emailSuggest(id + '-email'); save(); if (k === 'first' && state.mixed) renderAssign(); });
+      });
+      document.querySelectorAll('input[name="' + id + '-gender"]').forEach(function(r){
+        r.addEventListener('change', function(){ p.gender = r.value; clearErr(id + '-gender'); showAlert(1, ''); tidyRooms(); save(); renderRooms(); renderFolio(); });
       });
     });
   }
@@ -707,10 +717,17 @@ footer a{color:var(--slate)}
     if (!state.mixed && state.room && gendersDone() && !groupFits(state.room)) state.room = null;
     if (state.mixed) { var gs = genders(); state.guestRooms = state.guestRooms.map(function(rid, i){ return rid && gs[i] && avail.rooms[rid] && avail.rooms[rid].left[gs[i]] > 0 ? rid : null; }); }
   }
-  function validateGuests(){
-    var ok = true;
-    people().forEach(function(p, i){ if (!gk(p.gender)) { setErr('g' + i + '-gender', 'Please choose.'); ok = false; } });
-    showAlert(1, ok ? '' : 'Please choose Female or Male for ' + (state.guests === 1 ? 'yourself' : 'each guest') + ', so we can show the rooms with space for you.');
+  function validateWho(){
+    var ok = true, noGender = false;
+    people().forEach(function(p, i){
+      var id = 'g' + i;
+      if (!gk(p.gender)) { setErr(id + '-gender', 'Please choose.'); ok = false; noGender = true; }
+      if (!String(p.first || '').trim()) { setErr(id + '-first', i ? 'Please add a first name.' : 'Please add your first name.'); ok = false; }
+      if (!String(p.last || '').trim()) { setErr(id + '-last', i ? 'Please add a last name.' : 'Please add your last name.'); ok = false; }
+      if (!EMAIL.test(String(p.email || '').trim())) { setErr(id + '-email', 'Please add a valid email address.'); ok = false; }
+    });
+    if (!/^\+\d{7,15}$/.test(String(state.lead.whatsapp || '').replace(/[\s().-]/g, ''))) { setErr('g0-whatsapp', 'Add your number with the country code, starting with +.'); ok = false; }
+    showAlert(1, ok ? '' : (noGender ? 'Please choose Female or Male for ' + (state.guests === 1 ? 'yourself' : 'each guest') + ' and fill in the highlighted details.' : 'A few details need your attention.'));
     return ok;
   }
 
@@ -754,8 +771,9 @@ footer a{color:var(--slate)}
       var g = gs[i];
       var opts = P.rooms.filter(function(r){ var a = avail.rooms[r.id]; return a && g && a.left[g] > 0; })
         .map(function(r){ return '<option value="' + r.id + '"' + (list[i] === r.id ? ' selected' : '') + '>' + esc(r.name) + ' · ' + money(r.price * 100) + '</option>'; }).join('');
-      return '<div class="arow"><span class="who"><span class="n">' + (i + 1) + '</span>' + (i ? 'Guest ' + (i + 1) : 'You') + ' <small>' + esc(p.gender || '') + '</small></span>' +
-        '<select data-gr="' + i + '" aria-label="Room for ' + (i ? 'guest ' + (i + 1) : 'you') + '"><option value="">Choose a room…</option>' + opts + '</select></div>';
+      var label = String(p.first || '').trim() || (i ? 'Guest ' + (i + 1) : 'You');
+      return '<div class="arow"><span class="who"><span class="n">' + (i + 1) + '</span>' + esc(label) + ' <small>' + esc(p.gender || '') + '</small></span>' +
+        '<select data-gr="' + i + '" aria-label="Room for ' + esc(label) + '"><option value="">Choose a room…</option>' + opts + '</select></div>';
     }).join('');
     box.querySelectorAll('[data-gr]').forEach(function(s){ s.onchange = function(){ state.guestRooms[+s.getAttribute('data-gr')] = s.value || null; showAlert(2, ''); save(); renderRooms(); renderFolio(); }; });
   }
@@ -794,6 +812,9 @@ footer a{color:var(--slate)}
     $('placedNote').textContent = state.mixed ? (placed === state.guests ? 'All ' + state.guests + ' guests placed' : placed + ' of ' + state.guests + ' guests placed') : '';
     $('placedNote').classList.toggle('okk', state.mixed && placed === state.guests);
     renderAssign();
+    var shared = guestRoomList().some(function(id){ return id && ROOMS[id] && ROOMS[id].same_gender; });
+    $('roommateField').hidden = !shared;
+    if ($('roommate').value !== state.roommate) $('roommate').value = state.roommate;
   }
   function pickRoom(id){ if (!groupFits(id)) return; state.room = id; showAlert(2, ''); save(); renderRooms(); renderFolio(); }
   function bindRooms(){
@@ -835,66 +856,15 @@ footer a{color:var(--slate)}
     showAlert(2, ''); return true;
   }
 
-  /* ---------------- step 3 · details ---------------- */
-  function renderLead(){
-    var L = state.lead;
-    $('leadFields').innerHTML =
-      field('g0-first', 'First name', { value:L.first, ac:'given-name' }) +
-      field('g0-last', 'Last name', { value:L.last, ac:'family-name' }) +
-      field('g0-email', 'Email', { value:L.email, type:'email', ac:'email', ph:'name@example.com', suggest:true, hint:'Your confirmation, receipt and invoice go here.' }) +
-      field('g0-whatsapp', 'WhatsApp number', { value:L.whatsapp, type:'tel', ac:'tel', im:'tel', ph:'+44 7700 900123', hint:'Include the country code. We use it for arrival details.', max:32 });
-    ['first','last','email','whatsapp'].forEach(function(k){
-      var el = $('g0-' + k);
-      el.addEventListener('input', function(){ state.lead[k] = el.value; clearErr('g0-' + k); if (k === 'email') emailSuggest('g0-email'); save(); });
-    });
-  }
-  function tagHtml(i){
-    var rid = guestRoomList()[i], p = people()[i];
-    return ICON.bed.replace('<svg', '<svg width="15" height="15" style="stroke:#D6A652;fill:none;stroke-width:1.6"') + esc(p.gender || '') + (rid ? ' · ' + esc(ROOMS[rid].name) : '') + ' <button type="button" class="edit" data-go="1">Change</button>';
-  }
-  function renderDetails(){
-    var rooms = guestRoomList();
-    var shared = rooms.some(function(id){ return id && ROOMS[id] && ROOMS[id].same_gender; });
-    $('roommateField').hidden = !shared;
-    $('roommate').value = state.roommate;
-    $('detailsSub').textContent = state.guests === 1 ? 'Tell us who you are. We\'ll send your confirmation and arrival details here.' : 'Your details first, then each guest\'s, so we can send everyone arrival information and allocate beds.';
-    $('leadTag').innerHTML = tagHtml(0);
-    $('guestCards').innerHTML = state.others.map(function(g, i){
-      var n = i + 1, id = 'g' + n;
-      return '<div class="gcard"><p class="who"><span class="n">' + (n + 1) + '</span>Guest ' + (n + 1) + '</p><p class="rtag">' + tagHtml(n) + '</p>' +
-        '<div class="grid2">' + field(id + '-first', 'First name', { value:g.first }) + field(id + '-last', 'Last name', { value:g.last }) +
-        field(id + '-email', 'Email', { value:g.email, type:'email', ph:'name@example.com', suggest:true, full:true }) + '</div></div>';
-    }).join('');
-    state.others.forEach(function(g, i){
-      var id = 'g' + (i + 1);
-      ['first','last','email'].forEach(function(k){ var el = $(id + '-' + k); el.addEventListener('input', function(){ g[k] = el.value; clearErr(id + '-' + k); if (k === 'email') emailSuggest(id + '-email'); save(); }); });
-    });
-    document.querySelectorAll('#step3 [data-go]').forEach(function(b){ b.onclick = function(){ goStep(+b.getAttribute('data-go')); }; });
-  }
   $('roommate').addEventListener('input', function(e){ state.roommate = e.target.value; save(); });
-  function validateDetails(){
-    var ok = true, L = state.lead;
-    if (!L.first.trim()) { setErr('g0-first', 'Please add your first name.'); ok = false; }
-    if (!L.last.trim()) { setErr('g0-last', 'Please add your last name.'); ok = false; }
-    if (!EMAIL.test(L.email.trim())) { setErr('g0-email', 'Please add a valid email address.'); ok = false; }
-    if (!/^\+\d{7,15}$/.test(L.whatsapp.replace(/[\s().-]/g, ''))) { setErr('g0-whatsapp', 'Add your number with the country code, starting with +.'); ok = false; }
-    state.others.forEach(function(g, i){
-      var id = 'g' + (i + 1);
-      if (!g.first.trim()) { setErr(id + '-first', 'Please add a first name.'); ok = false; }
-      if (!g.last.trim()) { setErr(id + '-last', 'Please add a last name.'); ok = false; }
-      if (!EMAIL.test(g.email.trim())) { setErr(id + '-email', 'Please add a valid email.'); ok = false; }
-    });
-    showAlert(3, ok ? '' : 'A few details need your attention.');
-    return ok;
-  }
 
-  /* ---------------- step 4 · review & pay ---------------- */
+  /* ---------------- step 3 · review & pay ---------------- */
   function renderReview(){
     var t = totals(), rooms = guestRoomList();
     $('review').innerHTML =
       '<li><span class="k">Dates</span><span class="v">' + esc(P.dates.label) + ' · ' + P.dates.nights + ' nights</span></li>' +
       '<li><span class="k">Accommodation</span><span class="v">' + t.lines.map(function(l){ return esc(l.name) + ' × ' + l.n; }).join(', ') + '<button type="button" class="edit" data-go="2">Change</button></span></li>' +
-      people().map(function(p, i){ return '<li><span class="k">' + (i ? 'Guest ' + (i + 1) : 'Lead guest') + '</span><span class="v">' + esc((p.first + ' ' + p.last).trim() || '—') + ' · ' + esc(p.gender) + (state.mixed && rooms[i] ? ' · ' + esc(ROOMS[rooms[i]].name) : '') + '<button type="button" class="edit" data-go="3">Edit</button></span></li>'; }).join('') +
+      people().map(function(p, i){ return '<li><span class="k">' + (i ? 'Guest ' + (i + 1) : 'Lead guest') + '</span><span class="v">' + esc((p.first + ' ' + p.last).trim() || '—') + ' · ' + esc(p.gender) + (state.mixed && rooms[i] ? ' · ' + esc(ROOMS[rooms[i]].name) : '') + '<button type="button" class="edit" data-go="1">Edit</button></span></li>'; }).join('') +
       '<li><span class="k">Contact</span><span class="v">' + esc(state.lead.email) + ' · ' + esc(state.lead.whatsapp) + '</span></li>' +
       (state.roommate ? '<li><span class="k">Roommate request</span><span class="v">' + esc(state.roommate) + '</span></li>' : '');
     $('review').querySelectorAll('[data-go]').forEach(function(b){ b.onclick = function(){ goStep(+b.getAttribute('data-go')); }; });
@@ -906,14 +876,13 @@ footer a{color:var(--slate)}
     payLabel();
   }
   function payLabel(){ $('payBtn').innerHTML = 'Pay ' + money(totals().due) + ' securely <span class="arr">&rarr;</span>'; }
-  $('terms').addEventListener('change', function(e){ state.terms = e.target.checked; $('termsRow').classList.remove('bad'); showAlert(4, ''); });
+  $('terms').addEventListener('change', function(e){ state.terms = e.target.checked; $('termsRow').classList.remove('bad'); showAlert(3, ''); });
 
   function pay(){
-    if (!validateGuests()) return goStep(1, false, true);
+    if (!validateWho()) return goStep(1, false, true);
     if (!validateRooms()) return goStep(2, false, true);
-    if (!validateDetails()) return goStep(3, false, true);
-    if (!state.terms) { $('termsRow').classList.add('bad'); showAlert(4, 'Please agree to the terms and conditions to continue.'); return; }
-    showAlert(4, '');
+    if (!state.terms) { $('termsRow').classList.add('bad'); showAlert(3, 'Please agree to the terms and conditions to continue.'); return; }
+    showAlert(3, '');
     var rooms = guestRoomList();
     var guests = people().map(function(p, i){ return { first:p.first, last:p.last, email:p.email, gender:p.gender, room:rooms[i] }; });
     var utm = {}; try { utm = (JSON.parse(localStorage.getItem('aob_utm') || 'null') || {}).p || {}; } catch(e){}
@@ -932,22 +901,21 @@ footer a{color:var(--slate)}
         if (d.demo) return demo(d);
         if (res.s === 409) { if (d.availability && d.availability.rooms) avail = d.availability; tidyRooms(); render(); goStep(2); showAlert(2, d.error + ' Please choose again.'); return; }
         if (d.fields) mapServerErrors(d.fields);
-        showAlert(4, d.error || 'Something went wrong. Please try again.');
+        showAlert(3, d.error || 'Something went wrong. Please try again.');
       })
-      .catch(function(){ restore(); showAlert(4, 'We could not reach the booking system. Check your connection and try again, or message us on WhatsApp.'); });
+      .catch(function(){ restore(); showAlert(3, 'We could not reach the booking system. Check your connection and try again, or message us on WhatsApp.'); });
   }
   function mapServerErrors(fields){
     var keys = Object.keys(fields);
-    var toGuests = keys.some(function(k){ return /^guests\.\d+\.gender$/.test(k); });
-    var toDetails = keys.some(function(k){ return /^guests\.\d+\.(first|last|email)$/.test(k) || k === 'whatsapp'; });
-    if (toGuests) goStep(1); else if (toDetails) goStep(3);
+    var toWho = keys.some(function(k){ return /^guests\.\d+\.(first|last|email|gender)$/.test(k) || k === 'whatsapp'; });
+    if (toWho) goStep(1);
     keys.forEach(function(k){
       var m = k.match(/^guests\.(\d+)\.(\w+)$/);
       if (m) { if (m[2] !== 'room') setErr('g' + m[1] + '-' + m[2], fields[k]); }
       else if (k === 'whatsapp') setErr('g0-whatsapp', fields[k]);
       else if (k === 'terms') $('termsRow').classList.add('bad');
     });
-    if (toGuests) showAlert(1, 'Please check the highlighted guests.'); else if (toDetails) showAlert(3, 'A few details need your attention.');
+    if (toWho) showAlert(1, 'A few details need your attention.');
   }
   function demo(d){
     var q = d.quote;
@@ -959,8 +927,8 @@ footer a{color:var(--slate)}
   $('payBtn').onclick = pay;
 
   /* ---------------- summary ---------------- */
-  var CTA = { 1:'See available rooms', 2:'Continue to details', 3:'Review your booking' };
-  function ctaLabel(){ return (state.step === 4 ? 'Pay ' + money(totals().due) + ' securely' : CTA[state.step]) + ' <span class="arr">&rarr;</span>'; }
+  var CTA = { 1:'See available rooms', 2:'Review your booking' };
+  function ctaLabel(){ return (state.step === 3 ? 'Pay ' + money(totals().due) + ' securely' : CTA[state.step]) + ' <span class="arr">&rarr;</span>'; }
   function folioHtml(){
     var t = totals(), sel = guestRoomList().filter(Boolean)[0], img = sel ? ROOMS[sel].photos[0] : P.hero_image;
     var c = groupCount(genders());
@@ -978,22 +946,21 @@ footer a{color:var(--slate)}
       '<button type="button" class="btn btn-primary fol-cta" data-fcta' + (state.step === 2 && !roomsComplete() ? ' disabled' : '') + '>' + ctaLabel() + '</button>' +
       '<div class="trust"><span><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Secure payment by Stripe</span><span><svg viewBox="0 0 24 24"><path d="M4 12l5 5L20 6"/></svg>Receipt and invoice by email</span><span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>' + (availLive ? 'Live availability' : 'Availability as of ' + esc(P.source.snapshot)) + '</span></div></div>';
   }
-  function primary(){ if (state.step === 4) pay(); else goStep(state.step + 1); }
+  function primary(){ if (state.step === 3) pay(); else goStep(state.step + 1); }
   function renderFolio(){
     var h = folioHtml(); $('folio').innerHTML = h; $('folioSheet').innerHTML = h;
     document.querySelectorAll('[data-fcta]').forEach(function(b){ b.onclick = function(){ if ($('sheet').classList.contains('open')) $('sumBtn').click(); primary(); }; });
     var t = totals();
     $('mbarAmt').textContent = money(t.total ? t.due : 0);
     $('mbarLbl').textContent = t.total ? (state.payment === 'full' ? 'Due today' : 'Due today · ' + P.deposit.percent + '%') : (state.step === 1 ? 'Who\'s coming?' : 'Tap a room');
-    $('mbarNext').innerHTML = state.step === 4 ? 'Pay ' + money(t.due) + ' <span class="arr">&rarr;</span>' : (state.step === 1 ? 'See rooms' : 'Continue') + ' <span class="arr">&rarr;</span>';
+    $('mbarNext').innerHTML = state.step === 3 ? 'Pay ' + money(t.due) + ' <span class="arr">&rarr;</span>' : (state.step === 1 ? 'See rooms' : 'Review') + ' <span class="arr">&rarr;</span>';
     $('mbarNext').disabled = state.step === 2 && !roomsComplete();
   }
 
   /* ---------------- steps ---------------- */
   function validateUpTo(n){
-    if (n > 1 && !validateGuests()) return 1;
+    if (n > 1 && !validateWho()) return 1;
     if (n > 2 && !validateRooms()) return 2;
-    if (n > 3 && !validateDetails()) return 3;
     return n;
   }
   function goStep(n, noScroll, showErrs){
@@ -1001,11 +968,10 @@ footer a{color:var(--slate)}
     if (n > state.step || (n > 1 && noScroll)) n = validateUpTo(n);
     var redirected = want !== n;
     state.step = n; save();
-    for (var i = 1; i <= 4; i++) $('step' + i).hidden = i !== n;
-    if (n === 1 && (redirected || showErrs)) validateGuests();
+    for (var i = 1; i <= 3; i++) $('step' + i).hidden = i !== n;
+    if (n === 1) { renderGuestForms(); if (redirected || showErrs) validateWho(); }
     if (n === 2) { tidyRooms(); renderRooms(); if (redirected || showErrs) validateRooms(); }
-    if (n === 3) { renderDetails(); if (redirected || showErrs) validateDetails(); }
-    if (n === 4) renderReview();
+    if (n === 3) renderReview();
     renderSteps(); renderFolio();
     try { history.replaceState(null, '', location.pathname + location.search + '#step-' + n); } catch(e){}
     if (!noScroll) {
@@ -1033,9 +999,8 @@ footer a{color:var(--slate)}
 
   function render(){
     $('placesLeft').textContent = progLeft();
-    renderCount(); renderGenderRows(); renderFilters(); renderRooms(); renderFolio();
-    if (state.step === 3) renderDetails();
-    if (state.step === 4) renderReview();
+    renderCount(); renderGuestForms(); renderFilters(); renderRooms(); renderFolio();
+    if (state.step === 3) renderReview();
   }
 
   /* ---------------- static text ---------------- */
@@ -1059,7 +1024,7 @@ footer a{color:var(--slate)}
   function showDone(s){
     ['hero','steps'].forEach(function(id){ $(id).hidden = true; });
     document.querySelector('.folio').hidden = true; $('mbar').hidden = true;
-    for (var i = 1; i <= 4; i++) $('step' + i).hidden = true;
+    for (var i = 1; i <= 3; i++) $('step' + i).hidden = true;
     $('bk').style.gridTemplateColumns = '1fr'; $('done').hidden = false;
     var paid = s && s.amount_paid_cents, bal = s && s.balance_cents;
     var name = s && s.first_name ? ', ' + esc(s.first_name) : '';
@@ -1079,16 +1044,16 @@ footer a{color:var(--slate)}
       .then(function(r){ return r.json(); }).then(function(s){ if (s && !s.error && !s.demo) showDone(s); }).catch(function(){});
     return;
   }
-  if (qp.get('status') === 'cancelled') { $('topNote').textContent = 'Your payment wasn\'t completed, so nothing was charged. Your choices are saved whenever you\'re ready.'; $('topNote').hidden = false; state.step = 4; }
+  if (qp.get('status') === 'cancelled') { $('topNote').textContent = 'Your payment wasn\'t completed, so nothing was charged. Your choices are saved whenever you\'re ready.'; $('topNote').hidden = false; state.step = 3; }
 
   /* ---------------- start ---------------- */
   if (!Array.isArray(state.others)) state.others = [];
   if (P.genders.indexOf(state.lead.gender) < 0) state.lead.gender = '';
   state.others.forEach(function(g){ if (P.genders.indexOf(g.gender) < 0) g.gender = ''; });
   setGuests(Math.max(1, Math.min(state.guests || 1, MAXG)));
-  renderLead();
+  renderGuestForms(true);
   var startStep = +((location.hash.match(/step-(\d)/) || [])[1] || state.step || 1);
-  goStep(Math.max(1, Math.min(4, startStep)), true);
+  goStep(Math.max(1, Math.min(3, startStep)), true);
   loadAvail();
   setInterval(function(){ if (!document.hidden && state.step <= 2) loadAvail(); }, 60000);
 })();
