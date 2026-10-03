@@ -14,7 +14,7 @@ const ok = (cond, msg) => { if (cond) { pass++; } else { fail++; console.log('  
 const P = 'breathcamp-oct-2026', ORIGIN = 'https://alchemyofbreath.com';
 
 /* ---------- Stripe mock ---------- */
-const store = { sessions: new Map(), pis: new Map(), ghl: [], seq: 0 };
+const store = { sessions: new Map(), pis: new Map(), subs: new Map(), invoices: [], ghl: [], seq: 0 };
 function parseForm(body) {
   const out = {};
   for (const pair of body.split('&')) {
@@ -34,7 +34,8 @@ globalThis.fetch = async (url, init = {}) => {
   const J = (d, s = 200) => new Response(JSON.stringify(d), { status: s, headers: { 'Content-Type': 'application/json' } });
   if (method === 'POST' && path === '/checkout/sessions') {
     const b = parseForm(init.body), id = `cs_test_mock${++store.seq}abcdef`;
-    const s = { id, status: 'open', payment_status: 'unpaid', metadata: b.metadata || {}, amount_total: +b.line_items[0].price_data.unit_amount,
+    const total = Object.values(b.line_items).reduce((a, li) => a + (+li.price_data.unit_amount) * (+li.quantity || 1), 0);
+    const s = { id, mode: b.mode || 'payment', subscription: null, status: 'open', payment_status: 'unpaid', metadata: b.metadata || {}, amount_total: total,
       currency: b.line_items[0].price_data.currency, created: Math.floor(Date.now() / 1000), customer: b.customer || null, url: `https://checkout.stripe.com/c/pay/${id}`, payment_intent: null, expires_at: +b.expires_at, _params: b };
     store.sessions.set(id, s); return J(s);
   }
@@ -51,13 +52,44 @@ globalThis.fetch = async (url, init = {}) => {
     const data = [...store.pis.values()].filter(pi => pi.status === 'succeeded' && !pi._lagging && conds.every(([k, v]) => pi.metadata[k] === v));
     return J({ data, has_more: false, next_page: null });
   }
+  if (method === 'GET' && path === '/subscriptions/search') {
+    const q = u.searchParams.get('query');
+    const conds = [...q.matchAll(/metadata\['(\w+)'\]:'([^']+)'/g)].map(m => [m[1], m[2]]);
+    return J({ data: [...store.subs.values()].filter(x => !x._lagging && conds.every(([k, v]) => x.metadata[k] === v)), has_more: false, next_page: null });
+  }
+  if (path.startsWith('/subscriptions/')) {
+    const sub = store.subs.get(path.split('/').pop());
+    if (!sub) return J({ error: { message: 'No such subscription' } }, 404);
+    if (method === 'GET') return J(sub);
+    if (method === 'DELETE') { sub.status = 'canceled'; return J(sub); }
+    if (method === 'POST') {
+      if (sub.status === 'canceled') return J({ error: { message: 'You cannot update a canceled subscription.' } }, 400);
+      const f = parseForm(init.body);
+      if (f.metadata) Object.assign(sub.metadata, f.metadata);
+      if (f.cancel_at) { sub.cancel_at = +f.cancel_at; sub._proration = f.proration_behavior; }
+      return J(sub);
+    }
+  }
+  if (method === 'GET' && path === '/invoices') {
+    const sid = u.searchParams.get('subscription');
+    return J({ data: store.invoices.filter(i => i.subscription === sid && i.status === 'paid'), has_more: false });
+  }
   if (method === 'POST' && path.startsWith('/payment_intents/')) {
     const pi = store.pis.get(path.split('/').pop()); Object.assign(pi.metadata, parseForm(init.body).metadata || {}); return J(pi);
   }
   return J({ error: { message: 'mock: unhandled ' + method + ' ' + path } }, 400);
 };
 function complete(sessionId, { lagging = false } = {}) {
-  const s = store.sessions.get(sessionId), id = `pi_mock${++store.seq}`;
+  const s = store.sessions.get(sessionId);
+  if (s.mode === 'subscription') {
+    const id = `sub_mock${++store.seq}`, now = Math.floor(Date.now() / 1000);
+    s.status = 'complete'; s.payment_status = 'paid'; s.subscription = id; s.customer = s.customer || 'cus_mock2';
+    store.subs.set(id, { id, status: 'active', metadata: { ...s.metadata }, billing_cycle_anchor: now, start_date: now, created: now,
+      current_period_end: now + 30 * 86400, cancel_at: null, customer: s.customer, _lagging: lagging });
+    store.invoices.push({ subscription: id, status: 'paid', amount_paid: s.amount_total });
+    return id;
+  }
+  const id = `pi_mock${++store.seq}`;
   s.status = 'complete'; s.payment_status = 'paid'; s.payment_intent = id; s.customer = s.customer || 'cus_mock1';
   store.pis.set(id, { id, status: 'succeeded', amount_received: s.amount_total, created: s.created, customer: s.customer, metadata: { ...s.metadata }, _lagging: lagging });
   return id;
@@ -106,6 +138,12 @@ r = await call(checkout, 'POST', '/api/booking/checkout', booking([guest(1, 'tri
 ok(r.status === 409 && /enough free rooms/.test(r.data.error), 'a woman and a man cannot share the last free triple');
 r = await call(checkout, 'POST', '/api/booking/checkout', booking([guest(1, 'twin-ensuite'), guest(2, 'twin-ensuite', { gender: 'Male' })]));
 ok(r.data.demo && r.data.quote.total_cents === 281400, 'mixed group can book twin rooms (separate rooms)');
+r = await call(avail, 'GET', `/api/booking/availability?program=${P}`);
+ok(r.data.payment_plan && r.data.payment_plan.available === true && r.data.payment_plan.installments === 3, 'plan offered in demo mode');
+r = await call(checkout, 'POST', '/api/booking/checkout', booking([guest(1, 'twin-shared-bath')], 'plan'));
+ok(r.data.demo && r.data.quote.plan.installment_cents === 39033 && r.data.quote.due_now_cents === 39034 && r.data.quote.balance_cents === 78066, 'plan split: 3 × €390.33, cent on the first');
+ok(r.data.stripe_params.mode === 'subscription' && r.data.stripe_params.line_items[0].price_data.recurring.interval === 'month' && r.data.stripe_params.line_items[1].price_data.unit_amount === 1, 'plan uses a monthly subscription + rounding line');
+ok(r.data.stripe_params.subscription_data.metadata.aob_plan_n === '3' && !r.data.stripe_params.payment_intent_data, 'plan metadata on the subscription');
 
 /* ---------- live (mock Stripe) ---------- */
 r = await call(health, 'GET', '/api/booking/health', null, LIVE);
@@ -183,6 +221,41 @@ r = await call(checkout, 'POST', '/api/booking/checkout', booking([guest(8, 'twi
 ok(r.status === 200, 'another woman can take the bed');
 r = await call(admin, 'GET', `/api/booking/admin?program=${P}`, null, LIVE, AUTH);
 ok(r.data.rooms.find(x => x.id === 'twin-shared-bath').capacity === 3 && r.data.availability.rooms['twin-shared-bath'].left.male === 0, 'admin shows per-gender availability');
+
+// payment plan, live
+const NOHOOK = { ...LIVE, STRIPE_WEBHOOK_SECRET: '' };
+r = await call(avail, 'GET', `/api/booking/availability?program=${P}`, null, NOHOOK);
+ok(r.data.payment_plan.available === false && /webhook/.test(r.data.payment_plan.reason), 'plan hidden in live mode without the webhook');
+r = await call(checkout, 'POST', '/api/booking/checkout', booking([guest(3, 'glamping-single')], 'plan'), NOHOOK);
+ok(r.status === 422, 'plan refused without the webhook');
+r = await call(avail, 'GET', `/api/booking/availability?program=${P}`, null, LIVE);
+const singleBefore = r.data.rooms['glamping-single'].left.female;
+r = await call(checkout, 'POST', '/api/booking/checkout', booking([guest(3, 'glamping-single')], 'plan'), LIVE);
+ok(r.status === 200 && r.data.url, 'plan checkout opens Stripe');
+const planRef = r.data.ref, csPlan = [...store.sessions.keys()].pop();
+const subId = complete(csPlan);
+r = await call(avail, 'GET', `/api/booking/availability?program=${P}`, null, LIVE);
+ok(r.data.rooms['glamping-single'].left.female === singleBefore - 1, 'plan booking holds its place');
+const planEvt = JSON.stringify({ type: 'checkout.session.completed', data: { object: store.sessions.get(csPlan) } });
+const t2 = Math.floor(Date.now() / 1000);
+const sig2 = Array.from(new Uint8Array(await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(`${t2}.${planEvt}`))), b => b.toString(16).padStart(2, '0')).join('');
+wr = await webhook.onRequestPost({ request: new Request('https://x/api/booking/webhook', { method: 'POST', body: planEvt, headers: { 'Stripe-Signature': `t=${t2},v1=${sig2}` } }), env: LIVE });
+const sub = store.subs.get(subId), days = (sub.cancel_at - sub.billing_cycle_anchor) / 86400;
+ok(wr.status === 200 && sub.cancel_at && days > 65 && days < 70 && sub._proration === 'none', 'webhook stops the plan after the 3rd payment (~2 months + 7 days)');
+ok(store.ghl.at(-1).ref === planRef && store.ghl.at(-1).plan_installments === '3' && store.ghl.at(-1).plan_payment_dates.split(', ').length === 3, 'GHL gets the plan dates');
+r = await call(session, 'GET', `/api/booking/session?id=${csPlan}`, null, LIVE);
+ok(r.data.plan && r.data.plan.dates.length === 3 && r.data.plan.installment_cents > 0, 'confirmation shows the 3 payment dates');
+r = await call(balance, 'POST', '/api/booking/balance', { ref: planRef, email: 't3@example.com' }, LIVE);
+ok(r.data.plan === true && r.data.paid_count === 1, 'balance page explains automatic plan payments');
+r = await call(admin, 'GET', `/api/booking/admin?program=${P}`, null, LIVE, AUTH);
+const pb = r.data.bookings.find(b => b.ref === planRef);
+ok(pb && pb.plan && pb.plan.paid_count === 1 && pb.paid_cents === store.sessions.get(csPlan).amount_total && pb.balance_cents > 0, 'admin shows the plan with paid so far');
+r = await call(admin, 'POST', '/api/booking/admin', { action: 'balance_link', ref: planRef }, LIVE, AUTH);
+ok(r.status === 409, 'no manual balance link for plans');
+r = await call(admin, 'POST', '/api/booking/admin', { action: 'cancel', ref: planRef }, LIVE, AUTH);
+ok(r.data.ok && store.subs.get(subId).status === 'canceled' && store.subs.get(subId).metadata.aob_status === 'cancelled', 'cancelling a plan stops future payments');
+r = await call(avail, 'GET', `/api/booking/availability?program=${P}`, null, LIVE);
+ok(r.data.rooms['glamping-single'].left.female === singleBefore, 'cancelled plan frees its place');
 
 const evil = await checkout.onRequestOptions({ request: new Request('https://x/', { method: 'OPTIONS', headers: { Origin: 'https://evil.example' } }) });
 ok(!evil.headers.get('Access-Control-Allow-Origin'), 'CORS refuses other sites');

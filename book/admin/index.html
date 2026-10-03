@@ -190,15 +190,16 @@ code{font-size:.82rem;background:var(--gold-wash);padding:1px 6px;border-radius:
       return '<tr class="' + (can ? 'cancelled' : '') + '"><td><b>' + esc(b.ref) + '</b></td><td>' + new Date(b.created * 1000).toLocaleString('en-GB', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }) + '</td>' +
         '<td>' + esc(b.lead.name) + '<div class="guests"><a href="mailto:' + esc(b.lead.email) + '">' + esc(b.lead.email) + '</a><br><a href="https://wa.me/' + esc((b.lead.whatsapp || '').replace(/\D/g, '')) + '" target="_blank" rel="noopener">' + esc(b.lead.whatsapp) + '</a>' + (b.lead.roommate ? '<br>Roommate: ' + esc(b.lead.roommate) : '') + '</div></td>' +
         '<td>' + esc(b.room_names) + '<div class="guests">' + b.guests.map(function(g){ return esc(g.name) + ' · ' + esc(g.gender); }).join('<br>') + '</div></td>' +
-        '<td>' + (can ? '<span class="pill can">Cancelled</span>' : b.balance_cents ? '<span class="pill dep">Deposit</span>' : '<span class="pill full">Paid in full</span>') + '</td>' +
-        '<td>' + money(b.total_cents) + '</td><td>' + money(b.paid_cents) + '</td><td>' + (b.balance_cents ? '<b>' + money(b.balance_cents) + '</b>' : '–') + '</td>' +
-        '<td class="act">' + (b.balance_cents && !can ? '<button class="btn btn-sm" data-act="balance_link" data-ref="' + esc(b.ref) + '">Balance link</button>' : '') +
+        '<td>' + (can ? '<span class="pill can">Cancelled</span>' : b.plan ? '<span class="pill dep">Plan ' + b.plan.paid_count + '/' + b.plan.installments + '</span>' : b.balance_cents ? '<span class="pill dep">Deposit</span>' : '<span class="pill full">Paid in full</span>') + '</td>' +
+        '<td>' + money(b.total_cents) + '</td><td>' + money(b.paid_cents) + '</td><td>' + (b.balance_cents ? '<b>' + money(b.balance_cents) + '</b>' + (b.plan && b.plan.next_payment && !can ? '<div class="guests">Next ' + money(b.plan.installment_cents) + ' on ' + new Date(b.plan.next_payment * 1000).toLocaleDateString('en-GB', { day:'numeric', month:'short' }) + '</div>' : '') : '–') + '</td>' +
+        '<td class="act">' + (b.balance_cents && !can && !b.plan ? '<button class="btn btn-sm" data-act="balance_link" data-ref="' + esc(b.ref) + '">Balance link</button>' : '') +
         '<button class="btn btn-ghost btn-sm" data-act="' + (can ? 'restore' : 'cancel') + '" data-ref="' + esc(b.ref) + '">' + (can ? 'Restore' : 'Cancel') + '</button></td></tr>';
     }).join('') : '<tr><td colspan="9" class="muted">No bookings yet.</td></tr>');
     $('list').querySelectorAll('[data-act]').forEach(function(btn){ btn.onclick = function(){ act(btn.getAttribute('data-act'), btn.getAttribute('data-ref'), btn); }; });
   }
   function act(action, ref, btn){
-    if (action === 'cancel' && !confirm('Cancel booking ' + ref + '? Its places go back on sale. This does not refund the payment: refund in Stripe separately.')) return;
+    var bk = (data.bookings || []).find(function(x){ return x.ref === ref; }) || {};
+    if (action === 'cancel' && !confirm('Cancel booking ' + ref + '? Its places go back on sale.' + (bk.plan ? ' Its remaining monthly payments are stopped.' : '') + ' This does not refund anything already paid: refund in Stripe separately.')) return;
     btn.disabled = true;
     api('POST', '/api/booking/admin', { action:action, ref:ref, return_url: location.origin + '/book/balance/' }).then(function(d){
       if (d.url) { navigator.clipboard && navigator.clipboard.writeText(d.url).catch(function(){}); prompt('Balance payment link for ' + ref + ' (valid for 24 hours, copied to your clipboard). Send it to the guest:', d.url); btn.disabled = false; return; }
@@ -209,7 +210,7 @@ code{font-size:.82rem;background:var(--gold-wash);padding:1px 6px;border-radius:
     if (!data) return;
     var head = ['reference','booked_at','status','lead_name','lead_email','whatsapp','roommate','rooms','guests','payment','total_eur','paid_eur','balance_eur','utm_source','utm_campaign'];
     var lines = [head.join(',')].concat((data.bookings || []).map(function(b){
-      return [b.ref, new Date(b.created * 1000).toISOString(), b.status, b.lead.name, b.lead.email, b.lead.whatsapp, b.lead.roommate, b.room_names, b.guests.map(function(g){ return g.name + ' (' + g.gender + ', ' + g.email + ')'; }).join('; '), b.balance_cents ? 'deposit' : 'full',
+      return [b.ref, new Date(b.created * 1000).toISOString(), b.status, b.lead.name, b.lead.email, b.lead.whatsapp, b.lead.roommate, b.room_names, b.guests.map(function(g){ return g.name + ' (' + g.gender + ', ' + g.email + ')'; }).join('; '), b.plan ? 'plan ' + b.plan.paid_count + '/' + b.plan.installments : b.balance_cents ? 'deposit' : 'full',
         (b.total_cents / 100).toFixed(2), (b.paid_cents / 100).toFixed(2), (b.balance_cents / 100).toFixed(2), (b.utm || {}).utm_source || '', (b.utm || {}).utm_campaign || '']
         .map(function(v){ v = String(v == null ? '' : v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }).join(',');
     }));

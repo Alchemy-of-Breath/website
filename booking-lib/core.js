@@ -13,7 +13,12 @@
                             endpoint answers in demo mode and nothing is charged.
    - STRIPE_WEBHOOK_SECRET  optional, whsec_… for /api/booking/webhook
    - ADMIN_TOKEN            required for /api/booking/admin (long random string)
-   - GHL_WEBHOOK_URL        optional, GHL inbound-webhook URL that receives each paid booking */
+   - GHL_WEBHOOK_URL        optional, GHL inbound-webhook URL that receives each paid booking
+
+   Payment plans: payment "plan" is a Stripe subscription (monthly, program.payment_plan.installments
+   payments). The webhook sets cancel_at right after checkout so it stops after the last payment;
+   the confirmation lookup and the admin dashboard re-check it as a safety net. In live mode plans
+   are only offered when STRIPE_WEBHOOK_SECRET is set. */
 import PROGRAMS from './programs.js';
 
 export const STRIPE_VERSION = '2024-06-20';
@@ -62,7 +67,7 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
    input: { payment: 'deposit'|'full', guests: [{first,last,email,gender,room}], whatsapp, roommate, terms } */
 export function quote(program, input) {
   const errors = {};
-  const payment = input && input.payment === 'full' ? 'full' : 'deposit';
+  const payment = input && (input.payment === 'full' || input.payment === 'plan') ? input.payment : 'deposit';
   const raw = Array.isArray(input && input.guests) ? input.guests.slice(0, 50) : [];
   const max = program.max_guests_per_booking || 6;
   if (raw.length < 1) errors.guests = 'Add at least one guest.';
@@ -96,11 +101,36 @@ export function quote(program, input) {
   });
   const total = lines.reduce((s, l) => s + l.amount_cents, 0);
   const deposit = Math.round(total * (program.deposit && program.deposit.percent || 100) / 100);
-  const dueNow = payment === 'full' ? total : deposit;
+  let dueNow = payment === 'full' ? total : deposit, plan = null;
+  if (payment === 'plan') {
+    const n = (program.payment_plan && program.payment_plan.installments) || 3;
+    const inst = Math.floor(total / n);                 // equal monthly payments…
+    plan = { installments: n, installment_cents: inst, first_cents: total - inst * (n - 1) }; // …any cents go on the first
+    dueNow = plan.first_cents;
+  }
   return {
-    ok: Object.keys(errors).length === 0, errors, payment, guests, whatsapp, roommate, counts, lines,
+    ok: Object.keys(errors).length === 0, errors, payment, guests, whatsapp, roommate, counts, lines, plan,
     total_cents: total, deposit_cents: deposit, due_now_cents: dueNow, balance_cents: total - dueNow,
   };
+}
+
+/* ---------------------------------------------------------- payment plan */
+export function addMonths(d, k) {
+  const x = new Date(d.getTime()), day = x.getUTCDate();
+  x.setUTCDate(1); x.setUTCMonth(x.getUTCMonth() + k);
+  x.setUTCDate(Math.min(day, new Date(Date.UTC(x.getUTCFullYear(), x.getUTCMonth() + 1, 0)).getUTCDate()));
+  return x;
+}
+/* Is the monthly plan on offer right now? (program setting, last-payment-by rule, webhook in live mode) */
+export function planInfo(program, env = {}, now = new Date()) {
+  const pp = program.payment_plan;
+  if (!pp || !pp.installments) return { available: false, reason: 'not offered' };
+  const n = pp.installments, base = { installments: n, interval: pp.interval || 'month' };
+  if (env.STRIPE_SECRET_KEY && !env.STRIPE_WEBHOOK_SECRET) return { ...base, available: false, reason: 'webhook not configured' };
+  if (pp.last_payment_by && addMonths(now, n - 1).toISOString().slice(0, 10) > pp.last_payment_by) {
+    return { ...base, available: false, reason: 'not enough time before ' + pp.last_payment_by };
+  }
+  return { ...base, available: true };
 }
 
 /* ---------------------------------------------------------- availability
@@ -187,7 +217,7 @@ export function checkAvailability(program, q, avail) {
 }
 
 export const publicQuote = q => ({
-  payment: q.payment, guests: q.guests.length, lines: q.lines,
+  payment: q.payment, guests: q.guests.length, lines: q.lines, plan: q.plan,
   total_cents: q.total_cents, deposit_cents: q.deposit_cents, due_now_cents: q.due_now_cents, balance_cents: q.balance_cents,
 });
 
@@ -209,6 +239,7 @@ export function bookingMetadata(program, q, ref, extra = {}) {
     aob_lead_name: `${lead.first} ${lead.last}`.slice(0, 120), aob_lead_email: lead.email,
     aob_whatsapp: q.whatsapp, aob_roommate: q.roommate.slice(0, 200),
   };
+  if (q.plan) { md.aob_plan_n = String(q.plan.installments); md.aob_installment = String(q.plan.installment_cents); }
   q.guests.forEach((g, i) => { md[`aob_g${i + 1}`] = [`${g.first} ${g.last}`, g.email, g.gender, g.room].join(' | ').slice(0, 490); });
   const utm = extra.utm && typeof extra.utm === 'object' ? extra.utm : {};
   UTM.forEach(k => { if (utm[k]) md[k] = str(utm[k], 200); });
@@ -263,32 +294,72 @@ export async function stripe(env, method, path, params) {
   return data;
 }
 
-async function searchAll(env, query, cap = 2000) {
+async function searchAll(env, query, cap = 2000, object = 'payment_intents') {
   const rows = []; let page;
   do {
-    const r = await stripe(env, 'GET', '/payment_intents/search?' + qs({ query, limit: 100, page }));
+    const r = await stripe(env, 'GET', `/${object}/search?` + qs({ query, limit: 100, page }));
     rows.push(...r.data);
     page = r.has_more ? r.next_page : undefined;
   } while (page && rows.length < cap);
   return rows;
 }
 
-/* Every succeeded payment for a program, keyed by PaymentIntent. Stripe's search index can lag
+/* Plan bookings are subscriptions. They count from the first paid invoice (status not "incomplete"). */
+const LIVE_SUB = sub => sub.status !== 'incomplete' && sub.status !== 'incomplete_expired';
+async function paidOnSub(env, subId) {
+  const r = await stripe(env, 'GET', '/invoices?' + qs({ subscription: subId, status: 'paid', limit: 24 }));
+  return { amount: r.data.reduce((a, inv) => a + (inv.amount_paid || 0), 0), count: r.data.length };
+}
+function subRecord(sub, paid) {
+  const md = sub.metadata || {};
+  const running = (sub.status === 'active' || sub.status === 'past_due') && (!sub.cancel_at || sub.current_period_end < sub.cancel_at);
+  return {
+    id: sub.id, sub: true, created: sub.created, customer: sub.customer, md, status: sub.status, cancel_at: sub.cancel_at || null,
+    amount: paid ? paid.amount : parseInt(md.aob_due_now || '0', 10), paid_count: paid ? paid.count : 1,
+    next_payment: running ? sub.current_period_end : null,
+  };
+}
+function mergeRecentSessions(byId, sessions, match) {
+  for (const s of sessions) {
+    const md = s.metadata || {};
+    if (!match(md) || s.payment_status !== 'paid') continue;
+    if (s.mode === 'subscription' && s.subscription && !byId.has(s.subscription)) {
+      byId.set(s.subscription, { id: s.subscription, sub: true, created: s.created, customer: s.customer, md, status: 'active', cancel_at: null, amount: s.amount_total, paid_count: 1, next_payment: null });
+    } else if (s.payment_intent && !byId.has(s.payment_intent)) {
+      byId.set(s.payment_intent, { id: s.payment_intent, created: s.created, amount: s.amount_total, customer: s.customer, md });
+    }
+  }
+}
+
+/* Every succeeded payment (and every plan subscription) for a program. Stripe's search index can lag
    about a minute, so sessions completed in the last 20 minutes are merged in from the (real-time)
-   Checkout Sessions list. */
-export async function programPayments(env, program) {
-  const byPi = new Map();
+   Checkout Sessions list. amounts: also total what each plan has paid so far (one call per plan). */
+export async function programPayments(env, program, { amounts = false } = {}) {
+  const byId = new Map();
   for (const pi of await searchAll(env, `metadata['aob_program']:'${program.id}' AND status:'succeeded'`)) {
-    byPi.set(pi.id, { id: pi.id, created: pi.created, amount: pi.amount_received, customer: pi.customer, md: pi.metadata || {} });
+    byId.set(pi.id, { id: pi.id, created: pi.created, amount: pi.amount_received, customer: pi.customer, md: pi.metadata || {} });
+  }
+  for (const sub of await searchAll(env, `metadata['aob_program']:'${program.id}'`, 2000, 'subscriptions')) {
+    if (LIVE_SUB(sub)) byId.set(sub.id, subRecord(sub, amounts ? await paidOnSub(env, sub.id) : null));
   }
   const since = Math.floor(Date.now() / 1000) - 20 * 60;
   const recent = await stripe(env, 'GET', '/checkout/sessions?' + qs({ status: 'complete', 'created[gte]': since, limit: 100 }));
-  for (const s of recent.data) {
-    const md = s.metadata || {};
-    if (md.aob_program !== program.id || s.payment_status !== 'paid' || !s.payment_intent || byPi.has(s.payment_intent)) continue;
-    byPi.set(s.payment_intent, { id: s.payment_intent, created: s.created, amount: s.amount_total, customer: s.customer, md });
-  }
-  return [...byPi.values()];
+  mergeRecentSessions(byId, recent.data, md => md.aob_program === program.id);
+  return [...byId.values()];
+}
+
+/* Stop a plan after its last payment: cancel_at a week after the final monthly invoice. */
+export async function ensurePlanEnds(env, subId) {
+  const sub = await stripe(env, 'GET', `/subscriptions/${subId}`);
+  if (sub.cancel_at || sub.status === 'canceled' || !LIVE_SUB(sub)) return sub;
+  const n = parseInt((sub.metadata || {}).aob_plan_n || '3', 10);
+  const anchor = new Date((sub.billing_cycle_anchor || sub.start_date || sub.created) * 1000);
+  const cancelAt = Math.floor(addMonths(anchor, n - 1).getTime() / 1000) + 7 * 86400;
+  return stripe(env, 'POST', `/subscriptions/${subId}`, { cancel_at: cancelAt, proration_behavior: 'none' });
+}
+export function planDates(anchorSec, n) {
+  const a = new Date(anchorSec * 1000);
+  return Array.from({ length: n }, (_, k) => Math.floor(addMonths(a, k).getTime() / 1000));
 }
 
 /* Places taken per room and gender: paid bookings (not cancelled) + open checkouts holding places. */
@@ -325,7 +396,11 @@ export function groupBookings(program, payments) {
     const b = byRef.get(ref) || { ref, payments: [], paid_cents: 0 };
     b.payments.push({ id: p.id, kind: p.md.aob_kind, amount_cents: p.amount, created: p.created });
     b.paid_cents += p.amount || 0;
-    if (p.md.aob_kind === 'booking') { Object.assign(b, parseBooking(p.md)); b.created = p.created; b.booking_pi = p.id; b.customer = p.customer; }
+    if (p.md.aob_kind === 'booking') {
+      Object.assign(b, parseBooking(p.md)); b.created = p.created; b.booking_pi = p.id; b.customer = p.customer;
+      if (p.sub) b.plan = { subscription: p.id, installments: parseInt(p.md.aob_plan_n || '3', 10), installment_cents: parseInt(p.md.aob_installment || '0', 10),
+        paid_count: p.paid_count, next_payment: p.next_payment, status: p.status, cancel_at: p.cancel_at };
+    }
     byRef.set(ref, b);
   }
   return [...byRef.values()].filter(b => b.booking_pi).map(b => ({
@@ -337,17 +412,17 @@ export function groupBookings(program, payments) {
 /* One booking (and its balance payments) by reference. */
 export async function findBooking(env, ref) {
   if (!validRef(ref)) return null;
-  const pays = (await searchAll(env, `metadata['aob_ref']:'${ref}' AND status:'succeeded'`, 200))
-    .map(pi => ({ id: pi.id, created: pi.created, amount: pi.amount_received, customer: pi.customer, md: pi.metadata || {} }));
-  const seen = new Set(pays.map(p => p.id));
+  const byId = new Map();
+  for (const pi of await searchAll(env, `metadata['aob_ref']:'${ref}' AND status:'succeeded'`, 200)) {
+    byId.set(pi.id, { id: pi.id, created: pi.created, amount: pi.amount_received, customer: pi.customer, md: pi.metadata || {} });
+  }
+  for (const sub of await searchAll(env, `metadata['aob_ref']:'${ref}'`, 50, 'subscriptions')) {
+    if (LIVE_SUB(sub)) byId.set(sub.id, subRecord(sub, await paidOnSub(env, sub.id)));
+  }
   const since = Math.floor(Date.now() / 1000) - 20 * 60;
   const recent = await stripe(env, 'GET', '/checkout/sessions?' + qs({ status: 'complete', 'created[gte]': since, limit: 100 }));
-  for (const s of recent.data) {
-    const md = s.metadata || {};
-    if (md.aob_ref === ref && s.payment_status === 'paid' && s.payment_intent && !seen.has(s.payment_intent)) {
-      pays.push({ id: s.payment_intent, created: s.created, amount: s.amount_total, customer: s.customer, md });
-    }
-  }
+  mergeRecentSessions(byId, recent.data, md => md.aob_ref === ref);
+  const pays = [...byId.values()];
   const first = pays.find(p => p.md.aob_kind === 'booking');
   const program = first && getProgram(first.md.aob_program);
   if (!program) return null;
@@ -370,6 +445,21 @@ const withQuery = (url, q) => url + (url.includes('?') ? '&' : '?') + q; // keep
 export function bookingCheckoutParams(program, q, ref, md, returnUrl) {
   const title = `${program.title}, ${program.dates.short}`;
   const rooms = q.lines.map(l => `${l.name} × ${l.guests}`).join(', ');
+  if (q.payment === 'plan') {
+    const p = q.plan, cur = program.currency.toLowerCase();
+    const items = [{ quantity: 1, price_data: { currency: cur, unit_amount: p.installment_cents, recurring: { interval: 'month', interval_count: 1 },
+      product_data: { name: `${title} · ${p.installments} monthly payments`, description: `${rooms}. Booking ${ref}.`.slice(0, 500) } } }];
+    if (p.first_cents > p.installment_cents) items.push({ quantity: 1, price_data: { currency: cur, unit_amount: p.first_cents - p.installment_cents, product_data: { name: 'Rounding on the first payment' } } });
+    return {
+      mode: 'subscription', payment_method_types: ['card'], locale: 'auto', customer_email: q.guests[0].email, client_reference_id: ref,
+      line_items: items, metadata: md,
+      subscription_data: { metadata: md, description: `${title} · ${ref} · ${p.installments} monthly payments of ${eur(p.installment_cents)}` },
+      custom_text: { submit: { message: `${p.installments} monthly payments of ${eur(p.installment_cents)}: the first today, then automatically each month to the same card, ${p.installments} payments in total.` } },
+      expires_at: Math.floor(Date.now() / 1000) + 31 * 60,
+      success_url: withQuery(returnUrl, 'status=success&session_id={CHECKOUT_SESSION_ID}'),
+      cancel_url: withQuery(returnUrl, 'status=cancelled'),
+    };
+  }
   const name = q.payment === 'full' ? `${title} · stay and meals` : `${program.deposit.percent}% deposit · ${title}`;
   const desc = `${rooms}. Booking ${ref}.` + (q.balance_cents ? ` Balance ${eur(q.balance_cents)} to pay before arrival.` : ' Paid in full.');
   const lead = q.guests[0];

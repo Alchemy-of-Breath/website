@@ -1,7 +1,7 @@
 // POST /api/booking/checkout — validate, price on the server, re-check availability, open Stripe Checkout.
 import {
   json, preflight, getProgram, isClosed, quote, checkAvailability, occupancy, availability,
-  newRef, bookingMetadata, bookingCheckoutParams, safeReturnUrl, publicQuote, stripe,
+  newRef, bookingMetadata, bookingCheckoutParams, safeReturnUrl, publicQuote, stripe, planInfo,
 } from '../../../booking-lib/core.js';
 export const onRequestOptions = ({ request }) => preflight(request);
 export async function onRequestPost({ request, env }) {
@@ -13,6 +13,9 @@ export async function onRequestPost({ request, env }) {
 
   const q = quote(program, body);
   if (!q.ok) return json(request, { error: 'Please check the highlighted details.', fields: q.errors }, 422);
+  if (q.payment === 'plan' && !planInfo(program, env).available) {
+    return json(request, { error: 'The monthly payment plan isn\'t available for this booking. Please choose the deposit or pay in full.' }, 422);
+  }
 
   const live = !!env.STRIPE_SECRET_KEY;
   let avail;

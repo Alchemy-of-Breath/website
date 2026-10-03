@@ -147,6 +147,7 @@ footer{text-align:center;font-size:.78rem;color:var(--slate);padding:0 20px 30px
         if (d.url) { location.href = d.url; return; }
         b.disabled = false; b.innerHTML = old;
         if (d.paid_in_full) return msg('Booking ' + d.ref + ' is already paid in full. Nothing more to pay. See you at ASHA!', true);
+        if (d.plan) return msg('Booking ' + d.ref + ' is on the monthly payment plan: ' + d.paid_count + ' of ' + d.installments + ' payments made. ' + (d.next_payment ? 'The next ' + money(d.installment_cents) + ' is taken automatically on ' + new Date(d.next_payment * 1000).toLocaleDateString('en-GB', { day:'numeric', month:'long' }) + '.' : 'The remaining payments are taken automatically.') + ' Nothing to do here.', true);
         msg(d.error || 'Something went wrong. Please try again.');
       }).catch(function(){ b.disabled = false; b.innerHTML = old; msg('We could not reach the booking system. Please try again.'); });
   });

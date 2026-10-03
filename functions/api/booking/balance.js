@@ -15,6 +15,8 @@ export async function onRequestPost({ request, env }) {
     const { program, booking } = found;
     if (booking.status === 'cancelled') return json(request, { error: 'This booking has been cancelled. Message us on WhatsApp if that looks wrong.' }, 409);
     if (booking.balance_cents <= 0) return json(request, { paid_in_full: true, ref, total_cents: booking.total_cents });
+    if (booking.plan) return json(request, { plan: true, ref, balance_cents: booking.balance_cents, installment_cents: booking.plan.installment_cents,
+      paid_count: booking.plan.paid_count, installments: booking.plan.installments, next_payment: booking.plan.next_payment });
     const session = await stripe(env, 'POST', '/checkout/sessions',
       balanceCheckoutParams(program, booking, booking.balance_cents, safeReturnUrl(body.return_url, 'https://website-5h3.pages.dev/book/balance/')));
     return json(request, { url: session.url, ref, balance_cents: booking.balance_cents });

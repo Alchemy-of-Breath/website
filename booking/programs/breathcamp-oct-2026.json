@@ -26,6 +26,13 @@
     "percent": 20,
     "balance_note": "The remaining balance is paid before you arrive at ASHA."
   },
+  "payment_plan": {
+    "installments": 3,
+    "interval": "month",
+    "last_payment_by": null,
+    "note": "Charged automatically to the same card each month.",
+    "about": "Set last_payment_by (YYYY-MM-DD) to require the final payment by that date; the plan is then hidden when there is not enough time left."
+  },
   "genders": [
     "Female",
     "Male"

@@ -1,7 +1,7 @@
 // /api/booking/admin — bookings dashboard data and actions. Requires Authorization: Bearer <ADMIN_TOKEN>.
 import {
   json, preflight, adminAuthorized, getProgram, listPrograms, programSummary, programPayments, groupBookings,
-  occupancy, availability, validRef, findBooking, stripe, balanceCheckoutParams, safeReturnUrl, roomCapacity,
+  occupancy, availability, validRef, findBooking, stripe, balanceCheckoutParams, safeReturnUrl, roomCapacity, ensurePlanEnds,
 } from '../../../booking-lib/core.js';
 export const onRequestOptions = ({ request }) => preflight(request);
 
@@ -11,7 +11,9 @@ export async function onRequestGet({ request, env }) {
   const programs = listPrograms().map(programSummary);
   if (!env.STRIPE_SECRET_KEY) return json(request, { demo: true, programs, program: programSummary(program), bookings: [], availability: availability(program) });
   try {
-    const pays = await programPayments(env, program);
+    const pays = await programPayments(env, program, { amounts: true });
+    // safety net: every running plan must have its end date set
+    for (const p of pays) if (p.sub && !p.cancel_at && (p.status === 'active' || p.status === 'past_due')) { try { const u = await ensurePlanEnds(env, p.id); p.cancel_at = u.cancel_at || null; } catch {} }
     const bookings = groupBookings(program, pays);
     const occ = await occupancy(env, program, pays);
     const active = bookings.filter(b => b.status !== 'cancelled');
@@ -38,10 +40,18 @@ export async function onRequestPost({ request, env }) {
     if (!found) return json(request, { error: 'Booking not found (new bookings can take a minute to appear).' }, 404);
     const { program, booking } = found;
     if (body.action === 'cancel' || body.action === 'restore') {
-      await stripe(env, 'POST', `/payment_intents/${booking.booking_pi}`, { metadata: { aob_status: body.action === 'cancel' ? 'cancelled' : 'active' } });
-      return json(request, { ok: true, ref, status: body.action === 'cancel' ? 'cancelled' : 'active' });
+      const status = body.action === 'cancel' ? 'cancelled' : 'active';
+      if (booking.plan) {
+        if (body.action === 'restore' && booking.plan.status === 'canceled') return json(request, { error: 'This plan was stopped in Stripe and can\'t be restored. Make a new booking instead.' }, 409);
+        await stripe(env, 'POST', `/subscriptions/${booking.booking_pi}`, { metadata: { aob_status: status } });
+        if (body.action === 'cancel') await stripe(env, 'DELETE', `/subscriptions/${booking.booking_pi}`); // stop future monthly payments
+      } else {
+        await stripe(env, 'POST', `/payment_intents/${booking.booking_pi}`, { metadata: { aob_status: status } });
+      }
+      return json(request, { ok: true, ref, status });
     }
     if (body.action === 'balance_link') {
+      if (booking.plan) return json(request, { error: 'This booking is on the monthly payment plan: the remaining payments are taken automatically.' }, 409);
       if (booking.balance_cents <= 0) return json(request, { error: 'Nothing left to pay on this booking.' }, 409);
       const s = await stripe(env, 'POST', '/checkout/sessions',
         balanceCheckoutParams(program, booking, booking.balance_cents, safeReturnUrl(body.return_url, 'https://website-5h3.pages.dev/book/balance/'), 23.9));
