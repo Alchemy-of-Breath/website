@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<!-- AOB-UTM:start -->
+<script>
+/* AoB UTM keeper: remembers the campaign tags a visitor arrived with and hands
+   them to GoHighLevel on whatever page they later sign up on.
+   - Stores utm_*, fbclid, gclid, msclkid from the landing URL for 90 days
+     (latest campaign wins), in localStorage and an .alchemyofbreath.com cookie.
+   - Seeds GHL's own form_embed.js memory (sessionStorage "UPS"), so GHL forms
+     attribute the contact to the campaign even when the form page has no tags.
+   - Adds the tags to GHL form/booking iframes and to links into GHL funnels
+     (go. / breathcamp. / link.alchemyofbreath.com), so hidden fields with a
+     matching query key are filled too.
+   Source: tools/utm/aob-utm.js. Inlined into every page by tools/utm/inject.py. */
+(function(){
+  var KEYS=['utm_source','utm_medium','utm_campaign','utm_term','utm_content','utm_id','fbclid','gclid','msclkid'];
+  var STORE='aob_utm', DAYS=90, MS=DAYS*864e5;
+  var ls=function(k,v){ try{ if(v===undefined) return localStorage.getItem(k); localStorage.setItem(k,v); }catch(e){ return null; } };
+  var qs=new URLSearchParams(location.search), got={}, any=false;
+  KEYS.forEach(function(k){ var v=qs.get(k); if(v){ got[k]=v.slice(0,250); any=true; } });
+  var rec=null;
+  if(any){
+    rec={p:got,t:Date.now(),landing:location.origin+location.pathname};
+    ls(STORE,JSON.stringify(rec));
+    try{ document.cookie=STORE+'='+encodeURIComponent(JSON.stringify(got))+';path=/;max-age='+(DAYS*86400)+';SameSite=Lax'+
+      (/(^|\.)alchemyofbreath\.com$/.test(location.hostname)?';domain=.alchemyofbreath.com':''); }catch(e){}
+  } else {
+    try{ rec=JSON.parse(ls(STORE)||'null'); }catch(e){ rec=null; }
+    if(!rec || !rec.p || Date.now()-rec.t>MS) return;
+  }
+  var P=rec.p;
+
+  // GHL form_embed.js falls back to sessionStorage "UPS" when the page URL has no utm_ tags
+  try{
+    var ups=new URLSearchParams(sessionStorage.getItem('UPS')||''), changed=false;
+    for(var k in P){ if(k.indexOf('utm_')===0 && ups.get(k)!==P[k]){ ups.set(k,P[k]); changed=true; } }
+    if(changed) sessionStorage.setItem('UPS','?'+ups.toString());
+  }catch(e){}
+
+  var GHL=/^https:\/\/((link|api)\.(alchemyofbreath\.com|leadconnectorhq\.com)\/widget\/(form|survey|booking|quiz)\/|(go|breathcamp)\.alchemyofbreath\.com\/)/;
+  var withTags=function(url){
+    var u; try{ u=new URL(url,location.href); }catch(e){ return null; }
+    if(!GHL.test(u.href)) return null;
+    var ch=false;
+    for(var k in P){ if(!u.searchParams.has(k)){ u.searchParams.set(k,P[k]); ch=true; } }
+    return ch?u.href:null;
+  };
+  var fixFrame=function(f){
+    ['src','data-src'].forEach(function(a){ var v=f.getAttribute(a), n=v&&withTags(v); if(n) f.setAttribute(a,n); });
+  };
+  var scan=function(root){
+    if(root.tagName==='IFRAME'){ fixFrame(root); return; }
+    if(root.querySelectorAll) [].forEach.call(root.querySelectorAll('iframe'),fixFrame);
+  };
+  scan(document);
+  if('MutationObserver' in window){
+    new MutationObserver(function(ms){ ms.forEach(function(m){ [].forEach.call(m.addedNodes,function(n){ if(n.nodeType===1) scan(n); }); }); })
+      .observe(document.documentElement,{childList:true,subtree:true});
+  }
+  // links into GHL funnels: tag them at click time (covers links built by scripts too)
+  var tagLink=function(e){
+    var a=e.target && e.target.closest && e.target.closest('a[href]'); if(!a) return;
+    var n=withTags(a.getAttribute('href')); if(n) a.setAttribute('href',n);
+  };
+  document.addEventListener('mousedown',tagLink,true);
+  document.addEventListener('touchstart',tagLink,{capture:true,passive:true});
+  document.addEventListener('keydown',function(e){ if(e.key==='Enter') tagLink(e); },true);
+  document.addEventListener('click',tagLink,true);
+})();
+</script>
+<!-- AOB-UTM:end -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bookings · Alchemy of Breath</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/png" href="https://alchemyofbreath.com/wp-content/uploads/AOB-Gold-Black-Transparant-symbol.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Roboto:wght@300;400;500&display=swap">
+<style>
+:root{--paper-2:#FBF7EF;--cream:#FDF6E9;--gold:#E1B668;--gold-deep:#D6A652;--gold-soft:#EFDCB6;--gold-wash:#F7EBD2;--gold-text:#8A5F1C;--teal:#00A5B2;--teal-text:#00737C;--slate:#5B7889;--ink:#221F20;--line:rgba(225,182,104,.34);--grad-gold:linear-gradient(135deg,#E1B668 0%,#D6A652 100%);--serif:'Marcellus',Georgia,serif;--sans:'Roboto',-apple-system,'Segoe UI',Helvetica,Arial,sans-serif}
+*{box-sizing:border-box}
+body{margin:0;font-family:var(--sans);font-weight:300;font-size:15px;color:var(--ink);background:var(--paper-2);-webkit-font-smoothing:antialiased}
+header{position:sticky;top:0;z-index:5;background:rgba(251,247,239,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.hin{max-width:1320px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.hin img{height:34px;width:auto}
+.hin h1{font-family:var(--serif);font-weight:400;font-size:1.3rem;margin:0;flex:1}
+select,input,button{font:inherit}
+select,input{border:1px solid rgba(34,31,32,.2);border-radius:10px;padding:9px 12px;background:#fff}
+.btn{border:0;border-radius:999px;padding:10px 18px;font-weight:500;cursor:pointer;background:var(--grad-gold);color:var(--ink)}
+.btn-ghost{background:#fff;border:1px solid rgba(34,31,32,.2)}
+.btn-sm{padding:6px 12px;font-size:.78rem}
+.btn:disabled{opacity:.5;cursor:default}
+main{max-width:1320px;margin:0 auto;padding:24px}
+.login{max-width:420px;margin:12vh auto;background:#fff;border:1px solid var(--line);border-radius:20px;padding:32px;box-shadow:0 14px 34px rgba(34,31,32,.08)}
+.login h2{font-family:var(--serif);font-weight:400;margin:0 0 6px}
+.login p{color:var(--slate);margin:0 0 18px}
+.login input{width:100%;margin-bottom:12px}
+.note{border-radius:12px;padding:12px 16px;margin:0 0 18px;background:var(--gold-wash);border:1px solid var(--gold-soft);font-size:.9rem}
+.note.err{background:#FFF4F0;border-color:#F1C7B8;color:#7A2E16}
+.note[hidden]{display:none}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:22px}
+.stat{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px 18px}
+.stat small{display:block;font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--slate)}
+.stat b{display:block;font-family:var(--serif);font-weight:400;font-size:1.8rem;margin-top:4px}
+.panel{background:#fff;border:1px solid var(--line);border-radius:18px;padding:20px;margin-bottom:22px;overflow:auto}
+.panel h2{font-family:var(--serif);font-weight:400;font-size:1.25rem;margin:0 0 14px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+table{width:100%;border-collapse:collapse;font-size:.86rem}
+th{text-align:left;font-weight:500;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--slate);padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:10px;border-bottom:1px solid rgba(225,182,104,.18);vertical-align:top}
+tr.cancelled td{opacity:.5;text-decoration:line-through}
+tr.cancelled td.act{text-decoration:none;opacity:1}
+.bar{height:8px;border-radius:4px;background:rgba(91,120,137,.15);overflow:hidden;min-width:120px}
+.bar i{display:block;height:100%;background:var(--gold-deep)}
+.bar i.h{background:var(--teal)}
+.pill{display:inline-block;border-radius:999px;padding:2px 9px;font-size:.72rem;font-weight:500}
+.pill.full{background:#EEF8F8;color:#0B5157}.pill.dep{background:var(--gold-wash);color:var(--gold-text)}.pill.can{background:#eee;color:#555}
+.guests{font-size:.78rem;color:var(--slate);margin-top:4px;line-height:1.5}
+.act{white-space:nowrap}
+.act button{margin:0 4px 4px 0}
+.muted{color:var(--slate)}
+code{font-size:.82rem;background:var(--gold-wash);padding:1px 6px;border-radius:6px}
+</style>
+</head>
+<body>
+<header><div class="hin"><img src="https://alchemyofbreath.com/wp-content/uploads/AOB-Gold-Black-Transparant.png" alt="Alchemy of Breath" width="252" height="72"><h1>Bookings</h1>
+  <select id="prog" aria-label="Program"></select>
+  <button class="btn btn-ghost" id="refresh" type="button">Refresh</button>
+  <button class="btn btn-ghost" id="csv" type="button">Export CSV</button>
+  <button class="btn btn-ghost" id="logout" type="button">Sign out</button></div></header>
+<main id="app">
+  <div class="login" id="login">
+    <h2>Team sign-in</h2>
+    <p>Enter the admin token set in Cloudflare (ADMIN_TOKEN). It stays in this browser tab only.</p>
+    <input id="token" type="password" autocomplete="off" placeholder="Admin token">
+    <button class="btn" id="signin" type="button">Sign in</button>
+    <p class="note err" id="loginErr" hidden style="margin-top:14px"></p>
+  </div>
+  <div id="dash" hidden>
+    <p class="note" id="note" hidden></p>
+    <div class="stats" id="stats"></div>
+    <div class="panel"><h2>Rooms <span class="muted" style="font-family:var(--sans);font-size:.8rem">gold = paid · teal = checkout in progress</span></h2><table id="rooms"></table></div>
+    <div class="panel"><h2>Bookings <input id="search" type="search" placeholder="Search name, email, reference"></h2><table id="list"></table></div>
+  </div>
+</main>
+<script type="application/json" id="programList">[{"id":"breathcamp-oct-2026","title":"BreathCamp","edition":"BreathCamp 5","dates":{"start":"2026-10-25","end":"2026-10-31","nights":6,"label":"Sunday 25 – Saturday 31 October 2026","short":"25–31 Oct 2026","medium":"25–31 October 2026"}}]</script><!-- /PROGRAM-LIST -->
+<script>
+(function(){
+  var API = /(^|\.)website-5h3\.pages\.dev$/.test(location.hostname) ? '' : 'https://website-5h3.pages.dev';
+  var PROGS = JSON.parse(document.getElementById('programList').textContent || '[]');
+  var $ = function(id){ return document.getElementById(id); };
+  var esc = function(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); };
+  var money = function(c){ return '€' + ((c || 0)/100).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); };
+  var token = sessionStorage.getItem('aob_admin') || '', data = null;
+  $('prog').innerHTML = PROGS.map(function(p){ return '<option value="' + p.id + '">' + esc((p.edition || p.title) + ' · ' + p.dates.short) + '</option>'; }).join('');
+  function api(method, path, body){
+    return fetch(API + path, { method:method, headers:{ 'Authorization':'Bearer ' + token, 'Content-Type':'application/json' }, body: body ? JSON.stringify(body) : undefined })
+      .then(function(r){ return r.json().then(function(d){ if (r.status === 401) throw new Error('auth'); if (!r.ok) throw new Error(d.error || 'Error ' + r.status); return d; }); });
+  }
+  function show(dash){ $('login').hidden = dash; $('dash').hidden = !dash; ['refresh','csv','logout','prog'].forEach(function(id){ $(id).hidden = !dash; }); }
+  function note(t, err){ var n = $('note'); n.innerHTML = t; n.className = 'note' + (err ? ' err' : ''); n.hidden = !t; }
+  function load(){
+    note('Loading…');
+    return api('GET', '/api/booking/admin?program=' + encodeURIComponent($('prog').value)).then(function(d){
+      data = d; note(d.demo ? 'Demo mode: Stripe isn\'t connected yet (no <code>STRIPE_SECRET_KEY</code>). Bookings appear here once payments are live.' : ''); render();
+    }).catch(function(e){
+      if (e.message === 'auth') { sessionStorage.removeItem('aob_admin'); token = ''; show(false); $('loginErr').textContent = 'That token was not accepted.'; $('loginErr').hidden = false; return; }
+      note(esc(e.message), true);
+    });
+  }
+  function render(){
+    var d = data, t = d.totals || { bookings:0, guests:0, paid_cents:0, balance_cents:0 }, av = d.availability || { program_left: '–', rooms: {} };
+    $('stats').innerHTML = [['Bookings', t.bookings], ['Guests', t.guests], ['Paid so far', money(t.paid_cents)], ['Balance due', money(t.balance_cents)], ['Places left', av.program_left + ' of ' + d.program.program_spaces]]
+      .map(function(s){ return '<div class="stat"><small>' + s[0] + '</small><b>' + s[1] + '</b></div>'; }).join('');
+    var rooms = d.rooms || [];
+    $('rooms').innerHTML = '<tr><th>Room</th><th>Price</th><th>Capacity</th><th>Paid</th><th>In checkout</th><th>Left</th><th></th></tr>' + rooms.map(function(r){
+      var a = av.rooms[r.id] || {}, held = (d.holds || {})[r.id] || 0, paid = (a.taken || 0) - held, cap = r.capacity || 0;
+      return '<tr><td>' + esc(r.name) + '</td><td>€' + r.price.toLocaleString('en-GB') + '</td><td>' + cap + '</td><td>' + paid + '</td><td>' + held + '</td><td><b>' + (a.left != null ? a.left : '–') + '</b></td><td><div class="bar"><i style="width:' + (cap ? Math.min(100, paid / cap * 100) : 0) + '%"></i></div></td></tr>';
+    }).join('');
+    renderList();
+  }
+  function renderList(){
+    var q = $('search').value.trim().toLowerCase();
+    var rows = (data.bookings || []).filter(function(b){ return !q || JSON.stringify([b.ref, b.lead, b.guests]).toLowerCase().indexOf(q) >= 0; });
+    $('list').innerHTML = '<tr><th>Reference</th><th>Booked</th><th>Lead guest</th><th>Rooms</th><th>Payment</th><th>Total</th><th>Paid</th><th>Balance</th><th></th></tr>' + (rows.length ? rows.map(function(b){
+      var can = b.status === 'cancelled';
+      return '<tr class="' + (can ? 'cancelled' : '') + '"><td><b>' + esc(b.ref) + '</b></td><td>' + new Date(b.created * 1000).toLocaleString('en-GB', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }) + '</td>' +
+        '<td>' + esc(b.lead.name) + '<div class="guests"><a href="mailto:' + esc(b.lead.email) + '">' + esc(b.lead.email) + '</a><br><a href="https://wa.me/' + esc((b.lead.whatsapp || '').replace(/\D/g, '')) + '" target="_blank" rel="noopener">' + esc(b.lead.whatsapp) + '</a>' + (b.lead.roommate ? '<br>Roommate: ' + esc(b.lead.roommate) : '') + '</div></td>' +
+        '<td>' + esc(b.room_names) + '<div class="guests">' + b.guests.map(function(g){ return esc(g.name) + ' · ' + esc(g.gender); }).join('<br>') + '</div></td>' +
+        '<td>' + (can ? '<span class="pill can">Cancelled</span>' : b.balance_cents ? '<span class="pill dep">Deposit</span>' : '<span class="pill full">Paid in full</span>') + '</td>' +
+        '<td>' + money(b.total_cents) + '</td><td>' + money(b.paid_cents) + '</td><td>' + (b.balance_cents ? '<b>' + money(b.balance_cents) + '</b>' : '–') + '</td>' +
+        '<td class="act">' + (b.balance_cents && !can ? '<button class="btn btn-sm" data-act="balance_link" data-ref="' + esc(b.ref) + '">Balance link</button>' : '') +
+        '<button class="btn btn-ghost btn-sm" data-act="' + (can ? 'restore' : 'cancel') + '" data-ref="' + esc(b.ref) + '">' + (can ? 'Restore' : 'Cancel') + '</button></td></tr>';
+    }).join('') : '<tr><td colspan="9" class="muted">No bookings yet.</td></tr>');
+    $('list').querySelectorAll('[data-act]').forEach(function(btn){ btn.onclick = function(){ act(btn.getAttribute('data-act'), btn.getAttribute('data-ref'), btn); }; });
+  }
+  function act(action, ref, btn){
+    if (action === 'cancel' && !confirm('Cancel booking ' + ref + '? Its places go back on sale. This does not refund the payment: refund in Stripe separately.')) return;
+    btn.disabled = true;
+    api('POST', '/api/booking/admin', { action:action, ref:ref, return_url: location.origin + '/book/balance/' }).then(function(d){
+      if (d.url) { navigator.clipboard && navigator.clipboard.writeText(d.url).catch(function(){}); prompt('Balance payment link for ' + ref + ' (valid for 24 hours, copied to your clipboard). Send it to the guest:', d.url); btn.disabled = false; return; }
+      load();
+    }).catch(function(e){ btn.disabled = false; alert(e.message); });
+  }
+  $('csv').onclick = function(){
+    if (!data) return;
+    var head = ['reference','booked_at','status','lead_name','lead_email','whatsapp','roommate','rooms','guests','payment','total_eur','paid_eur','balance_eur','utm_source','utm_campaign'];
+    var lines = [head.join(',')].concat((data.bookings || []).map(function(b){
+      return [b.ref, new Date(b.created * 1000).toISOString(), b.status, b.lead.name, b.lead.email, b.lead.whatsapp, b.lead.roommate, b.room_names, b.guests.map(function(g){ return g.name + ' (' + g.gender + ', ' + g.email + ')'; }).join('; '), b.balance_cents ? 'deposit' : 'full',
+        (b.total_cents / 100).toFixed(2), (b.paid_cents / 100).toFixed(2), (b.balance_cents / 100).toFixed(2), (b.utm || {}).utm_source || '', (b.utm || {}).utm_campaign || '']
+        .map(function(v){ v = String(v == null ? '' : v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }).join(',');
+    }));
+    var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([lines.join('\n')], { type:'text/csv' })); a.download = $('prog').value + '-bookings.csv'; a.click();
+  };
+  $('signin').onclick = function(){ token = $('token').value.trim(); if (!token) return; sessionStorage.setItem('aob_admin', token); $('loginErr').hidden = true; show(true); load(); };
+  $('token').addEventListener('keydown', function(e){ if (e.key === 'Enter') $('signin').click(); });
+  $('logout').onclick = function(){ sessionStorage.removeItem('aob_admin'); token = ''; data = null; show(false); };
+  $('refresh').onclick = load; $('prog').onchange = load; $('search').oninput = function(){ if (data) renderList(); };
+  if (token) { show(true); load(); } else show(false);
+})();
+</script>
+</body>
+</html>

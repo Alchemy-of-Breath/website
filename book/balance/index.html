@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<!-- AOB-UTM:start -->
+<script>
+/* AoB UTM keeper: remembers the campaign tags a visitor arrived with and hands
+   them to GoHighLevel on whatever page they later sign up on.
+   - Stores utm_*, fbclid, gclid, msclkid from the landing URL for 90 days
+     (latest campaign wins), in localStorage and an .alchemyofbreath.com cookie.
+   - Seeds GHL's own form_embed.js memory (sessionStorage "UPS"), so GHL forms
+     attribute the contact to the campaign even when the form page has no tags.
+   - Adds the tags to GHL form/booking iframes and to links into GHL funnels
+     (go. / breathcamp. / link.alchemyofbreath.com), so hidden fields with a
+     matching query key are filled too.
+   Source: tools/utm/aob-utm.js. Inlined into every page by tools/utm/inject.py. */
+(function(){
+  var KEYS=['utm_source','utm_medium','utm_campaign','utm_term','utm_content','utm_id','fbclid','gclid','msclkid'];
+  var STORE='aob_utm', DAYS=90, MS=DAYS*864e5;
+  var ls=function(k,v){ try{ if(v===undefined) return localStorage.getItem(k); localStorage.setItem(k,v); }catch(e){ return null; } };
+  var qs=new URLSearchParams(location.search), got={}, any=false;
+  KEYS.forEach(function(k){ var v=qs.get(k); if(v){ got[k]=v.slice(0,250); any=true; } });
+  var rec=null;
+  if(any){
+    rec={p:got,t:Date.now(),landing:location.origin+location.pathname};
+    ls(STORE,JSON.stringify(rec));
+    try{ document.cookie=STORE+'='+encodeURIComponent(JSON.stringify(got))+';path=/;max-age='+(DAYS*86400)+';SameSite=Lax'+
+      (/(^|\.)alchemyofbreath\.com$/.test(location.hostname)?';domain=.alchemyofbreath.com':''); }catch(e){}
+  } else {
+    try{ rec=JSON.parse(ls(STORE)||'null'); }catch(e){ rec=null; }
+    if(!rec || !rec.p || Date.now()-rec.t>MS) return;
+  }
+  var P=rec.p;
+
+  // GHL form_embed.js falls back to sessionStorage "UPS" when the page URL has no utm_ tags
+  try{
+    var ups=new URLSearchParams(sessionStorage.getItem('UPS')||''), changed=false;
+    for(var k in P){ if(k.indexOf('utm_')===0 && ups.get(k)!==P[k]){ ups.set(k,P[k]); changed=true; } }
+    if(changed) sessionStorage.setItem('UPS','?'+ups.toString());
+  }catch(e){}
+
+  var GHL=/^https:\/\/((link|api)\.(alchemyofbreath\.com|leadconnectorhq\.com)\/widget\/(form|survey|booking|quiz)\/|(go|breathcamp)\.alchemyofbreath\.com\/)/;
+  var withTags=function(url){
+    var u; try{ u=new URL(url,location.href); }catch(e){ return null; }
+    if(!GHL.test(u.href)) return null;
+    var ch=false;
+    for(var k in P){ if(!u.searchParams.has(k)){ u.searchParams.set(k,P[k]); ch=true; } }
+    return ch?u.href:null;
+  };
+  var fixFrame=function(f){
+    ['src','data-src'].forEach(function(a){ var v=f.getAttribute(a), n=v&&withTags(v); if(n) f.setAttribute(a,n); });
+  };
+  var scan=function(root){
+    if(root.tagName==='IFRAME'){ fixFrame(root); return; }
+    if(root.querySelectorAll) [].forEach.call(root.querySelectorAll('iframe'),fixFrame);
+  };
+  scan(document);
+  if('MutationObserver' in window){
+    new MutationObserver(function(ms){ ms.forEach(function(m){ [].forEach.call(m.addedNodes,function(n){ if(n.nodeType===1) scan(n); }); }); })
+      .observe(document.documentElement,{childList:true,subtree:true});
+  }
+  // links into GHL funnels: tag them at click time (covers links built by scripts too)
+  var tagLink=function(e){
+    var a=e.target && e.target.closest && e.target.closest('a[href]'); if(!a) return;
+    var n=withTags(a.getAttribute('href')); if(n) a.setAttribute('href',n);
+  };
+  document.addEventListener('mousedown',tagLink,true);
+  document.addEventListener('touchstart',tagLink,{capture:true,passive:true});
+  document.addEventListener('keydown',function(e){ if(e.key==='Enter') tagLink(e); },true);
+  document.addEventListener('click',tagLink,true);
+})();
+</script>
+<!-- AOB-UTM:end -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pay your balance | Alchemy of Breath</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#FBF7EF">
+<link rel="icon" type="image/png" href="https://alchemyofbreath.com/wp-content/uploads/AOB-Gold-Black-Transparant-symbol.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Roboto:wght@300;400;500&display=swap">
+<style>
+:root{--paper-2:#FBF7EF;--cream:#FDF6E9;--gold:#E1B668;--gold-deep:#D6A652;--gold-soft:#EFDCB6;--gold-wash:#F7EBD2;--gold-text:#8A5F1C;--teal:#00A5B2;--teal-text:#00737C;--slate:#5B7889;--ink:#221F20;--line:rgba(225,182,104,.34);--grad-gold:linear-gradient(135deg,#E1B668 0%,#D6A652 100%);--serif:'Marcellus',Georgia,serif;--sans:'Roboto',-apple-system,'Segoe UI',Helvetica,Arial,sans-serif}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;font-family:var(--sans);font-weight:300;color:var(--ink);background:radial-gradient(120% 80% at 50% 0%,var(--cream),var(--paper-2) 60%);-webkit-font-smoothing:antialiased;display:flex;flex-direction:column}
+header{padding:18px 24px}header img{height:38px;width:auto}
+main{flex:1;display:grid;place-items:center;padding:20px 18px 60px}
+.card{width:100%;max-width:480px;background:#fff;border:1px solid var(--line);border-radius:22px;box-shadow:0 2px 4px rgba(34,31,32,.05),0 14px 34px rgba(34,31,32,.10),0 34px 80px rgba(34,31,32,.08);padding:38px clamp(22px,5vw,40px)}
+.eyebrow{font-size:.7rem;font-weight:500;letter-spacing:.24em;text-transform:uppercase;color:var(--slate);margin:0 0 12px}
+h1{font-family:var(--serif);font-weight:400;font-size:2rem;line-height:1.15;margin:0}
+h1 em{font-style:italic;color:var(--gold-text)}
+p.sub{color:var(--slate);margin:10px 0 24px;line-height:1.6}
+label{display:block;font-size:.8rem;font-weight:500;margin:0 0 7px}
+input{width:100%;border:1px solid rgba(34,31,32,.18);border-radius:12px;padding:13px 14px;font:inherit;font-size:1rem;margin-bottom:16px}
+input:focus{outline:none;border-color:var(--gold-deep);box-shadow:0 0 0 4px rgba(225,182,104,.22)}
+#ref{text-transform:uppercase;letter-spacing:.08em}
+.btn{width:100%;display:inline-flex;justify-content:center;align-items:center;gap:10px;border:0;border-radius:999px;padding:16px 26px;font:inherit;font-weight:500;font-size:.95rem;cursor:pointer;background:var(--grad-gold);color:var(--ink);box-shadow:0 10px 26px rgba(214,166,82,.4);text-decoration:none}
+.btn:disabled{opacity:.5;cursor:default}
+.btn-ghost{background:transparent;border:1px solid rgba(34,31,32,.24);box-shadow:none;margin-top:10px}
+.msg{border-radius:12px;padding:12px 14px;font-size:.9rem;margin:0 0 16px;background:#FFF4F0;border:1px solid #F1C7B8;color:#7A2E16}
+.msg.ok{background:#EEF8F8;border-color:#BFE3E5;color:#0B5157}
+.msg[hidden]{display:none}
+.lock{display:flex;align-items:center;gap:8px;justify-content:center;margin-top:16px;font-size:.78rem;color:var(--slate)}
+.lock svg{width:15px;height:15px;stroke:var(--teal-text);fill:none;stroke-width:1.8}
+.big{font-family:var(--serif);font-size:2.2rem;margin:8px 0 2px}
+.seal{width:70px;height:70px;border-radius:50%;background:var(--grad-gold);display:grid;place-items:center;margin:0 0 18px}
+.seal::before{content:"";width:24px;height:13px;border-left:3px solid var(--ink);border-bottom:3px solid var(--ink);transform:rotate(-45deg) translate(2px,-2px)}
+.spin{width:16px;height:16px;border-radius:50%;border:2px solid rgba(34,31,32,.25);border-top-color:var(--ink);animation:sp .8s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}
+footer{text-align:center;font-size:.78rem;color:var(--slate);padding:0 20px 30px}footer a{color:var(--slate)}
+</style>
+</head>
+<body>
+<header><a href="https://alchemyofbreath.com/"><img src="https://alchemyofbreath.com/wp-content/uploads/AOB-Gold-Black-Transparant.png" alt="Alchemy of Breath" width="252" height="72"></a></header>
+<main><div class="card" id="card">
+  <p class="eyebrow">BreathCamp at ASHA</p>
+  <h1>Pay your <em>balance</em>.</h1>
+  <p class="sub">Enter your booking reference and the email you booked with. You'll pay the remaining amount on Stripe's secure checkout.</p>
+  <p class="msg" id="msg" role="alert" hidden></p>
+  <form id="form" novalidate>
+    <label for="ref">Booking reference</label><input id="ref" autocomplete="off" placeholder="BC2610-XXXXXX" maxlength="20" required>
+    <label for="email">Email</label><input id="email" type="email" autocomplete="email" placeholder="name@example.com" required>
+    <button class="btn" id="go" type="submit">Continue to secure payment <span>&rarr;</span></button>
+  </form>
+  <p class="lock"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Secure payment by Stripe</p>
+</div></main>
+<footer>Need help? <a href="https://wa.me/393534527348" target="_blank" rel="noopener">Message us on WhatsApp</a> &middot; <a href="https://alchemyofbreath.com/terms-and-conditions/breathcamp/" target="_blank" rel="noopener">Terms</a></footer>
+<script>
+(function(){
+  var API = /(^|\.)website-5h3\.pages\.dev$/.test(location.hostname) ? '' : 'https://website-5h3.pages.dev';
+  var $ = function(id){ return document.getElementById(id); };
+  var money = function(c){ return '€' + (c/100).toLocaleString('en-GB', { minimumFractionDigits: c % 100 ? 2 : 0, maximumFractionDigits: 2 }); };
+  var q = new URLSearchParams(location.search);
+  if (q.get('ref')) $('ref').value = q.get('ref');
+  function msg(t, ok){ var m = $('msg'); m.textContent = t; m.className = 'msg' + (ok ? ' ok' : ''); m.hidden = !t; }
+  if (q.get('status') === 'paid') {
+    $('card').innerHTML = '<div class="seal" aria-hidden="true"></div><p class="eyebrow">Payment received</p><h1>Thank you.</h1><p class="sub" id="paidSub">Your balance payment for booking <b>' + (q.get('ref') || '').replace(/[^A-Z0-9-]/gi, '') + '</b> is complete. Your receipt is on its way by email.</p><a class="btn btn-ghost" href="https://alchemyofbreath.com/">Back to Alchemy of Breath</a>';
+    if (q.get('session_id')) fetch(API + '/api/booking/session?id=' + encodeURIComponent(q.get('session_id'))).then(function(r){ return r.json(); }).then(function(s){
+      if (s && s.amount_paid_cents) $('paidSub').innerHTML = 'We received <b>' + money(s.amount_paid_cents) + '</b> for booking <b>' + s.ref + '</b>. ' + (s.balance_cents ? 'Still to pay: ' + money(s.balance_cents) + '.' : 'You are now paid in full. See you at ASHA!');
+    }).catch(function(){});
+    return;
+  }
+  $('form').addEventListener('submit', function(e){
+    e.preventDefault(); msg('');
+    var ref = $('ref').value.trim().toUpperCase(), email = $('email').value.trim();
+    if (!ref || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return msg('Enter your booking reference and a valid email.');
+    var b = $('go'), old = b.innerHTML; b.disabled = true; b.innerHTML = '<span class="spin"></span> Finding your booking…';
+    fetch(API + '/api/booking/balance', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ ref:ref, email:email, return_url: location.origin + location.pathname }) })
+      .then(function(r){ return r.json(); }).then(function(d){
+        if (d.url) { location.href = d.url; return; }
+        b.disabled = false; b.innerHTML = old;
+        if (d.paid_in_full) return msg('Booking ' + d.ref + ' is already paid in full. Nothing more to pay. See you at ASHA!', true);
+        msg(d.error || 'Something went wrong. Please try again.');
+      }).catch(function(){ b.disabled = false; b.innerHTML = old; msg('We could not reach the booking system. Please try again.'); });
+  });
+})();
+</script>
+</body>
+</html>

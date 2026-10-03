@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<!-- AOB-UTM:start -->
+<script>
+/* AoB UTM keeper: remembers the campaign tags a visitor arrived with and hands
+   them to GoHighLevel on whatever page they later sign up on.
+   - Stores utm_*, fbclid, gclid, msclkid from the landing URL for 90 days
+     (latest campaign wins), in localStorage and an .alchemyofbreath.com cookie.
+   - Seeds GHL's own form_embed.js memory (sessionStorage "UPS"), so GHL forms
+     attribute the contact to the campaign even when the form page has no tags.
+   - Adds the tags to GHL form/booking iframes and to links into GHL funnels
+     (go. / breathcamp. / link.alchemyofbreath.com), so hidden fields with a
+     matching query key are filled too.
+   Source: tools/utm/aob-utm.js. Inlined into every page by tools/utm/inject.py. */
+(function(){
+  var KEYS=['utm_source','utm_medium','utm_campaign','utm_term','utm_content','utm_id','fbclid','gclid','msclkid'];
+  var STORE='aob_utm', DAYS=90, MS=DAYS*864e5;
+  var ls=function(k,v){ try{ if(v===undefined) return localStorage.getItem(k); localStorage.setItem(k,v); }catch(e){ return null; } };
+  var qs=new URLSearchParams(location.search), got={}, any=false;
+  KEYS.forEach(function(k){ var v=qs.get(k); if(v){ got[k]=v.slice(0,250); any=true; } });
+  var rec=null;
+  if(any){
+    rec={p:got,t:Date.now(),landing:location.origin+location.pathname};
+    ls(STORE,JSON.stringify(rec));
+    try{ document.cookie=STORE+'='+encodeURIComponent(JSON.stringify(got))+';path=/;max-age='+(DAYS*86400)+';SameSite=Lax'+
+      (/(^|\.)alchemyofbreath\.com$/.test(location.hostname)?';domain=.alchemyofbreath.com':''); }catch(e){}
+  } else {
+    try{ rec=JSON.parse(ls(STORE)||'null'); }catch(e){ rec=null; }
+    if(!rec || !rec.p || Date.now()-rec.t>MS) return;
+  }
+  var P=rec.p;
+
+  // GHL form_embed.js falls back to sessionStorage "UPS" when the page URL has no utm_ tags
+  try{
+    var ups=new URLSearchParams(sessionStorage.getItem('UPS')||''), changed=false;
+    for(var k in P){ if(k.indexOf('utm_')===0 && ups.get(k)!==P[k]){ ups.set(k,P[k]); changed=true; } }
+    if(changed) sessionStorage.setItem('UPS','?'+ups.toString());
+  }catch(e){}
+
+  var GHL=/^https:\/\/((link|api)\.(alchemyofbreath\.com|leadconnectorhq\.com)\/widget\/(form|survey|booking|quiz)\/|(go|breathcamp)\.alchemyofbreath\.com\/)/;
+  var withTags=function(url){
+    var u; try{ u=new URL(url,location.href); }catch(e){ return null; }
+    if(!GHL.test(u.href)) return null;
+    var ch=false;
+    for(var k in P){ if(!u.searchParams.has(k)){ u.searchParams.set(k,P[k]); ch=true; } }
+    return ch?u.href:null;
+  };
+  var fixFrame=function(f){
+    ['src','data-src'].forEach(function(a){ var v=f.getAttribute(a), n=v&&withTags(v); if(n) f.setAttribute(a,n); });
+  };
+  var scan=function(root){
+    if(root.tagName==='IFRAME'){ fixFrame(root); return; }
+    if(root.querySelectorAll) [].forEach.call(root.querySelectorAll('iframe'),fixFrame);
+  };
+  scan(document);
+  if('MutationObserver' in window){
+    new MutationObserver(function(ms){ ms.forEach(function(m){ [].forEach.call(m.addedNodes,function(n){ if(n.nodeType===1) scan(n); }); }); })
+      .observe(document.documentElement,{childList:true,subtree:true});
+  }
+  // links into GHL funnels: tag them at click time (covers links built by scripts too)
+  var tagLink=function(e){
+    var a=e.target && e.target.closest && e.target.closest('a[href]'); if(!a) return;
+    var n=withTags(a.getAttribute('href')); if(n) a.setAttribute('href',n);
+  };
+  document.addEventListener('mousedown',tagLink,true);
+  document.addEventListener('touchstart',tagLink,{capture:true,passive:true});
+  document.addEventListener('keydown',function(e){ if(e.key==='Enter') tagLink(e); },true);
+  document.addEventListener('click',tagLink,true);
+})();
+</script>
+<!-- AOB-UTM:end -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Book your room · BreathCamp, 25–31 October 2026 | Alchemy of Breath</title>
+<meta name="description" content="Choose your room at ASHA in Tuscany and complete your BreathCamp booking. Live availability, a 20% deposit or pay in full, secure payment by Stripe.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#FBF7EF">
+<link rel="icon" type="image/png" href="https://alchemyofbreath.com/wp-content/uploads/AOB-Gold-Black-Transparant-symbol.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Roboto:ital,wght@0,300;0,400;0,500;1,300&display=swap">
+<style>
+:root{
+  --paper:#FFFFFF;--paper-2:#FBF7EF;--cream:#FDF6E9;--gold:#E1B668;--gold-deep:#D6A652;--gold-soft:#EFDCB6;--gold-wash:#F7EBD2;
+  --gold-text:#8A5F1C;--teal:#00A5B2;--teal-text:#00737C;--slate:#5B7889;--ink:#221F20;--line:rgba(225,182,104,.34);
+  --grad-gold:linear-gradient(135deg,#E1B668 0%,#D6A652 100%);
+  --shadow-soft:0 1px 2px rgba(34,31,32,.04),0 8px 24px rgba(34,31,32,.06),0 24px 64px rgba(34,31,32,.07);
+  --shadow-lift:0 2px 4px rgba(34,31,32,.05),0 14px 34px rgba(34,31,32,.10),0 34px 80px rgba(34,31,32,.10);
+  --serif:'Marcellus',Georgia,'Times New Roman',serif;--sans:'Roboto',-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;
+  --r:18px;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{margin:0;font-family:var(--sans);font-weight:300;font-size:16px;line-height:1.6;color:var(--ink);background:var(--paper-2);-webkit-font-smoothing:antialiased;overflow-x:clip}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.045;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+img{max-width:100%;height:auto;display:block}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--gold-text)}
+h1,h2,h3{font-family:var(--serif);font-weight:400;line-height:1.15;margin:0}
+.vh{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+:focus-visible{outline:2px solid var(--teal);outline-offset:3px}
+h2[tabindex="-1"]:focus,h2[tabindex="-1"]:focus-visible{outline:none}
+
+/* top bar */
+.top{position:sticky;top:0;z-index:40;background:rgba(251,247,239,.86);backdrop-filter:saturate(1.4) blur(12px);-webkit-backdrop-filter:saturate(1.4) blur(12px);border-bottom:1px solid rgba(225,182,104,.22)}
+.top-in{max-width:1240px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.top img{height:38px;width:auto}
+.top-r{display:flex;align-items:center;gap:18px;font-size:.8rem;color:var(--slate)}
+.top-r .sec{display:inline-flex;align-items:center;gap:7px}
+.top-r .sec svg{width:15px;height:15px;stroke:var(--teal-text);fill:none;stroke-width:1.8}
+.help{display:inline-flex;align-items:center;gap:8px;text-decoration:none;color:var(--ink);font-weight:500;border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 14px}
+.help svg{width:16px;height:16px;fill:#1DA851}
+@media(max-width:640px){.top-r .sec{display:none}.top img{height:32px}.help span{display:none}.help{padding:8px 10px}}
+
+/* hero */
+.hero{position:relative;z-index:1;max-width:1240px;margin:0 auto;padding:46px 24px 26px;display:grid;grid-template-columns:1.25fr .75fr;gap:48px;align-items:center}
+.eyebrow{display:inline-flex;align-items:center;gap:12px;font-size:.72rem;font-weight:500;letter-spacing:.24em;text-transform:uppercase;color:var(--slate);margin:0 0 16px}
+.eyebrow::before{content:"";width:30px;height:1px;background:var(--gold)}
+.hero h1{font-size:clamp(2.1rem,4.4vw,3.35rem);letter-spacing:-.01em;max-width:13em}
+.hero h1 em{font-style:italic;color:var(--gold-text)}
+.when{display:flex;align-items:center;gap:10px;margin:18px 0 6px;font-family:var(--serif);font-size:1.2rem}
+.when svg{width:20px;height:20px;stroke:var(--gold-deep);fill:none;stroke-width:1.5}
+.hero .note{color:var(--slate);max-width:36em;margin:0}
+.chips{list-style:none;padding:0;margin:22px 0 0;display:flex;flex-wrap:wrap;gap:10px}
+.chips li{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:8px 14px;font-size:.82rem;color:var(--ink);box-shadow:0 2px 8px rgba(34,31,32,.04)}
+.chips li::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--gold-deep)}
+.chips li.live::before{background:var(--teal);animation:pulse 2.4s ease-out infinite}
+.chips b{font-weight:500}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(0,165,178,.5)}75%,100%{box-shadow:0 0 0 7px rgba(0,165,178,0)}}
+.arch{position:relative;margin:0;justify-self:end;width:min(100%,380px)}
+.arch img{width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:220px 220px 22px 22px;box-shadow:var(--shadow-lift);outline:1px solid rgba(225,182,104,.55);outline-offset:9px}
+.arch figcaption{position:absolute;left:-28px;bottom:34px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 16px;box-shadow:var(--shadow-soft);font-size:.78rem;line-height:1.4;max-width:210px}
+.arch figcaption strong{display:block;font-family:var(--serif);font-weight:400;font-size:1rem}
+@media(max-width:900px){.hero{grid-template-columns:1fr;gap:26px;padding-top:30px}.arch{display:none}}
+@media(max-width:640px){.hero{padding:22px 18px 8px}.hero h1{font-size:1.85rem}.when{font-size:1.02rem;margin-top:12px}.hero .note{font-size:.9rem}.chips{gap:6px;margin-top:14px}.chips li{padding:6px 11px;font-size:.76rem}.steps,.bk{padding-left:14px;padding-right:14px}.card{padding:26px 18px;border-radius:18px}}
+
+/* steps */
+.steps{position:relative;z-index:2;max-width:1240px;margin:0 auto;padding:10px 24px 0}
+.steps ol{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,1fr);gap:0;counter-reset:s}
+.steps li{position:relative;display:flex;align-items:center;gap:12px;padding:14px 0;font-size:.82rem;color:var(--slate);letter-spacing:.02em}
+.steps li::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--gold-soft),rgba(225,182,104,.15));margin:0 14px}
+.steps li:last-child::after{display:none}
+.steps button{all:unset;cursor:default;display:inline-flex;align-items:center;gap:10px}
+.steps .dot{position:relative;flex:none;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font-family:var(--serif);font-size:.95rem;border:1px solid var(--gold-soft);background:#fff;color:var(--slate)}
+.steps li.done .dot{background:var(--gold-wash);border-color:var(--gold);color:var(--gold-text)}
+.steps li.done button{cursor:pointer}
+.steps li.done .dot span{display:none}
+.steps li.done .dot::before{content:"";width:10px;height:6px;border-left:1.6px solid currentColor;border-bottom:1.6px solid currentColor;transform:rotate(-45deg) translate(1px,-1px)}
+.steps li.cur{color:var(--ink);font-weight:500}
+.steps li.cur .dot{background:var(--ink);border-color:var(--ink);color:var(--gold)}
+.steps li.cur .dot::after{content:"";position:absolute;inset:-6px;border-radius:50%;border:1px solid var(--gold);animation:breath 8s ease-in-out infinite}
+@keyframes breath{0%,100%{transform:scale(.86);opacity:.25}50%{transform:scale(1.12);opacity:.9}}
+@media(max-width:700px){.steps li .lbl{display:none}.steps li.cur .lbl{display:inline}.steps li::after{margin:0 8px}}
+
+/* layout */
+.bk{position:relative;z-index:1;max-width:1240px;margin:0 auto;padding:18px 24px 120px;display:grid;grid-template-columns:minmax(0,1fr) 370px;gap:36px;align-items:start}
+@media(max-width:1020px){.bk{grid-template-columns:1fr;padding-bottom:150px}}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow-soft);padding:34px clamp(20px,3.4vw,40px)}
+.step h2{font-size:clamp(1.6rem,2.6vw,2.05rem);margin-bottom:6px}
+.step h2 em{font-style:italic;color:var(--gold-text)}
+.step .sub{color:var(--slate);margin:0 0 26px;max-width:40em}
+.step[hidden],.done[hidden]{display:none!important}
+.step{animation:rise .5s cubic-bezier(.22,.61,.36,1) both}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.alert{display:flex;gap:12px;align-items:flex-start;border-radius:14px;padding:14px 16px;margin:0 0 22px;font-size:.92rem;background:#FFF4F0;border:1px solid #F1C7B8;color:#7A2E16}
+.alert.info{background:var(--gold-wash);border-color:var(--gold-soft);color:#5d4316}
+.alert[hidden]{display:none}
+
+/* fields */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px 18px}
+@media(max-width:560px){.grid2{grid-template-columns:1fr}}
+.f{display:flex;flex-direction:column;gap:7px}
+.f.full{grid-column:1/-1}
+.f label,.f .lbl{font-size:.8rem;font-weight:500;letter-spacing:.03em;color:var(--ink)}
+.f label small,.f .lbl small{font-weight:300;color:var(--slate);letter-spacing:0}
+.f input,.f select,.f textarea{width:100%;border:1px solid rgba(34,31,32,.18);background:#fff;border-radius:12px;padding:13px 14px;font-size:1rem;transition:border-color .2s,box-shadow .2s}
+.f textarea{min-height:84px;resize:vertical}
+.f input:focus,.f select:focus,.f textarea:focus{outline:none;border-color:var(--gold-deep);box-shadow:0 0 0 4px rgba(225,182,104,.22)}
+.f.bad input,.f.bad select,.f.bad .pills{border-color:#C9502A;box-shadow:0 0 0 3px rgba(201,80,42,.12)}
+.f .err{display:none;font-size:.8rem;color:#A33A1B}
+.f.bad .err{display:block}
+.f .hint{font-size:.78rem;color:var(--slate)}
+.suggest{all:unset;cursor:pointer;font-size:.8rem;color:var(--teal-text);text-decoration:underline}
+.pills{display:flex;flex-wrap:wrap;gap:8px;border-radius:14px}
+.pills label{position:relative;cursor:pointer}
+.pills input{position:absolute;opacity:0;pointer-events:none}
+.pills span{display:inline-block;padding:10px 15px;border:1px solid rgba(34,31,32,.18);border-radius:999px;background:#fff;font-size:.88rem;font-weight:400;transition:all .2s}
+.pills input:checked+span{background:var(--ink);border-color:var(--ink);color:#fff}
+.pills input:focus-visible+span{outline:2px solid var(--teal);outline-offset:2px}
+
+/* guest counter */
+.count{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:18px 20px;border:1px solid var(--line);border-radius:16px;background:linear-gradient(120deg,#fff,var(--cream));margin-bottom:28px}
+.count h3{font-size:1.15rem}
+.count p{margin:2px 0 0;font-size:.82rem;color:var(--slate)}
+.stepper{display:inline-flex;align-items:center;border:1px solid var(--gold-soft);border-radius:999px;background:#fff;padding:4px}
+.stepper button{width:40px;height:40px;border-radius:50%;border:0;background:transparent;font-size:1.3rem;line-height:1;cursor:pointer;color:var(--ink);transition:background .2s}
+.stepper button:hover:not(:disabled){background:var(--gold-wash)}
+.stepper button:disabled{opacity:.3;cursor:default}
+.stepper output{min-width:92px;text-align:center;font-family:var(--serif);font-size:1.15rem}
+.who{font-family:var(--serif);font-size:1.1rem;margin:4px 0 14px;display:flex;align-items:center;gap:10px}
+.who .n{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--gold-wash);color:var(--gold-text);font-size:.85rem}
+
+/* actions */
+.actions{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:30px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;border:0;cursor:pointer;text-decoration:none;font-weight:500;font-size:.95rem;letter-spacing:.03em;border-radius:999px;padding:16px 30px;transition:transform .2s,box-shadow .2s,filter .2s,background .2s}
+.btn-primary{background:var(--grad-gold);color:var(--ink);box-shadow:0 10px 26px rgba(214,166,82,.4)}
+.btn-primary:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.05);box-shadow:0 14px 34px rgba(214,166,82,.52)}
+.btn-primary:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
+.btn-ink{background:var(--ink);color:#fff}
+.btn-ghost{background:transparent;border:1px solid rgba(34,31,32,.24);color:var(--ink)}
+.btn-ghost:hover{background:rgba(34,31,32,.04)}
+.btn .arr{transition:transform .2s}.btn:hover .arr{transform:translateX(3px)}
+.back{all:unset;cursor:pointer;font-size:.88rem;color:var(--slate);display:inline-flex;align-items:center;gap:8px}
+.back:hover{color:var(--ink)}
+.spin{width:16px;height:16px;border-radius:50%;border:2px solid rgba(34,31,32,.25);border-top-color:var(--ink);animation:sp .8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* rooms */
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 20px}
+.filters button{border:1px solid rgba(34,31,32,.16);background:#fff;border-radius:999px;padding:9px 16px;font-size:.84rem;cursor:pointer;transition:all .2s}
+.filters button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+.mixed-toggle{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin:-4px 0 20px;font-size:.88rem;color:var(--slate)}
+.switch{display:inline-flex;align-items:center;gap:10px;cursor:pointer;color:var(--ink)}
+.switch input{position:absolute;opacity:0}
+.switch .tr{width:40px;height:22px;border-radius:999px;background:rgba(34,31,32,.2);position:relative;transition:background .2s;flex:none}
+.switch .tr::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.switch input:checked+.tr{background:var(--teal)}
+.switch input:checked+.tr::after{transform:translateX(18px)}
+.switch input:focus-visible+.tr{outline:2px solid var(--teal);outline-offset:2px}
+.placed{font-weight:500;color:var(--ink)}
+.placed.okk{color:var(--teal-text)}
+.rooms{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+@media(max-width:760px){.rooms{grid-template-columns:1fr}}
+.room{position:relative;display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;box-shadow:0 1px 2px rgba(34,31,32,.04),0 8px 22px rgba(34,31,32,.05);transition:border-color .25s,box-shadow .25s,transform .25s}
+.room:hover{box-shadow:var(--shadow-lift)}
+.room.sel{border-color:var(--gold-deep);box-shadow:0 0 0 3px rgba(225,182,104,.35),var(--shadow-lift)}
+.room.out{opacity:.72}
+.room.out .ph img{filter:grayscale(.55)}
+.ph{position:relative;aspect-ratio:3/2;background:var(--gold-wash);overflow:hidden}
+.ph-track{display:flex;height:100%;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior-x:contain}
+.ph-track::-webkit-scrollbar{display:none}
+.ph-track figure{flex:0 0 100%;margin:0;scroll-snap-align:start;position:relative}
+.ph-track img{width:100%;height:100%;object-fit:cover}
+.ph-track figure.plan{background:#fff;display:grid;place-items:center}
+.ph-track figure.plan img{object-fit:contain;padding:14px;max-height:100%}
+.ph-track figure.plan figcaption{position:absolute;left:12px;bottom:10px;font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--slate)}
+.ph-nav{position:absolute;top:50%;transform:translateY(-50%);width:34px;height:34px;border-radius:50%;border:0;background:rgba(255,255,255,.92);box-shadow:0 2px 10px rgba(0,0,0,.18);cursor:pointer;display:grid;place-items:center;opacity:0;transition:opacity .2s;z-index:2}
+.ph-nav svg{width:14px;height:14px;stroke:var(--ink);fill:none;stroke-width:2}
+.ph-nav.prev{left:10px}.ph-nav.next{right:10px}
+.room:hover .ph-nav,.ph-nav:focus-visible{opacity:1}
+@media(hover:none){.ph-nav{display:none}}
+.ph-dots{position:absolute;left:0;right:0;bottom:10px;display:flex;justify-content:center;gap:5px;z-index:2;pointer-events:none}
+.ph-dots i{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.55);transition:all .2s}
+.ph-dots i.on{background:#fff;width:16px;border-radius:3px}
+.badge{position:absolute;top:12px;left:12px;z-index:2;display:inline-flex;align-items:center;gap:7px;padding:6px 12px;border-radius:999px;background:rgba(255,255,255,.95);font-size:.68rem;font-weight:500;letter-spacing:.12em;text-transform:uppercase;box-shadow:0 3px 12px rgba(0,0,0,.14)}
+.badge::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--teal)}
+.badge.low::before{background:#E08A2E}
+.badge.out{background:var(--ink);color:#fff}.badge.out::before{background:#888}
+.check{position:absolute;top:12px;right:12px;z-index:2;width:32px;height:32px;border-radius:50%;background:var(--ink);display:none;place-items:center;box-shadow:0 3px 12px rgba(0,0,0,.2)}
+.check::before{content:"";width:12px;height:7px;border-left:2px solid var(--gold);border-bottom:2px solid var(--gold);transform:rotate(-45deg) translate(1px,-1px)}
+.room.sel .check{display:grid}
+.rb{padding:20px 22px 22px;display:flex;flex-direction:column;flex:1}
+.rk{font-size:.66rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--teal-text);margin-bottom:8px}
+.room h3{font-size:1.28rem}
+.rs{margin:8px 0 0;font-size:.9rem;color:var(--slate);line-height:1.55}
+.facts{list-style:none;padding:0;margin:14px 0 0;display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.78rem;color:var(--ink)}
+.facts li{display:inline-flex;align-items:center;gap:6px}
+.facts svg{width:15px;height:15px;stroke:var(--gold-deep);fill:none;stroke-width:1.6}
+.more{all:unset;cursor:pointer;margin-top:12px;font-size:.82rem;color:var(--gold-text);text-decoration:underline;text-underline-offset:3px;align-self:flex-start}
+.desc{margin:10px 0 0;font-size:.88rem;color:var(--ink);line-height:1.65}
+.desc[hidden]{display:none}
+.rf{margin-top:auto;padding-top:18px;display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.price b{display:block;font-family:var(--serif);font-weight:400;font-size:1.65rem;line-height:1.05;color:var(--ink)}
+.price span{display:block;font-size:.74rem;color:var(--slate);margin-top:4px}
+.pick{border:1px solid var(--ink);background:#fff;color:var(--ink);border-radius:999px;padding:11px 18px;font-size:.84rem;font-weight:500;cursor:pointer;transition:all .2s;white-space:nowrap}
+.pick:hover:not(:disabled){background:var(--ink);color:#fff}
+.room.sel .pick{background:var(--ink);color:var(--gold)}
+.pick:disabled{border-color:rgba(34,31,32,.2);color:var(--slate);cursor:not-allowed}
+.limit{font-size:.76rem;color:#A55A12;margin-top:8px}
+.ctr{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--gold-soft);border-radius:999px;padding:3px}
+.ctr button{width:34px;height:34px;border-radius:50%;border:0;background:transparent;cursor:pointer;font-size:1.15rem}
+.ctr button:hover:not(:disabled){background:var(--gold-wash)}
+.ctr button:disabled{opacity:.3;cursor:default}
+.ctr output{min-width:64px;text-align:center;font-size:.86rem}
+.shared-note{margin:18px 0 0;font-size:.84rem;color:var(--slate);display:flex;gap:10px;align-items:flex-start}
+.shared-note svg{flex:none;width:18px;height:18px;stroke:var(--teal-text);fill:none;stroke-width:1.6;margin-top:2px}
+
+/* guest cards */
+.gcard{border:1px solid var(--line);border-radius:16px;padding:22px 22px 24px;margin-bottom:18px;background:linear-gradient(180deg,#fff,#fffdf9)}
+.gcard .rtag{display:inline-flex;align-items:center;gap:8px;font-size:.78rem;color:var(--slate);margin:-6px 0 14px}
+
+/* review & payment */
+.review{list-style:none;padding:0;margin:0 0 26px;border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.review li{display:flex;justify-content:space-between;gap:14px;padding:14px 18px;border-bottom:1px solid rgba(225,182,104,.22);font-size:.92rem}
+.review li:last-child{border-bottom:0}
+.review .k{color:var(--slate)}
+.review .v{text-align:right;font-weight:400}
+.review .edit{all:unset;cursor:pointer;color:var(--gold-text);font-size:.8rem;text-decoration:underline;margin-left:10px}
+.pay{display:grid;gap:12px;margin-bottom:22px}
+.opt{position:relative;display:flex;gap:16px;align-items:flex-start;border:1px solid rgba(34,31,32,.16);border-radius:16px;padding:18px 20px;cursor:pointer;background:#fff;transition:border-color .2s,box-shadow .2s}
+.opt input{position:absolute;opacity:0}
+.opt .rad{flex:none;width:22px;height:22px;border-radius:50%;border:1.5px solid rgba(34,31,32,.35);margin-top:2px;display:grid;place-items:center;transition:all .2s}
+.opt .rad::after{content:"";width:10px;height:10px;border-radius:50%;background:var(--ink);transform:scale(0);transition:transform .2s}
+.opt:has(input:checked){border-color:var(--gold-deep);box-shadow:0 0 0 3px rgba(225,182,104,.28)}
+.opt:has(input:checked) .rad{border-color:var(--ink)}
+.opt:has(input:checked) .rad::after{transform:scale(1)}
+.opt:has(input:focus-visible){outline:2px solid var(--teal);outline-offset:2px}
+.opt .t{flex:1}
+.opt .t b{display:block;font-weight:500}
+.opt .t span{display:block;font-size:.84rem;color:var(--slate);margin-top:3px}
+.opt .amt{font-family:var(--serif);font-size:1.35rem;white-space:nowrap}
+.opt .tag{position:absolute;top:-10px;right:18px;background:var(--teal);color:#fff;font-size:.62rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;padding:4px 10px;border-radius:999px}
+.terms{display:flex;gap:12px;align-items:flex-start;font-size:.9rem;cursor:pointer}
+.terms input{width:20px;height:20px;margin-top:2px;accent-color:var(--ink);flex:none}
+.terms.bad span{color:#A33A1B}
+.paynote{display:flex;align-items:center;gap:10px;margin-top:14px;font-size:.8rem;color:var(--slate)}
+.paynote svg{width:16px;height:16px;stroke:var(--teal-text);fill:none;stroke-width:1.8;flex:none}
+
+/* folio (summary) */
+.folio{position:sticky;top:86px}
+.fol{background:var(--paper);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow-lift);overflow:hidden}
+.fol-top{position:relative;height:132px;background:#ddd center/cover}
+.fol-top::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(34,31,32,0) 30%,rgba(34,31,32,.72))}
+.fol-top p{position:absolute;left:22px;right:22px;bottom:14px;z-index:1;margin:0;color:#fff;font-family:var(--serif);font-size:1.25rem;line-height:1.2}
+.fol-top p small{display:block;font-family:var(--sans);font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-soft);margin-bottom:4px}
+.fol-b{padding:20px 22px 22px}
+.fol-row{display:flex;justify-content:space-between;gap:12px;font-size:.88rem;padding:6px 0}
+.fol-row .k{color:var(--slate)}
+.fol-row .v{text-align:right}
+.fol-lines{margin:6px 0 2px}
+.fol-line{display:flex;justify-content:space-between;gap:12px;font-size:.88rem;padding:5px 0}
+.fol-line .k b{font-weight:400}
+.fol-line .k small{display:block;color:var(--slate);font-size:.76rem}
+.fol-empty{font-size:.86rem;color:var(--slate);padding:6px 0;font-style:italic}
+.perf{position:relative;height:22px;margin:12px -22px}
+.perf::before{content:"";position:absolute;left:22px;right:22px;top:50%;border-top:1.5px dashed rgba(225,182,104,.6)}
+.perf i{position:absolute;top:0;width:22px;height:22px;border-radius:50%;background:var(--paper-2);border:1px solid var(--line)}
+.perf i:first-child{left:-12px}.perf i:last-child{right:-12px}
+.fol-total{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:.92rem}
+.fol-due{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-top:10px}
+.fol-due .k{font-size:.72rem;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-text)}
+.fol-due .v{font-family:var(--serif);font-size:2rem;line-height:1;color:var(--ink)}
+.fol-bal{font-size:.82rem;color:var(--slate);margin-top:6px;text-align:right}
+.trust{display:flex;flex-direction:column;gap:8px;margin-top:18px;padding-top:16px;border-top:1px solid rgba(225,182,104,.25);font-size:.78rem;color:var(--slate)}
+.trust span{display:flex;align-items:center;gap:9px}
+.trust svg{width:15px;height:15px;stroke:var(--teal-text);fill:none;stroke-width:1.8;flex:none}
+@media(max-width:1020px){.folio{display:none}}
+
+/* mobile bar */
+.mbar{display:none}
+@media(max-width:1020px){
+  .mbar{display:block;position:fixed;left:0;right:0;bottom:0;z-index:45;background:rgba(255,255,255,.97);backdrop-filter:blur(10px);border-top:1px solid var(--line);box-shadow:0 -10px 30px rgba(34,31,32,.10);padding:12px 18px calc(12px + env(safe-area-inset-bottom))}
+  .mbar-in{display:flex;align-items:center;justify-content:space-between;gap:12px;max-width:640px;margin:0 auto}
+  .mbar .sum{all:unset;cursor:pointer;display:flex;flex-direction:column}
+  .mbar .sum small{font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-text);font-weight:500}
+  .mbar .sum b{font-family:var(--serif);font-weight:400;font-size:1.35rem;line-height:1.1}
+  .mbar .sum span{font-size:.74rem;color:var(--slate);text-decoration:underline}
+  .mbar .btn{padding:14px 22px}
+  .sheet{position:fixed;inset:0;z-index:60;background:rgba(34,31,32,.45);display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .25s}
+  .sheet.open{opacity:1;pointer-events:auto}
+  .sheet .fol{width:100%;max-height:86vh;overflow:auto;border-radius:22px 22px 0 0;transform:translateY(30px);transition:transform .3s}
+  .sheet.open .fol{transform:none}
+}
+.sheet{display:none}
+@media(max-width:1020px){.sheet{display:flex}}
+
+/* done */
+.done .card{text-align:center;padding:52px clamp(20px,5vw,60px)}
+.seal{width:84px;height:84px;margin:0 auto 22px;border-radius:50%;background:var(--grad-gold);display:grid;place-items:center;box-shadow:0 14px 34px rgba(214,166,82,.45);animation:pop .6s cubic-bezier(.2,1.4,.4,1) both}
+.seal::before{content:"";width:30px;height:16px;border-left:3px solid var(--ink);border-bottom:3px solid var(--ink);transform:rotate(-45deg) translate(2px,-3px)}
+@keyframes pop{from{transform:scale(.4);opacity:0}to{transform:none;opacity:1}}
+.done h2{font-size:clamp(1.9rem,3.6vw,2.6rem)}
+.ref{display:inline-flex;align-items:center;gap:10px;margin:14px 0 6px;padding:8px 16px;border-radius:999px;background:var(--gold-wash);font-size:.86rem;letter-spacing:.06em}
+.ref b{font-weight:500;letter-spacing:.12em}
+.figs{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin:28px auto 6px;max-width:620px}
+.fig{border:1px solid var(--line);border-radius:16px;padding:16px;background:#fff}
+.fig small{display:block;font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--slate)}
+.fig b{display:block;font-family:var(--serif);font-weight:400;font-size:1.5rem;margin-top:4px}
+.next{list-style:none;padding:0;margin:30px auto 0;max-width:560px;text-align:left;counter-reset:n}
+.next li{position:relative;padding:0 0 18px 46px;counter-increment:n}
+.next li::before{content:counter(n);position:absolute;left:0;top:-2px;width:30px;height:30px;border-radius:50%;border:1px solid var(--gold);display:grid;place-items:center;font-family:var(--serif);color:var(--gold-text)}
+.next b{font-weight:500}
+.done .actions{justify-content:center}
+
+/* modal */
+.modal{position:fixed;inset:0;z-index:80;background:rgba(34,31,32,.55);display:grid;place-items:center;padding:20px}
+.modal[hidden]{display:none}
+.modal .box{background:#fff;border-radius:22px;max-width:560px;width:100%;max-height:90vh;overflow:auto;padding:30px;box-shadow:var(--shadow-lift)}
+.modal h3{font-size:1.5rem;margin-bottom:8px}
+.modal pre{background:var(--ink);color:#F3E6CB;border-radius:12px;padding:14px;font-size:.74rem;line-height:1.5;overflow:auto;max-height:260px}
+footer{position:relative;z-index:1;text-align:center;font-size:.78rem;color:var(--slate);padding:0 24px 40px}
+footer a{color:var(--slate)}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-in">
+    <a href="https://alchemyofbreath.com/" aria-label="Alchemy of Breath home"><img src="https://alchemyofbreath.com/wp-content/uploads/AOB-Gold-Black-Transparant.png" alt="Alchemy of Breath" width="252" height="72"></a>
+    <div class="top-r">
+      <span class="sec"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Secure booking</span>
+      <a class="help" id="helpLink" href="#" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.2 14.1c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .2-3.3-.7-2.8-1.1-4.5-4-4.7-4.2-.1-.2-1.1-1.5-1.1-2.9s.7-2.1 1-2.3c.3-.3.6-.3.8-.3h.6c.2 0 .4 0 .6.5l.9 2.1c.1.2.1.4 0 .6l-.4.6-.4.5c-.1.1-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.4 2.4 1.5.3.1.5.1.7-.1l.9-1.1c.2-.3.4-.2.7-.1l2 1c.3.1.5.2.6.3.1.2.1.8-.1 1.4z"/></svg><span>Need help? WhatsApp</span></a>
+    </div>
+  </div>
+</header>
+
+<section class="hero" id="hero">
+  <div>
+    <p class="eyebrow" id="heroEyebrow"></p>
+    <h1>Choose your room and <em>complete your booking</em>.</h1>
+    <p class="when"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg><span id="heroWhen"></span></p>
+    <p class="note" id="heroNote"></p>
+    <ul class="chips">
+      <li class="live" id="placesChip"><span><b id="placesLeft">–</b> places left this week</span></li>
+      <li id="depositChip"></li>
+      <li>Secure payment by Stripe</li>
+    </ul>
+  </div>
+  <figure class="arch"><img id="heroImg" src="" alt="ASHA Retreat Centre in the Tuscan hills" width="1200" height="800"><figcaption><strong id="heroVenue"></strong><span id="heroAddr"></span></figcaption></figure>
+</section>
+
+<nav class="steps" id="steps" aria-label="Booking steps">
+  <ol>
+    <li data-step="1"><button type="button"><span class="dot"><span>1</span></span><span class="lbl">Guests</span></button></li>
+    <li data-step="2"><button type="button"><span class="dot"><span>2</span></span><span class="lbl">Your room</span></button></li>
+    <li data-step="3"><button type="button"><span class="dot"><span>3</span></span><span class="lbl">Guest details</span></button></li>
+    <li data-step="4"><button type="button"><span class="dot"><span>4</span></span><span class="lbl">Review &amp; pay</span></button></li>
+  </ol>
+</nav>
+
+<main class="bk" id="bk">
+  <div class="bk-main">
+    <div class="alert info" id="topNote" hidden></div>
+
+    <!-- STEP 1 -->
+    <section class="step card" id="step1" aria-labelledby="h1s">
+      <h2 id="h1s">Who's <em>coming</em>?</h2>
+      <p class="sub">Tell us how many are in your group and who's booking. You'll add everyone else's details in step 3.</p>
+      <div class="alert" id="err1" role="alert" hidden></div>
+      <div class="count">
+        <div><h3>Guests in this booking</h3><p id="countHint"></p></div>
+        <div class="stepper"><button type="button" id="gMinus" aria-label="One guest fewer">&minus;</button><output id="gCount" aria-live="polite">1 guest</output><button type="button" id="gPlus" aria-label="One guest more">+</button></div>
+      </div>
+      <p class="who"><span class="n">1</span>You, the lead guest</p>
+      <div class="grid2" id="leadFields"></div>
+      <div class="actions"><span></span><button type="button" class="btn btn-primary" data-next="2">Choose your room <span class="arr">&rarr;</span></button></div>
+    </section>
+
+    <!-- STEP 2 -->
+    <section class="step card" id="step2" aria-labelledby="h2s" hidden>
+      <h2 id="h2s">Choose where you'll <em>rest</em>.</h2>
+      <p class="sub" id="roomsSub"></p>
+      <div class="alert" id="err2" role="alert" hidden></div>
+      <div class="filters" role="group" aria-label="Filter rooms" id="filters"></div>
+      <div class="mixed-toggle" id="mixedRow" hidden>
+        <label class="switch"><input type="checkbox" id="mixedToggle"><span class="tr"></span><span>Different rooms for different guests</span></label>
+        <span id="placedNote" class="placed" aria-live="polite"></span>
+      </div>
+      <div class="rooms" id="rooms"></div>
+      <p class="shared-note"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v5h1"/></svg><span>Shared rooms and tents are shared with guests of the same gender. Booking with a friend? Book together here, or tell us their name in step 3.</span></p>
+      <div class="actions"><button type="button" class="back" data-back="1">&larr; Guests</button><button type="button" class="btn btn-primary" data-next="3">Continue <span class="arr">&rarr;</span></button></div>
+    </section>
+
+    <!-- STEP 3 -->
+    <section class="step card" id="step3" aria-labelledby="h3s" hidden>
+      <h2 id="h3s">Guest <em>details</em>.</h2>
+      <p class="sub" id="detailsSub"></p>
+      <div class="alert" id="err3" role="alert" hidden></div>
+      <div id="guestCards"></div>
+      <div class="f full" id="roommateField">
+        <label for="roommate">Requested roommate <small>(optional)</small></label>
+        <input id="roommate" type="text" maxlength="200" placeholder="Name of the friend you'd like to share with">
+        <span class="hint">Only if they booked separately. We'll do our best to put you together.</span>
+      </div>
+      <div class="actions"><button type="button" class="back" data-back="2">&larr; Your room</button><button type="button" class="btn btn-primary" data-next="4">Review your booking <span class="arr">&rarr;</span></button></div>
+    </section>
+
+    <!-- STEP 4 -->
+    <section class="step card" id="step4" aria-labelledby="h4s" hidden>
+      <h2 id="h4s">Review and <em>pay</em>.</h2>
+      <p class="sub">Check everything looks right, choose how you'd like to pay, and you'll go to Stripe's secure checkout.</p>
+      <div class="alert" id="err4" role="alert" hidden></div>
+      <ul class="review" id="review"></ul>
+      <div class="pay" role="radiogroup" aria-label="How would you like to pay?" id="payOpts"></div>
+      <label class="terms" id="termsRow"><input type="checkbox" id="terms"><span>I agree to the <a id="termsLink" href="#" target="_blank" rel="noopener">BreathCamp terms and conditions</a>.</span></label>
+      <div class="actions"><button type="button" class="back" data-back="3">&larr; Guest details</button><button type="button" class="btn btn-primary" id="payBtn">Pay securely <span class="arr">&rarr;</span></button></div>
+      <p class="paynote"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>You'll pay on Stripe's secure checkout page: cards, Apple Pay and Google Pay. Your receipt and invoice arrive by email.</p>
+    </section>
+
+    <!-- DONE -->
+    <section class="done" id="done" hidden><div class="card" id="doneCard" aria-live="polite"></div></section>
+  </div>
+
+  <aside class="folio" aria-label="Booking summary"><div class="fol" id="folio"></div></aside>
+</main>
+
+<div class="mbar" id="mbar"><div class="mbar-in"><button type="button" class="sum" id="sumBtn" aria-controls="sheet" aria-expanded="false"><small id="mbarLbl">Due today</small><b id="mbarAmt">€0</b><span>View summary</span></button><button type="button" class="btn btn-primary" id="mbarNext">Continue <span class="arr">&rarr;</span></button></div></div>
+<div class="sheet" id="sheet" aria-hidden="true"><div class="fol" id="folioSheet"></div></div>
+
+<div class="modal" id="demoModal" hidden role="dialog" aria-modal="true" aria-labelledby="demoTitle"><div class="box">
+  <h3 id="demoTitle">Demo mode: nothing was charged</h3>
+  <p id="demoText"></p>
+  <details><summary>What Stripe would receive</summary><pre id="demoPre"></pre></details>
+  <div class="actions"><span></span><button type="button" class="btn btn-ink" id="demoClose">Close</button></div>
+</div></div>
+
+<footer><p>Questions? <a id="footHelp" href="#" target="_blank" rel="noopener">Message us on WhatsApp</a> or email <a id="footMail" href="#"></a>. &middot; <a id="footTerms" href="#" target="_blank" rel="noopener">Terms</a> &middot; &copy; Alchemy of Breath &amp; ASHA</p></footer>
+
+<script type="application/json" id="programData">{"id":"breathcamp-oct-2026","title":"BreathCamp","edition":"BreathCamp 5","heading":"Choose your room and complete your booking","dates":{"start":"2026-10-25","end":"2026-10-31","nights":6,"label":"Sunday 25 – Saturday 31 October 2026","short":"25–31 Oct 2026","medium":"25–31 October 2026"},"venue":{"name":"ASHA Retreat Centre","address":"58034 Castell'Azzara, Province of Grosseto, Italy","region":"Tuscany","country":"IT"},"currency":"EUR","price_note":"Prices are per person for 6 nights' stay and all meals at ASHA. Your programme fee is paid separately.","program_spaces":17,"max_guests_per_booking":6,"booking_closes":"2026-10-24","deposit":{"percent":20,"balance_note":"The remaining balance is paid before you arrive at ASHA."},"genders":["Female","Male","Non-binary/non-conforming","Transgender"],"terms_url":"https://alchemyofbreath.com/terms-and-conditions/breathcamp/","contact":{"name":"Maria","email":"generalmanager@asha.global","whatsapp":"+393534527348"},"hero_image":"asha-campus.jpg","source":{"system":"RetreatGuru","program":"breathcamp-oct-25-oct-31-2026-accomodation-only","snapshot":"2026-10-03","note":"Capacity below is the number of places RetreatGuru still offered on the snapshot date."},"rooms":[{"id":"twin-ensuite","rg_id":5,"name":"Twin Room Ensuite","category":"shared","bath":"Ensuite","price":1407,"unit":"person","sleeps":2,"capacity":10,"shared_with":"same gender","summary":"Two single beds and a private bathroom shared by just the two of you.","description":"With two single beds to a room, these rooms have a private bathroom that only the two people in the room share, with their own gender. This accommodation is rustic, unique, and cozy. Pricing is per person.","photos":["twin-ensuite-1.jpg","twin-ensuite-2.jpg","twin-ensuite-3.jpg","twin-ensuite-4.jpg","twin-ensuite-5.jpg"],"plan":"twin-ensuite-plan.jpg"},{"id":"twin-shared-bath","rg_id":15,"name":"Twin Room, Shared Bathroom","category":"shared","bath":"Shared bathroom","price":1171,"unit":"person","sleeps":2,"capacity":3,"shared_with":"same gender","summary":"Two single beds in a newly renovated three-bedroom cottage with its own living room and kitchen.","description":"Two single beds to a room, shared with the same gender, in a private cottage. The bathroom is shared between four people who may be of mixed gender. This beautiful three-bedroom cottage has its own living room and kitchen, and is newly renovated. Pricing is per person.","photos":["twin-shared-bath-1.jpg","twin-shared-bath-2.jpg","twin-shared-bath-3.jpg","twin-shared-bath-4.jpg"],"plan":"twin-shared-bath-plan.jpg"},{"id":"triple-ensuite","rg_id":19,"name":"Shared Room for Three, Ensuite","category":"shared","bath":"Ensuite","price":1107,"unit":"person","sleeps":3,"capacity":5,"shared_with":"same gender","summary":"Three single beds with the room's own bathroom, in a cottage or the Main House.","description":"Each room with three single beds has its own private bathroom. The beds are typically a metre apart, and the room is shared with the same gender. These rooms are in either a private cottage or the Main House. Pricing is per person.","photos":["triple-ensuite-1.jpg","triple-ensuite-2.jpg"],"plan":"triple-ensuite-plan.jpg"},{"id":"glamping-single","rg_id":37,"name":"Single Glamping, ASHA Bell Tent","category":"glamping","bath":"Shared facilities","price":1161,"unit":"person","sleeps":1,"capacity":6,"summary":"Your own bell tent with a single mattress and a sitting area, close to nature.","description":"Guests love our bell tents. Single tents are furnished with a single mattress and a sitting area. They are lovely, and so very close to nature. Toilets and showers are close to your tent. Please note: autumn weather in Tuscany can be variable.","photos":["glamping-single-1.jpg","glamping-single-2.jpg","glamping-single-3.jpg"]},{"id":"glamping-twin","rg_id":44,"name":"Twin Glamping, ASHA Bell Tent","category":"glamping","bath":"Shared facilities","price":1037,"unit":"person","sleeps":2,"capacity":4,"shared_with":"one other guest","summary":"A bell tent with two mattresses, shared by two people.","description":"Guests love our bell tents. Twin tents are furnished with two mattresses and shared by two people. They are lovely, and so very close to nature. Toilets and showers are close to your tent. Please note: autumn weather in Tuscany can be variable. Pricing is per person.","photos":["glamping-twin-1.jpg","glamping-twin-2.jpg","glamping-twin-3.jpg"]},{"id":"camper","rg_id":23,"name":"Come in a Camper","category":"camping","bath":"Shared facilities","price":807,"unit":"person","sleeps":1,"capacity":1,"summary":"Bring your camper and enjoy full use of ASHA's facilities.","description":"Campers are welcome at ASHA. Space is limited, so we suggest booking as soon as you can: this is one of our most popular options. You're welcome to use all of our facilities. Would you like to bring a guest? Message us on WhatsApp.","photos":["camper-1.jpg"]},{"id":"own-tent","rg_id":25,"name":"Bring Your Own Tent","category":"camping","bath":"Shared facilities","price":761,"unit":"person","sleeps":1,"capacity":1,"summary":"Pitch your own tent in our secluded woods.","description":"Pitch your own tent in our secluded woods, with full use of our facilities. Be sure to bring your own tent, bedding, and anything else you may need. Please note: autumn weather in Tuscany can be variable.","photos":["own-tent-1.jpg","own-tent-2.jpg"]},{"id":"single-ensuite","rg_id":16,"name":"Private Single Room Ensuite","category":"private","bath":"Ensuite","price":1857,"unit":"person","sleeps":1,"capacity":0,"summary":"A private room with its own bathroom in the Main House.","description":"Enjoy a private room with its own bathroom in the Main House. It's perfect for one person, with its own single bed and a desk. In your own private oasis, rest, process, and be in your own space.","photos":["single-ensuite-1.jpg","single-ensuite-2.jpg","single-ensuite-3.jpg"],"plan":"single-ensuite-plan.jpg"},{"id":"cottage-one","rg_id":491,"name":"Private Cottage for One","category":"private","bath":"Private bathroom","price":2612,"unit":"person","sleeps":1,"capacity":0,"summary":"A cozy private cottage, all to yourself.","description":"Cozy private cottage accommodation for one person, offering comfort, privacy, and a peaceful stay.","photos":["cottage-one-1.jpg"]},{"id":"cottage-two","rg_id":18,"name":"Private Cottage for Two","category":"private","bath":"Private bathroom","price":5224,"unit":"cottage","sleeps":2,"capacity":0,"summary":"A two-room cottage facing an open field. The price covers both guests.","description":"A two-room cottage in a private house facing an open field, with a cozy living room, kitchen, private bathroom, and a double pull-out sofa bed. Ideal for couples, families, or anyone who wants space. The price is for the whole cottage and covers two guests.","photos":["cottage-two-1.jpg"]}]}</script><!-- /PROGRAM-DATA -->
+<script>
+(function(){
+  'use strict';
+  var P = JSON.parse(document.getElementById('programData').textContent);
+  var API = /(^|\.)website-5h3\.pages\.dev$/.test(location.hostname) ? '' : 'https://website-5h3.pages.dev';
+  var IMG = /alchemyofbreath\.com$/.test(location.hostname) ? 'https://cdn.jsdelivr.net/gh/Alchemy-of-Breath/website@main/assets/booking/rooms/' : '/assets/booking/rooms/';
+  var STORE = 'aob_book_' + P.id;
+  var ROOMS = {}; P.rooms.forEach(function(r){ ROOMS[r.id] = r; });
+  var MAXG = P.max_guests_per_booking || 6;
+  var $ = function(id){ return document.getElementById(id); };
+  var esc = function(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); };
+  var money = function(c){ return '€' + (c/100).toLocaleString('en-GB', { minimumFractionDigits: c % 100 ? 2 : 0, maximumFractionDigits: 2 }); };
+  var wa = 'https://wa.me/' + P.contact.whatsapp.replace(/\D/g,'') + '?text=' + encodeURIComponent('Hi! I have a question about booking ' + P.edition + ' (' + P.dates.short + ').');
+  var CATS = { shared:'Shared room', glamping:'Glamping', camping:'Camping', private:'Private' };
+  var ICON = {
+    bed:'<svg viewBox="0 0 24 24"><path d="M3 18v-7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v7M3 14h18M3 18v2M21 18v2M7 9V6h4v3"/></svg>',
+    bath:'<svg viewBox="0 0 24 24"><path d="M4 12h16v3a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4v-3zM6 12V5a2 2 0 0 1 4 0"/></svg>',
+    ppl:'<svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M16 11a3 3 0 1 0 0-6M18 20c0-2.4-1-4.4-2.6-5.4"/></svg>',
+    meal:'<svg viewBox="0 0 24 24"><path d="M7 3v8M5 3v4a2 2 0 0 0 4 0V3M7 11v10M17 21V3c-2 1-3 3.5-3 6s1 3 3 3"/></svg>'
+  };
+
+  /* ---------------- state ---------------- */
+  var blankGuest = function(){ return { first:'', last:'', email:'', gender:'' }; };
+  var state = { step:1, guests:1, lead:{ first:'', last:'', email:'', whatsapp:'', gender:'' }, others:[], mixed:false, room:null, assign:{}, guestRooms:[], roommate:'', payment:'deposit', terms:false, filter:'all' };
+  var avail = null, availLive = false;
+  try { var saved = JSON.parse(localStorage.getItem(STORE) || 'null'); if (saved && saved.v === 1) { Object.assign(state, saved.s); state.terms = false; } } catch(e){}
+  function save(){ try { localStorage.setItem(STORE, JSON.stringify({ v:1, s: Object.assign({}, state, { terms:false }) })); } catch(e){} }
+
+  /* ---------------- availability ---------------- */
+  function left(id){
+    var r = ROOMS[id]; if (!r) return 0;
+    var a = avail && avail.rooms && avail.rooms[id];
+    return a ? a.left : Math.min(r.capacity, progLeft());
+  }
+  function progLeft(){ return avail ? avail.program_left : P.program_spaces; }
+  function loadAvail(){
+    return fetch(API + '/api/booking/availability?program=' + encodeURIComponent(P.id), { cache:'no-store' })
+      .then(function(r){ return r.ok ? r.json() : null; })
+      .then(function(d){ if (d && d.rooms) { avail = d; availLive = !!d.live; } render(); })
+      .catch(function(){ render(); });
+  }
+
+  /* ---------------- derived ---------------- */
+  function guestRoomList(){
+    if (!state.mixed) return Array.from({ length: state.guests }, function(){ return state.room; });
+    return state.guestRooms.slice(0, state.guests);
+  }
+  function syncGuestRooms(){
+    // rebuild the per-guest room list from the per-room counts, keeping guests where they were when possible
+    var need = Object.assign({}, state.assign), list = [];
+    state.guestRooms.slice(0, state.guests).forEach(function(rid){ if (need[rid] > 0) { list.push(rid); need[rid]--; } else list.push(null); });
+    while (list.length < state.guests) list.push(null);
+    list = list.map(function(rid){ if (rid) return rid; for (var k in need) { if (need[k] > 0) { need[k]--; return k; } } return null; });
+    state.guestRooms = list;
+  }
+  function assigned(){ var n = 0; for (var k in state.assign) n += state.assign[k]; return n; }
+  function counts(){ var c = {}; guestRoomList().forEach(function(rid){ if (rid) c[rid] = (c[rid] || 0) + 1; }); return c; }
+  function totals(){
+    var c = counts(), lines = [], total = 0;
+    Object.keys(c).forEach(function(id){
+      var r = ROOMS[id], n = c[id], units = r.unit === 'person' ? n : Math.ceil(n / (r.sleeps || 1)), amt = units * r.price * 100;
+      lines.push({ id:id, name:r.name, n:n, amt:amt, per:r.price * 100, unit:r.unit }); total += amt;
+    });
+    var dep = Math.round(total * P.deposit.percent / 100), due = state.payment === 'full' ? total : dep;
+    return { lines:lines, total:total, deposit:dep, due:due, balance: total - due };
+  }
+  function roomsComplete(){
+    if (!state.mixed) return !!state.room && left(state.room) >= state.guests;
+    return assigned() === state.guests;
+  }
+
+  /* ---------------- fields ---------------- */
+  function field(id, label, opts){
+    opts = opts || {};
+    var hint = opts.hint ? '<span class="hint">' + opts.hint + '</span>' : '';
+    if (opts.pills) {
+      return '<div class="f full" id="f-' + id + '"><span class="lbl" id="l-' + id + '">' + label + '</span><div class="pills" role="radiogroup" aria-labelledby="l-' + id + '">' +
+        P.genders.map(function(g){ return '<label><input type="radio" name="' + id + '" value="' + esc(g) + '"' + (opts.value === g ? ' checked' : '') + '><span>' + esc(g) + '</span></label>'; }).join('') +
+        '</div><span class="err" id="e-' + id + '"></span></div>';
+    }
+    return '<div class="f' + (opts.full ? ' full' : '') + '" id="f-' + id + '"><label for="' + id + '">' + label + '</label>' +
+      '<input id="' + id + '" type="' + (opts.type || 'text') + '" value="' + esc(opts.value || '') + '"' + (opts.ac ? ' autocomplete="' + opts.ac + '"' : '') + (opts.ph ? ' placeholder="' + esc(opts.ph) + '"' : '') + (opts.im ? ' inputmode="' + opts.im + '"' : '') + ' maxlength="' + (opts.max || 80) + '" aria-describedby="e-' + id + '">' +
+      hint + (opts.suggest ? '<button type="button" class="suggest" id="s-' + id + '" hidden></button>' : '') + '<span class="err" id="e-' + id + '" role="status"></span></div>';
+  }
+  function renderLead(){
+    var L = state.lead;
+    $('leadFields').innerHTML =
+      field('g0-first', 'First name', { value:L.first, ac:'given-name' }) +
+      field('g0-last', 'Last name', { value:L.last, ac:'family-name' }) +
+      field('g0-email', 'Email', { value:L.email, type:'email', ac:'email', ph:'name@example.com', suggest:true, hint:'Your confirmation, receipt and invoice go here.' }) +
+      field('g0-whatsapp', 'WhatsApp number', { value:L.whatsapp, type:'tel', ac:'tel', im:'tel', ph:'+44 7700 900123', hint:'Include the country code. We use it for arrival details.', max:32 }) +
+      field('g0-gender', 'Gender <small>(for room sharing)</small>', { pills:true, value:L.gender });
+    bindLead();
+  }
+  function bindLead(){
+    ['first','last','email','whatsapp'].forEach(function(k){
+      var el = $('g0-' + k); if (!el) return;
+      el.addEventListener('input', function(){ state.lead[k] = el.value; clearErr('g0-' + k); if (k === 'email') emailSuggest('g0-email'); save(); renderFolio(); });
+    });
+    document.querySelectorAll('input[name="g0-gender"]').forEach(function(r){ r.addEventListener('change', function(){ state.lead.gender = r.value; clearErr('g0-gender'); save(); }); });
+  }
+
+  /* email typo help */
+  var DOMAINS = ['gmail.com','hotmail.com','yahoo.com','outlook.com','icloud.com','live.com','me.com','aol.com','proton.me','protonmail.com','gmx.com','web.de','hotmail.co.uk','yahoo.co.uk'];
+  function lev(a,b){ var m = []; for (var i=0;i<=a.length;i++){ m[i]=[i]; for (var j=1;j<=b.length;j++) m[i][j] = i===0 ? j : Math.min(m[i-1][j]+1, m[i][j-1]+1, m[i-1][j-1]+(a[i-1]===b[j-1]?0:1)); } return m[a.length][b.length]; }
+  function emailSuggest(id){
+    var el = $(id), s = $('s-' + id); if (!el || !s) return;
+    var v = el.value.trim(), at = v.lastIndexOf('@'); s.hidden = true;
+    if (at < 1) return;
+    var d = v.slice(at + 1).toLowerCase(); if (!d || DOMAINS.indexOf(d) >= 0) return;
+    var best = null, bd = 3; DOMAINS.forEach(function(x){ var k = lev(d, x); if (k < bd) { bd = k; best = x; } });
+    if (best && bd <= 2) { var fix = v.slice(0, at + 1) + best; s.textContent = 'Did you mean ' + fix + '?'; s.hidden = false; s.onclick = function(){ el.value = fix; el.dispatchEvent(new Event('input')); s.hidden = true; }; }
+  }
+
+  /* errors */
+  function setErr(id, msg){ var f = $('f-' + id), e = $('e-' + id); if (f) f.classList.add('bad'); if (e) e.textContent = msg; }
+  function clearErr(id){ var f = $('f-' + id); if (f) f.classList.remove('bad'); }
+  function showAlert(n, msg){ var a = $('err' + n); if (!a) return; if (msg) { a.textContent = msg; a.hidden = false; } else a.hidden = true; }
+  var EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+  /* ---------------- step 1 ---------------- */
+  function renderCount(){
+    var maxG = Math.max(1, Math.min(MAXG, progLeft()));
+    if (state.guests > maxG) setGuests(maxG);
+    $('gCount').textContent = state.guests + (state.guests === 1 ? ' guest' : ' guests');
+    $('gMinus').disabled = state.guests <= 1; $('gPlus').disabled = state.guests >= maxG;
+    $('countHint').textContent = 'Up to ' + MAXG + ' per booking · ' + progLeft() + ' ' + (progLeft() === 1 ? 'place' : 'places') + ' left this week';
+  }
+  function setGuests(n){
+    state.guests = n;
+    while (state.others.length < n - 1) state.others.push(blankGuest());
+    state.others = state.others.slice(0, Math.max(0, n - 1));
+    if (state.mixed) {
+      // trim counts from the most recently added rooms if there are now too many
+      var over = assigned() - n;
+      Object.keys(state.assign).reverse().forEach(function(k){ while (over > 0 && state.assign[k] > 0) { state.assign[k]--; over--; } if (!state.assign[k]) delete state.assign[k]; });
+      syncGuestRooms();
+    }
+    if (n === 1 && state.mixed) { state.mixed = false; var only = Object.keys(state.assign)[0]; state.room = only || state.room; state.assign = {}; }
+    save(); render();
+  }
+  function validate1(){
+    var L = state.lead, ok = true;
+    if (!L.first.trim()) { setErr('g0-first', 'Please add your first name.'); ok = false; }
+    if (!L.last.trim()) { setErr('g0-last', 'Please add your last name.'); ok = false; }
+    if (!EMAIL.test(L.email.trim())) { setErr('g0-email', 'Please add a valid email address.'); ok = false; }
+    if (!/^\+\d{7,15}$/.test(L.whatsapp.replace(/[\s().-]/g, ''))) { setErr('g0-whatsapp', 'Add your number with the country code, starting with +.'); ok = false; }
+    if (!L.gender) { setErr('g0-gender', 'Please choose an option.'); ok = false; }
+    showAlert(1, ok ? '' : 'A few details need your attention.');
+    return ok;
+  }
+
+  /* ---------------- step 2 ---------------- */
+  function renderFilters(){
+    var cats = ['all'].concat(Object.keys(CATS).filter(function(c){ return P.rooms.some(function(r){ return r.category === c; }); }));
+    $('filters').innerHTML = cats.map(function(c){ return '<button type="button" data-f="' + c + '" aria-pressed="' + (state.filter === c) + '">' + (c === 'all' ? 'All' : CATS[c] + (c === 'private' ? '' : c === 'shared' ? 's' : '')) + '</button>'; }).join('');
+    $('filters').querySelectorAll('button').forEach(function(b){ b.onclick = function(){ state.filter = b.getAttribute('data-f'); save(); renderFilters(); renderRooms(); }; });
+  }
+  function photosHtml(r){
+    var figs = r.photos.map(function(p, i){ return '<figure><img src="' + IMG + p + '" alt="' + esc(r.name) + ', photo ' + (i + 1) + '" loading="lazy" decoding="async" width="1100" height="733"></figure>'; });
+    if (r.plan) figs.push('<figure class="plan"><img src="' + IMG + r.plan + '" alt="Floor plan of the ' + esc(r.name) + '" loading="lazy" decoding="async" width="560" height="569"><figcaption>Floor plan</figcaption></figure>');
+    var n = figs.length;
+    return '<div class="ph"><div class="ph-track" tabindex="0" aria-label="Photos of ' + esc(r.name) + '">' + figs.join('') + '</div>' +
+      (n > 1 ? '<button type="button" class="ph-nav prev" aria-label="Previous photo"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><button type="button" class="ph-nav next" aria-label="Next photo"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button><div class="ph-dots">' + Array.from({ length:n }, function(_, i){ return '<i' + (i ? '' : ' class="on"') + '></i>'; }).join('') + '</div>' : '');
+  }
+  function renderRooms(){
+    var list = P.rooms.slice().sort(function(a, b){ return (left(a.id) <= 0) - (left(b.id) <= 0); })
+      .filter(function(r){ return state.filter === 'all' || r.category === state.filter; });
+    var nights = P.dates.nights;
+    $('rooms').innerHTML = list.map(function(r){
+      var l = left(r.id), out = l <= 0, sel = state.mixed ? (state.assign[r.id] > 0) : state.room === r.id;
+      var badge = out ? '<span class="badge out">Sold out</span>' : '<span class="badge' + (l <= 3 ? ' low' : '') + '">' + (l <= 3 ? 'Only ' + l + ' left' : l + ' places left') + '</span>';
+      var perNight = Math.round(r.price / nights);
+      var priceLbl = r.unit === 'person' ? 'per person · ' + nights + ' nights, meals included' : 'per cottage (2 guests) · ' + nights + ' nights, meals';
+      var facts = '<li>' + ICON.bed + (r.sleeps === 1 ? 'Sleeps 1' : 'Sleeps ' + r.sleeps) + '</li><li>' + ICON.bath + esc(r.bath) + '</li>' + (r.shared_with ? '<li>' + ICON.ppl + 'Shared with ' + esc(r.shared_with) + '</li>' : '') + '<li>' + ICON.meal + 'All meals</li>';
+      var action;
+      if (out) action = '<button type="button" class="pick" disabled>Sold out</button>';
+      else if (state.mixed) {
+        var c = state.assign[r.id] || 0;
+        action = '<div class="ctr" role="group" aria-label="Guests in ' + esc(r.name) + '"><button type="button" data-dec="' + r.id + '" aria-label="One guest fewer here"' + (c <= 0 ? ' disabled' : '') + '>&minus;</button><output>' + c + (c === 1 ? ' guest' : ' guests') + '</output><button type="button" data-inc="' + r.id + '" aria-label="One guest more here"' + (c >= l || assigned() >= state.guests ? ' disabled' : '') + '>+</button></div>';
+      } else {
+        var fits = l >= state.guests;
+        action = '<button type="button" class="pick" data-pick="' + r.id + '"' + (fits ? '' : ' disabled') + '>' + (sel ? 'Selected' : 'Choose this room') + '</button>' +
+          (fits ? '' : '<p class="limit">Only ' + l + ' ' + (l === 1 ? 'place' : 'places') + ' left: book fewer guests, or turn on "different rooms".</p>');
+      }
+      return '<article class="room' + (sel ? ' sel' : '') + (out ? ' out' : '') + '" data-room="' + r.id + '">' + photosHtml(r) + badge + '<span class="check" aria-hidden="true"></span>' +
+        '<div class="rb"><p class="rk">' + esc(CATS[r.category] || '') + ' · ' + esc(r.bath) + '</p><h3>' + esc(r.name) + '</h3><p class="rs">' + esc(r.summary) + '</p><ul class="facts">' + facts + '</ul>' +
+        '<button type="button" class="more" aria-expanded="false">More about this room</button><p class="desc" hidden>' + esc(r.description) + '</p>' +
+        '<div class="rf"><div class="price"><b>' + money(r.price * 100) + '</b><span>' + priceLbl + '</span>' + (r.unit === 'person' ? '<span>About ' + money(perNight * 100) + ' a night</span>' : '') + '</div>' + action + '</div></div></article>';
+    }).join('') || '<p class="fol-empty">No rooms in this category.</p>';
+    bindRooms();
+    var sub = state.guests === 1 ? 'Every price includes ' + P.dates.nights + ' nights and all meals. Live availability, straight from our booking system.' :
+      'Choose one room type for all ' + state.guests + ' guests, or turn on "different rooms" to split your group. Prices include ' + P.dates.nights + ' nights and all meals.';
+    $('roomsSub').textContent = sub;
+    $('mixedRow').hidden = state.guests < 2;
+    $('mixedToggle').checked = state.mixed;
+    var a = assigned();
+    $('placedNote').textContent = state.mixed ? (a === state.guests ? 'All ' + state.guests + ' guests placed' : a + ' of ' + state.guests + ' guests placed') : '';
+    $('placedNote').classList.toggle('okk', state.mixed && a === state.guests);
+  }
+  function bindRooms(){
+    var root = $('rooms');
+    root.querySelectorAll('[data-pick]').forEach(function(b){ b.onclick = function(){ state.room = b.getAttribute('data-pick'); showAlert(2, ''); save(); render(); }; });
+    root.querySelectorAll('[data-inc]').forEach(function(b){ b.onclick = function(){ var id = b.getAttribute('data-inc'); state.assign[id] = (state.assign[id] || 0) + 1; syncGuestRooms(); showAlert(2, ''); save(); render(); }; });
+    root.querySelectorAll('[data-dec]').forEach(function(b){ b.onclick = function(){ var id = b.getAttribute('data-dec'); state.assign[id] = Math.max(0, (state.assign[id] || 0) - 1); if (!state.assign[id]) delete state.assign[id]; syncGuestRooms(); save(); render(); }; });
+    root.querySelectorAll('.more').forEach(function(b){ b.onclick = function(){ var d = b.nextElementSibling, open = d.hidden; d.hidden = !open; b.setAttribute('aria-expanded', open); b.textContent = open ? 'Show less' : 'More about this room'; }; });
+    root.querySelectorAll('.ph').forEach(function(ph){
+      var tr = ph.querySelector('.ph-track'), dots = ph.querySelectorAll('.ph-dots i');
+      var go = function(d){ tr.scrollBy({ left: d * tr.clientWidth, behavior:'smooth' }); };
+      var p = ph.querySelector('.prev'), n = ph.querySelector('.next');
+      if (p) p.onclick = function(e){ e.stopPropagation(); go(-1); };
+      if (n) n.onclick = function(e){ e.stopPropagation(); go(1); };
+      tr.addEventListener('scroll', function(){ var i = Math.round(tr.scrollLeft / Math.max(1, tr.clientWidth)); dots.forEach(function(d, k){ d.classList.toggle('on', k === i); }); }, { passive:true });
+      tr.addEventListener('keydown', function(e){ if (e.key === 'ArrowRight') { e.preventDefault(); go(1); } if (e.key === 'ArrowLeft') { e.preventDefault(); go(-1); } });
+    });
+  }
+  $('mixedToggle').addEventListener('change', function(e){
+    state.mixed = e.target.checked;
+    if (state.mixed) { state.assign = {}; if (state.room && left(state.room) > 0) state.assign[state.room] = Math.min(state.guests, left(state.room)); state.guestRooms = []; syncGuestRooms(); }
+    else { var ks = Object.keys(state.assign); state.room = ks.length === 1 ? ks[0] : (state.room || null); state.assign = {}; }
+    save(); render();
+  });
+  function validate2(){
+    if (state.mixed) {
+      var a = assigned();
+      if (a !== state.guests) { showAlert(2, a < state.guests ? 'Place ' + (state.guests - a) + ' more ' + (state.guests - a === 1 ? 'guest' : 'guests') + ' in a room to continue.' : 'You have placed more guests than are in your booking.'); return false; }
+      for (var k in state.assign) if (state.assign[k] > left(k)) { showAlert(2, ROOMS[k].name + ' only has ' + left(k) + ' places left.'); return false; }
+      return true;
+    }
+    if (!state.room) { showAlert(2, 'Choose a room to continue.'); return false; }
+    if (left(state.room) < state.guests) { showAlert(2, ROOMS[state.room].name + ' only has ' + left(state.room) + ' places left.'); return false; }
+    return true;
+  }
+
+  /* ---------------- step 3 ---------------- */
+  function renderGuests(){
+    var rooms = guestRoomList();
+    var shared = rooms.some(function(id){ return id && ROOMS[id] && ROOMS[id].category !== 'private' && ROOMS[id].sleeps > 1; });
+    $('roommateField').hidden = !shared;
+    $('roommate').value = state.roommate;
+    $('detailsSub').textContent = state.guests === 1
+      ? (shared ? 'Want to share with a friend who booked separately? Tell us below. Otherwise, you\'re ready to review.' : 'Nothing else needed: you\'re ready to review your booking.')
+      : 'Add each guest\'s details so we can send them arrival information and allocate beds.' + (state.mixed ? ' Check who sleeps where.' : '');
+    var opts = state.mixed ? Object.keys(state.assign) : [];
+    var html = '';
+    html += '<div class="gcard"><p class="who"><span class="n">1</span>' + esc((state.lead.first + ' ' + state.lead.last).trim() || 'Lead guest') + '</p><p class="rtag">' + ICON.bed.replace('<svg', '<svg width="15" height="15" style="stroke:#D6A652;fill:none;stroke-width:1.6"') + esc(rooms[0] ? ROOMS[rooms[0]].name : '') + '</p>' + (state.mixed && opts.length > 1 ? roomSelect(0, rooms[0], opts) : '') + '</div>';
+    state.others.forEach(function(g, i){
+      var n = i + 1, id = 'g' + n;
+      html += '<div class="gcard"><p class="who"><span class="n">' + (n + 1) + '</span>Guest ' + (n + 1) + '</p>' +
+        (state.mixed && opts.length > 1 ? roomSelect(n, rooms[n], opts) : '<p class="rtag">' + esc(rooms[n] ? ROOMS[rooms[n]].name : '') + '</p>') +
+        '<div class="grid2">' + field(id + '-first', 'First name', { value:g.first }) + field(id + '-last', 'Last name', { value:g.last }) +
+        field(id + '-email', 'Email', { value:g.email, type:'email', ph:'name@example.com', suggest:true, full:true }) + field(id + '-gender', 'Gender', { pills:true, value:g.gender }) + '</div></div>';
+    });
+    $('guestCards').innerHTML = html;
+    state.others.forEach(function(g, i){
+      var id = 'g' + (i + 1);
+      ['first','last','email'].forEach(function(k){ var el = $(id + '-' + k); el.addEventListener('input', function(){ g[k] = el.value; clearErr(id + '-' + k); if (k === 'email') emailSuggest(id + '-email'); save(); }); });
+      document.querySelectorAll('input[name="' + id + '-gender"]').forEach(function(r){ r.addEventListener('change', function(){ g.gender = r.value; clearErr(id + '-gender'); save(); }); });
+    });
+    document.querySelectorAll('[data-guestroom]').forEach(function(s){ s.addEventListener('change', function(){ state.guestRooms[+s.getAttribute('data-guestroom')] = s.value; showAlert(3, ''); save(); renderFolio(); }); });
+  }
+  function roomSelect(i, cur, opts){
+    return '<div class="f" style="margin:-4px 0 16px;max-width:360px"><label for="gr' + i + '">Sleeps in</label><select id="gr' + i + '" data-guestroom="' + i + '">' +
+      opts.map(function(o){ return '<option value="' + o + '"' + (o === cur ? ' selected' : '') + '>' + esc(ROOMS[o].name) + '</option>'; }).join('') + '</select></div>';
+  }
+  $('roommate').addEventListener('input', function(e){ state.roommate = e.target.value; save(); });
+  function validate3(){
+    var ok = true;
+    state.others.forEach(function(g, i){
+      var id = 'g' + (i + 1);
+      if (!g.first.trim()) { setErr(id + '-first', 'Please add a first name.'); ok = false; }
+      if (!g.last.trim()) { setErr(id + '-last', 'Please add a last name.'); ok = false; }
+      if (!EMAIL.test(g.email.trim())) { setErr(id + '-email', 'Please add a valid email.'); ok = false; }
+      if (!g.gender) { setErr(id + '-gender', 'Please choose an option.'); ok = false; }
+    });
+    if (state.mixed) {
+      var c = counts();
+      for (var k in state.assign) if ((c[k] || 0) !== state.assign[k]) { showAlert(3, ROOMS[k].name + ' has ' + state.assign[k] + ' ' + (state.assign[k] === 1 ? 'place' : 'places') + ' booked but ' + (c[k] || 0) + ' assigned. Check who sleeps where.'); return false; }
+    }
+    showAlert(3, ok ? '' : 'A few details need your attention.');
+    return ok;
+  }
+
+  /* ---------------- step 4 ---------------- */
+  function renderReview(){
+    var t = totals(), rooms = guestRoomList();
+    var people = [{ n:(state.lead.first + ' ' + state.lead.last).trim(), r:rooms[0] }].concat(state.others.map(function(g, i){ return { n:(g.first + ' ' + g.last).trim(), r:rooms[i + 1] }; }));
+    $('review').innerHTML =
+      '<li><span class="k">Dates</span><span class="v">' + esc(P.dates.label) + ' · ' + P.dates.nights + ' nights</span></li>' +
+      people.map(function(p, i){ return '<li><span class="k">' + (i ? 'Guest ' + (i + 1) : 'Lead guest') + '</span><span class="v">' + esc(p.n || '—') + ' · ' + esc(p.r ? ROOMS[p.r].name : '') + '<button type="button" class="edit" data-go="' + (i ? 3 : 1) + '">Edit</button></span></li>'; }).join('') +
+      '<li><span class="k">Contact</span><span class="v">' + esc(state.lead.email) + ' · ' + esc(state.lead.whatsapp) + '</span></li>' +
+      (state.roommate ? '<li><span class="k">Roommate request</span><span class="v">' + esc(state.roommate) + '</span></li>' : '');
+    $('review').querySelectorAll('[data-go]').forEach(function(b){ b.onclick = function(){ goStep(+b.getAttribute('data-go')); }; });
+    var dep = t.deposit, full = t.total;
+    $('payOpts').innerHTML =
+      '<label class="opt"><input type="radio" name="pay" value="deposit"' + (state.payment === 'deposit' ? ' checked' : '') + '><span class="rad"></span><span class="t"><b>Pay a ' + P.deposit.percent + '% deposit today</b><span>Then ' + money(full - dep) + '. ' + esc(P.deposit.balance_note) + '</span></span><span class="amt">' + money(dep) + '</span></label>' +
+      '<label class="opt"><input type="radio" name="pay" value="full"' + (state.payment === 'full' ? ' checked' : '') + '><span class="rad"></span><span class="t"><b>Pay in full</b><span>Settle everything now. Nothing more to pay before you arrive.</span></span><span class="amt">' + money(full) + '</span></label>';
+    document.querySelectorAll('input[name="pay"]').forEach(function(r){ r.onchange = function(){ state.payment = r.value; save(); renderFolio(); payLabel(); }; });
+    $('terms').checked = state.terms;
+    payLabel();
+  }
+  function payLabel(){ var t = totals(); $('payBtn').innerHTML = 'Pay ' + money(t.due) + ' securely <span class="arr">&rarr;</span>'; }
+  $('terms').addEventListener('change', function(e){ state.terms = e.target.checked; $('termsRow').classList.remove('bad'); });
+
+  function pay(){
+    if (!validate1()) return goStep(1);
+    if (!validate2()) return goStep(2);
+    if (!validate3()) return goStep(3);
+    if (!state.terms) { $('termsRow').classList.add('bad'); showAlert(4, 'Please agree to the terms and conditions to continue.'); return; }
+    showAlert(4, '');
+    var rooms = guestRoomList();
+    var guests = [{ first:state.lead.first, last:state.lead.last, email:state.lead.email, gender:state.lead.gender, room:rooms[0] }]
+      .concat(state.others.map(function(g, i){ return { first:g.first, last:g.last, email:g.email, gender:g.gender, room:rooms[i + 1] }; }));
+    var utm = {}; try { utm = (JSON.parse(localStorage.getItem('aob_utm') || 'null') || {}).p || {}; } catch(e){}
+    var body = { program:P.id, payment:state.payment, guests:guests, whatsapp:state.lead.whatsapp, roommate:state.roommate, terms:true,
+      return_url: location.origin + location.pathname, page: location.origin + location.pathname, utm: utm };
+    var btn = $('payBtn'), old = btn.innerHTML; btn.disabled = true; btn.innerHTML = '<span class="spin"></span> Opening secure checkout…';
+    fetch(API + '/api/booking/checkout', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify(body) })
+      .then(function(r){ return r.json().then(function(d){ return { s:r.status, d:d }; }); })
+      .then(function(res){
+        var d = res.d;
+        if (d.url) { save(); location.href = d.url; return; }
+        btn.disabled = false; btn.innerHTML = old;
+        if (d.demo) return demo(d);
+        if (res.s === 409) { avail = d.availability || avail; render(); showAlert(2, d.error + ' Please choose again.'); return goStep(2); }
+        if (d.fields) { mapServerErrors(d.fields); }
+        showAlert(4, d.error || 'Something went wrong. Please try again.');
+      })
+      .catch(function(){ btn.disabled = false; btn.innerHTML = old; showAlert(4, 'We could not reach the booking system. Check your connection and try again, or message us on WhatsApp.'); });
+  }
+  function mapServerErrors(fields){
+    var first = 4;
+    Object.keys(fields).forEach(function(k){
+      var m = k.match(/^guests\.(\d+)\.(\w+)$/);
+      if (m) { setErr('g' + m[1] + '-' + m[2], fields[k]); first = Math.min(first, +m[1] === 0 ? 1 : 3); }
+      else if (k === 'whatsapp') { setErr('g0-whatsapp', fields[k]); first = 1; }
+      else if (k === 'terms') { $('termsRow').classList.add('bad'); }
+    });
+    if (first < 4) goStep(first);
+  }
+  function demo(d){
+    var q = d.quote;
+    $('demoText').innerHTML = 'Stripe isn\'t connected yet, so this booking stopped here. With Stripe connected, the guest would now be on the secure checkout page paying <b>' + money(q.due_now_cents) + '</b> (' + (q.payment === 'full' ? 'paid in full' : P.deposit.percent + '% deposit, balance ' + money(q.balance_cents)) + ') for booking <b>' + esc(d.ref) + '</b>.';
+    $('demoPre').textContent = JSON.stringify({ ref: d.ref, quote: q, line_item: d.stripe_params && d.stripe_params.line_items, metadata: d.stripe_params && d.stripe_params.metadata }, null, 2);
+    $('demoModal').hidden = false; $('demoClose').focus();
+  }
+  $('demoClose').onclick = function(){ $('demoModal').hidden = true; };
+  $('payBtn').onclick = pay;
+
+  /* ---------------- summary ---------------- */
+  function folioHtml(){
+    var t = totals(), sel = guestRoomList()[0], img = sel ? ROOMS[sel].photos[0] : P.hero_image;
+    var lines = t.lines.length ? t.lines.map(function(l){
+      return '<div class="fol-line"><span class="k"><b>' + esc(l.name) + '</b><small>' + l.n + ' ' + (l.n === 1 ? 'guest' : 'guests') + (l.unit === 'person' ? ' × ' + money(l.per) : '') + '</small></span><span>' + money(l.amt) + '</span></div>';
+    }).join('') : '<p class="fol-empty">Choose a room to see your total.</p>';
+    return '<div class="fol-top" style="background-image:url(\'' + IMG + img + '\')"><p><small>' + esc(P.edition) + ' · ' + esc(P.venue.region) + '</small>' + esc(P.dates.medium || P.dates.label) + '</p></div>' +
+      '<div class="fol-b"><div class="fol-row"><span class="k">Stay</span><span class="v">' + P.dates.nights + ' nights · all meals</span></div>' +
+      '<div class="fol-row"><span class="k">Guests</span><span class="v">' + state.guests + '</span></div><div class="fol-lines">' + lines + '</div>' +
+      '<div class="perf"><i></i><i></i></div>' +
+      '<div class="fol-total"><span class="k">Total</span><span class="v">' + money(t.total) + '</span></div>' +
+      '<div class="fol-due"><span class="k">' + (state.payment === 'full' ? 'Due today' : 'Due today · ' + P.deposit.percent + '%') + '</span><span class="v">' + money(t.total ? t.due : 0) + '</span></div>' +
+      (t.total && t.balance ? '<p class="fol-bal">Then ' + money(t.balance) + ' before you arrive</p>' : '') +
+      '<div class="trust"><span><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Secure payment by Stripe</span><span><svg viewBox="0 0 24 24"><path d="M4 12l5 5L20 6"/></svg>Receipt and invoice by email</span><span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>' + (availLive ? 'Live availability' : 'Availability as of ' + esc(P.source.snapshot)) + '</span></div></div>';
+  }
+  function renderFolio(){
+    var h = folioHtml(); $('folio').innerHTML = h; $('folioSheet').innerHTML = h;
+    var t = totals();
+    $('mbarAmt').textContent = money(t.total ? t.due : 0);
+    $('mbarLbl').textContent = t.total ? (state.payment === 'full' ? 'Due today' : 'Due today · ' + P.deposit.percent + '%') : 'Choose a room';
+  }
+
+  /* ---------------- steps ---------------- */
+  function validateUpTo(n){ for (var i = 1; i < n; i++) { if (i === 1 && !validate1()) return 1; if (i === 2 && !validate2()) return 2; if (i === 3 && !validate3()) return 3; } return n; }
+  function goStep(n, noScroll){
+    if (n > state.step) n = validateUpTo(n);
+    state.step = n; save();
+    for (var i = 1; i <= 4; i++) $('step' + i).hidden = i !== n;
+    if (n === 3) renderGuests();
+    if (n === 4) renderReview();
+    renderSteps();
+    $('mbarNext').innerHTML = n === 4 ? 'Pay ' + money(totals().due) + ' <span class="arr">&rarr;</span>' : (n === 1 ? 'Choose your room' : 'Continue') + ' <span class="arr">&rarr;</span>';
+    try { history.replaceState(null, '', location.pathname + location.search + '#step-' + n); } catch(e){}
+    if (!noScroll) { var top = $('steps').getBoundingClientRect().top + window.scrollY - 70; window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' }); }
+    var h = document.querySelector('#step' + n + ' h2'); if (h && !noScroll) { h.setAttribute('tabindex', '-1'); h.focus({ preventScroll:true }); }
+  }
+  function renderSteps(){
+    document.querySelectorAll('#steps li').forEach(function(li){
+      var s = +li.getAttribute('data-step');
+      li.classList.toggle('cur', s === state.step); li.classList.toggle('done', s < state.step);
+      li.querySelector('button').setAttribute('aria-current', s === state.step ? 'step' : 'false');
+      li.querySelector('button').onclick = function(){ if (s < state.step) goStep(s); };
+    });
+  }
+  document.querySelectorAll('[data-next]').forEach(function(b){ b.onclick = function(){ goStep(+b.getAttribute('data-next')); }; });
+  document.querySelectorAll('[data-back]').forEach(function(b){ b.onclick = function(){ goStep(+b.getAttribute('data-back')); }; });
+  $('mbarNext').onclick = function(){ state.step === 4 ? pay() : goStep(state.step + 1); };
+  $('gMinus').onclick = function(){ if (state.guests > 1) setGuests(state.guests - 1); };
+  $('gPlus').onclick = function(){ setGuests(state.guests + 1); };
+  var sheet = $('sheet');
+  $('sumBtn').onclick = function(){ var o = !sheet.classList.contains('open'); sheet.classList.toggle('open', o); sheet.setAttribute('aria-hidden', !o); $('sumBtn').setAttribute('aria-expanded', o); };
+  sheet.onclick = function(e){ if (e.target === sheet) $('sumBtn').click(); };
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') { if (!$('demoModal').hidden) $('demoModal').hidden = true; if (sheet.classList.contains('open')) $('sumBtn').click(); } });
+
+  function render(){
+    $('placesLeft').textContent = progLeft();
+    renderCount(); renderFilters(); renderRooms(); renderFolio();
+    if (state.step === 3) renderGuests();
+    if (state.step === 4) renderReview();
+  }
+
+  /* ---------------- static text ---------------- */
+  $('heroEyebrow').textContent = P.edition + ' · ' + P.venue.name.replace(' Retreat Centre', '') + ', ' + P.venue.region;
+  $('heroWhen').textContent = P.dates.label + ' · ' + P.dates.nights + ' nights';
+  $('heroNote').textContent = P.price_note;
+  $('depositChip').textContent = P.deposit.percent + '% deposit or pay in full';
+  $('heroImg').src = IMG + P.hero_image;
+  $('heroVenue').textContent = P.venue.name; $('heroAddr').textContent = P.venue.address;
+  ['helpLink','footHelp'].forEach(function(id){ $(id).href = wa; });
+  $('footMail').href = 'mailto:' + P.contact.email; $('footMail').textContent = P.contact.email;
+  ['termsLink','footTerms'].forEach(function(id){ $(id).href = P.terms_url; });
+
+  /* ---------------- confirmation / cancel ---------------- */
+  var qp = new URLSearchParams(location.search);
+  function gcal(){
+    var end = new Date(P.dates.end + 'T00:00:00Z'); end.setUTCDate(end.getUTCDate() + 1);
+    var d = P.dates.start.replace(/-/g, '') + '/' + end.toISOString().slice(0, 10).replace(/-/g, '');
+    return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' + encodeURIComponent(P.edition + ' at ASHA') + '&dates=' + d + '&location=' + encodeURIComponent(P.venue.name + ', ' + P.venue.address) + '&details=' + encodeURIComponent('Your BreathCamp week in Tuscany.');
+  }
+  function showDone(s){
+    ['hero','steps'].forEach(function(id){ $(id).hidden = true; });
+    document.querySelector('.folio').hidden = true; $('mbar').hidden = true;
+    for (var i = 1; i <= 4; i++) $('step' + i).hidden = true;
+    $('bk').style.gridTemplateColumns = '1fr'; $('done').hidden = false;
+    var paid = s && s.amount_paid_cents, bal = s && s.balance_cents;
+    var name = s && s.first_name ? ', ' + esc(s.first_name) : '';
+    $('doneCard').innerHTML = '<div class="seal" aria-hidden="true"></div><h2>You\'re booked' + name + '.</h2>' +
+      '<p class="sub" style="margin:10px auto 0;max-width:34em">We can\'t wait to breathe with you at ASHA, ' + esc(P.dates.label) + '.</p>' +
+      (s && s.ref ? '<p class="ref">Booking reference <b>' + esc(s.ref) + '</b></p>' : '') +
+      (s && s.ref ? '<div class="figs"><div class="fig"><small>Paid today</small><b>' + money(paid || 0) + '</b></div>' + (bal ? '<div class="fig"><small>Balance before arrival</small><b>' + money(bal) + '</b></div>' : '<div class="fig"><small>Balance</small><b>Paid in full</b></div>') + (s.rooms && s.rooms.length ? '<div class="fig"><small>Your stay</small><b style="font-size:1.05rem;line-height:1.35">' + s.rooms.map(function(r){ return esc(r.name) + ' × ' + r.guests; }).join('<br>') + '</b></div>' : '') + '</div>' : '') +
+      '<ol class="next"><li><b>Check your inbox.</b> Your receipt and invoice from Stripe are on their way.</li><li><b>We\'ll be in touch on WhatsApp</b> with arrival details and anything we need for your room.</li>' +
+      (bal ? '<li><b>Pay your balance before you arrive.</b> Use your booking reference and email at any time.</li>' : '') + '<li><b>Arrive on ' + esc(P.dates.label.split(' – ')[0]) + '</b> at ' + esc(P.venue.name) + ', ' + esc(P.venue.address) + '.</li></ol>' +
+      '<div class="actions">' + (bal && s.ref ? '<a class="btn btn-primary" href="../balance/?ref=' + encodeURIComponent(s.ref) + '">Pay your balance <span class="arr">&rarr;</span></a>' : '') +
+      '<a class="btn btn-ghost" href="' + gcal() + '" target="_blank" rel="noopener">Add to Google Calendar</a><a class="btn btn-ghost" href="' + wa + '" target="_blank" rel="noopener">WhatsApp us</a></div>';
+    try { localStorage.removeItem(STORE); } catch(e){}
+  }
+  if (qp.get('status') === 'success' && qp.get('session_id')) {
+    showDone(null);
+    fetch(API + '/api/booking/session?id=' + encodeURIComponent(qp.get('session_id')), { cache:'no-store' })
+      .then(function(r){ return r.json(); }).then(function(s){ if (s && !s.error && !s.demo) showDone(s); }).catch(function(){});
+    return;
+  }
+  if (qp.get('status') === 'cancelled') { $('topNote').textContent = 'Your payment wasn\'t completed, so nothing was charged. Your choices are saved below whenever you\'re ready.'; $('topNote').hidden = false; state.step = 4; }
+
+  /* ---------------- start ---------------- */
+  if (!state.others) state.others = [];
+  setGuests(Math.max(1, Math.min(state.guests || 1, MAXG)));
+  renderLead();
+  var startStep = (location.hash.match(/step-(\d)/) || [])[1];
+  goStep(Math.min(4, +(startStep || state.step || 1)), true);
+  loadAvail();
+  setInterval(function(){ if (!document.hidden && state.step <= 2) loadAvail(); }, 60000);
+})();
+</script>
+</body>
+</html>
