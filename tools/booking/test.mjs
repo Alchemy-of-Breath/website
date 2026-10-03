@@ -80,7 +80,8 @@ let r = await call(health, 'GET', '/api/booking/health');
 ok(r.status === 200 && r.data.stripe.startsWith('not connected'), 'health demo');
 ok(r.headers.get('Access-Control-Allow-Origin') === ORIGIN, 'CORS allows alchemyofbreath.com');
 r = await call(avail, 'GET', `/api/booking/availability?program=${P}`);
-ok(r.data.program_left === 17 && r.data.rooms['single-ensuite'].sold_out && r.data.rooms['twin-ensuite'].left === 10, 'demo availability');
+ok(r.data.program_left === 17 && r.data.rooms['single-ensuite'].sold_out && r.data.rooms['twin-ensuite'].left.female === 10, 'demo availability');
+ok(r.data.rooms['twin-shared-bath'].left.female === 2 && r.data.rooms['twin-shared-bath'].left.male === 2 && r.data.rooms['triple-ensuite'].left.male === 3, 'room with an unknown-gender occupant stays off sale');
 r = await call(checkout, 'POST', '/api/booking/checkout', { program: P, guests: [{ first: '' }], terms: false });
 ok(r.status === 422 && r.data.fields['guests.0.email'] && r.data.fields.whatsapp && r.data.fields.terms, 'validation errors');
 r = await call(checkout, 'POST', '/api/booking/checkout', booking([guest(1, 'twin-ensuite'), guest(2, 'twin-ensuite')]));
@@ -99,6 +100,12 @@ r = await call(checkout, 'POST', '/api/booking/checkout', booking([guest(1, 'twi
 ok(r.data.stripe_params.success_url.startsWith('https://website-5h3.pages.dev/book/'), 'foreign return_url replaced');
 r = await call(checkout, 'POST', '/api/booking/checkout', booking([guest(1, 'twin-ensuite', { gender: 'robot' })]));
 ok(r.status === 422 && r.data.fields['guests.0.gender'], 'gender must be one of the options');
+r = await call(checkout, 'POST', '/api/booking/checkout', booking([guest(1, 'twin-ensuite', { gender: 'Transgender' })]));
+ok(r.status === 422 && r.data.fields['guests.0.gender'], 'only Female / Male accepted');
+r = await call(checkout, 'POST', '/api/booking/checkout', booking([guest(1, 'triple-ensuite'), guest(2, 'triple-ensuite', { gender: 'Male' })]));
+ok(r.status === 409 && /enough free rooms/.test(r.data.error), 'a woman and a man cannot share the last free triple');
+r = await call(checkout, 'POST', '/api/booking/checkout', booking([guest(1, 'twin-ensuite'), guest(2, 'twin-ensuite', { gender: 'Male' })]));
+ok(r.data.demo && r.data.quote.total_cents === 281400, 'mixed group can book twin rooms (separate rooms)');
 
 /* ---------- live (mock Stripe) ---------- */
 r = await call(health, 'GET', '/api/booking/health', null, LIVE);
@@ -107,10 +114,10 @@ r = await call(checkout, 'POST', '/api/booking/checkout', booking([guest(1, 'twi
 ok(r.status === 200 && r.data.url && r.data.ref, 'live checkout opens Stripe');
 const ref1 = r.data.ref, cs1 = [...store.sessions.keys()].pop();
 r = await call(avail, 'GET', `/api/booking/availability?program=${P}`, null, LIVE);
-ok(r.data.rooms['twin-ensuite'].left === 8 && r.data.program_left === 15, 'open checkout holds places');
+ok(r.data.rooms['twin-ensuite'].left.female === 8 && r.data.program_left === 15, 'open checkout holds places');
 complete(cs1, { lagging: true }); // paid, but not yet in Stripe's search index
 r = await call(avail, 'GET', `/api/booking/availability?program=${P}`, null, LIVE);
-ok(r.data.rooms['twin-ensuite'].left === 8 && r.data.program_left === 15, 'paid booking counted while search lags');
+ok(r.data.rooms['twin-ensuite'].left.female === 8 && r.data.program_left === 15, 'paid booking counted while search lags');
 store.pis.forEach(pi => { pi._lagging = false; });
 r = await call(session, 'GET', `/api/booking/session?id=${cs1}`, null, LIVE);
 ok(r.data.ref === ref1 && r.data.paid && r.data.amount_paid_cents === 56280 && r.data.balance_cents === 225120 && r.data.first_name === 'Test1', 'session summary');
@@ -164,6 +171,18 @@ let wr = await webhook.onRequestPost({ request: new Request('https://x/api/booki
 ok(wr.status === 200 && store.ghl.length === 1 && store.ghl[0].ref === ref1 && store.ghl[0].phone === '+447700900123' && store.ghl[0].utm_source === 'facebook', 'webhook forwards booking to GHL');
 wr = await webhook.onRequestPost({ request: new Request('https://x/api/booking/webhook', { method: 'POST', body: evt, headers: { 'Stripe-Signature': `t=${t},v1=deadbeef` } }), env: LIVE });
 ok(wr.status === 400, 'bad signature rejected');
+
+// single-gender rooms: one woman books a twin, the other bed is now for a woman only
+r = await call(checkout, 'POST', '/api/booking/checkout', booking([guest(1, 'twin-shared-bath')]), LIVE);
+ok(r.status === 200, 'woman books twin with shared bathroom'); complete([...store.sessions.keys()].pop());
+r = await call(avail, 'GET', `/api/booking/availability?program=${P}`, null, LIVE);
+ok(r.data.rooms['twin-shared-bath'].left.female === 1 && r.data.rooms['twin-shared-bath'].left.male === 0, 'remaining bed is for women only');
+r = await call(checkout, 'POST', '/api/booking/checkout', booking([guest(9, 'twin-shared-bath', { gender: 'Male' })]), LIVE);
+ok(r.status === 409 && /no places left for men/.test(r.data.error), 'man refused for that room');
+r = await call(checkout, 'POST', '/api/booking/checkout', booking([guest(8, 'twin-shared-bath')]), LIVE);
+ok(r.status === 200, 'another woman can take the bed');
+r = await call(admin, 'GET', `/api/booking/admin?program=${P}`, null, LIVE, AUTH);
+ok(r.data.rooms.find(x => x.id === 'twin-shared-bath').capacity === 3 && r.data.availability.rooms['twin-shared-bath'].left.male === 0, 'admin shows per-gender availability');
 
 const evil = await checkout.onRequestOptions({ request: new Request('https://x/', { method: 'OPTIONS', headers: { Origin: 'https://evil.example' } }) });
 ok(!evil.headers.get('Access-Control-Allow-Origin'), 'CORS refuses other sites');

@@ -103,17 +103,85 @@ export function quote(program, input) {
   };
 }
 
+/* ---------------------------------------------------------- availability
+   Shared rooms are single-gender. Each shared room type lists its physical rooms ("units",
+   all with `sleeps` beds) and any beds already taken outside this system ("occupied", with the
+   occupant's gender; gender null = unknown, which keeps the rest of that room off sale until
+   someone sets it). An empty room can go to women or men; once a bed is taken, the other beds
+   in that room are only for the same gender. Rooms that sleep one have a simple `capacity`. */
+const gkey = g => { const k = String(g || '').toLowerCase(); return k === 'female' || k === 'male' ? k : 'other'; };
+export const isShared = r => !!r.same_gender && (r.sleeps || 1) > 1 && Number.isInteger(r.units);
+export const roomCapacity = r => isShared(r)
+  ? r.units * r.sleeps - (r.occupied || []).slice(0, r.units).reduce((s, o) => s + (o.beds || 0), 0)
+  : (r.capacity || 0);
+
+function sharedState(r, taken) {
+  const b = r.sleeps, units = [];
+  (r.occupied || []).slice(0, r.units).forEach(o => units.push({ g: o.gender ? gkey(o.gender) : 'blocked', free: Math.max(0, b - (o.beds || 0)) }));
+  while (units.length < r.units) units.push({ g: null, free: b });
+  const place = (g, n) => {
+    for (const u of units) if (n > 0 && u.g === g && u.free > 0) { const t = Math.min(n, u.free); u.free -= t; n -= t; }
+    for (const u of units) if (n > 0 && u.g === null) { u.g = g; const t = Math.min(n, u.free); u.free -= t; n -= t; }
+  };
+  place('female', taken.female || 0); place('male', taken.male || 0); place('other', taken.other || 0);
+  const partial = g => units.filter(u => u.g === g).reduce((s, u) => s + u.free, 0);
+  return { beds: b, empty_units: units.filter(u => u.g === null).length, partial: { female: partial('female'), male: partial('male') } };
+}
+
+/* Can `f` women and `m` men all be placed in this room type right now? */
+export function fits(a, f, m) {
+  if (!a) return false;
+  if (f + m > a.program_left) return false;
+  if (a.kind !== 'shared') return f + m <= a.left_any;
+  const needF = Math.max(0, f - a.partial.female), needM = Math.max(0, m - a.partial.male);
+  return Math.ceil(needF / a.beds) + Math.ceil(needM / a.beds) <= a.empty_units;
+}
+
+export function availability(program, occ = { booked: {}, holds: {} }) {
+  const sum = id => {
+    const a = occ.booked[id] || {}, h = occ.holds[id] || {};
+    return { female: (a.female || 0) + (h.female || 0), male: (a.male || 0) + (h.male || 0), other: (a.other || 0) + (h.other || 0) };
+  };
+  const t = {}; let used = 0;
+  for (const r of program.rooms) { t[r.id] = sum(r.id); used += t[r.id].female + t[r.id].male + t[r.id].other; }
+  const program_left = Math.max(0, program.program_spaces - used);
+  const rooms = {};
+  for (const r of program.rooms) {
+    const x = t[r.id], taken = x.female + x.male + x.other, capacity = roomCapacity(r);
+    if (isShared(r)) {
+      const st = sharedState(r, x);
+      const lf = Math.min(program_left, st.partial.female + st.empty_units * st.beds);
+      const lm = Math.min(program_left, st.partial.male + st.empty_units * st.beds);
+      rooms[r.id] = { kind: 'shared', capacity, taken, beds: st.beds, empty_units: st.empty_units, partial: st.partial,
+        left: { female: lf, male: lm }, left_any: Math.max(lf, lm), program_left, sold_out: Math.max(lf, lm) <= 0 };
+    } else {
+      const la = Math.min(program_left, Math.max(0, capacity - taken));
+      rooms[r.id] = { kind: 'simple', capacity, taken, left: { female: la, male: la }, left_any: la, program_left, sold_out: la <= 0 };
+    }
+  }
+  return { program_left, rooms };
+}
+
 export function checkAvailability(program, q, avail) {
   const n = q.guests.length;
   if (n > avail.program_left) return avail.program_left > 0
     ? `Only ${avail.program_left} ${avail.program_left === 1 ? 'place is' : 'places are'} left this week.`
     : 'This week is now fully booked.';
-  for (const [id, c] of Object.entries(q.counts)) {
-    const a = avail.rooms[id];
-    if (!a || a.left < c) {
-      const r = program.rooms.find(x => x.id === id);
-      return a && a.left > 0 ? `Only ${a.left} ${a.left === 1 ? 'place is' : 'places are'} left in ${r.name}.` : `${r.name} is sold out.`;
+  const by = {};
+  q.guests.forEach(g => { const c = by[g.room] || (by[g.room] = { female: 0, male: 0 }); c[gkey(g.gender) === 'male' ? 'male' : 'female']++; });
+  for (const [id, c] of Object.entries(by)) {
+    const a = avail.rooms[id], r = program.rooms.find(x => x.id === id);
+    if (fits(a, c.female, c.male)) continue;
+    if (!a || a.sold_out) return `${r.name} is sold out.`;
+    if (a.kind === 'shared') {
+      const who = c.female && !fits(a, c.female, 0) ? 'female' : (c.male && !fits(a, 0, c.male) ? 'male' : null);
+      if (who) {
+        const l = a.left[who], w = who === 'female' ? 'women' : 'men';
+        return l > 0 ? `${r.name} has only ${l} ${l === 1 ? 'place' : 'places'} left for ${w}.` : `${r.name} has no places left for ${w}.`;
+      }
+      return `${r.name} doesn't have enough free rooms for your group. Try splitting your group across room types.`;
     }
+    return `Only ${a.left_any} ${a.left_any === 1 ? 'place is' : 'places are'} left in ${r.name}.`;
   }
   return null;
 }
@@ -223,31 +291,30 @@ export async function programPayments(env, program) {
   return [...byPi.values()];
 }
 
-/* Places taken per room: paid bookings (not cancelled) + open checkouts holding places. */
+/* Places taken per room and gender: paid bookings (not cancelled) + open checkouts holding places. */
+function addGuests(into, md) {
+  let any = false;
+  for (let i = 1; i <= 12; i++) {
+    const v = md[`aob_g${i}`]; if (!v) continue;
+    any = true;
+    const parts = v.split(' | '), k = gkey(parts[2]), room = parts[3];
+    const c = into[room] || (into[room] = { female: 0, male: 0, other: 0 }); c[k]++;
+  }
+  if (!any) Object.entries(roomsFromString(md.aob_rooms)).forEach(([room, n]) => {
+    const c = into[room] || (into[room] = { female: 0, male: 0, other: 0 }); c.other += n;
+  });
+}
 export async function occupancy(env, program, payments) {
   const booked = {}, holds = {};
-  const add = (into, s) => Object.entries(roomsFromString(s)).forEach(([k, v]) => { into[k] = (into[k] || 0) + v; });
   for (const p of payments || await programPayments(env, program)) {
-    if (p.md.aob_kind === 'booking' && p.md.aob_status !== 'cancelled') add(booked, p.md.aob_rooms);
+    if (p.md.aob_kind === 'booking' && p.md.aob_status !== 'cancelled') addGuests(booked, p.md);
   }
   const open = await stripe(env, 'GET', '/checkout/sessions?' + qs({ status: 'open', limit: 100 }));
   for (const s of open.data) {
     const md = s.metadata || {};
-    if (md.aob_program === program.id && md.aob_kind === 'booking') add(holds, md.aob_rooms);
+    if (md.aob_program === program.id && md.aob_kind === 'booking') addGuests(holds, md);
   }
   return { booked, holds };
-}
-
-export function availability(program, occ = { booked: {}, holds: {} }) {
-  const rooms = {}; let used = 0;
-  for (const r of program.rooms) {
-    const taken = (occ.booked[r.id] || 0) + (occ.holds[r.id] || 0);
-    used += taken;
-    rooms[r.id] = { capacity: r.capacity, taken, left: Math.max(0, r.capacity - taken) };
-  }
-  const program_left = Math.max(0, program.program_spaces - used);
-  for (const id in rooms) { rooms[id].left = Math.min(rooms[id].left, program_left); rooms[id].sold_out = rooms[id].left <= 0; }
-  return { program_left, rooms };
 }
 
 /* Group a program's payments into bookings with paid / balance figures. */

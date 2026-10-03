@@ -30,9 +30,7 @@ export default {
   },
   "genders": [
    "Female",
-   "Male",
-   "Non-binary/non-conforming",
-   "Transgender"
+   "Male"
   ],
   "terms_url": "https://alchemyofbreath.com/terms-and-conditions/breathcamp/",
   "contact": {
@@ -45,7 +43,7 @@ export default {
    "system": "RetreatGuru",
    "program": "breathcamp-oct-25-oct-31-2026-accomodation-only",
    "snapshot": "2026-10-03",
-   "note": "Capacity below is the number of places RetreatGuru still offered on the snapshot date."
+   "note": "Shared rooms are single-gender. units = physical rooms still in play for this week; occupied = beds already taken outside this system (gender null = unknown: the rest of that room stays off sale until its gender is set). Built from RetreatGuru's remaining places on the snapshot date: Twin Ensuite 10 = 5 empty rooms; Twin Shared Bathroom 3 = 1 empty room + 1 room with 1 bed taken; Triple 5 = 1 empty room + 1 room with 1 bed taken; Twin Glamping 4 = 2 empty tents. Rooms that sleep one use capacity."
   },
   "rooms": [
    {
@@ -57,7 +55,6 @@ export default {
     "price": 1407,
     "unit": "person",
     "sleeps": 2,
-    "capacity": 10,
     "shared_with": "same gender",
     "summary": "Two single beds and a private bathroom shared by just the two of you.",
     "description": "With two single beds to a room, these rooms have a private bathroom that only the two people in the room share, with their own gender. This accommodation is rustic, unique, and cozy. Pricing is per person.",
@@ -68,7 +65,10 @@ export default {
      "twin-ensuite-4.jpg",
      "twin-ensuite-5.jpg"
     ],
-    "plan": "twin-ensuite-plan.jpg"
+    "plan": "twin-ensuite-plan.jpg",
+    "same_gender": true,
+    "units": 5,
+    "occupied": []
    },
    {
     "id": "twin-shared-bath",
@@ -79,7 +79,6 @@ export default {
     "price": 1171,
     "unit": "person",
     "sleeps": 2,
-    "capacity": 3,
     "shared_with": "same gender",
     "summary": "Two single beds in a newly renovated three-bedroom cottage with its own living room and kitchen.",
     "description": "Two single beds to a room, shared with the same gender, in a private cottage. The bathroom is shared between four people who may be of mixed gender. This beautiful three-bedroom cottage has its own living room and kitchen, and is newly renovated. Pricing is per person.",
@@ -89,7 +88,15 @@ export default {
      "twin-shared-bath-3.jpg",
      "twin-shared-bath-4.jpg"
     ],
-    "plan": "twin-shared-bath-plan.jpg"
+    "plan": "twin-shared-bath-plan.jpg",
+    "same_gender": true,
+    "units": 2,
+    "occupied": [
+     {
+      "gender": null,
+      "beds": 1
+     }
+    ]
    },
    {
     "id": "triple-ensuite",
@@ -100,7 +107,6 @@ export default {
     "price": 1107,
     "unit": "person",
     "sleeps": 3,
-    "capacity": 5,
     "shared_with": "same gender",
     "summary": "Three single beds with the room's own bathroom, in a cottage or the Main House.",
     "description": "Each room with three single beds has its own private bathroom. The beds are typically a metre apart, and the room is shared with the same gender. These rooms are in either a private cottage or the Main House. Pricing is per person.",
@@ -108,7 +114,15 @@ export default {
      "triple-ensuite-1.jpg",
      "triple-ensuite-2.jpg"
     ],
-    "plan": "triple-ensuite-plan.jpg"
+    "plan": "triple-ensuite-plan.jpg",
+    "same_gender": true,
+    "units": 2,
+    "occupied": [
+     {
+      "gender": null,
+      "beds": 1
+     }
+    ]
    },
    {
     "id": "glamping-single",
@@ -137,15 +151,17 @@ export default {
     "price": 1037,
     "unit": "person",
     "sleeps": 2,
-    "capacity": 4,
-    "shared_with": "one other guest",
+    "shared_with": "same gender",
     "summary": "A bell tent with two mattresses, shared by two people.",
     "description": "Guests love our bell tents. Twin tents are furnished with two mattresses and shared by two people. They are lovely, and so very close to nature. Toilets and showers are close to your tent. Please note: autumn weather in Tuscany can be variable. Pricing is per person.",
     "photos": [
      "glamping-twin-1.jpg",
      "glamping-twin-2.jpg",
      "glamping-twin-3.jpg"
-    ]
+    ],
+    "same_gender": true,
+    "units": 2,
+    "occupied": []
    },
    {
     "id": "camper",

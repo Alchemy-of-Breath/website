@@ -1,7 +1,7 @@
 // /api/booking/admin — bookings dashboard data and actions. Requires Authorization: Bearer <ADMIN_TOKEN>.
 import {
   json, preflight, adminAuthorized, getProgram, listPrograms, programSummary, programPayments, groupBookings,
-  occupancy, availability, validRef, findBooking, stripe, balanceCheckoutParams, safeReturnUrl,
+  occupancy, availability, validRef, findBooking, stripe, balanceCheckoutParams, safeReturnUrl, roomCapacity,
 } from '../../../booking-lib/core.js';
 export const onRequestOptions = ({ request }) => preflight(request);
 
@@ -17,7 +17,7 @@ export async function onRequestGet({ request, env }) {
     const active = bookings.filter(b => b.status !== 'cancelled');
     return json(request, {
       live: true, programs, program: programSummary(program), bookings,
-      rooms: program.rooms.map(r => ({ id: r.id, name: r.name, capacity: r.capacity, price: r.price })),
+      rooms: program.rooms.map(r => ({ id: r.id, name: r.name, capacity: roomCapacity(r), price: r.price, shared: !!r.same_gender })),
       availability: availability(program, occ), holds: occ.holds,
       totals: {
         bookings: active.length, guests: active.reduce((s, b) => s + b.guests.length, 0),

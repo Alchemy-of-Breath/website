@@ -10,6 +10,9 @@ Reads every booking/programs/<id>.json and:
      and the program list inside book/admin/index.html.
 
 Edit a JSON file (prices, capacity, photos, deposit…), run this, commit, push.
+Shared single-gender rooms use "same_gender": true, "units" (rooms still in play) and
+"occupied" (beds taken outside this system, e.g. [{"gender": "Female", "beds": 1}]).
+Rooms that sleep one use "capacity".
 To add a new week: copy a JSON file, change the id/dates/rooms, copy book/<id>/ to the new id,
 run this.
 """
@@ -29,10 +32,24 @@ def load():
         ids = [r['id'] for r in p['rooms']]
         if len(ids) != len(set(ids)):
             raise SystemExit(f"{p['id']}: duplicate room ids")
+        genders = {g.lower() for g in p['genders']}
         for r in p['rooms']:
-            for k in ('id', 'name', 'price', 'unit', 'sleeps', 'capacity', 'photos'):
+            for k in ('id', 'name', 'price', 'unit', 'sleeps', 'photos'):
                 if k not in r:
                     raise SystemExit(f"{p['id']}/{r.get('id')}: missing {k}")
+            if r.get('same_gender'):
+                # shared, single-gender rooms: physical rooms + beds already taken
+                if not isinstance(r.get('units'), int) or r['units'] < 0:
+                    raise SystemExit(f"{p['id']}/{r['id']}: same_gender rooms need units (number of rooms)")
+                for o in r.get('occupied', []):
+                    if o.get('gender') is not None and o['gender'].lower() not in genders:
+                        raise SystemExit(f"{p['id']}/{r['id']}: occupied gender must be one of {sorted(genders)} or null")
+                    if not 0 < o.get('beds', 0) <= r['sleeps']:
+                        raise SystemExit(f"{p['id']}/{r['id']}: occupied beds must be 1..{r['sleeps']}")
+                if len(r.get('occupied', [])) > r['units']:
+                    raise SystemExit(f"{p['id']}/{r['id']}: more occupied rooms than units")
+            elif not isinstance(r.get('capacity'), int):
+                raise SystemExit(f"{p['id']}/{r['id']}: missing capacity")
             if not isinstance(r['price'], int) or r['price'] < 0:
                 raise SystemExit(f"{p['id']}/{r['id']}: price must be whole euros")
         programs[p['id']] = p

@@ -172,9 +172,13 @@ code{font-size:.82rem;background:var(--gold-wash);padding:1px 6px;border-radius:
     $('stats').innerHTML = [['Bookings', t.bookings], ['Guests', t.guests], ['Paid so far', money(t.paid_cents)], ['Balance due', money(t.balance_cents)], ['Places left', av.program_left + ' of ' + d.program.program_spaces]]
       .map(function(s){ return '<div class="stat"><small>' + s[0] + '</small><b>' + s[1] + '</b></div>'; }).join('');
     var rooms = d.rooms || [];
-    $('rooms').innerHTML = '<tr><th>Room</th><th>Price</th><th>Capacity</th><th>Paid</th><th>In checkout</th><th>Left</th><th></th></tr>' + rooms.map(function(r){
-      var a = av.rooms[r.id] || {}, held = (d.holds || {})[r.id] || 0, paid = (a.taken || 0) - held, cap = r.capacity || 0;
-      return '<tr><td>' + esc(r.name) + '</td><td>€' + r.price.toLocaleString('en-GB') + '</td><td>' + cap + '</td><td>' + paid + '</td><td>' + held + '</td><td><b>' + (a.left != null ? a.left : '–') + '</b></td><td><div class="bar"><i style="width:' + (cap ? Math.min(100, paid / cap * 100) : 0) + '%"></i></div></td></tr>';
+    $('rooms').innerHTML = '<tr><th>Room</th><th>Price</th><th>Capacity</th><th>Paid</th><th>In checkout</th><th>Left for women</th><th>Left for men</th><th></th></tr>' + rooms.map(function(r){
+      var a = av.rooms[r.id] || {}, h = (d.holds || {})[r.id] || {}, held = typeof h === 'number' ? h : (h.female || 0) + (h.male || 0) + (h.other || 0);
+      var paid = Math.max(0, (a.taken || 0) - held), cap = r.capacity || 0, L = a.left || {};
+      var cell = function(v){ return '<td><b>' + (v != null ? v : '–') + '</b></td>'; };
+      return '<tr><td>' + esc(r.name) + (r.shared ? ' <span class="muted" style="font-size:.74rem">same-gender</span>' : '') + '</td><td>€' + r.price.toLocaleString('en-GB') + '</td><td>' + cap + '</td><td>' + paid + '</td><td>' + held + '</td>' +
+        (a.kind === 'shared' ? cell(L.female) + cell(L.male) : '<td colspan="2"><b>' + (a.left_any != null ? a.left_any : '–') + '</b> <span class="muted">(anyone)</span></td>') +
+        '<td><div class="bar"><i style="width:' + (cap ? Math.min(100, paid / cap * 100) : 0) + '%"></i></div></td></tr>';
     }).join('');
     renderList();
   }

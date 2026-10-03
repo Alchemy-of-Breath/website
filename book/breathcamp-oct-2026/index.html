@@ -394,7 +394,7 @@ footer a{color:var(--slate)}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
 
 /* v2: rooms first · name and price on the photo · whole card selects */
-.steps ol{grid-template-columns:repeat(3,1fr)}
+.steps ol{grid-template-columns:repeat(4,1fr)}
 .room.pickable{cursor:pointer}
 .room.pickable:hover{border-color:rgba(214,166,82,.7)}
 .ph-cap{position:absolute;left:0;right:0;bottom:0;z-index:1;display:flex;align-items:flex-end;justify-content:space-between;gap:12px;padding:60px 18px 16px;background:linear-gradient(180deg,rgba(18,15,16,0) 0%,rgba(18,15,16,.5) 42%,rgba(18,15,16,.86) 100%);color:#fff;pointer-events:none}
@@ -412,6 +412,25 @@ footer a{color:var(--slate)}
 .fol-cta:disabled{opacity:.45}
 .mbar .btn:disabled{opacity:.45;box-shadow:none}
 @media(max-width:420px){.room .ph-cap h3{font-size:1.12rem}.ph-cap .pp b{font-size:1.35rem}}
+
+/* v3: guests (gender) first · per-gender availability · per-guest rooms */
+.grows{display:grid;gap:12px;margin:0 0 6px}
+.grow{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding:14px 18px;border:1px solid var(--line);border-radius:14px;background:#fff;transition:border-color .2s,box-shadow .2s}
+.grow .who{margin:0}
+.grow .pills span{min-width:104px;text-align:center}
+.grow .err{display:none;width:100%;font-size:.8rem;color:#A33A1B}
+.grow.bad{border-color:#C9502A;box-shadow:0 0 0 3px rgba(201,80,42,.12)}
+.grow.bad .err{display:block}
+.badge.no{background:rgba(255,255,255,.95);color:#8A4B12}.badge.no::before{background:#C9502A}
+.assign{display:grid;gap:10px;margin:0 0 22px;padding:16px 18px;border:1px dashed var(--gold);border-radius:16px;background:var(--cream)}
+.assign[hidden]{display:none}
+.assign-h{margin:0 0 2px;font-family:var(--serif);font-size:1.05rem}
+.arow{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.arow .who{margin:0}
+.arow .who small{font-family:var(--sans);font-size:.78rem;color:var(--slate);margin-left:4px}
+.arow select{flex:1;min-width:220px;max-width:430px;border:1px solid rgba(34,31,32,.18);border-radius:12px;padding:11px 12px;background:#fff;font-size:.95rem}
+.rtag .edit{all:unset;cursor:pointer;color:var(--gold-text);font-size:.78rem;text-decoration:underline;margin-left:6px}
+@media(max-width:480px){.grow .pills{width:100%}.grow .pills label{flex:1}.grow .pills span{min-width:0;width:100%}}
 </style>
 </head>
 <body>
@@ -442,9 +461,10 @@ footer a{color:var(--slate)}
 
 <nav class="steps" id="steps" aria-label="Booking steps">
   <ol>
-    <li data-step="1"><button type="button"><span class="dot"><span>1</span></span><span class="lbl">Your room</span></button></li>
-    <li data-step="2"><button type="button"><span class="dot"><span>2</span></span><span class="lbl">Guest details</span></button></li>
-    <li data-step="3"><button type="button"><span class="dot"><span>3</span></span><span class="lbl">Review &amp; pay</span></button></li>
+    <li data-step="1"><button type="button"><span class="dot"><span>1</span></span><span class="lbl">Guests</span></button></li>
+    <li data-step="2"><button type="button"><span class="dot"><span>2</span></span><span class="lbl">Your room</span></button></li>
+    <li data-step="3"><button type="button"><span class="dot"><span>3</span></span><span class="lbl">Details</span></button></li>
+    <li data-step="4"><button type="button"><span class="dot"><span>4</span></span><span class="lbl">Review &amp; pay</span></button></li>
   </ol>
 </nav>
 
@@ -452,54 +472,63 @@ footer a{color:var(--slate)}
   <div class="bk-main">
     <div class="alert info" id="topNote" hidden></div>
 
-    <!-- STEP 1 · ROOM -->
+    <!-- STEP 1 · GUESTS -->
     <section class="step card" id="step1" aria-labelledby="h1s">
-      <h2 id="h1s">Choose where you'll <em>rest</em>.</h2>
-      <p class="sub" id="roomsSub"></p>
+      <h2 id="h1s">Who's <em>coming</em>?</h2>
+      <p class="sub">Shared rooms and tents at ASHA are for guests of the same gender, so we start with who's coming. Then we'll show you every room with space for your group.</p>
       <div class="alert" id="err1" role="alert" hidden></div>
       <div class="count">
         <div><h3>How many guests?</h3><p id="countHint"></p></div>
         <div class="stepper"><button type="button" id="gMinus" aria-label="One guest fewer">&minus;</button><output id="gCount" aria-live="polite">1 guest</output><button type="button" id="gPlus" aria-label="One guest more">+</button></div>
       </div>
+      <div class="grows" id="genderRows"></div>
+      <div class="actions"><span></span><button type="button" class="btn btn-primary" data-next="2">See available rooms <span class="arr">&rarr;</span></button></div>
+    </section>
+
+    <!-- STEP 2 · ROOM -->
+    <section class="step card" id="step2" aria-labelledby="h2s" hidden>
+      <h2 id="h2s">Choose where you'll <em>rest</em>.</h2>
+      <p class="sub" id="roomsSub"></p>
+      <div class="alert" id="err2" role="alert" hidden></div>
       <div class="filters" role="group" aria-label="Filter rooms" id="filters"></div>
       <div class="mixed-toggle" id="mixedRow" hidden>
         <label class="switch"><input type="checkbox" id="mixedToggle"><span class="tr"></span><span>Different rooms for different guests</span></label>
         <span id="placedNote" class="placed" aria-live="polite"></span>
       </div>
+      <div class="assign" id="assignBox" hidden></div>
       <div class="rooms" id="rooms"></div>
-      <p class="shared-note"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v5h1"/></svg><span>Shared rooms and tents are shared with guests of the same gender. Booking with a friend? Add them as a guest here, or tell us their name in the next step.</span></p>
-      <div class="actions"><span></span><button type="button" class="btn btn-primary" data-next="2">Continue to guest details <span class="arr">&rarr;</span></button></div>
+      <p class="shared-note"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v5h1"/></svg><span>Shared rooms and tents are single-gender. In a mixed group, everyone can still choose the same room type: each guest sleeps in a room with guests of their own gender.</span></p>
+      <div class="actions"><button type="button" class="back" data-back="1">&larr; Guests</button><button type="button" class="btn btn-primary" data-next="3">Continue to details <span class="arr">&rarr;</span></button></div>
     </section>
 
-    <!-- STEP 2 · DETAILS -->
-    <section class="step card" id="step2" aria-labelledby="h2s" hidden>
-      <h2 id="h2s">Guest <em>details</em>.</h2>
+    <!-- STEP 3 · DETAILS -->
+    <section class="step card" id="step3" aria-labelledby="h3s" hidden>
+      <h2 id="h3s">Guest <em>details</em>.</h2>
       <p class="sub" id="detailsSub"></p>
-      <div class="alert" id="err2" role="alert" hidden></div>
+      <div class="alert" id="err3" role="alert" hidden></div>
       <div class="gcard">
         <p class="who"><span class="n">1</span>You, the lead guest</p>
-        <p class="rtag" id="leadRoom"></p>
-        <div id="leadRoomSel"></div>
+        <p class="rtag" id="leadTag"></p>
         <div class="grid2" id="leadFields"></div>
       </div>
       <div id="guestCards"></div>
       <div class="f full" id="roommateField">
         <label for="roommate">Requested roommate <small>(optional)</small></label>
         <input id="roommate" type="text" maxlength="200" placeholder="Name of the friend you'd like to share with">
-        <span class="hint">Only if they booked separately. We'll do our best to put you together.</span>
+        <span class="hint">Only if they booked separately and are the same gender. We'll do our best to put you together.</span>
       </div>
-      <div class="actions"><button type="button" class="back" data-back="1">&larr; Your room</button><button type="button" class="btn btn-primary" data-next="3">Review your booking <span class="arr">&rarr;</span></button></div>
+      <div class="actions"><button type="button" class="back" data-back="2">&larr; Your room</button><button type="button" class="btn btn-primary" data-next="4">Review your booking <span class="arr">&rarr;</span></button></div>
     </section>
 
-    <!-- STEP 3 · REVIEW & PAY -->
-    <section class="step card" id="step3" aria-labelledby="h3s" hidden>
-      <h2 id="h3s">Review and <em>pay</em>.</h2>
+    <!-- STEP 4 · REVIEW & PAY -->
+    <section class="step card" id="step4" aria-labelledby="h4s" hidden>
+      <h2 id="h4s">Review and <em>pay</em>.</h2>
       <p class="sub">Check everything looks right, choose how you'd like to pay, and you'll go to Stripe's secure checkout.</p>
-      <div class="alert" id="err3" role="alert" hidden></div>
+      <div class="alert" id="err4" role="alert" hidden></div>
       <ul class="review" id="review"></ul>
       <div class="pay" role="radiogroup" aria-label="How would you like to pay?" id="payOpts"></div>
       <label class="terms" id="termsRow"><input type="checkbox" id="terms"><span>I agree to the <a id="termsLink" href="#" target="_blank" rel="noopener">BreathCamp terms and conditions</a>.</span></label>
-      <div class="actions"><button type="button" class="back" data-back="2">&larr; Guest details</button><button type="button" class="btn btn-primary" id="payBtn">Pay securely <span class="arr">&rarr;</span></button></div>
+      <div class="actions"><button type="button" class="back" data-back="3">&larr; Details</button><button type="button" class="btn btn-primary" id="payBtn">Pay securely <span class="arr">&rarr;</span></button></div>
       <p class="paynote"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>You'll pay on Stripe's secure checkout page: cards, Apple Pay and Google Pay. Your receipt and invoice arrive by email.</p>
     </section>
 
@@ -522,14 +551,14 @@ footer a{color:var(--slate)}
 
 <footer><p>Questions? <a id="footHelp" href="#" target="_blank" rel="noopener">Message us on WhatsApp</a> or email <a id="footMail" href="#"></a>. &middot; <a id="footTerms" href="#" target="_blank" rel="noopener">Terms</a> &middot; &copy; Alchemy of Breath &amp; ASHA</p></footer>
 
-<script type="application/json" id="programData">{"id":"breathcamp-oct-2026","title":"BreathCamp","edition":"BreathCamp 5","heading":"Choose your room and complete your booking","dates":{"start":"2026-10-25","end":"2026-10-31","nights":6,"label":"Sunday 25 – Saturday 31 October 2026","short":"25–31 Oct 2026","medium":"25–31 October 2026"},"venue":{"name":"ASHA Retreat Centre","address":"58034 Castell'Azzara, Province of Grosseto, Italy","region":"Tuscany","country":"IT"},"currency":"EUR","price_note":"Prices are per person for 6 nights' stay and all meals at ASHA. Your programme fee is paid separately.","program_spaces":17,"max_guests_per_booking":6,"booking_closes":"2026-10-24","deposit":{"percent":20,"balance_note":"The remaining balance is paid before you arrive at ASHA."},"genders":["Female","Male","Non-binary/non-conforming","Transgender"],"terms_url":"https://alchemyofbreath.com/terms-and-conditions/breathcamp/","contact":{"name":"Maria","email":"generalmanager@asha.global","whatsapp":"+393534527348"},"hero_image":"asha-campus.jpg","source":{"system":"RetreatGuru","program":"breathcamp-oct-25-oct-31-2026-accomodation-only","snapshot":"2026-10-03","note":"Capacity below is the number of places RetreatGuru still offered on the snapshot date."},"rooms":[{"id":"twin-ensuite","rg_id":5,"name":"Twin Room Ensuite","category":"shared","bath":"Ensuite","price":1407,"unit":"person","sleeps":2,"capacity":10,"shared_with":"same gender","summary":"Two single beds and a private bathroom shared by just the two of you.","description":"With two single beds to a room, these rooms have a private bathroom that only the two people in the room share, with their own gender. This accommodation is rustic, unique, and cozy. Pricing is per person.","photos":["twin-ensuite-1.jpg","twin-ensuite-2.jpg","twin-ensuite-3.jpg","twin-ensuite-4.jpg","twin-ensuite-5.jpg"],"plan":"twin-ensuite-plan.jpg"},{"id":"twin-shared-bath","rg_id":15,"name":"Twin Room, Shared Bathroom","category":"shared","bath":"Shared bathroom","price":1171,"unit":"person","sleeps":2,"capacity":3,"shared_with":"same gender","summary":"Two single beds in a newly renovated three-bedroom cottage with its own living room and kitchen.","description":"Two single beds to a room, shared with the same gender, in a private cottage. The bathroom is shared between four people who may be of mixed gender. This beautiful three-bedroom cottage has its own living room and kitchen, and is newly renovated. Pricing is per person.","photos":["twin-shared-bath-1.jpg","twin-shared-bath-2.jpg","twin-shared-bath-3.jpg","twin-shared-bath-4.jpg"],"plan":"twin-shared-bath-plan.jpg"},{"id":"triple-ensuite","rg_id":19,"name":"Shared Room for Three, Ensuite","category":"shared","bath":"Ensuite","price":1107,"unit":"person","sleeps":3,"capacity":5,"shared_with":"same gender","summary":"Three single beds with the room's own bathroom, in a cottage or the Main House.","description":"Each room with three single beds has its own private bathroom. The beds are typically a metre apart, and the room is shared with the same gender. These rooms are in either a private cottage or the Main House. Pricing is per person.","photos":["triple-ensuite-1.jpg","triple-ensuite-2.jpg"],"plan":"triple-ensuite-plan.jpg"},{"id":"glamping-single","rg_id":37,"name":"Single Glamping, ASHA Bell Tent","category":"glamping","bath":"Shared facilities","price":1161,"unit":"person","sleeps":1,"capacity":6,"summary":"Your own bell tent with a single mattress and a sitting area, close to nature.","description":"Guests love our bell tents. Single tents are furnished with a single mattress and a sitting area. They are lovely, and so very close to nature. Toilets and showers are close to your tent. Please note: autumn weather in Tuscany can be variable.","photos":["glamping-single-1.jpg","glamping-single-2.jpg","glamping-single-3.jpg"]},{"id":"glamping-twin","rg_id":44,"name":"Twin Glamping, ASHA Bell Tent","category":"glamping","bath":"Shared facilities","price":1037,"unit":"person","sleeps":2,"capacity":4,"shared_with":"one other guest","summary":"A bell tent with two mattresses, shared by two people.","description":"Guests love our bell tents. Twin tents are furnished with two mattresses and shared by two people. They are lovely, and so very close to nature. Toilets and showers are close to your tent. Please note: autumn weather in Tuscany can be variable. Pricing is per person.","photos":["glamping-twin-1.jpg","glamping-twin-2.jpg","glamping-twin-3.jpg"]},{"id":"camper","rg_id":23,"name":"Come in a Camper","category":"camping","bath":"Shared facilities","price":807,"unit":"person","sleeps":1,"capacity":1,"summary":"Bring your camper and enjoy full use of ASHA's facilities.","description":"Campers are welcome at ASHA. Space is limited, so we suggest booking as soon as you can: this is one of our most popular options. You're welcome to use all of our facilities. Would you like to bring a guest? Message us on WhatsApp.","photos":["camper-1.jpg"]},{"id":"own-tent","rg_id":25,"name":"Bring Your Own Tent","category":"camping","bath":"Shared facilities","price":761,"unit":"person","sleeps":1,"capacity":1,"summary":"Pitch your own tent in our secluded woods.","description":"Pitch your own tent in our secluded woods, with full use of our facilities. Be sure to bring your own tent, bedding, and anything else you may need. Please note: autumn weather in Tuscany can be variable.","photos":["own-tent-1.jpg","own-tent-2.jpg"]},{"id":"single-ensuite","rg_id":16,"name":"Private Single Room Ensuite","category":"private","bath":"Ensuite","price":1857,"unit":"person","sleeps":1,"capacity":0,"summary":"A private room with its own bathroom in the Main House.","description":"Enjoy a private room with its own bathroom in the Main House. It's perfect for one person, with its own single bed and a desk. In your own private oasis, rest, process, and be in your own space.","photos":["single-ensuite-1.jpg","single-ensuite-2.jpg","single-ensuite-3.jpg"],"plan":"single-ensuite-plan.jpg"},{"id":"cottage-one","rg_id":491,"name":"Private Cottage for One","category":"private","bath":"Private bathroom","price":2612,"unit":"person","sleeps":1,"capacity":0,"summary":"A cozy private cottage, all to yourself.","description":"Cozy private cottage accommodation for one person, offering comfort, privacy, and a peaceful stay.","photos":["cottage-one-1.jpg"]},{"id":"cottage-two","rg_id":18,"name":"Private Cottage for Two","category":"private","bath":"Private bathroom","price":5224,"unit":"cottage","sleeps":2,"capacity":0,"summary":"A two-room cottage facing an open field. The price covers both guests.","description":"A two-room cottage in a private house facing an open field, with a cozy living room, kitchen, private bathroom, and a double pull-out sofa bed. Ideal for couples, families, or anyone who wants space. The price is for the whole cottage and covers two guests.","photos":["cottage-two-1.jpg"]}]}</script><!-- /PROGRAM-DATA -->
+<script type="application/json" id="programData">{"id":"breathcamp-oct-2026","title":"BreathCamp","edition":"BreathCamp 5","heading":"Choose your room and complete your booking","dates":{"start":"2026-10-25","end":"2026-10-31","nights":6,"label":"Sunday 25 – Saturday 31 October 2026","short":"25–31 Oct 2026","medium":"25–31 October 2026"},"venue":{"name":"ASHA Retreat Centre","address":"58034 Castell'Azzara, Province of Grosseto, Italy","region":"Tuscany","country":"IT"},"currency":"EUR","price_note":"Prices are per person for 6 nights' stay and all meals at ASHA. Your programme fee is paid separately.","program_spaces":17,"max_guests_per_booking":6,"booking_closes":"2026-10-24","deposit":{"percent":20,"balance_note":"The remaining balance is paid before you arrive at ASHA."},"genders":["Female","Male"],"terms_url":"https://alchemyofbreath.com/terms-and-conditions/breathcamp/","contact":{"name":"Maria","email":"generalmanager@asha.global","whatsapp":"+393534527348"},"hero_image":"asha-campus.jpg","source":{"system":"RetreatGuru","program":"breathcamp-oct-25-oct-31-2026-accomodation-only","snapshot":"2026-10-03","note":"Shared rooms are single-gender. units = physical rooms still in play for this week; occupied = beds already taken outside this system (gender null = unknown: the rest of that room stays off sale until its gender is set). Built from RetreatGuru's remaining places on the snapshot date: Twin Ensuite 10 = 5 empty rooms; Twin Shared Bathroom 3 = 1 empty room + 1 room with 1 bed taken; Triple 5 = 1 empty room + 1 room with 1 bed taken; Twin Glamping 4 = 2 empty tents. Rooms that sleep one use capacity."},"rooms":[{"id":"twin-ensuite","rg_id":5,"name":"Twin Room Ensuite","category":"shared","bath":"Ensuite","price":1407,"unit":"person","sleeps":2,"shared_with":"same gender","summary":"Two single beds and a private bathroom shared by just the two of you.","description":"With two single beds to a room, these rooms have a private bathroom that only the two people in the room share, with their own gender. This accommodation is rustic, unique, and cozy. Pricing is per person.","photos":["twin-ensuite-1.jpg","twin-ensuite-2.jpg","twin-ensuite-3.jpg","twin-ensuite-4.jpg","twin-ensuite-5.jpg"],"plan":"twin-ensuite-plan.jpg","same_gender":true,"units":5,"occupied":[]},{"id":"twin-shared-bath","rg_id":15,"name":"Twin Room, Shared Bathroom","category":"shared","bath":"Shared bathroom","price":1171,"unit":"person","sleeps":2,"shared_with":"same gender","summary":"Two single beds in a newly renovated three-bedroom cottage with its own living room and kitchen.","description":"Two single beds to a room, shared with the same gender, in a private cottage. The bathroom is shared between four people who may be of mixed gender. This beautiful three-bedroom cottage has its own living room and kitchen, and is newly renovated. Pricing is per person.","photos":["twin-shared-bath-1.jpg","twin-shared-bath-2.jpg","twin-shared-bath-3.jpg","twin-shared-bath-4.jpg"],"plan":"twin-shared-bath-plan.jpg","same_gender":true,"units":2,"occupied":[{"gender":null,"beds":1}]},{"id":"triple-ensuite","rg_id":19,"name":"Shared Room for Three, Ensuite","category":"shared","bath":"Ensuite","price":1107,"unit":"person","sleeps":3,"shared_with":"same gender","summary":"Three single beds with the room's own bathroom, in a cottage or the Main House.","description":"Each room with three single beds has its own private bathroom. The beds are typically a metre apart, and the room is shared with the same gender. These rooms are in either a private cottage or the Main House. Pricing is per person.","photos":["triple-ensuite-1.jpg","triple-ensuite-2.jpg"],"plan":"triple-ensuite-plan.jpg","same_gender":true,"units":2,"occupied":[{"gender":null,"beds":1}]},{"id":"glamping-single","rg_id":37,"name":"Single Glamping, ASHA Bell Tent","category":"glamping","bath":"Shared facilities","price":1161,"unit":"person","sleeps":1,"capacity":6,"summary":"Your own bell tent with a single mattress and a sitting area, close to nature.","description":"Guests love our bell tents. Single tents are furnished with a single mattress and a sitting area. They are lovely, and so very close to nature. Toilets and showers are close to your tent. Please note: autumn weather in Tuscany can be variable.","photos":["glamping-single-1.jpg","glamping-single-2.jpg","glamping-single-3.jpg"]},{"id":"glamping-twin","rg_id":44,"name":"Twin Glamping, ASHA Bell Tent","category":"glamping","bath":"Shared facilities","price":1037,"unit":"person","sleeps":2,"shared_with":"same gender","summary":"A bell tent with two mattresses, shared by two people.","description":"Guests love our bell tents. Twin tents are furnished with two mattresses and shared by two people. They are lovely, and so very close to nature. Toilets and showers are close to your tent. Please note: autumn weather in Tuscany can be variable. Pricing is per person.","photos":["glamping-twin-1.jpg","glamping-twin-2.jpg","glamping-twin-3.jpg"],"same_gender":true,"units":2,"occupied":[]},{"id":"camper","rg_id":23,"name":"Come in a Camper","category":"camping","bath":"Shared facilities","price":807,"unit":"person","sleeps":1,"capacity":1,"summary":"Bring your camper and enjoy full use of ASHA's facilities.","description":"Campers are welcome at ASHA. Space is limited, so we suggest booking as soon as you can: this is one of our most popular options. You're welcome to use all of our facilities. Would you like to bring a guest? Message us on WhatsApp.","photos":["camper-1.jpg"]},{"id":"own-tent","rg_id":25,"name":"Bring Your Own Tent","category":"camping","bath":"Shared facilities","price":761,"unit":"person","sleeps":1,"capacity":1,"summary":"Pitch your own tent in our secluded woods.","description":"Pitch your own tent in our secluded woods, with full use of our facilities. Be sure to bring your own tent, bedding, and anything else you may need. Please note: autumn weather in Tuscany can be variable.","photos":["own-tent-1.jpg","own-tent-2.jpg"]},{"id":"single-ensuite","rg_id":16,"name":"Private Single Room Ensuite","category":"private","bath":"Ensuite","price":1857,"unit":"person","sleeps":1,"capacity":0,"summary":"A private room with its own bathroom in the Main House.","description":"Enjoy a private room with its own bathroom in the Main House. It's perfect for one person, with its own single bed and a desk. In your own private oasis, rest, process, and be in your own space.","photos":["single-ensuite-1.jpg","single-ensuite-2.jpg","single-ensuite-3.jpg"],"plan":"single-ensuite-plan.jpg"},{"id":"cottage-one","rg_id":491,"name":"Private Cottage for One","category":"private","bath":"Private bathroom","price":2612,"unit":"person","sleeps":1,"capacity":0,"summary":"A cozy private cottage, all to yourself.","description":"Cozy private cottage accommodation for one person, offering comfort, privacy, and a peaceful stay.","photos":["cottage-one-1.jpg"]},{"id":"cottage-two","rg_id":18,"name":"Private Cottage for Two","category":"private","bath":"Private bathroom","price":5224,"unit":"cottage","sleeps":2,"capacity":0,"summary":"A two-room cottage facing an open field. The price covers both guests.","description":"A two-room cottage in a private house facing an open field, with a cozy living room, kitchen, private bathroom, and a double pull-out sofa bed. Ideal for couples, families, or anyone who wants space. The price is for the whole cottage and covers two guests.","photos":["cottage-two-1.jpg"]}]}</script><!-- /PROGRAM-DATA -->
 <script>
 (function(){
   'use strict';
   var P = JSON.parse(document.getElementById('programData').textContent);
   var API = /(^|\.)website-5h3\.pages\.dev$/.test(location.hostname) ? '' : 'https://website-5h3.pages.dev';
   var IMG = /alchemyofbreath\.com$/.test(location.hostname) ? 'https://cdn.jsdelivr.net/gh/Alchemy-of-Breath/website@main/assets/booking/rooms/' : '/assets/booking/rooms/';
-  var STORE = 'aob_book_' + P.id, VERSION = 2;
+  var STORE = 'aob_book_' + P.id, VERSION = 3;
   var ROOMS = {}; P.rooms.forEach(function(r){ ROOMS[r.id] = r; });
   var MAXG = P.max_guests_per_booking || 6;
   var $ = function(id){ return document.getElementById(id); };
@@ -544,40 +573,65 @@ footer a{color:var(--slate)}
     ppl:'<svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M16 11a3 3 0 1 0 0-6M18 20c0-2.4-1-4.4-2.6-5.4"/></svg>',
     meal:'<svg viewBox="0 0 24 24"><path d="M7 3v8M5 3v4a2 2 0 0 0 4 0V3M7 11v10M17 21V3c-2 1-3 3.5-3 6s1 3 3 3"/></svg>'
   };
+  var gk = function(g){ return String(g || '').toLowerCase() === 'male' ? 'male' : String(g || '').toLowerCase() === 'female' ? 'female' : ''; };
+  var WORD = { female:'women', male:'men' };
 
   /* ---------------- state ---------------- */
   var blankGuest = function(){ return { first:'', last:'', email:'', gender:'' }; };
-  var state = { step:1, guests:1, lead:{ first:'', last:'', email:'', whatsapp:'', gender:'' }, others:[], mixed:false, room:null, assign:{}, guestRooms:[], roommate:'', payment:'deposit', terms:false, filter:'all' };
-  var avail = null, availLive = false;
+  var state = { step:1, guests:1, lead:{ first:'', last:'', email:'', whatsapp:'', gender:'' }, others:[], mixed:false, room:null, guestRooms:[], roommate:'', payment:'deposit', terms:false, filter:'all' };
   try { var saved = JSON.parse(localStorage.getItem(STORE) || 'null'); if (saved && saved.v === VERSION) { Object.assign(state, saved.s); state.terms = false; } } catch(e){}
   function save(){ try { localStorage.setItem(STORE, JSON.stringify({ v:VERSION, s: Object.assign({}, state, { terms:false }) })); } catch(e){} }
 
-  /* ---------------- availability ---------------- */
-  function progLeft(){ return avail ? avail.program_left : P.program_spaces; }
-  function left(id){
-    var r = ROOMS[id]; if (!r) return 0;
-    var a = avail && avail.rooms && avail.rooms[id];
-    return a ? a.left : Math.min(r.capacity, progLeft());
+  /* ---------------- availability (same rules as the server) ---------------- */
+  function isShared(r){ return !!r.same_gender && (r.sleeps || 1) > 1 && typeof r.units === 'number'; }
+  function capacityOf(r){ return isShared(r) ? r.units * r.sleeps - (r.occupied || []).slice(0, r.units).reduce(function(s, o){ return s + (o.beds || 0); }, 0) : (r.capacity || 0); }
+  function localAvail(){
+    var pl = P.program_spaces, rooms = {};
+    P.rooms.forEach(function(r){
+      if (isShared(r)) {
+        var units = [];
+        (r.occupied || []).slice(0, r.units).forEach(function(o){ units.push({ g: o.gender ? gk(o.gender) || 'blocked' : 'blocked', free: Math.max(0, r.sleeps - (o.beds || 0)) }); });
+        while (units.length < r.units) units.push({ g:null, free:r.sleeps });
+        var empty = units.filter(function(u){ return !u.g; }).length;
+        var part = function(g){ return units.filter(function(u){ return u.g === g; }).reduce(function(s, u){ return s + u.free; }, 0); };
+        var pf = part('female'), pm = part('male'), lf = Math.min(pl, pf + empty * r.sleeps), lm = Math.min(pl, pm + empty * r.sleeps);
+        rooms[r.id] = { kind:'shared', capacity:capacityOf(r), beds:r.sleeps, empty_units:empty, partial:{ female:pf, male:pm }, left:{ female:lf, male:lm }, left_any:Math.max(lf, lm), program_left:pl, sold_out:Math.max(lf, lm) <= 0 };
+      } else {
+        var la = Math.min(pl, capacityOf(r));
+        rooms[r.id] = { kind:'simple', capacity:capacityOf(r), left:{ female:la, male:la }, left_any:la, program_left:pl, sold_out:la <= 0 };
+      }
+    });
+    return { program_left:pl, rooms:rooms };
   }
+  var avail = localAvail(), availLive = false;
+  function fits(a, f, m){
+    if (!a || f + m > a.program_left) return false;
+    if (a.kind !== 'shared') return f + m <= a.left_any;
+    var nf = Math.max(0, f - a.partial.female), nm = Math.max(0, m - a.partial.male);
+    return Math.ceil(nf / a.beds) + Math.ceil(nm / a.beds) <= a.empty_units;
+  }
+  function progLeft(){ return avail.program_left; }
   function loadAvail(){
     return fetch(API + '/api/booking/availability?program=' + encodeURIComponent(P.id), { cache:'no-store' })
       .then(function(r){ return r.ok ? r.json() : null; })
-      .then(function(d){ if (d && d.rooms) { avail = d; availLive = !!d.live; } render(); })
+      .then(function(d){ if (d && d.rooms && d.rooms[P.rooms[0].id] && d.rooms[P.rooms[0].id].left) { avail = d; availLive = !!d.live; } render(); })
       .catch(function(){ render(); });
   }
 
-  /* ---------------- derived ---------------- */
+  /* ---------------- group ---------------- */
+  function people(){ return [state.lead].concat(state.others); }
+  function genders(){ return people().map(function(p){ return gk(p.gender); }); }
+  function gendersDone(){ return genders().every(function(g){ return !!g; }); }
+  function groupCount(list){ var c = { female:0, male:0 }; list.forEach(function(g){ if (g) c[g]++; }); return c; }
   function guestRoomList(){
     if (!state.mixed) return Array.from({ length: state.guests }, function(){ return state.room; });
-    return state.guestRooms.slice(0, state.guests);
+    var l = state.guestRooms.slice(0, state.guests); while (l.length < state.guests) l.push(null); return l;
   }
-  function syncGuestRooms(){
-    var need = Object.assign({}, state.assign), list = [];
-    state.guestRooms.slice(0, state.guests).forEach(function(rid){ if (need[rid] > 0) { list.push(rid); need[rid]--; } else list.push(null); });
-    while (list.length < state.guests) list.push(null);
-    state.guestRooms = list.map(function(rid){ if (rid) return rid; for (var k in need) { if (need[k] > 0) { need[k]--; return k; } } return null; });
+  function byRoom(){ // { roomId: {female, male} } for the current assignment
+    var out = {}, gs = genders();
+    guestRoomList().forEach(function(rid, i){ if (!rid) return; var c = out[rid] || (out[rid] = { female:0, male:0 }); if (gs[i]) c[gs[i]]++; });
+    return out;
   }
-  function assigned(){ var n = 0; for (var k in state.assign) n += state.assign[k]; return n; }
   function counts(){ var c = {}; guestRoomList().forEach(function(rid){ if (rid) c[rid] = (c[rid] || 0) + 1; }); return c; }
   function totals(){
     var c = counts(), lines = [], total = 0;
@@ -588,36 +642,21 @@ footer a{color:var(--slate)}
     var dep = Math.round(total * P.deposit.percent / 100), due = state.payment === 'full' ? total : dep;
     return { lines:lines, total:total, deposit:dep, due:due, balance: total - due };
   }
-  function roomsComplete(){ return state.mixed ? assigned() === state.guests : (!!state.room && left(state.room) >= state.guests); }
+  function roomsComplete(){
+    var br = byRoom();
+    if (guestRoomList().some(function(r){ return !r; })) return false;
+    return Object.keys(br).every(function(id){ return fits(avail.rooms[id], br[id].female, br[id].male); });
+  }
+  function groupFits(id){ var c = groupCount(genders()); return fits(avail.rooms[id], c.female, c.male); }
 
-  /* ---------------- fields ---------------- */
+  /* ---------------- shared helpers ---------------- */
   function field(id, label, opts){
     opts = opts || {};
     var hint = opts.hint ? '<span class="hint">' + opts.hint + '</span>' : '';
-    if (opts.pills) {
-      return '<div class="f full" id="f-' + id + '"><span class="lbl" id="l-' + id + '">' + label + '</span><div class="pills" role="radiogroup" aria-labelledby="l-' + id + '">' +
-        P.genders.map(function(g){ return '<label><input type="radio" name="' + id + '" value="' + esc(g) + '"' + (opts.value === g ? ' checked' : '') + '><span>' + esc(g) + '</span></label>'; }).join('') +
-        '</div><span class="err" id="e-' + id + '"></span></div>';
-    }
     return '<div class="f' + (opts.full ? ' full' : '') + '" id="f-' + id + '"><label for="' + id + '">' + label + '</label>' +
       '<input id="' + id + '" type="' + (opts.type || 'text') + '" value="' + esc(opts.value || '') + '"' + (opts.ac ? ' autocomplete="' + opts.ac + '"' : '') + (opts.ph ? ' placeholder="' + esc(opts.ph) + '"' : '') + (opts.im ? ' inputmode="' + opts.im + '"' : '') + ' maxlength="' + (opts.max || 80) + '" aria-describedby="e-' + id + '">' +
       hint + (opts.suggest ? '<button type="button" class="suggest" id="s-' + id + '" hidden></button>' : '') + '<span class="err" id="e-' + id + '" role="status"></span></div>';
   }
-  function renderLead(){
-    var L = state.lead;
-    $('leadFields').innerHTML =
-      field('g0-first', 'First name', { value:L.first, ac:'given-name' }) +
-      field('g0-last', 'Last name', { value:L.last, ac:'family-name' }) +
-      field('g0-email', 'Email', { value:L.email, type:'email', ac:'email', ph:'name@example.com', suggest:true, hint:'Your confirmation, receipt and invoice go here.' }) +
-      field('g0-whatsapp', 'WhatsApp number', { value:L.whatsapp, type:'tel', ac:'tel', im:'tel', ph:'+44 7700 900123', hint:'Include the country code. We use it for arrival details.', max:32 }) +
-      field('g0-gender', 'Gender <small>(for room sharing)</small>', { pills:true, value:L.gender });
-    ['first','last','email','whatsapp'].forEach(function(k){
-      var el = $('g0-' + k);
-      el.addEventListener('input', function(){ state.lead[k] = el.value; clearErr('g0-' + k); if (k === 'email') emailSuggest('g0-email'); save(); });
-    });
-    document.querySelectorAll('input[name="g0-gender"]').forEach(function(r){ r.addEventListener('change', function(){ state.lead.gender = r.value; clearErr('g0-gender'); save(); }); });
-  }
-
   var DOMAINS = ['gmail.com','hotmail.com','yahoo.com','outlook.com','icloud.com','live.com','me.com','aol.com','proton.me','protonmail.com','gmx.com','web.de','hotmail.co.uk','yahoo.co.uk'];
   function lev(a,b){ var m = []; for (var i=0;i<=a.length;i++){ m[i]=[i]; for (var j=1;j<=b.length;j++) m[i][j] = i===0 ? j : Math.min(m[i-1][j]+1, m[i][j-1]+1, m[i-1][j-1]+(a[i-1]===b[j-1]?0:1)); } return m[a.length][b.length]; }
   function emailSuggest(id){
@@ -633,7 +672,7 @@ footer a{color:var(--slate)}
   function showAlert(n, msg){ var a = $('err' + n); if (!a) return; if (msg) { a.textContent = msg; a.hidden = false; } else a.hidden = true; }
   var EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
-  /* ---------------- step 1 · rooms ---------------- */
+  /* ---------------- step 1 · guests ---------------- */
   function renderCount(){
     var maxG = Math.max(1, Math.min(MAXG, progLeft()));
     if (state.guests > maxG) { setGuests(maxG); return; }
@@ -641,22 +680,63 @@ footer a{color:var(--slate)}
     $('gMinus').disabled = state.guests <= 1; $('gPlus').disabled = state.guests >= maxG;
     $('countHint').textContent = 'Up to ' + MAXG + ' per booking · ' + progLeft() + ' ' + (progLeft() === 1 ? 'place' : 'places') + ' left this week';
   }
+  function renderGenderRows(){
+    $('genderRows').innerHTML = people().map(function(p, i){
+      var id = 'g' + i + '-gender';
+      return '<div class="grow" id="f-' + id + '"><span class="who"><span class="n">' + (i + 1) + '</span>' + (i ? 'Guest ' + (i + 1) : 'You') + '</span>' +
+        '<div class="pills" role="radiogroup" aria-label="Gender of ' + (i ? 'guest ' + (i + 1) : 'you') + '">' +
+        P.genders.map(function(g){ return '<label><input type="radio" name="' + id + '" value="' + esc(g) + '"' + (p.gender === g ? ' checked' : '') + '><span>' + esc(g) + '</span></label>'; }).join('') +
+        '</div><span class="err" id="e-' + id + '"></span></div>';
+    }).join('');
+    people().forEach(function(p, i){
+      document.querySelectorAll('input[name="g' + i + '-gender"]').forEach(function(r){
+        r.addEventListener('change', function(){ p.gender = r.value; clearErr('g' + i + '-gender'); showAlert(1, ''); tidyRooms(); save(); renderRooms(); renderFolio(); });
+      });
+    });
+  }
   function setGuests(n){
     state.guests = n;
     while (state.others.length < n - 1) state.others.push(blankGuest());
     state.others = state.others.slice(0, Math.max(0, n - 1));
-    if (state.mixed) {
-      var over = assigned() - n;
-      Object.keys(state.assign).reverse().forEach(function(k){ while (over > 0 && state.assign[k] > 0) { state.assign[k]--; over--; } if (!state.assign[k]) delete state.assign[k]; });
-      syncGuestRooms();
-      if (n === 1) { var only = Object.keys(state.assign)[0]; state.mixed = false; state.room = only || state.room; state.assign = {}; }
-    }
-    save(); render();
+    state.guestRooms = state.guestRooms.slice(0, n);
+    if (n === 1 && state.mixed) { state.mixed = false; state.room = state.guestRooms[0] || state.room; }
+    tidyRooms(); save(); render();
   }
+  function tidyRooms(){
+    // drop choices that no longer fit after a change of guests or genders
+    if (!state.mixed && state.room && gendersDone() && !groupFits(state.room)) state.room = null;
+    if (state.mixed) { var gs = genders(); state.guestRooms = state.guestRooms.map(function(rid, i){ return rid && gs[i] && avail.rooms[rid] && avail.rooms[rid].left[gs[i]] > 0 ? rid : null; }); }
+  }
+  function validateGuests(){
+    var ok = true;
+    people().forEach(function(p, i){ if (!gk(p.gender)) { setErr('g' + i + '-gender', 'Please choose.'); ok = false; } });
+    showAlert(1, ok ? '' : 'Please choose Female or Male for ' + (state.guests === 1 ? 'yourself' : 'each guest') + ', so we can show the rooms with space for you.');
+    return ok;
+  }
+
+  /* ---------------- step 2 · room ---------------- */
   function renderFilters(){
     var cats = ['all'].concat(Object.keys(CATS).filter(function(c){ return P.rooms.some(function(r){ return r.category === c; }); }));
     $('filters').innerHTML = cats.map(function(c){ return '<button type="button" data-f="' + c + '" aria-pressed="' + (state.filter === c) + '">' + FILTER[c] + '</button>'; }).join('');
     $('filters').querySelectorAll('button').forEach(function(b){ b.onclick = function(){ state.filter = b.getAttribute('data-f'); save(); renderFilters(); renderRooms(); }; });
+  }
+  function placesLabel(n, who){ return who ? (n <= 3 ? 'Only ' + n + ' left for ' + who : n + ' places for ' + who) : (n <= 3 ? 'Only ' + n + ' left' : n + ' places left'); }
+  function cardInfo(r){
+    var a = avail.rooms[r.id], c = groupCount(genders());
+    if (!a || a.sold_out) return { st:'out', badge:'Sold out' };
+    if (state.mixed || !gendersDone()) {
+      if (a.kind !== 'shared') return { st:'info', badge: placesLabel(a.left_any), low: a.left_any <= 3 };
+      return { st:'info', badge: a.left.female === a.left.male ? placesLabel(a.left.female) : a.left.female + ' for women · ' + a.left.male + ' for men', low: a.left_any <= 3 };
+    }
+    if (fits(a, c.female, c.male)) {
+      if (a.kind !== 'shared') return { st:'ok', badge: placesLabel(a.left_any), low: a.left_any <= 3 };
+      if (!c.male) return { st:'ok', badge: placesLabel(a.left.female, 'women'), low: a.left.female <= 3 };
+      if (!c.female) return { st:'ok', badge: placesLabel(a.left.male, 'men'), low: a.left.male <= 3 };
+      return { st:'ok', badge:'Room for your group' };
+    }
+    if (a.kind === 'shared' && c.female && !c.male && a.left.female === 0) return { st:'no', badge:'Full for women' };
+    if (a.kind === 'shared' && c.male && !c.female && a.left.male === 0) return { st:'no', badge:'Full for men' };
+    return { st:'no', badge:'Not enough space for your group' };
   }
   function photosHtml(r, captionHtml, overlays){
     var figs = r.photos.map(function(p, i){ return '<figure><img src="' + IMG + p + '" alt="' + esc(r.name) + ', photo ' + (i + 1) + '" loading="lazy" decoding="async" width="1100" height="733"></figure>'; });
@@ -665,57 +745,63 @@ footer a{color:var(--slate)}
     return '<div class="ph' + (n > 1 ? ' has-dots' : '') + '"><div class="ph-track" tabindex="0" aria-label="Photos of ' + esc(r.name) + '">' + figs.join('') + '</div>' + overlays + captionHtml +
       (n > 1 ? '<button type="button" class="ph-nav prev" aria-label="Previous photo"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><button type="button" class="ph-nav next" aria-label="Next photo"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button><div class="ph-dots">' + Array.from({ length:n }, function(_, i){ return '<i' + (i ? '' : ' class="on"') + '></i>'; }).join('') + '</div>' : '') + '</div>';
   }
+  function renderAssign(){
+    var box = $('assignBox');
+    box.hidden = !state.mixed;
+    if (!state.mixed) { box.innerHTML = ''; return; }
+    var gs = genders(), list = guestRoomList();
+    box.innerHTML = '<p class="assign-h">Choose a room for each guest</p>' + people().map(function(p, i){
+      var g = gs[i];
+      var opts = P.rooms.filter(function(r){ var a = avail.rooms[r.id]; return a && g && a.left[g] > 0; })
+        .map(function(r){ return '<option value="' + r.id + '"' + (list[i] === r.id ? ' selected' : '') + '>' + esc(r.name) + ' · ' + money(r.price * 100) + '</option>'; }).join('');
+      return '<div class="arow"><span class="who"><span class="n">' + (i + 1) + '</span>' + (i ? 'Guest ' + (i + 1) : 'You') + ' <small>' + esc(p.gender || '') + '</small></span>' +
+        '<select data-gr="' + i + '" aria-label="Room for ' + (i ? 'guest ' + (i + 1) : 'you') + '"><option value="">Choose a room…</option>' + opts + '</select></div>';
+    }).join('');
+    box.querySelectorAll('[data-gr]').forEach(function(s){ s.onchange = function(){ state.guestRooms[+s.getAttribute('data-gr')] = s.value || null; showAlert(2, ''); save(); renderRooms(); renderFolio(); }; });
+  }
   function renderRooms(){
-    var list = P.rooms.slice().sort(function(a, b){ return (left(a.id) <= 0) - (left(b.id) <= 0); })
-      .filter(function(r){ return state.filter === 'all' || r.category === state.filter; });
+    var order = { ok:0, info:1, no:2, out:3 };
+    var list = P.rooms.map(function(r){ return { r:r, i:cardInfo(r) }; })
+      .filter(function(x){ return state.filter === 'all' || x.r.category === state.filter; })
+      .sort(function(a, b){ return order[a.i.st] - order[b.i.st]; });
     var nights = P.dates.nights;
-    $('rooms').innerHTML = list.map(function(r){
-      var l = left(r.id), out = l <= 0, sel = state.mixed ? (state.assign[r.id] > 0) : state.room === r.id;
-      var fits = l >= state.guests, pickable = !out && !state.mixed && fits;
-      var badge = out ? '<span class="badge out">Sold out</span>' : '<span class="badge' + (l <= 3 ? ' low' : '') + '">' + (l <= 3 ? 'Only ' + l + ' left' : l + ' places left') + '</span>';
+    $('rooms').innerHTML = list.map(function(x){
+      var r = x.r, info = x.i, chosen = state.mixed ? guestRoomList().indexOf(r.id) >= 0 : state.room === r.id;
+      var pickable = !state.mixed && info.st === 'ok';
+      var badge = '<span class="badge' + (info.st === 'out' ? ' out' : info.st === 'no' ? ' no' : info.low ? ' low' : '') + '">' + esc(info.badge) + '</span>';
       var caption = '<div class="ph-cap"><h3>' + esc(r.name) + '</h3><p class="pp"><b>' + money(r.price * 100) + '</b><small>' + (r.unit === 'person' ? 'per person' : 'for 2 guests') + ' · ' + nights + ' nights</small></p></div>';
-      var facts = '<li>' + ICON.bed + 'Sleeps ' + r.sleeps + '</li><li>' + ICON.bath + esc(r.bath) + '</li>' + (r.shared_with ? '<li>' + ICON.ppl + 'Shared with ' + esc(r.shared_with) + '</li>' : '') + '<li>' + ICON.meal + 'All meals</li>';
-      var action;
-      if (out) action = '<button type="button" class="pick" disabled>Sold out</button>';
-      else if (state.mixed) {
-        var c = state.assign[r.id] || 0;
-        action = '<div class="ctr" role="group" aria-label="Guests in ' + esc(r.name) + '"><button type="button" data-dec="' + r.id + '" aria-label="One guest fewer here"' + (c <= 0 ? ' disabled' : '') + '>&minus;</button><output>' + c + (c === 1 ? ' guest' : ' guests') + '</output><button type="button" data-inc="' + r.id + '" aria-label="One guest more here"' + (c >= l || assigned() >= state.guests ? ' disabled' : '') + '>+</button></div>';
-      } else {
-        action = '<button type="button" class="pick" data-pick="' + r.id + '"' + (fits ? '' : ' disabled') + ' aria-pressed="' + sel + '">' + (sel ? 'Selected &#10003;' : 'Choose this room') + '</button>';
-      }
+      var facts = '<li>' + ICON.bed + 'Sleeps ' + r.sleeps + '</li><li>' + ICON.bath + esc(r.bath) + '</li>' + (r.same_gender ? '<li>' + ICON.ppl + 'Same-gender sharing</li>' : '') + '<li>' + ICON.meal + 'All meals</li>';
+      var action = '';
+      if (info.st === 'out') action = '<button type="button" class="pick" disabled>Sold out</button>';
+      else if (!state.mixed) action = info.st === 'ok'
+        ? '<button type="button" class="pick" data-pick="' + r.id + '" aria-pressed="' + chosen + '">' + (chosen ? 'Selected &#10003;' : 'Choose this room') + '</button>'
+        : '<button type="button" class="pick" disabled>Not available</button>';
       var perNight = r.unit === 'person' ? 'About ' + money(Math.round(r.price / nights) * 100) + ' a night, meals included' : 'Whole cottage for two, meals included';
-      return '<article class="room' + (sel ? ' sel' : '') + (out ? ' out' : '') + (pickable ? ' pickable' : '') + '" data-room="' + r.id + '">' +
+      return '<article class="room' + (chosen ? ' sel' : '') + (info.st === 'out' || info.st === 'no' ? ' out' : '') + (pickable ? ' pickable' : '') + '" data-room="' + r.id + '">' +
         photosHtml(r, caption, badge + '<span class="check" aria-hidden="true"></span>') +
         '<div class="rb"><p class="rk">' + esc(CATS[r.category] || '') + ' · ' + esc(r.bath) + '</p><p class="rs">' + esc(r.summary) + '</p><ul class="facts">' + facts + '</ul>' +
         '<button type="button" class="more" aria-expanded="false">More about this room</button><p class="desc" hidden>' + esc(r.description) + '</p>' +
-        (!out && !state.mixed && !fits ? '<p class="limit">Only ' + l + ' ' + (l === 1 ? 'place' : 'places') + ' left here: choose fewer guests, or turn on "different rooms".</p>' : '') +
         '<div class="rf"><span class="pn">' + perNight + '</span>' + action + '</div></div></article>';
     }).join('') || '<p class="fol-empty">No rooms in this category.</p>';
     bindRooms();
-    $('roomsSub').textContent = state.guests === 1
-      ? 'Tap a room to choose it. Prices include ' + nights + ' nights and all meals, and availability updates live.'
-      : 'Choose one room type for all ' + state.guests + ' guests, or turn on "different rooms" to split your group. Prices include ' + nights + ' nights and all meals.';
+    var c = groupCount(genders()), who = !gendersDone() ? '' : (c.female && c.male ? c.female + (c.female === 1 ? ' woman' : ' women') + ' and ' + c.male + (c.male === 1 ? ' man' : ' men') : c.female ? (c.female === 1 ? '1 woman' : c.female + ' women') : (c.male === 1 ? '1 man' : c.male + ' men'));
+    $('roomsSub').textContent = (who ? 'Showing availability for ' + who + '. ' : '') + (state.guests === 1
+      ? 'Tap a room to choose it. Prices include ' + nights + ' nights and all meals.'
+      : 'Choose one room type for your whole group, or turn on "different rooms" to choose per guest. Prices include ' + nights + ' nights and all meals.');
     $('mixedRow').hidden = state.guests < 2;
     $('mixedToggle').checked = state.mixed;
-    var a = assigned();
-    $('placedNote').textContent = state.mixed ? (a === state.guests ? 'All ' + state.guests + ' guests placed' : a + ' of ' + state.guests + ' guests placed') : '';
-    $('placedNote').classList.toggle('okk', state.mixed && a === state.guests);
+    var placed = guestRoomList().filter(function(r){ return !!r; }).length;
+    $('placedNote').textContent = state.mixed ? (placed === state.guests ? 'All ' + state.guests + ' guests placed' : placed + ' of ' + state.guests + ' guests placed') : '';
+    $('placedNote').classList.toggle('okk', state.mixed && placed === state.guests);
+    renderAssign();
   }
-  function pickRoom(id){
-    if (left(id) < state.guests) { showAlert(1, ROOMS[id].name + ' only has ' + left(id) + ' ' + (left(id) === 1 ? 'place' : 'places') + ' left. Choose fewer guests, or turn on "different rooms".'); return; }
-    state.room = id; showAlert(1, ''); save(); render();
-  }
+  function pickRoom(id){ if (!groupFits(id)) return; state.room = id; showAlert(2, ''); save(); renderRooms(); renderFolio(); }
   function bindRooms(){
     var root = $('rooms');
     root.querySelectorAll('[data-pick]').forEach(function(b){ b.onclick = function(e){ e.stopPropagation(); pickRoom(b.getAttribute('data-pick')); }; });
     root.querySelectorAll('.room.pickable').forEach(function(card){
-      card.addEventListener('click', function(e){
-        if (e.target.closest('button, a, input, select, .ctr')) return;
-        pickRoom(card.getAttribute('data-room'));
-      });
+      card.addEventListener('click', function(e){ if (e.target.closest('button, a, input, select')) return; pickRoom(card.getAttribute('data-room')); });
     });
-    root.querySelectorAll('[data-inc]').forEach(function(b){ b.onclick = function(){ var id = b.getAttribute('data-inc'); state.assign[id] = (state.assign[id] || 0) + 1; syncGuestRooms(); showAlert(1, ''); save(); render(); }; });
-    root.querySelectorAll('[data-dec]').forEach(function(b){ b.onclick = function(){ var id = b.getAttribute('data-dec'); state.assign[id] = Math.max(0, (state.assign[id] || 0) - 1); if (!state.assign[id]) delete state.assign[id]; syncGuestRooms(); save(); render(); }; });
     root.querySelectorAll('.more').forEach(function(b){ b.onclick = function(){ var d = b.nextElementSibling, open = d.hidden; d.hidden = !open; b.setAttribute('aria-expanded', open); b.textContent = open ? 'Show less' : 'More about this room'; }; });
     root.querySelectorAll('.ph').forEach(function(ph){
       var tr = ph.querySelector('.ph-track'), dots = ph.querySelectorAll('.ph-dots i');
@@ -729,51 +815,61 @@ footer a{color:var(--slate)}
   }
   $('mixedToggle').addEventListener('change', function(e){
     state.mixed = e.target.checked;
-    if (state.mixed) { state.assign = {}; if (state.room && left(state.room) > 0) state.assign[state.room] = Math.min(state.guests, left(state.room)); state.guestRooms = []; syncGuestRooms(); }
-    else { var ks = Object.keys(state.assign); state.room = ks.length === 1 ? ks[0] : (state.room || null); state.assign = {}; }
-    save(); render();
+    if (state.mixed) { var gs = genders(); state.guestRooms = people().map(function(_, i){ var a = state.room && avail.rooms[state.room]; return a && gs[i] && a.left[gs[i]] > 0 ? state.room : null; }); }
+    else { var uniq = guestRoomList().filter(function(r, i, a){ return r && a.indexOf(r) === i; }); state.room = uniq.length === 1 && groupFits(uniq[0]) ? uniq[0] : null; }
+    showAlert(2, ''); save(); renderRooms(); renderFolio();
   });
   function validateRooms(){
-    if (state.mixed) {
-      var a = assigned();
-      if (a !== state.guests) { showAlert(1, a < state.guests ? 'Place ' + (state.guests - a) + ' more ' + (state.guests - a === 1 ? 'guest' : 'guests') + ' in a room to continue.' : 'You have placed more guests than are in your booking.'); return false; }
-      for (var k in state.assign) if (state.assign[k] > left(k)) { showAlert(1, ROOMS[k].name + ' only has ' + left(k) + ' places left.'); return false; }
-      showAlert(1, ''); return true;
+    var list = guestRoomList();
+    if (!state.mixed && !state.room) { showAlert(2, 'Choose a room to continue: tap any available room.'); return false; }
+    if (state.mixed && list.some(function(r){ return !r; })) { var miss = list.filter(function(r){ return !r; }).length; showAlert(2, 'Choose a room for ' + miss + ' more ' + (miss === 1 ? 'guest' : 'guests') + ' in the list above.'); return false; }
+    var br = byRoom();
+    for (var id in br) if (!fits(avail.rooms[id], br[id].female, br[id].male)) {
+      var a = avail.rooms[id], f = br[id].female, m = br[id].male, nm = ROOMS[id].name, msg;
+      if (a && a.kind === 'shared' && f && !fits(a, f, 0)) msg = nm + ' has ' + (a.left.female ? 'only ' + a.left.female + ' ' + (a.left.female === 1 ? 'place' : 'places') : 'no places') + ' left for women.';
+      else if (a && a.kind === 'shared' && m && !fits(a, 0, m)) msg = nm + ' has ' + (a.left.male ? 'only ' + a.left.male + ' ' + (a.left.male === 1 ? 'place' : 'places') : 'no places') + ' left for men.';
+      else msg = nm + ' doesn\'t have enough space for your group. Try "different rooms".';
+      showAlert(2, msg); return false;
     }
-    if (!state.room) { showAlert(1, 'Choose a room to continue: tap any room card above.'); return false; }
-    if (left(state.room) < state.guests) { showAlert(1, ROOMS[state.room].name + ' only has ' + left(state.room) + ' places left.'); return false; }
-    showAlert(1, ''); return true;
+    if (state.guests > progLeft()) { showAlert(2, 'Only ' + progLeft() + ' places are left this week.'); return false; }
+    showAlert(2, ''); return true;
   }
 
-  /* ---------------- step 2 · details ---------------- */
-  function roomSelect(i, cur, opts){
-    return '<div class="f" style="margin:-4px 0 16px;max-width:360px"><label for="gr' + i + '">Sleeps in</label><select id="gr' + i + '" data-guestroom="' + i + '">' +
-      opts.map(function(o){ return '<option value="' + o + '"' + (o === cur ? ' selected' : '') + '>' + esc(ROOMS[o].name) + '</option>'; }).join('') + '</select></div>';
+  /* ---------------- step 3 · details ---------------- */
+  function renderLead(){
+    var L = state.lead;
+    $('leadFields').innerHTML =
+      field('g0-first', 'First name', { value:L.first, ac:'given-name' }) +
+      field('g0-last', 'Last name', { value:L.last, ac:'family-name' }) +
+      field('g0-email', 'Email', { value:L.email, type:'email', ac:'email', ph:'name@example.com', suggest:true, hint:'Your confirmation, receipt and invoice go here.' }) +
+      field('g0-whatsapp', 'WhatsApp number', { value:L.whatsapp, type:'tel', ac:'tel', im:'tel', ph:'+44 7700 900123', hint:'Include the country code. We use it for arrival details.', max:32 });
+    ['first','last','email','whatsapp'].forEach(function(k){
+      var el = $('g0-' + k);
+      el.addEventListener('input', function(){ state.lead[k] = el.value; clearErr('g0-' + k); if (k === 'email') emailSuggest('g0-email'); save(); });
+    });
   }
-  function renderGuests(){
-    var rooms = guestRoomList(), opts = state.mixed ? Object.keys(state.assign) : [];
-    var shared = rooms.some(function(id){ return id && ROOMS[id] && ROOMS[id].category !== 'private' && ROOMS[id].sleeps > 1; });
+  function tagHtml(i){
+    var rid = guestRoomList()[i], p = people()[i];
+    return ICON.bed.replace('<svg', '<svg width="15" height="15" style="stroke:#D6A652;fill:none;stroke-width:1.6"') + esc(p.gender || '') + (rid ? ' · ' + esc(ROOMS[rid].name) : '') + ' <button type="button" class="edit" data-go="1">Change</button>';
+  }
+  function renderDetails(){
+    var rooms = guestRoomList();
+    var shared = rooms.some(function(id){ return id && ROOMS[id] && ROOMS[id].same_gender; });
     $('roommateField').hidden = !shared;
     $('roommate').value = state.roommate;
     $('detailsSub').textContent = state.guests === 1 ? 'Tell us who you are. We\'ll send your confirmation and arrival details here.' : 'Your details first, then each guest\'s, so we can send everyone arrival information and allocate beds.';
-    var tag = function(id){ return id ? ICON.bed.replace('<svg', '<svg width="15" height="15" style="stroke:#D6A652;fill:none;stroke-width:1.6"') + esc(ROOMS[id].name) : ''; };
-    $('leadRoom').innerHTML = tag(rooms[0]);
-    $('leadRoomSel').innerHTML = state.mixed && opts.length > 1 ? roomSelect(0, rooms[0], opts) : '';
-    var html = '';
-    state.others.forEach(function(g, i){
+    $('leadTag').innerHTML = tagHtml(0);
+    $('guestCards').innerHTML = state.others.map(function(g, i){
       var n = i + 1, id = 'g' + n;
-      html += '<div class="gcard"><p class="who"><span class="n">' + (n + 1) + '</span>Guest ' + (n + 1) + '</p>' +
-        (state.mixed && opts.length > 1 ? roomSelect(n, rooms[n], opts) : '<p class="rtag">' + tag(rooms[n]) + '</p>') +
+      return '<div class="gcard"><p class="who"><span class="n">' + (n + 1) + '</span>Guest ' + (n + 1) + '</p><p class="rtag">' + tagHtml(n) + '</p>' +
         '<div class="grid2">' + field(id + '-first', 'First name', { value:g.first }) + field(id + '-last', 'Last name', { value:g.last }) +
-        field(id + '-email', 'Email', { value:g.email, type:'email', ph:'name@example.com', suggest:true, full:true }) + field(id + '-gender', 'Gender', { pills:true, value:g.gender }) + '</div></div>';
-    });
-    $('guestCards').innerHTML = html;
+        field(id + '-email', 'Email', { value:g.email, type:'email', ph:'name@example.com', suggest:true, full:true }) + '</div></div>';
+    }).join('');
     state.others.forEach(function(g, i){
       var id = 'g' + (i + 1);
       ['first','last','email'].forEach(function(k){ var el = $(id + '-' + k); el.addEventListener('input', function(){ g[k] = el.value; clearErr(id + '-' + k); if (k === 'email') emailSuggest(id + '-email'); save(); }); });
-      document.querySelectorAll('input[name="' + id + '-gender"]').forEach(function(r){ r.addEventListener('change', function(){ g.gender = r.value; clearErr(id + '-gender'); save(); }); });
     });
-    document.querySelectorAll('[data-guestroom]').forEach(function(s){ s.addEventListener('change', function(){ state.guestRooms[+s.getAttribute('data-guestroom')] = s.value; showAlert(2, ''); save(); renderFolio(); renderGuests(); }); });
+    document.querySelectorAll('#step3 [data-go]').forEach(function(b){ b.onclick = function(){ goStep(+b.getAttribute('data-go')); }; });
   }
   $('roommate').addEventListener('input', function(e){ state.roommate = e.target.value; save(); });
   function validateDetails(){
@@ -782,31 +878,23 @@ footer a{color:var(--slate)}
     if (!L.last.trim()) { setErr('g0-last', 'Please add your last name.'); ok = false; }
     if (!EMAIL.test(L.email.trim())) { setErr('g0-email', 'Please add a valid email address.'); ok = false; }
     if (!/^\+\d{7,15}$/.test(L.whatsapp.replace(/[\s().-]/g, ''))) { setErr('g0-whatsapp', 'Add your number with the country code, starting with +.'); ok = false; }
-    if (!L.gender) { setErr('g0-gender', 'Please choose an option.'); ok = false; }
     state.others.forEach(function(g, i){
       var id = 'g' + (i + 1);
       if (!g.first.trim()) { setErr(id + '-first', 'Please add a first name.'); ok = false; }
       if (!g.last.trim()) { setErr(id + '-last', 'Please add a last name.'); ok = false; }
       if (!EMAIL.test(g.email.trim())) { setErr(id + '-email', 'Please add a valid email.'); ok = false; }
-      if (!g.gender) { setErr(id + '-gender', 'Please choose an option.'); ok = false; }
     });
-    var mismatch = '';
-    if (state.mixed) {
-      var c = counts();
-      for (var k in state.assign) if ((c[k] || 0) !== state.assign[k]) { mismatch = ROOMS[k].name + ' has ' + state.assign[k] + ' ' + (state.assign[k] === 1 ? 'place' : 'places') + ' booked but ' + (c[k] || 0) + ' assigned. Check who sleeps where.'; break; }
-    }
-    showAlert(2, mismatch || (ok ? '' : 'A few details need your attention.'));
-    return ok && !mismatch;
+    showAlert(3, ok ? '' : 'A few details need your attention.');
+    return ok;
   }
 
-  /* ---------------- step 3 · review & pay ---------------- */
+  /* ---------------- step 4 · review & pay ---------------- */
   function renderReview(){
     var t = totals(), rooms = guestRoomList();
-    var people = [{ n:(state.lead.first + ' ' + state.lead.last).trim(), r:rooms[0] }].concat(state.others.map(function(g, i){ return { n:(g.first + ' ' + g.last).trim(), r:rooms[i + 1] }; }));
     $('review').innerHTML =
       '<li><span class="k">Dates</span><span class="v">' + esc(P.dates.label) + ' · ' + P.dates.nights + ' nights</span></li>' +
-      '<li><span class="k">Accommodation</span><span class="v">' + t.lines.map(function(l){ return esc(l.name) + ' × ' + l.n; }).join(', ') + '<button type="button" class="edit" data-go="1">Change</button></span></li>' +
-      people.map(function(p, i){ return '<li><span class="k">' + (i ? 'Guest ' + (i + 1) : 'Lead guest') + '</span><span class="v">' + esc(p.n || '—') + (state.mixed ? ' · ' + esc(p.r ? ROOMS[p.r].name : '') : '') + '<button type="button" class="edit" data-go="2">Edit</button></span></li>'; }).join('') +
+      '<li><span class="k">Accommodation</span><span class="v">' + t.lines.map(function(l){ return esc(l.name) + ' × ' + l.n; }).join(', ') + '<button type="button" class="edit" data-go="2">Change</button></span></li>' +
+      people().map(function(p, i){ return '<li><span class="k">' + (i ? 'Guest ' + (i + 1) : 'Lead guest') + '</span><span class="v">' + esc((p.first + ' ' + p.last).trim() || '—') + ' · ' + esc(p.gender) + (state.mixed && rooms[i] ? ' · ' + esc(ROOMS[rooms[i]].name) : '') + '<button type="button" class="edit" data-go="3">Edit</button></span></li>'; }).join('') +
       '<li><span class="k">Contact</span><span class="v">' + esc(state.lead.email) + ' · ' + esc(state.lead.whatsapp) + '</span></li>' +
       (state.roommate ? '<li><span class="k">Roommate request</span><span class="v">' + esc(state.roommate) + '</span></li>' : '');
     $('review').querySelectorAll('[data-go]').forEach(function(b){ b.onclick = function(){ goStep(+b.getAttribute('data-go')); }; });
@@ -818,16 +906,16 @@ footer a{color:var(--slate)}
     payLabel();
   }
   function payLabel(){ $('payBtn').innerHTML = 'Pay ' + money(totals().due) + ' securely <span class="arr">&rarr;</span>'; }
-  $('terms').addEventListener('change', function(e){ state.terms = e.target.checked; $('termsRow').classList.remove('bad'); showAlert(3, ''); });
+  $('terms').addEventListener('change', function(e){ state.terms = e.target.checked; $('termsRow').classList.remove('bad'); showAlert(4, ''); });
 
   function pay(){
-    if (!validateRooms()) return goStep(1, false, true);
-    if (!validateDetails()) return goStep(2, false, true);
-    if (!state.terms) { $('termsRow').classList.add('bad'); showAlert(3, 'Please agree to the terms and conditions to continue.'); return; }
-    showAlert(3, '');
+    if (!validateGuests()) return goStep(1, false, true);
+    if (!validateRooms()) return goStep(2, false, true);
+    if (!validateDetails()) return goStep(3, false, true);
+    if (!state.terms) { $('termsRow').classList.add('bad'); showAlert(4, 'Please agree to the terms and conditions to continue.'); return; }
+    showAlert(4, '');
     var rooms = guestRoomList();
-    var guests = [{ first:state.lead.first, last:state.lead.last, email:state.lead.email, gender:state.lead.gender, room:rooms[0] }]
-      .concat(state.others.map(function(g, i){ return { first:g.first, last:g.last, email:g.email, gender:g.gender, room:rooms[i + 1] }; }));
+    var guests = people().map(function(p, i){ return { first:p.first, last:p.last, email:p.email, gender:p.gender, room:rooms[i] }; });
     var utm = {}; try { utm = (JSON.parse(localStorage.getItem('aob_utm') || 'null') || {}).p || {}; } catch(e){}
     var body = { program:P.id, payment:state.payment, guests:guests, whatsapp:state.lead.whatsapp, roommate:state.roommate, terms:true,
       return_url: location.origin + location.pathname, page: location.origin + location.pathname, utm: utm };
@@ -842,22 +930,24 @@ footer a{color:var(--slate)}
         if (d.url) { save(); location.href = d.url; return; }
         restore();
         if (d.demo) return demo(d);
-        if (res.s === 409) { avail = d.availability || avail; render(); showAlert(1, d.error + ' Please choose again.'); return goStep(1); }
+        if (res.s === 409) { if (d.availability && d.availability.rooms) avail = d.availability; tidyRooms(); render(); goStep(2); showAlert(2, d.error + ' Please choose again.'); return; }
         if (d.fields) mapServerErrors(d.fields);
-        showAlert(3, d.error || 'Something went wrong. Please try again.');
+        showAlert(4, d.error || 'Something went wrong. Please try again.');
       })
-      .catch(function(){ restore(); showAlert(3, 'We could not reach the booking system. Check your connection and try again, or message us on WhatsApp.'); });
+      .catch(function(){ restore(); showAlert(4, 'We could not reach the booking system. Check your connection and try again, or message us on WhatsApp.'); });
   }
   function mapServerErrors(fields){
-    var keys = Object.keys(fields), toDetails = keys.some(function(k){ return /^guests\.\d+\.(first|last|email|gender)$/.test(k) || k === 'whatsapp'; });
-    if (toDetails) goStep(2);
+    var keys = Object.keys(fields);
+    var toGuests = keys.some(function(k){ return /^guests\.\d+\.gender$/.test(k); });
+    var toDetails = keys.some(function(k){ return /^guests\.\d+\.(first|last|email)$/.test(k) || k === 'whatsapp'; });
+    if (toGuests) goStep(1); else if (toDetails) goStep(3);
     keys.forEach(function(k){
       var m = k.match(/^guests\.(\d+)\.(\w+)$/);
       if (m) { if (m[2] !== 'room') setErr('g' + m[1] + '-' + m[2], fields[k]); }
       else if (k === 'whatsapp') setErr('g0-whatsapp', fields[k]);
       else if (k === 'terms') $('termsRow').classList.add('bad');
     });
-    if (toDetails) showAlert(2, 'A few details need your attention.');
+    if (toGuests) showAlert(1, 'Please check the highlighted guests.'); else if (toDetails) showAlert(3, 'A few details need your attention.');
   }
   function demo(d){
     var q = d.quote;
@@ -869,41 +959,41 @@ footer a{color:var(--slate)}
   $('payBtn').onclick = pay;
 
   /* ---------------- summary ---------------- */
-  function ctaLabel(){
-    if (state.step === 1) return 'Continue to guest details <span class="arr">&rarr;</span>';
-    if (state.step === 2) return 'Review your booking <span class="arr">&rarr;</span>';
-    return 'Pay ' + money(totals().due) + ' securely <span class="arr">&rarr;</span>';
-  }
+  var CTA = { 1:'See available rooms', 2:'Continue to details', 3:'Review your booking' };
+  function ctaLabel(){ return (state.step === 4 ? 'Pay ' + money(totals().due) + ' securely' : CTA[state.step]) + ' <span class="arr">&rarr;</span>'; }
   function folioHtml(){
-    var t = totals(), sel = guestRoomList()[0], img = sel ? ROOMS[sel].photos[0] : P.hero_image;
+    var t = totals(), sel = guestRoomList().filter(Boolean)[0], img = sel ? ROOMS[sel].photos[0] : P.hero_image;
+    var c = groupCount(genders());
     var lines = t.lines.length ? t.lines.map(function(l){
       return '<div class="fol-line"><span class="k"><b>' + esc(l.name) + '</b><small>' + l.n + ' ' + (l.n === 1 ? 'guest' : 'guests') + (l.unit === 'person' ? ' × ' + money(l.per) : '') + '</small></span><span>' + money(l.amt) + '</span></div>';
-    }).join('') : '<p class="fol-empty">Tap a room to see your total.</p>';
+    }).join('') : '<p class="fol-empty">' + (state.step === 1 ? 'Tell us who\'s coming to see your rooms.' : 'Tap a room to see your total.') + '</p>';
+    var gtxt = gendersDone() ? (c.female ? c.female + (c.female === 1 ? ' woman' : ' women') : '') + (c.female && c.male ? ', ' : '') + (c.male ? c.male + (c.male === 1 ? ' man' : ' men') : '') : state.guests;
     return '<div class="fol-top" style="background-image:url(\'' + IMG + img + '\')"><p><small>' + esc(P.edition) + ' · ' + esc(P.venue.region) + '</small>' + esc(P.dates.medium || P.dates.label) + '</p></div>' +
       '<div class="fol-b"><div class="fol-row"><span class="k">Stay</span><span class="v">' + P.dates.nights + ' nights · all meals</span></div>' +
-      '<div class="fol-row"><span class="k">Guests</span><span class="v">' + state.guests + '</span></div><div class="fol-lines">' + lines + '</div>' +
+      '<div class="fol-row"><span class="k">Guests</span><span class="v">' + gtxt + '</span></div><div class="fol-lines">' + lines + '</div>' +
       '<div class="perf"><i></i><i></i></div>' +
       '<div class="fol-total"><span class="k">Total</span><span class="v">' + money(t.total) + '</span></div>' +
       '<div class="fol-due"><span class="k">' + (state.payment === 'full' ? 'Due today' : 'Due today · ' + P.deposit.percent + '%') + '</span><span class="v">' + money(t.total ? t.due : 0) + '</span></div>' +
       (t.total && t.balance ? '<p class="fol-bal">Then ' + money(t.balance) + ' before you arrive</p>' : '') +
-      '<button type="button" class="btn btn-primary fol-cta" data-fcta' + (state.step === 1 && !roomsComplete() ? ' disabled' : '') + '>' + ctaLabel() + '</button>' +
+      '<button type="button" class="btn btn-primary fol-cta" data-fcta' + (state.step === 2 && !roomsComplete() ? ' disabled' : '') + '>' + ctaLabel() + '</button>' +
       '<div class="trust"><span><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Secure payment by Stripe</span><span><svg viewBox="0 0 24 24"><path d="M4 12l5 5L20 6"/></svg>Receipt and invoice by email</span><span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>' + (availLive ? 'Live availability' : 'Availability as of ' + esc(P.source.snapshot)) + '</span></div></div>';
   }
-  function primary(){ if (state.step === 3) pay(); else goStep(state.step + 1); }
+  function primary(){ if (state.step === 4) pay(); else goStep(state.step + 1); }
   function renderFolio(){
     var h = folioHtml(); $('folio').innerHTML = h; $('folioSheet').innerHTML = h;
     document.querySelectorAll('[data-fcta]').forEach(function(b){ b.onclick = function(){ if ($('sheet').classList.contains('open')) $('sumBtn').click(); primary(); }; });
     var t = totals();
     $('mbarAmt').textContent = money(t.total ? t.due : 0);
-    $('mbarLbl').textContent = t.total ? (state.payment === 'full' ? 'Due today' : 'Due today · ' + P.deposit.percent + '%') : 'Tap a room';
-    $('mbarNext').innerHTML = state.step === 3 ? 'Pay ' + money(t.due) + ' <span class="arr">&rarr;</span>' : 'Continue <span class="arr">&rarr;</span>';
-    $('mbarNext').disabled = state.step === 1 && !roomsComplete();
+    $('mbarLbl').textContent = t.total ? (state.payment === 'full' ? 'Due today' : 'Due today · ' + P.deposit.percent + '%') : (state.step === 1 ? 'Who\'s coming?' : 'Tap a room');
+    $('mbarNext').innerHTML = state.step === 4 ? 'Pay ' + money(t.due) + ' <span class="arr">&rarr;</span>' : (state.step === 1 ? 'See rooms' : 'Continue') + ' <span class="arr">&rarr;</span>';
+    $('mbarNext').disabled = state.step === 2 && !roomsComplete();
   }
 
   /* ---------------- steps ---------------- */
   function validateUpTo(n){
-    if (n > 1 && !validateRooms()) return 1;
-    if (n > 2 && !validateDetails()) return 2;
+    if (n > 1 && !validateGuests()) return 1;
+    if (n > 2 && !validateRooms()) return 2;
+    if (n > 3 && !validateDetails()) return 3;
     return n;
   }
   function goStep(n, noScroll, showErrs){
@@ -911,11 +1001,11 @@ footer a{color:var(--slate)}
     if (n > state.step || (n > 1 && noScroll)) n = validateUpTo(n);
     var redirected = want !== n;
     state.step = n; save();
-    for (var i = 1; i <= 3; i++) $('step' + i).hidden = i !== n;
-    // re-render first, then re-apply any validation messages so redrawn fields keep them
-    if (n === 1 && (redirected || showErrs)) validateRooms();
-    if (n === 2) { renderGuests(); if (redirected || showErrs) validateDetails(); }
-    if (n === 3) renderReview();
+    for (var i = 1; i <= 4; i++) $('step' + i).hidden = i !== n;
+    if (n === 1 && (redirected || showErrs)) validateGuests();
+    if (n === 2) { tidyRooms(); renderRooms(); if (redirected || showErrs) validateRooms(); }
+    if (n === 3) { renderDetails(); if (redirected || showErrs) validateDetails(); }
+    if (n === 4) renderReview();
     renderSteps(); renderFolio();
     try { history.replaceState(null, '', location.pathname + location.search + '#step-' + n); } catch(e){}
     if (!noScroll) {
@@ -943,9 +1033,9 @@ footer a{color:var(--slate)}
 
   function render(){
     $('placesLeft').textContent = progLeft();
-    renderCount(); renderFilters(); renderRooms(); renderFolio();
-    if (state.step === 2) renderGuests();
-    if (state.step === 3) renderReview();
+    renderCount(); renderGenderRows(); renderFilters(); renderRooms(); renderFolio();
+    if (state.step === 3) renderDetails();
+    if (state.step === 4) renderReview();
   }
 
   /* ---------------- static text ---------------- */
@@ -969,7 +1059,7 @@ footer a{color:var(--slate)}
   function showDone(s){
     ['hero','steps'].forEach(function(id){ $(id).hidden = true; });
     document.querySelector('.folio').hidden = true; $('mbar').hidden = true;
-    for (var i = 1; i <= 3; i++) $('step' + i).hidden = true;
+    for (var i = 1; i <= 4; i++) $('step' + i).hidden = true;
     $('bk').style.gridTemplateColumns = '1fr'; $('done').hidden = false;
     var paid = s && s.amount_paid_cents, bal = s && s.balance_cents;
     var name = s && s.first_name ? ', ' + esc(s.first_name) : '';
@@ -989,16 +1079,18 @@ footer a{color:var(--slate)}
       .then(function(r){ return r.json(); }).then(function(s){ if (s && !s.error && !s.demo) showDone(s); }).catch(function(){});
     return;
   }
-  if (qp.get('status') === 'cancelled') { $('topNote').textContent = 'Your payment wasn\'t completed, so nothing was charged. Your choices are saved whenever you\'re ready.'; $('topNote').hidden = false; state.step = 3; }
+  if (qp.get('status') === 'cancelled') { $('topNote').textContent = 'Your payment wasn\'t completed, so nothing was charged. Your choices are saved whenever you\'re ready.'; $('topNote').hidden = false; state.step = 4; }
 
   /* ---------------- start ---------------- */
   if (!Array.isArray(state.others)) state.others = [];
+  if (P.genders.indexOf(state.lead.gender) < 0) state.lead.gender = '';
+  state.others.forEach(function(g){ if (P.genders.indexOf(g.gender) < 0) g.gender = ''; });
   setGuests(Math.max(1, Math.min(state.guests || 1, MAXG)));
   renderLead();
   var startStep = +((location.hash.match(/step-(\d)/) || [])[1] || state.step || 1);
-  goStep(Math.max(1, Math.min(3, startStep)), true);
+  goStep(Math.max(1, Math.min(4, startStep)), true);
   loadAvail();
-  setInterval(function(){ if (!document.hidden && state.step === 1) loadAvail(); }, 60000);
+  setInterval(function(){ if (!document.hidden && state.step <= 2) loadAvail(); }, 60000);
 })();
 </script>
 </body>
