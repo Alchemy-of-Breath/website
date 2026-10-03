@@ -2,7 +2,7 @@
   "id": "breathcamp-oct-2026",
   "title": "BreathCamp",
   "edition": "BreathCamp 5",
-  "heading": "Choose your room and complete your booking",
+  "heading": "Book your place and choose your room",
   "dates": {
     "start": "2026-10-25",
     "end": "2026-10-31",
@@ -18,20 +18,27 @@
     "country": "IT"
   },
   "currency": "EUR",
-  "price_note": "Prices are per person for 6 nights' stay and all meals at ASHA. Your programme fee is paid separately.",
+  "programme": {
+    "fee": 888,
+    "name": "Programme fee",
+    "summary": "Every workshop, class and evening session with Amy, Anthony and senior trainers, daily yoga and course materials, plus the whole of ASHA: the pool, the creeks, the Dharma Den, Nadi Shala and Prana Shala.",
+    "about": "Paid per guest at booking, in full, alongside the room deposit. Guests who already paid it elsewhere (GHL or RetreatGuru) can book their room only with ?programme=paid; those bookings are flagged in the dashboard to check."
+  },
+  "price_note": "One programme fee of €888 per person covers every workshop, class and evening session. Rooms are priced per person for 6 nights with all meals at ASHA.",
   "program_spaces": 17,
   "max_guests_per_booking": 6,
   "booking_closes": "2026-10-24",
   "deposit": {
     "percent": 20,
-    "balance_note": "The remaining balance is paid before you arrive at ASHA."
+    "applies_to": "accommodation",
+    "balance_note": "The rest of your accommodation is paid before you arrive at ASHA."
   },
   "payment_plan": {
     "installments": 3,
     "interval": "month",
-    "last_payment_by": null,
+    "last_payment_by": "before_arrival",
     "note": "Charged automatically to the same card each month.",
-    "about": "Set last_payment_by (YYYY-MM-DD) to require the final payment by that date; the plan is then hidden when there is not enough time left."
+    "about": "last_payment_by: \"before_arrival\" (the day before the start date), a YYYY-MM-DD date, or null for no limit. The plan is only offered while every payment falls on or before that day."
   },
   "genders": [
     "Female",
@@ -46,7 +53,7 @@
   "hero_image": "asha-campus.jpg",
   "source": {
     "system": "RetreatGuru",
-    "program": "breathcamp-oct-25-oct-31-2026-accomodation-only",
+    "program": "breathcamp-program + breathcamp-oct-25-oct-31-2026-accomodation-only",
     "snapshot": "2026-10-03",
     "note": "Shared rooms are single-gender. units = physical rooms still in play for this week; occupied = beds already taken outside this system (gender null = unknown: the rest of that room stays off sale until its gender is set). Built from RetreatGuru's remaining places on the snapshot date: Twin Ensuite 10 = 5 empty rooms; Twin Shared Bathroom 3 = 1 empty room + 1 room with 1 bed taken; Triple 5 = 1 empty room + 1 room with 1 bed taken; Twin Glamping 4 = 2 empty tents. Rooms that sleep one use capacity."
   },

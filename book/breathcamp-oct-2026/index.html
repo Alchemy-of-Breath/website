@@ -72,8 +72,8 @@
 </script>
 <!-- AOB-UTM:end -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Book your room · BreathCamp, 25–31 October 2026 | Alchemy of Breath</title>
-<meta name="description" content="Choose your room at ASHA in Tuscany and complete your BreathCamp booking. Live availability, a 20% deposit or pay in full, secure payment by Stripe.">
+<title>Book BreathCamp · 25–31 October 2026 | Alchemy of Breath</title>
+<meta name="description" content="Book BreathCamp at ASHA in Tuscany: the €888 programme fee and your room in one booking. Live availability, a deposit on your room or pay in full, secure payment by Stripe.">
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#FBF7EF">
 <link rel="icon" type="image/png" href="https://alchemyofbreath.com/wp-content/uploads/AOB-Gold-Black-Transparant-symbol.png">
@@ -445,6 +445,20 @@ footer a{color:var(--slate)}
 .opt .amt small{display:block;font-family:var(--sans);font-size:.68rem;letter-spacing:.06em;color:var(--slate);text-align:right;margin-top:2px}
 .opt .t .sched{display:block;margin-top:6px;font-size:.8rem;color:var(--ink)}
 .fig .sm{display:block;font-family:var(--sans);font-size:.82rem;line-height:1.5;margin-top:4px}
+.progbox{display:flex;gap:16px;align-items:flex-start;padding:18px 20px;border:1px solid var(--line);border-radius:16px;background:#fff;margin:-10px 0 28px}
+.progbox .pic{flex:none;display:grid;place-items:center;width:44px;height:44px;border-radius:50%;background:var(--gold-wash)}
+.progbox .pic svg{width:22px;height:22px;stroke:var(--gold-text);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.progbox .pt{flex:1;min-width:0}
+.progbox .ph2{display:flex;justify-content:space-between;align-items:baseline;gap:6px 14px;flex-wrap:wrap;margin:0}
+.progbox .ph2 b{font-family:var(--serif);font-weight:400;font-size:1.12rem}
+.progbox .ph2 span{font-family:var(--serif);font-size:1.12rem;white-space:nowrap}
+.progbox .ph2 span small{font-family:var(--sans);font-size:.76rem;color:var(--slate);margin-left:4px}
+.progbox p.d{margin:4px 0 0;font-size:.86rem;color:var(--slate);line-height:1.55}
+.progbox .sw{all:unset;cursor:pointer;display:inline-block;margin-top:10px;font-size:.82rem;color:var(--gold-text);text-decoration:underline;text-underline-offset:3px}
+.progbox .sw:focus-visible{outline:2px solid var(--gold-deep);outline-offset:3px;border-radius:4px}
+.progbox.paid{background:linear-gradient(120deg,#fff,#F2FAFA);border-color:rgba(0,165,178,.28)}
+.progbox.paid .pic{background:#E3F4F5}.progbox.paid .pic svg{stroke:var(--teal-text)}
+@media(max-width:480px){.progbox{gap:12px;padding:16px}.progbox .pic{width:36px;height:36px}.progbox .pic svg{width:18px;height:18px}}
 </style>
 </head>
 <body>
@@ -461,7 +475,7 @@ footer a{color:var(--slate)}
 <section class="hero" id="hero">
   <div>
     <p class="eyebrow" id="heroEyebrow"></p>
-    <h1>Choose your room and <em>complete your booking</em>.</h1>
+    <h1 id="heroH1">Book BreathCamp and <em>choose your room</em>.</h1>
     <p class="when"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg><span id="heroWhen"></span></p>
     <p class="note" id="heroNote"></p>
     <ul class="chips">
@@ -494,6 +508,7 @@ footer a{color:var(--slate)}
         <div><h3>How many guests?</h3><p id="countHint"></p></div>
         <div class="stepper"><button type="button" id="gMinus" aria-label="One guest fewer">&minus;</button><output id="gCount" aria-live="polite">1 guest</output><button type="button" id="gPlus" aria-label="One guest more">+</button></div>
       </div>
+      <div class="progbox" id="progBox" hidden></div>
       <div id="guestForms"></div>
       <div class="actions"><span></span><button type="button" class="btn btn-primary" data-next="2">See available rooms <span class="arr">&rarr;</span></button></div>
     </section>
@@ -550,7 +565,7 @@ footer a{color:var(--slate)}
 
 <footer><p>Questions? <a id="footHelp" href="#" target="_blank" rel="noopener">Message us on WhatsApp</a> or email <a id="footMail" href="#"></a>. &middot; <a id="footTerms" href="#" target="_blank" rel="noopener">Terms</a> &middot; &copy; Alchemy of Breath &amp; ASHA</p></footer>
 
-<script type="application/json" id="programData">{"id":"breathcamp-oct-2026","title":"BreathCamp","edition":"BreathCamp 5","heading":"Choose your room and complete your booking","dates":{"start":"2026-10-25","end":"2026-10-31","nights":6,"label":"Sunday 25 – Saturday 31 October 2026","short":"25–31 Oct 2026","medium":"25–31 October 2026"},"venue":{"name":"ASHA Retreat Centre","address":"58034 Castell'Azzara, Province of Grosseto, Italy","region":"Tuscany","country":"IT"},"currency":"EUR","price_note":"Prices are per person for 6 nights' stay and all meals at ASHA. Your programme fee is paid separately.","program_spaces":17,"max_guests_per_booking":6,"booking_closes":"2026-10-24","deposit":{"percent":20,"balance_note":"The remaining balance is paid before you arrive at ASHA."},"payment_plan":{"installments":3,"interval":"month","last_payment_by":null,"note":"Charged automatically to the same card each month.","about":"Set last_payment_by (YYYY-MM-DD) to require the final payment by that date; the plan is then hidden when there is not enough time left."},"genders":["Female","Male"],"terms_url":"https://alchemyofbreath.com/terms-and-conditions/breathcamp/","contact":{"name":"Maria","email":"generalmanager@asha.global","whatsapp":"+393534527348"},"hero_image":"asha-campus.jpg","source":{"system":"RetreatGuru","program":"breathcamp-oct-25-oct-31-2026-accomodation-only","snapshot":"2026-10-03","note":"Shared rooms are single-gender. units = physical rooms still in play for this week; occupied = beds already taken outside this system (gender null = unknown: the rest of that room stays off sale until its gender is set). Built from RetreatGuru's remaining places on the snapshot date: Twin Ensuite 10 = 5 empty rooms; Twin Shared Bathroom 3 = 1 empty room + 1 room with 1 bed taken; Triple 5 = 1 empty room + 1 room with 1 bed taken; Twin Glamping 4 = 2 empty tents. Rooms that sleep one use capacity."},"rooms":[{"id":"twin-ensuite","rg_id":5,"name":"Twin Room Ensuite","category":"shared","bath":"Ensuite","price":1407,"unit":"person","sleeps":2,"shared_with":"same gender","summary":"Two single beds and a private bathroom shared by just the two of you.","description":"With two single beds to a room, these rooms have a private bathroom that only the two people in the room share, with their own gender. This accommodation is rustic, unique, and cozy. Pricing is per person.","photos":["twin-ensuite-1.jpg","twin-ensuite-2.jpg","twin-ensuite-3.jpg","twin-ensuite-4.jpg","twin-ensuite-5.jpg"],"plan":"twin-ensuite-plan.jpg","same_gender":true,"units":5,"occupied":[]},{"id":"twin-shared-bath","rg_id":15,"name":"Twin Room, Shared Bathroom","category":"shared","bath":"Shared bathroom","price":1171,"unit":"person","sleeps":2,"shared_with":"same gender","summary":"Two single beds in a newly renovated three-bedroom cottage with its own living room and kitchen.","description":"Two single beds to a room, shared with the same gender, in a private cottage. The bathroom is shared between four people who may be of mixed gender. This beautiful three-bedroom cottage has its own living room and kitchen, and is newly renovated. Pricing is per person.","photos":["twin-shared-bath-1.jpg","twin-shared-bath-2.jpg","twin-shared-bath-3.jpg","twin-shared-bath-4.jpg"],"plan":"twin-shared-bath-plan.jpg","same_gender":true,"units":2,"occupied":[{"gender":null,"beds":1}]},{"id":"triple-ensuite","rg_id":19,"name":"Shared Room for Three, Ensuite","category":"shared","bath":"Ensuite","price":1107,"unit":"person","sleeps":3,"shared_with":"same gender","summary":"Three single beds with the room's own bathroom, in a cottage or the Main House.","description":"Each room with three single beds has its own private bathroom. The beds are typically a metre apart, and the room is shared with the same gender. These rooms are in either a private cottage or the Main House. Pricing is per person.","photos":["triple-ensuite-1.jpg","triple-ensuite-2.jpg"],"plan":"triple-ensuite-plan.jpg","same_gender":true,"units":2,"occupied":[{"gender":null,"beds":1}]},{"id":"glamping-single","rg_id":37,"name":"Single Glamping, ASHA Bell Tent","category":"glamping","bath":"Shared facilities","price":1161,"unit":"person","sleeps":1,"capacity":6,"summary":"Your own bell tent with a single mattress and a sitting area, close to nature.","description":"Guests love our bell tents. Single tents are furnished with a single mattress and a sitting area. They are lovely, and so very close to nature. Toilets and showers are close to your tent. Please note: autumn weather in Tuscany can be variable.","photos":["glamping-single-1.jpg","glamping-single-2.jpg","glamping-single-3.jpg"]},{"id":"glamping-twin","rg_id":44,"name":"Twin Glamping, ASHA Bell Tent","category":"glamping","bath":"Shared facilities","price":1037,"unit":"person","sleeps":2,"shared_with":"same gender","summary":"A bell tent with two mattresses, shared by two people.","description":"Guests love our bell tents. Twin tents are furnished with two mattresses and shared by two people. They are lovely, and so very close to nature. Toilets and showers are close to your tent. Please note: autumn weather in Tuscany can be variable. Pricing is per person.","photos":["glamping-twin-1.jpg","glamping-twin-2.jpg","glamping-twin-3.jpg"],"same_gender":true,"units":2,"occupied":[]},{"id":"camper","rg_id":23,"name":"Come in a Camper","category":"camping","bath":"Shared facilities","price":807,"unit":"person","sleeps":1,"capacity":1,"summary":"Bring your camper and enjoy full use of ASHA's facilities.","description":"Campers are welcome at ASHA. Space is limited, so we suggest booking as soon as you can: this is one of our most popular options. You're welcome to use all of our facilities. Would you like to bring a guest? Message us on WhatsApp.","photos":["camper-1.jpg"]},{"id":"own-tent","rg_id":25,"name":"Bring Your Own Tent","category":"camping","bath":"Shared facilities","price":761,"unit":"person","sleeps":1,"capacity":1,"summary":"Pitch your own tent in our secluded woods.","description":"Pitch your own tent in our secluded woods, with full use of our facilities. Be sure to bring your own tent, bedding, and anything else you may need. Please note: autumn weather in Tuscany can be variable.","photos":["own-tent-1.jpg","own-tent-2.jpg"]},{"id":"single-ensuite","rg_id":16,"name":"Private Single Room Ensuite","category":"private","bath":"Ensuite","price":1857,"unit":"person","sleeps":1,"capacity":0,"summary":"A private room with its own bathroom in the Main House.","description":"Enjoy a private room with its own bathroom in the Main House. It's perfect for one person, with its own single bed and a desk. In your own private oasis, rest, process, and be in your own space.","photos":["single-ensuite-1.jpg","single-ensuite-2.jpg","single-ensuite-3.jpg"],"plan":"single-ensuite-plan.jpg"},{"id":"cottage-one","rg_id":491,"name":"Private Cottage for One","category":"private","bath":"Private bathroom","price":2612,"unit":"person","sleeps":1,"capacity":0,"summary":"A cozy private cottage, all to yourself.","description":"Cozy private cottage accommodation for one person, offering comfort, privacy, and a peaceful stay.","photos":["cottage-one-1.jpg"]},{"id":"cottage-two","rg_id":18,"name":"Private Cottage for Two","category":"private","bath":"Private bathroom","price":5224,"unit":"cottage","sleeps":2,"capacity":0,"summary":"A two-room cottage facing an open field. The price covers both guests.","description":"A two-room cottage in a private house facing an open field, with a cozy living room, kitchen, private bathroom, and a double pull-out sofa bed. Ideal for couples, families, or anyone who wants space. The price is for the whole cottage and covers two guests.","photos":["cottage-two-1.jpg"]}]}</script><!-- /PROGRAM-DATA -->
+<script type="application/json" id="programData">{"id":"breathcamp-oct-2026","title":"BreathCamp","edition":"BreathCamp 5","heading":"Book your place and choose your room","dates":{"start":"2026-10-25","end":"2026-10-31","nights":6,"label":"Sunday 25 – Saturday 31 October 2026","short":"25–31 Oct 2026","medium":"25–31 October 2026"},"venue":{"name":"ASHA Retreat Centre","address":"58034 Castell'Azzara, Province of Grosseto, Italy","region":"Tuscany","country":"IT"},"currency":"EUR","programme":{"fee":888,"name":"Programme fee","summary":"Every workshop, class and evening session with Amy, Anthony and senior trainers, daily yoga and course materials, plus the whole of ASHA: the pool, the creeks, the Dharma Den, Nadi Shala and Prana Shala.","about":"Paid per guest at booking, in full, alongside the room deposit. Guests who already paid it elsewhere (GHL or RetreatGuru) can book their room only with ?programme=paid; those bookings are flagged in the dashboard to check."},"price_note":"One programme fee of €888 per person covers every workshop, class and evening session. Rooms are priced per person for 6 nights with all meals at ASHA.","program_spaces":17,"max_guests_per_booking":6,"booking_closes":"2026-10-24","deposit":{"percent":20,"applies_to":"accommodation","balance_note":"The rest of your accommodation is paid before you arrive at ASHA."},"payment_plan":{"installments":3,"interval":"month","last_payment_by":"before_arrival","note":"Charged automatically to the same card each month.","about":"last_payment_by: \"before_arrival\" (the day before the start date), a YYYY-MM-DD date, or null for no limit. The plan is only offered while every payment falls on or before that day."},"genders":["Female","Male"],"terms_url":"https://alchemyofbreath.com/terms-and-conditions/breathcamp/","contact":{"name":"Maria","email":"generalmanager@asha.global","whatsapp":"+393534527348"},"hero_image":"asha-campus.jpg","source":{"system":"RetreatGuru","program":"breathcamp-program + breathcamp-oct-25-oct-31-2026-accomodation-only","snapshot":"2026-10-03","note":"Shared rooms are single-gender. units = physical rooms still in play for this week; occupied = beds already taken outside this system (gender null = unknown: the rest of that room stays off sale until its gender is set). Built from RetreatGuru's remaining places on the snapshot date: Twin Ensuite 10 = 5 empty rooms; Twin Shared Bathroom 3 = 1 empty room + 1 room with 1 bed taken; Triple 5 = 1 empty room + 1 room with 1 bed taken; Twin Glamping 4 = 2 empty tents. Rooms that sleep one use capacity."},"rooms":[{"id":"twin-ensuite","rg_id":5,"name":"Twin Room Ensuite","category":"shared","bath":"Ensuite","price":1407,"unit":"person","sleeps":2,"shared_with":"same gender","summary":"Two single beds and a private bathroom shared by just the two of you.","description":"With two single beds to a room, these rooms have a private bathroom that only the two people in the room share, with their own gender. This accommodation is rustic, unique, and cozy. Pricing is per person.","photos":["twin-ensuite-1.jpg","twin-ensuite-2.jpg","twin-ensuite-3.jpg","twin-ensuite-4.jpg","twin-ensuite-5.jpg"],"plan":"twin-ensuite-plan.jpg","same_gender":true,"units":5,"occupied":[]},{"id":"twin-shared-bath","rg_id":15,"name":"Twin Room, Shared Bathroom","category":"shared","bath":"Shared bathroom","price":1171,"unit":"person","sleeps":2,"shared_with":"same gender","summary":"Two single beds in a newly renovated three-bedroom cottage with its own living room and kitchen.","description":"Two single beds to a room, shared with the same gender, in a private cottage. The bathroom is shared between four people who may be of mixed gender. This beautiful three-bedroom cottage has its own living room and kitchen, and is newly renovated. Pricing is per person.","photos":["twin-shared-bath-1.jpg","twin-shared-bath-2.jpg","twin-shared-bath-3.jpg","twin-shared-bath-4.jpg"],"plan":"twin-shared-bath-plan.jpg","same_gender":true,"units":2,"occupied":[{"gender":null,"beds":1}]},{"id":"triple-ensuite","rg_id":19,"name":"Shared Room for Three, Ensuite","category":"shared","bath":"Ensuite","price":1107,"unit":"person","sleeps":3,"shared_with":"same gender","summary":"Three single beds with the room's own bathroom, in a cottage or the Main House.","description":"Each room with three single beds has its own private bathroom. The beds are typically a metre apart, and the room is shared with the same gender. These rooms are in either a private cottage or the Main House. Pricing is per person.","photos":["triple-ensuite-1.jpg","triple-ensuite-2.jpg"],"plan":"triple-ensuite-plan.jpg","same_gender":true,"units":2,"occupied":[{"gender":null,"beds":1}]},{"id":"glamping-single","rg_id":37,"name":"Single Glamping, ASHA Bell Tent","category":"glamping","bath":"Shared facilities","price":1161,"unit":"person","sleeps":1,"capacity":6,"summary":"Your own bell tent with a single mattress and a sitting area, close to nature.","description":"Guests love our bell tents. Single tents are furnished with a single mattress and a sitting area. They are lovely, and so very close to nature. Toilets and showers are close to your tent. Please note: autumn weather in Tuscany can be variable.","photos":["glamping-single-1.jpg","glamping-single-2.jpg","glamping-single-3.jpg"]},{"id":"glamping-twin","rg_id":44,"name":"Twin Glamping, ASHA Bell Tent","category":"glamping","bath":"Shared facilities","price":1037,"unit":"person","sleeps":2,"shared_with":"same gender","summary":"A bell tent with two mattresses, shared by two people.","description":"Guests love our bell tents. Twin tents are furnished with two mattresses and shared by two people. They are lovely, and so very close to nature. Toilets and showers are close to your tent. Please note: autumn weather in Tuscany can be variable. Pricing is per person.","photos":["glamping-twin-1.jpg","glamping-twin-2.jpg","glamping-twin-3.jpg"],"same_gender":true,"units":2,"occupied":[]},{"id":"camper","rg_id":23,"name":"Come in a Camper","category":"camping","bath":"Shared facilities","price":807,"unit":"person","sleeps":1,"capacity":1,"summary":"Bring your camper and enjoy full use of ASHA's facilities.","description":"Campers are welcome at ASHA. Space is limited, so we suggest booking as soon as you can: this is one of our most popular options. You're welcome to use all of our facilities. Would you like to bring a guest? Message us on WhatsApp.","photos":["camper-1.jpg"]},{"id":"own-tent","rg_id":25,"name":"Bring Your Own Tent","category":"camping","bath":"Shared facilities","price":761,"unit":"person","sleeps":1,"capacity":1,"summary":"Pitch your own tent in our secluded woods.","description":"Pitch your own tent in our secluded woods, with full use of our facilities. Be sure to bring your own tent, bedding, and anything else you may need. Please note: autumn weather in Tuscany can be variable.","photos":["own-tent-1.jpg","own-tent-2.jpg"]},{"id":"single-ensuite","rg_id":16,"name":"Private Single Room Ensuite","category":"private","bath":"Ensuite","price":1857,"unit":"person","sleeps":1,"capacity":0,"summary":"A private room with its own bathroom in the Main House.","description":"Enjoy a private room with its own bathroom in the Main House. It's perfect for one person, with its own single bed and a desk. In your own private oasis, rest, process, and be in your own space.","photos":["single-ensuite-1.jpg","single-ensuite-2.jpg","single-ensuite-3.jpg"],"plan":"single-ensuite-plan.jpg"},{"id":"cottage-one","rg_id":491,"name":"Private Cottage for One","category":"private","bath":"Private bathroom","price":2612,"unit":"person","sleeps":1,"capacity":0,"summary":"A cozy private cottage, all to yourself.","description":"Cozy private cottage accommodation for one person, offering comfort, privacy, and a peaceful stay.","photos":["cottage-one-1.jpg"]},{"id":"cottage-two","rg_id":18,"name":"Private Cottage for Two","category":"private","bath":"Private bathroom","price":5224,"unit":"cottage","sleeps":2,"capacity":0,"summary":"A two-room cottage facing an open field. The price covers both guests.","description":"A two-room cottage in a private house facing an open field, with a cozy living room, kitchen, private bathroom, and a double pull-out sofa bed. Ideal for couples, families, or anyone who wants space. The price is for the whole cottage and covers two guests.","photos":["cottage-two-1.jpg"]}]}</script><!-- /PROGRAM-DATA -->
 <script>
 (function(){
   'use strict';
@@ -574,19 +589,27 @@ footer a{color:var(--slate)}
   };
   var addMonthsL = function(d, k){ var x = new Date(d.getTime()), day = x.getDate(); x.setDate(1); x.setMonth(x.getMonth() + k); x.setDate(Math.min(day, new Date(x.getFullYear(), x.getMonth() + 1, 0).getDate())); return x; };
   var dayMonth = function(d){ return d.toLocaleDateString('en-GB', { day:'numeric', month:'long' }); };
+  function lastPaymentBy(){
+    var v = P.payment_plan && P.payment_plan.last_payment_by;
+    if (v !== 'before_arrival') return v || null;
+    var d = new Date(P.dates.start + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() - 1); return d.toISOString().slice(0, 10);
+  }
   function planOffer(){
     var pp = P.payment_plan; if (!pp || !pp.installments) return null;
     if (avail && avail.payment_plan) return avail.payment_plan.available ? avail.payment_plan : null; // the server decides once loaded
-    if (pp.last_payment_by && addMonthsL(new Date(), pp.installments - 1).toISOString().slice(0, 10) > pp.last_payment_by) return null;
+    var by = lastPaymentBy();
+    if (by && addMonthsL(new Date(), pp.installments - 1).toISOString().slice(0, 10) > by) return null;
     return { available:true, installments:pp.installments };
   }
   function planN(){ return (P.payment_plan && P.payment_plan.installments) || 3; }
+  var PROG = P.programme && P.programme.fee > 0 ? P.programme : null;
+  function progOn(){ return !!PROG && !state.progPaid; }
   var gk = function(g){ return String(g || '').toLowerCase() === 'male' ? 'male' : String(g || '').toLowerCase() === 'female' ? 'female' : ''; };
   var WORD = { female:'women', male:'men' };
 
   /* ---------------- state ---------------- */
   var blankGuest = function(){ return { first:'', last:'', email:'', gender:'' }; };
-  var state = { step:1, guests:1, lead:{ first:'', last:'', email:'', whatsapp:'', gender:'' }, others:[], mixed:false, room:null, guestRooms:[], roommate:'', payment:'deposit', terms:false, filter:'all' };
+  var state = { step:1, guests:1, lead:{ first:'', last:'', email:'', whatsapp:'', gender:'' }, others:[], mixed:false, room:null, guestRooms:[], roommate:'', payment:'deposit', terms:false, filter:'all', progPaid:false };
   try { var saved = JSON.parse(localStorage.getItem(STORE) || 'null'); if (saved && saved.v === VERSION) { Object.assign(state, saved.s); state.terms = false; } } catch(e){}
   function save(){ try { localStorage.setItem(STORE, JSON.stringify({ v:VERSION, s: Object.assign({}, state, { terms:false }) })); } catch(e){} }
 
@@ -648,9 +671,11 @@ footer a{color:var(--slate)}
       lines.push({ id:id, name:r.name, n:n, amt:amt, per:r.price * 100, unit:r.unit }); total += amt;
     });
     if (state.payment === 'plan' && !planOffer()) state.payment = 'deposit';
-    var dep = Math.round(total * P.deposit.percent / 100), n = planN(), inst = Math.floor(total / n), first = total - inst * (n - 1);
+    var accomm = total, prog = progOn() ? state.guests * PROG.fee * 100 : 0;
+    total = accomm + prog;
+    var dep = prog + Math.round(accomm * P.deposit.percent / 100), n = planN(), inst = Math.floor(total / n), first = total - inst * (n - 1);
     var due = state.payment === 'full' ? total : state.payment === 'plan' ? first : dep;
-    return { lines:lines, total:total, deposit:dep, due:due, balance: total - due, n:n, inst:inst, first:first };
+    return { lines:lines, total:total, accomm:accomm, prog:prog, deposit:dep, due:due, balance: total - due, n:n, inst:inst, first:first };
   }
   function roomsComplete(){
     var br = byRoom();
@@ -689,6 +714,21 @@ footer a{color:var(--slate)}
     $('gCount').textContent = state.guests + (state.guests === 1 ? ' guest' : ' guests');
     $('gMinus').disabled = state.guests <= 1; $('gPlus').disabled = state.guests >= maxG;
     $('countHint').textContent = 'Up to ' + MAXG + ' per booking · ' + progLeft() + ' ' + (progLeft() === 1 ? 'place' : 'places') + ' left this week';
+  }
+  var ICON_PROG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c2.5 2.6 4 5.1 4 7.4A4 4 0 0 1 12 14.5a4 4 0 0 1-4-4.1C8 8.1 9.5 5.6 12 3z"/><path d="M4 21c2.2-2.7 4.9-4 8-4s5.8 1.3 8 4"/></svg>';
+  var ICON_OK = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.7 2.7L16.5 9.5"/></svg>';
+  function renderProg(){
+    var box = $('progBox'); if (!PROG) { box.hidden = true; return; }
+    box.hidden = false; box.classList.toggle('paid', !progOn());
+    var fee = money(PROG.fee * 100), all = state.guests === 1 ? 'you' : 'everyone in this booking';
+    box.innerHTML = progOn()
+      ? '<span class="pic">' + ICON_PROG + '</span><div class="pt"><p class="ph2"><b>' + esc(PROG.name) + '</b><span>' + fee + '<small>per person</small></span></p>' +
+        '<p class="d">' + esc(PROG.summary) + ' Paid in full today, together with ' + (state.guests === 1 ? 'your room' : 'your rooms') + '.</p>' +
+        '<button type="button" class="sw" id="progSw">Already paid the ' + fee + ' programme fee? Book your room only</button></div>'
+      : '<span class="pic">' + ICON_OK + '</span><div class="pt"><p class="ph2"><b>Programme fee already paid</b><span>Room only</span></p>' +
+        '<p class="d">You\'re booking accommodation only, because the ' + fee + ' programme fee is already paid for ' + all + '. Use the same email you paid with, so we can match your booking.</p>' +
+        '<button type="button" class="sw" id="progSw">Haven\'t paid it yet? Add the programme fee to this booking</button></div>';
+    $('progSw').onclick = function(){ state.progPaid = !state.progPaid; save(); renderProg(); renderStatic(); renderFolio(); if (state.step === 3) renderReview(); $('progSw').focus(); };
   }
   var formsFor = -1;
   function guestCard(p, i){
@@ -817,9 +857,10 @@ footer a{color:var(--slate)}
     }).join('') || '<p class="fol-empty">No rooms in this category.</p>';
     bindRooms();
     var c = groupCount(genders()), who = !gendersDone() ? '' : (c.female && c.male ? c.female + (c.female === 1 ? ' woman' : ' women') + ' and ' + c.male + (c.male === 1 ? ' man' : ' men') : c.female ? (c.female === 1 ? '1 woman' : c.female + ' women') : (c.male === 1 ? '1 man' : c.male + ' men'));
+    var priceNote = 'Room prices cover ' + nights + ' nights and all meals' + (progOn() ? ', and the ' + money(PROG.fee * 100) + ' programme fee is added per guest.' : '.');
     $('roomsSub').textContent = (who ? 'Showing availability for ' + who + '. ' : '') + (state.guests === 1
-      ? 'Tap a room to choose it. Prices include ' + nights + ' nights and all meals.'
-      : 'Choose one room type for your whole group, or turn on "different rooms" to choose per guest. Prices include ' + nights + ' nights and all meals.');
+      ? 'Tap a room to choose it. ' + priceNote
+      : 'Choose one room type for your whole group, or turn on "different rooms" to choose per guest. ' + priceNote);
     $('mixedRow').hidden = state.guests < 2;
     $('mixedToggle').checked = state.mixed;
     var placed = guestRoomList().filter(function(r){ return !!r; }).length;
@@ -877,13 +918,17 @@ footer a{color:var(--slate)}
     var t = totals(), rooms = guestRoomList();
     $('review').innerHTML =
       '<li><span class="k">Dates</span><span class="v">' + esc(P.dates.label) + ' · ' + P.dates.nights + ' nights</span></li>' +
+      (PROG ? '<li><span class="k">Programme</span><span class="v">' + (progOn() ? esc(PROG.name) + ' ' + money(PROG.fee * 100) + ' × ' + state.guests + ' = ' + money(t.prog) : 'Programme fee already paid · booking your room only') + '<button type="button" class="edit" data-go="1">Change</button></span></li>' : '') +
       '<li><span class="k">Accommodation</span><span class="v">' + t.lines.map(function(l){ return esc(l.name) + ' × ' + l.n; }).join(', ') + '<button type="button" class="edit" data-go="2">Change</button></span></li>' +
       people().map(function(p, i){ return '<li><span class="k">' + (i ? 'Guest ' + (i + 1) : 'Lead guest') + '</span><span class="v">' + esc((p.first + ' ' + p.last).trim() || '—') + ' · ' + esc(p.gender) + (state.mixed && rooms[i] ? ' · ' + esc(ROOMS[rooms[i]].name) : '') + '<button type="button" class="edit" data-go="1">Edit</button></span></li>'; }).join('') +
       '<li><span class="k">Contact</span><span class="v">' + esc(state.lead.email) + ' · ' + esc(state.lead.whatsapp) + '</span></li>' +
       (state.roommate ? '<li><span class="k">Roommate request</span><span class="v">' + esc(state.roommate) + '</span></li>' : '');
     $('review').querySelectorAll('[data-go]').forEach(function(b){ b.onclick = function(){ goStep(+b.getAttribute('data-go')); }; });
     $('payOpts').innerHTML =
-      '<label class="opt"><input type="radio" name="pay" value="deposit"' + (state.payment === 'deposit' ? ' checked' : '') + '><span class="rad"></span><span class="t"><b>Pay a ' + P.deposit.percent + '% deposit today</b><span>Then ' + money(t.total - t.deposit) + '. ' + esc(P.deposit.balance_note) + '</span></span><span class="amt">' + money(t.deposit) + '</span></label>' +
+      '<label class="opt"><input type="radio" name="pay" value="deposit"' + (state.payment === 'deposit' ? ' checked' : '') + '><span class="rad"></span><span class="t">' +
+        (t.prog ? '<b>Pay the programme fee and a ' + P.deposit.percent + '% room deposit</b><span>Then ' + money(t.total - t.deposit) + ' for your room. ' + esc(P.deposit.balance_note) + '</span><span class="sched">' + money(t.prog) + ' programme fee + ' + money(t.deposit - t.prog) + ' room deposit</span>'
+                : '<b>Pay a ' + P.deposit.percent + '% deposit today</b><span>Then ' + money(t.total - t.deposit) + '. ' + esc(P.deposit.balance_note) + '</span>') +
+        '</span><span class="amt">' + money(t.deposit) + (t.prog ? '<small>today</small>' : '') + '</span></label>' +
       '<label class="opt"><input type="radio" name="pay" value="full"' + (state.payment === 'full' ? ' checked' : '') + '><span class="rad"></span><span class="t"><b>Pay in full</b><span>Settle everything now. Nothing more to pay before you arrive.</span></span><span class="amt">' + money(t.total) + '</span></label>' +
       (planOffer() ? (function(){
         var today = new Date(), later = Array.from({ length: t.n - 1 }, function(_, k){ return dayMonth(addMonthsL(today, k + 1)); });
@@ -907,7 +952,7 @@ footer a{color:var(--slate)}
     var rooms = guestRoomList();
     var guests = people().map(function(p, i){ return { first:p.first, last:p.last, email:p.email, gender:p.gender, room:rooms[i] }; });
     var utm = {}; try { utm = (JSON.parse(localStorage.getItem('aob_utm') || 'null') || {}).p || {}; } catch(e){}
-    var body = { program:P.id, payment:state.payment, guests:guests, whatsapp:state.lead.whatsapp, roommate:state.roommate, terms:true,
+    var body = { program:P.id, payment:state.payment, programme: PROG ? (progOn() ? 'included' : 'paid') : undefined, guests:guests, whatsapp:state.lead.whatsapp, roommate:state.roommate, terms:true,
       return_url: location.origin + location.pathname, page: location.origin + location.pathname, utm: utm };
     var btns = [$('payBtn'), $('mbarNext')].concat(Array.prototype.slice.call(document.querySelectorAll('[data-fcta]')));
     var olds = btns.map(function(b){ return b.innerHTML; });
@@ -954,28 +999,31 @@ footer a{color:var(--slate)}
   function folioHtml(){
     var t = totals(), sel = guestRoomList().filter(Boolean)[0], img = sel ? ROOMS[sel].photos[0] : P.hero_image;
     var c = groupCount(genders());
-    var lines = t.lines.length ? t.lines.map(function(l){
+    var progLine = !PROG ? '' : progOn()
+      ? '<div class="fol-line"><span class="k"><b>' + esc(PROG.name) + '</b><small>' + state.guests + ' ' + (state.guests === 1 ? 'guest' : 'guests') + ' × ' + money(PROG.fee * 100) + '</small></span><span>' + money(t.prog) + '</span></div>'
+      : '<div class="fol-line"><span class="k"><b>' + esc(PROG.name) + '</b><small>Already paid</small></span><span>–</span></div>';
+    var lines = progLine + (t.lines.length ? t.lines.map(function(l){
       return '<div class="fol-line"><span class="k"><b>' + esc(l.name) + '</b><small>' + l.n + ' ' + (l.n === 1 ? 'guest' : 'guests') + (l.unit === 'person' ? ' × ' + money(l.per) : '') + '</small></span><span>' + money(l.amt) + '</span></div>';
-    }).join('') : '<p class="fol-empty">' + (state.step === 1 ? 'Tell us who\'s coming to see your rooms.' : 'Tap a room to see your total.') + '</p>';
+    }).join('') : '<p class="fol-empty">' + (state.step === 1 ? 'Tell us who\'s coming to see your rooms.' : 'Tap a room to see your total.') + '</p>');
     var gtxt = gendersDone() ? (c.female ? c.female + (c.female === 1 ? ' woman' : ' women') : '') + (c.female && c.male ? ', ' : '') + (c.male ? c.male + (c.male === 1 ? ' man' : ' men') : '') : state.guests;
     return '<div class="fol-top" style="background-image:url(\'' + IMG + img + '\')"><p><small>' + esc(P.edition) + ' · ' + esc(P.venue.region) + '</small>' + esc(P.dates.medium || P.dates.label) + '</p></div>' +
       '<div class="fol-b"><div class="fol-row"><span class="k">Stay</span><span class="v">' + P.dates.nights + ' nights · all meals</span></div>' +
       '<div class="fol-row"><span class="k">Guests</span><span class="v">' + gtxt + '</span></div><div class="fol-lines">' + lines + '</div>' +
       '<div class="perf"><i></i><i></i></div>' +
       '<div class="fol-total"><span class="k">Total</span><span class="v">' + money(t.total) + '</span></div>' +
-      '<div class="fol-due"><span class="k">' + dueLabel(t) + '</span><span class="v">' + money(t.total ? t.due : 0) + '</span></div>' +
-      (t.total && t.balance ? '<p class="fol-bal">' + (state.payment === 'plan' ? 'Then ' + (t.n - 1) + ' monthly payments of ' + money(t.inst) : 'Then ' + money(t.balance) + ' before you arrive') + '</p>' : '') +
+      '<div class="fol-due"><span class="k">' + (t.accomm ? dueLabel(t) : 'Due today') + '</span><span class="v">' + money(t.accomm ? t.due : t.prog) + '</span></div>' +
+      (t.accomm && t.balance ? '<p class="fol-bal">' + (state.payment === 'plan' ? 'Then ' + (t.n - 1) + ' monthly payments of ' + money(t.inst) : 'Then ' + money(t.balance) + (t.prog ? ' for your room' : '') + ' before you arrive') + '</p>' : '') +
       '<button type="button" class="btn btn-primary fol-cta" data-fcta' + (state.step === 2 && !roomsComplete() ? ' disabled' : '') + '>' + ctaLabel() + '</button>' +
       '<div class="trust"><span><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Secure payment by Stripe</span><span><svg viewBox="0 0 24 24"><path d="M4 12l5 5L20 6"/></svg>Receipt and invoice by email</span><span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>' + (availLive ? 'Live availability' : 'Availability as of ' + esc(P.source.snapshot)) + '</span></div></div>';
   }
-  function dueLabel(t){ return state.payment === 'full' ? 'Due today' : state.payment === 'plan' ? 'Due today · 1 of ' + t.n : 'Due today · ' + P.deposit.percent + '%'; }
+  function dueLabel(t){ return state.payment === 'full' || (t.prog && state.payment !== 'plan') ? 'Due today' : state.payment === 'plan' ? 'Due today · 1 of ' + t.n : 'Due today · ' + P.deposit.percent + '%'; }
   function primary(){ if (state.step === 3) pay(); else goStep(state.step + 1); }
   function renderFolio(){
     var h = folioHtml(); $('folio').innerHTML = h; $('folioSheet').innerHTML = h;
     document.querySelectorAll('[data-fcta]').forEach(function(b){ b.onclick = function(){ if ($('sheet').classList.contains('open')) $('sumBtn').click(); primary(); }; });
     var t = totals();
-    $('mbarAmt').textContent = money(t.total ? t.due : 0);
-    $('mbarLbl').textContent = t.total ? dueLabel(t) : (state.step === 1 ? 'Who\'s coming?' : 'Tap a room');
+    $('mbarAmt').textContent = money(t.accomm ? t.due : t.prog);
+    $('mbarLbl').textContent = t.accomm ? dueLabel(t) : t.prog ? PROG.name : (state.step === 1 ? 'Who\'s coming?' : 'Tap a room');
     $('mbarNext').innerHTML = state.step === 3 ? 'Pay ' + money(t.due) + ' <span class="arr">&rarr;</span>' : (state.step === 1 ? 'See rooms' : 'Review') + ' <span class="arr">&rarr;</span>';
     $('mbarNext').disabled = state.step === 2 && !roomsComplete();
   }
@@ -1022,15 +1070,19 @@ footer a{color:var(--slate)}
 
   function render(){
     $('placesLeft').textContent = progLeft();
-    renderCount(); renderGuestForms(); renderFilters(); renderRooms(); renderFolio();
+    renderStatic(); renderCount(); renderProg(); renderGuestForms(); renderFilters(); renderRooms(); renderFolio();
     if (state.step === 3) renderReview();
   }
 
   /* ---------------- static text ---------------- */
   $('heroEyebrow').textContent = P.edition + ' · ' + P.venue.name.replace(' Retreat Centre', '') + ', ' + P.venue.region;
   $('heroWhen').textContent = P.dates.label + ' · ' + P.dates.nights + ' nights';
-  $('heroNote').textContent = P.price_note;
-  $('depositChip').textContent = P.payment_plan && P.payment_plan.installments ? P.deposit.percent + '% deposit, pay in full or ' + P.payment_plan.installments + ' monthly payments' : P.deposit.percent + '% deposit or pay in full';
+  function renderStatic(){
+    var on = progOn(), plan = planOffer();
+    $('heroH1').innerHTML = on ? 'Book BreathCamp and <em>choose your room</em>.' : 'Choose your room and <em>complete your booking</em>.';
+    $('heroNote').textContent = on ? P.price_note : 'Your programme fee is already paid, so you\'re booking your room: priced per person for ' + P.dates.nights + ' nights with all meals at ASHA.';
+    $('depositChip').textContent = (on ? money(PROG.fee * 100) + ' programme fee + ' + P.deposit.percent + '% room deposit' : P.deposit.percent + '% deposit') + (plan ? ', pay in full or ' + plan.installments + ' monthly payments' : ' or pay in full');
+  }
   $('heroImg').src = IMG + P.hero_image;
   $('heroVenue').textContent = P.venue.name; $('heroAddr').textContent = P.venue.address;
   ['helpLink','footHelp'].forEach(function(id){ $(id).href = wa; });
@@ -1058,7 +1110,7 @@ footer a{color:var(--slate)}
       (s && s.ref ? '<p class="ref">Booking reference <b>' + esc(s.ref) + '</b></p>' : '') +
       (s && s.ref ? '<div class="figs"><div class="fig"><small>Paid today</small><b>' + money(paid || 0) + '</b></div>' +
         (plan ? '<div class="fig"><small>Next payments</small><b>' + money(plan.installment_cents) + ' × ' + nextDates.length + '</b><span class="sm">' + nextDates.join(' · ') + '</span></div>' :
-         bal ? '<div class="fig"><small>Balance before arrival</small><b>' + money(bal) + '</b></div>' : '<div class="fig"><small>Balance</small><b>Paid in full</b></div>') + (s.rooms && s.rooms.length ? '<div class="fig"><small>Your stay</small><b style="font-size:1.05rem;line-height:1.35">' + s.rooms.map(function(r){ return esc(r.name) + ' × ' + r.guests; }).join('<br>') + '</b></div>' : '') + '</div>' : '') +
+         bal ? '<div class="fig"><small>Balance before arrival</small><b>' + money(bal) + '</b></div>' : '<div class="fig"><small>Balance</small><b>Paid in full</b></div>') + (s.rooms && s.rooms.length ? '<div class="fig"><small>' + (s.programme === 'included' ? 'Your booking' : 'Your stay') + '</small><b style="font-size:1.05rem;line-height:1.35">' + (s.programme === 'included' && PROG ? esc(PROG.name) + ' × ' + (s.guests || 1) + '<br>' : '') + s.rooms.map(function(r){ return esc(r.name) + ' × ' + r.guests; }).join('<br>') + '</b></div>' : '') + '</div>' : '') +
       '<ol class="next"><li><b>Check your inbox.</b> Your receipt and invoice from Stripe are on their way.</li><li><b>We\'ll be in touch on WhatsApp</b> with arrival details and anything we need for your room.</li>' +
       (plan ? '<li><b>Your next payments are automatic.</b> ' + money(plan.installment_cents) + ' on ' + nextDates.join(' and ') + ', charged to the same card. Nothing else to do.</li>' :
        bal ? '<li><b>Pay your balance before you arrive.</b> Use your booking reference and email at any time.</li>' : '') + '<li><b>Arrive on ' + esc(P.dates.label.split(' – ')[0]) + '</b> at ' + esc(P.venue.name) + ', ' + esc(P.venue.address) + '.</li></ol>' +
@@ -1075,6 +1127,8 @@ footer a{color:var(--slate)}
   if (qp.get('status') === 'cancelled') { $('topNote').textContent = 'Your payment wasn\'t completed, so nothing was charged. Your choices are saved whenever you\'re ready.'; $('topNote').hidden = false; state.step = 3; }
 
   /* ---------------- start ---------------- */
+  if (PROG && qp.get('programme') === 'paid') state.progPaid = true;
+  if (PROG && qp.get('programme') === 'included') state.progPaid = false;
   if (!Array.isArray(state.others)) state.others = [];
   if (P.genders.indexOf(state.lead.gender) < 0) state.lead.gender = '';
   state.others.forEach(function(g){ if (P.genders.indexOf(g.gender) < 0) g.gender = ''; });

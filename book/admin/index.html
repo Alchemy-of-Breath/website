@@ -114,6 +114,8 @@ tr.cancelled td.act{text-decoration:none;opacity:1}
 .bar i.h{background:var(--teal)}
 .pill{display:inline-block;border-radius:999px;padding:2px 9px;font-size:.72rem;font-weight:500}
 .pill.full{background:#EEF8F8;color:#0B5157}.pill.dep{background:var(--gold-wash);color:var(--gold-text)}.pill.can{background:#eee;color:#555}
+.pill.chk{background:#FFF4F0;color:#7A2E16;border:1px solid #F1C7B8}
+.prog{font-size:.78rem;margin-top:6px}
 .guests{font-size:.78rem;color:var(--slate);margin-top:4px;line-height:1.5}
 .act{white-space:nowrap}
 .act button{margin:0 4px 4px 0}
@@ -182,6 +184,11 @@ code{font-size:.82rem;background:var(--gold-wash);padding:1px 6px;border-radius:
     }).join('');
     renderList();
   }
+  function progCell(b){
+    if (b.programme === 'included') return '<div class="prog">Programme fee ' + money(b.programme_cents) + ' <span class="muted">(' + b.guests.length + ' × ' + money(b.programme_cents / Math.max(1, b.guests.length)) + ')</span></div>';
+    if (b.programme === 'paid') return '<div class="prog"><span class="pill chk" title="Booked room only: match this to their earlier programme fee payment">Programme fee paid separately · check</span></div>';
+    return '';
+  }
   function renderList(){
     var q = $('search').value.trim().toLowerCase();
     var rows = (data.bookings || []).filter(function(b){ return !q || JSON.stringify([b.ref, b.lead, b.guests]).toLowerCase().indexOf(q) >= 0; });
@@ -189,7 +196,7 @@ code{font-size:.82rem;background:var(--gold-wash);padding:1px 6px;border-radius:
       var can = b.status === 'cancelled';
       return '<tr class="' + (can ? 'cancelled' : '') + '"><td><b>' + esc(b.ref) + '</b></td><td>' + new Date(b.created * 1000).toLocaleString('en-GB', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }) + '</td>' +
         '<td>' + esc(b.lead.name) + '<div class="guests"><a href="mailto:' + esc(b.lead.email) + '">' + esc(b.lead.email) + '</a><br><a href="https://wa.me/' + esc((b.lead.whatsapp || '').replace(/\D/g, '')) + '" target="_blank" rel="noopener">' + esc(b.lead.whatsapp) + '</a>' + (b.lead.roommate ? '<br>Roommate: ' + esc(b.lead.roommate) : '') + '</div></td>' +
-        '<td>' + esc(b.room_names) + '<div class="guests">' + b.guests.map(function(g){ return esc(g.name) + ' · ' + esc(g.gender); }).join('<br>') + '</div></td>' +
+        '<td>' + esc(b.room_names) + progCell(b) + '<div class="guests">' + b.guests.map(function(g){ return esc(g.name) + ' · ' + esc(g.gender); }).join('<br>') + '</div></td>' +
         '<td>' + (can ? '<span class="pill can">Cancelled</span>' : b.plan ? '<span class="pill dep">Plan ' + b.plan.paid_count + '/' + b.plan.installments + '</span>' : b.balance_cents ? '<span class="pill dep">Deposit</span>' : '<span class="pill full">Paid in full</span>') + '</td>' +
         '<td>' + money(b.total_cents) + '</td><td>' + money(b.paid_cents) + '</td><td>' + (b.balance_cents ? '<b>' + money(b.balance_cents) + '</b>' + (b.plan && b.plan.next_payment && !can ? '<div class="guests">Next ' + money(b.plan.installment_cents) + ' on ' + new Date(b.plan.next_payment * 1000).toLocaleDateString('en-GB', { day:'numeric', month:'short' }) + '</div>' : '') : '–') + '</td>' +
         '<td class="act">' + (b.balance_cents && !can && !b.plan ? '<button class="btn btn-sm" data-act="balance_link" data-ref="' + esc(b.ref) + '">Balance link</button>' : '') +
@@ -208,9 +215,9 @@ code{font-size:.82rem;background:var(--gold-wash);padding:1px 6px;border-radius:
   }
   $('csv').onclick = function(){
     if (!data) return;
-    var head = ['reference','booked_at','status','lead_name','lead_email','whatsapp','roommate','rooms','guests','payment','total_eur','paid_eur','balance_eur','utm_source','utm_campaign'];
+    var head = ['reference','booked_at','status','lead_name','lead_email','whatsapp','roommate','rooms','guests','programme_fee','payment','total_eur','paid_eur','balance_eur','utm_source','utm_campaign'];
     var lines = [head.join(',')].concat((data.bookings || []).map(function(b){
-      return [b.ref, new Date(b.created * 1000).toISOString(), b.status, b.lead.name, b.lead.email, b.lead.whatsapp, b.lead.roommate, b.room_names, b.guests.map(function(g){ return g.name + ' (' + g.gender + ', ' + g.email + ')'; }).join('; '), b.plan ? 'plan ' + b.plan.paid_count + '/' + b.plan.installments : b.balance_cents ? 'deposit' : 'full',
+      return [b.ref, new Date(b.created * 1000).toISOString(), b.status, b.lead.name, b.lead.email, b.lead.whatsapp, b.lead.roommate, b.room_names, b.guests.map(function(g){ return g.name + ' (' + g.gender + ', ' + g.email + ')'; }).join('; '), b.programme === 'included' ? (b.programme_cents / 100).toFixed(2) : b.programme === 'paid' ? 'paid separately (check)' : '', b.plan ? 'plan ' + b.plan.paid_count + '/' + b.plan.installments : b.balance_cents ? 'deposit' : 'full',
         (b.total_cents / 100).toFixed(2), (b.paid_cents / 100).toFixed(2), (b.balance_cents / 100).toFixed(2), (b.utm || {}).utm_source || '', (b.utm || {}).utm_campaign || '']
         .map(function(v){ v = String(v == null ? '' : v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }).join(',');
     }));

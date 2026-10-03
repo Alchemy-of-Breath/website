@@ -27,6 +27,7 @@ export async function onRequestGet({ request, env }) {
       amount_paid_cents: s.amount_total, currency: s.currency, payment: md.aob_payment || null,
       total_cents: parseInt(md.aob_total || '0', 10) || null, balance_cents: balance,
       guests: parseInt(md.aob_guests || '0', 10) || null, rooms, plan,
+      programme: md.aob_prog || 'none', programme_cents: parseInt(md.aob_prog_total || '0', 10),
       first_name: (md.aob_lead_name || '').split(' ')[0],
       program: { id: program.id, title: program.title, edition: program.edition, dates: program.dates, venue: program.venue.name },
     });

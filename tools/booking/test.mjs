@@ -9,6 +9,14 @@ import * as admin from '../../functions/api/booking/admin.js';
 import * as webhook from '../../functions/api/booking/webhook.js';
 import { verifyStripeSignature } from '../../booking-lib/core.js';
 
+/* ---------- clock: 1 July 2026, so all 3 plan payments fit before the October arrival ---------- */
+const RealDate = Date;
+let fakeNow = RealDate.parse('2026-07-01T09:00:00Z');
+globalThis.Date = class extends RealDate {
+  constructor(...a) { super(...(a.length ? a : [fakeNow])); }
+  static now() { return fakeNow; }
+};
+
 let pass = 0, fail = 0;
 const ok = (cond, msg) => { if (cond) { pass++; } else { fail++; console.log('  FAIL:', msg); } };
 const P = 'breathcamp-oct-2026', ORIGIN = 'https://alchemyofbreath.com';
@@ -117,11 +125,17 @@ ok(r.data.rooms['twin-shared-bath'].left.female === 2 && r.data.rooms['twin-shar
 r = await call(checkout, 'POST', '/api/booking/checkout', { program: P, guests: [{ first: '' }], terms: false });
 ok(r.status === 422 && r.data.fields['guests.0.email'] && r.data.fields.whatsapp && r.data.fields.terms, 'validation errors');
 r = await call(checkout, 'POST', '/api/booking/checkout', booking([guest(1, 'twin-ensuite'), guest(2, 'twin-ensuite')]));
-ok(r.data.demo && r.data.quote.total_cents === 281400 && r.data.quote.due_now_cents === 56280 && r.data.quote.balance_cents === 225120, 'demo quote: 2 × €1,407, 20% deposit');
-ok(r.data.stripe_params.success_url.includes('{CHECKOUT_SESSION_ID}') && r.data.stripe_params.line_items[0].price_data.unit_amount === 56280, 'checkout params');
+ok(r.data.demo && r.data.quote.total_cents === 459000 && r.data.quote.due_now_cents === 233880 && r.data.quote.balance_cents === 225120, 'demo quote: 2 × (€888 programme + €1,407 room), programme + 20% room deposit today');
+const li = r.data.stripe_params.line_items;
+ok(r.data.stripe_params.success_url.includes('{CHECKOUT_SESSION_ID}') && li.length === 2 && li[0].quantity === 2 && li[0].price_data.unit_amount === 88800 && li[1].price_data.unit_amount === 56280, 'checkout lines: programme fee × 2, then the room deposit');
+ok(li.reduce((a, l) => a + l.price_data.unit_amount * l.quantity, 0) === r.data.quote.due_now_cents, 'checkout lines add up to the amount due today');
+ok(r.data.stripe_params.metadata.aob_prog === 'included' && r.data.stripe_params.metadata.aob_prog_total === '177600', 'programme fee in the metadata');
 ok(r.data.stripe_params.metadata.aob_rooms === 'twin-ensuite:2' && r.data.stripe_params.metadata.utm_source === 'facebook', 'metadata');
 r = await call(checkout, 'POST', '/api/booking/checkout', booking([guest(1, 'twin-ensuite')], 'full'));
-ok(r.data.quote.due_now_cents === 140700 && r.data.quote.balance_cents === 0, 'pay in full');
+ok(r.data.quote.due_now_cents === 229500 && r.data.quote.balance_cents === 0 && r.data.stripe_params.line_items[1].price_data.unit_amount === 140700, 'pay in full: €888 + €1,407');
+r = await call(checkout, 'POST', '/api/booking/checkout', booking([guest(1, 'twin-ensuite'), guest(2, 'twin-ensuite')], 'deposit', { programme: 'paid' }));
+ok(r.data.quote.programme === 'paid' && r.data.quote.total_cents === 281400 && r.data.quote.due_now_cents === 56280 && r.data.stripe_params.line_items.length === 1, 'room only (programme already paid): 20% of €2,814');
+ok(r.data.stripe_params.metadata.aob_prog === 'paid' && r.data.stripe_params.metadata.aob_prog_total === '0', 'room-only booking flagged in the metadata');
 r = await call(checkout, 'POST', '/api/booking/checkout', booking([guest(1, 'single-ensuite')]));
 ok(r.status === 409 && /sold out/i.test(r.data.error), 'sold-out room rejected');
 r = await call(checkout, 'POST', '/api/booking/checkout', booking([guest(1, 'camper'), guest(2, 'camper')]));
@@ -137,13 +151,23 @@ ok(r.status === 422 && r.data.fields['guests.0.gender'], 'only Female / Male acc
 r = await call(checkout, 'POST', '/api/booking/checkout', booking([guest(1, 'triple-ensuite'), guest(2, 'triple-ensuite', { gender: 'Male' })]));
 ok(r.status === 409 && /enough free rooms/.test(r.data.error), 'a woman and a man cannot share the last free triple');
 r = await call(checkout, 'POST', '/api/booking/checkout', booking([guest(1, 'twin-ensuite'), guest(2, 'twin-ensuite', { gender: 'Male' })]));
-ok(r.data.demo && r.data.quote.total_cents === 281400, 'mixed group can book twin rooms (separate rooms)');
+ok(r.data.demo && r.data.quote.total_cents === 459000, 'mixed group can book twin rooms (separate rooms)');
 r = await call(avail, 'GET', `/api/booking/availability?program=${P}`);
-ok(r.data.payment_plan && r.data.payment_plan.available === true && r.data.payment_plan.installments === 3, 'plan offered in demo mode');
+ok(r.data.payment_plan && r.data.payment_plan.available === true && r.data.payment_plan.installments === 3 && r.data.payment_plan.last_payment_by === '2026-10-24', 'plan offered on 1 July (last payment by the day before arrival)');
 r = await call(checkout, 'POST', '/api/booking/checkout', booking([guest(1, 'twin-shared-bath')], 'plan'));
-ok(r.data.demo && r.data.quote.plan.installment_cents === 39033 && r.data.quote.due_now_cents === 39034 && r.data.quote.balance_cents === 78066, 'plan split: 3 × €390.33, cent on the first');
+ok(r.data.demo && r.data.quote.plan.installment_cents === 68633 && r.data.quote.due_now_cents === 68634 && r.data.quote.balance_cents === 137266, 'plan split: (€888 + €1,171) in 3, cent on the first');
 ok(r.data.stripe_params.mode === 'subscription' && r.data.stripe_params.line_items[0].price_data.recurring.interval === 'month' && r.data.stripe_params.line_items[1].price_data.unit_amount === 1, 'plan uses a monthly subscription + rounding line');
 ok(r.data.stripe_params.subscription_data.metadata.aob_plan_n === '3' && !r.data.stripe_params.payment_intent_data, 'plan metadata on the subscription');
+
+fakeNow = RealDate.parse('2026-08-25T09:00:00Z'); // 3rd payment on 25 Oct = arrival day: too late
+r = await call(avail, 'GET', `/api/booking/availability?program=${P}`);
+ok(r.data.payment_plan.available === false && /2026-10-24/.test(r.data.payment_plan.reason), 'plan hidden when the last payment would fall on arrival day');
+fakeNow = RealDate.parse('2026-10-03T09:00:00Z');
+r = await call(checkout, 'POST', '/api/booking/checkout', booking([guest(1, 'twin-shared-bath')], 'plan'));
+ok(r.status === 422 && /payment plan/.test(r.data.error), 'plan refused on 3 October (payments would run past arrival)');
+r = await call(checkout, 'POST', '/api/booking/checkout', booking([guest(1, 'twin-shared-bath')], 'deposit'));
+ok(r.data.demo && r.data.quote.due_now_cents === 88800 + 23420, 'deposit still offered on 3 October');
+fakeNow = RealDate.parse('2026-07-01T09:00:00Z');
 
 /* ---------- live (mock Stripe) ---------- */
 r = await call(health, 'GET', '/api/booking/health', null, LIVE);
@@ -158,7 +182,8 @@ r = await call(avail, 'GET', `/api/booking/availability?program=${P}`, null, LIV
 ok(r.data.rooms['twin-ensuite'].left.female === 8 && r.data.program_left === 15, 'paid booking counted while search lags');
 store.pis.forEach(pi => { pi._lagging = false; });
 r = await call(session, 'GET', `/api/booking/session?id=${cs1}`, null, LIVE);
-ok(r.data.ref === ref1 && r.data.paid && r.data.amount_paid_cents === 56280 && r.data.balance_cents === 225120 && r.data.first_name === 'Test1', 'session summary');
+ok(r.data.ref === ref1 && r.data.paid && r.data.amount_paid_cents === 233880 && r.data.balance_cents === 225120 && r.data.first_name === 'Test1', 'session summary');
+ok(r.data.programme === 'included' && r.data.programme_cents === 177600, 'confirmation knows the programme fee was paid');
 
 // fill the week: 15 places left → book 6 + 6, then 3 left
 for (const n of [6, 6]) {
@@ -190,7 +215,8 @@ const AUTH = { Authorization: 'Bearer ' + LIVE.ADMIN_TOKEN };
 r = await call(admin, 'GET', `/api/booking/admin?program=${P}`, null, LIVE, AUTH);
 const b1 = r.data.bookings && r.data.bookings.find(b => b.ref === ref1);
 ok(r.status === 200 && r.data.totals.bookings === 3 && r.data.totals.guests === 14, 'admin totals');
-ok(b1 && b1.paid_cents === 281400 && b1.balance_cents === 0 && b1.guests.length === 2 && b1.lead.whatsapp === '+447700900123', 'admin booking detail');
+ok(b1 && b1.paid_cents === 459000 && b1.balance_cents === 0 && b1.guests.length === 2 && b1.lead.whatsapp === '+447700900123', 'admin booking detail');
+ok(b1 && b1.programme === 'included' && b1.programme_cents === 177600, 'admin shows the programme fee');
 r = await call(admin, 'POST', '/api/booking/admin', { action: 'cancel', ref: ref1 }, LIVE, AUTH);
 ok(r.data.ok && r.data.status === 'cancelled', 'admin cancel');
 r = await call(avail, 'GET', `/api/booking/availability?program=${P}`, null, LIVE);
@@ -207,6 +233,7 @@ const sig = Array.from(new Uint8Array(await crypto.subtle.sign('HMAC', key, new 
 ok(await verifyStripeSignature(evt, `t=${t},v1=${sig}`, LIVE.STRIPE_WEBHOOK_SECRET), 'signature verifies');
 let wr = await webhook.onRequestPost({ request: new Request('https://x/api/booking/webhook', { method: 'POST', body: evt, headers: { 'Stripe-Signature': `t=${t},v1=${sig}` } }), env: LIVE });
 ok(wr.status === 200 && store.ghl.length === 1 && store.ghl[0].ref === ref1 && store.ghl[0].phone === '+447700900123' && store.ghl[0].utm_source === 'facebook', 'webhook forwards booking to GHL');
+ok(store.ghl[0].programme === 'included' && store.ghl[0].programme_total === '1776.00' && store.ghl[0].total === '4590.00', 'GHL gets the programme fee and the full total');
 wr = await webhook.onRequestPost({ request: new Request('https://x/api/booking/webhook', { method: 'POST', body: evt, headers: { 'Stripe-Signature': `t=${t},v1=deadbeef` } }), env: LIVE });
 ok(wr.status === 400, 'bad signature rejected');
 

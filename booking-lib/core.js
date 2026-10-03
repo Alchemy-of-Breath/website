@@ -64,7 +64,10 @@ const str = (v, max) => (typeof v === 'string' ? v : v == null ? '' : String(v))
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 /* Validate a booking request and price it from the program file.
-   input: { payment: 'deposit'|'full', guests: [{first,last,email,gender,room}], whatsapp, roommate, terms } */
+   input: { payment: 'deposit'|'full'|'plan', programme: 'included'|'paid', guests: [{first,last,email,gender,room}], whatsapp, roommate, terms }
+   With a programme fee, every guest pays it in full at booking (programme: 'paid' = already paid elsewhere,
+   room only), and the deposit percentage applies to the accommodation. */
+export const programmeFee = program => (program.programme && Number.isInteger(program.programme.fee) && program.programme.fee > 0) ? program.programme : null;
 export function quote(program, input) {
   const errors = {};
   const payment = input && (input.payment === 'full' || input.payment === 'plan') ? input.payment : 'deposit';
@@ -99,8 +102,12 @@ export function quote(program, input) {
     const units = r.unit === 'person' ? n : Math.ceil(n / (r.sleeps || 1));
     return { room: id, name: r.name, guests: n, units, unit: r.unit, unit_price_cents: r.price * 100, amount_cents: units * r.price * 100 };
   });
-  const total = lines.reduce((s, l) => s + l.amount_cents, 0);
-  const deposit = Math.round(total * (program.deposit && program.deposit.percent || 100) / 100);
+  const accommodation = lines.reduce((s, l) => s + l.amount_cents, 0);
+  const prog = programmeFee(program);
+  const programme = !prog ? 'none' : input && input.programme === 'paid' ? 'paid' : 'included';
+  const programmeCents = programme === 'included' ? guests.length * prog.fee * 100 : 0;
+  const total = accommodation + programmeCents;
+  const deposit = programmeCents + Math.round(accommodation * (program.deposit && program.deposit.percent || 100) / 100);
   let dueNow = payment === 'full' ? total : deposit, plan = null;
   if (payment === 'plan') {
     const n = (program.payment_plan && program.payment_plan.installments) || 3;
@@ -110,6 +117,7 @@ export function quote(program, input) {
   }
   return {
     ok: Object.keys(errors).length === 0, errors, payment, guests, whatsapp, roommate, counts, lines, plan,
+    programme, programme_cents: programmeCents, programme_fee_cents: prog ? prog.fee * 100 : 0, accommodation_cents: accommodation,
     total_cents: total, deposit_cents: deposit, due_now_cents: dueNow, balance_cents: total - dueNow,
   };
 }
@@ -121,14 +129,21 @@ export function addMonths(d, k) {
   x.setUTCDate(Math.min(day, new Date(Date.UTC(x.getUTCFullYear(), x.getUTCMonth() + 1, 0)).getUTCDate()));
   return x;
 }
+/* The last day a plan payment may fall on: "before_arrival" = the day before the start date. */
+export function lastPaymentBy(program) {
+  const v = program.payment_plan && program.payment_plan.last_payment_by;
+  if (v !== 'before_arrival') return v || null;
+  const d = new Date(program.dates.start + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() - 1);
+  return d.toISOString().slice(0, 10);
+}
 /* Is the monthly plan on offer right now? (program setting, last-payment-by rule, webhook in live mode) */
 export function planInfo(program, env = {}, now = new Date()) {
   const pp = program.payment_plan;
   if (!pp || !pp.installments) return { available: false, reason: 'not offered' };
-  const n = pp.installments, base = { installments: n, interval: pp.interval || 'month' };
+  const n = pp.installments, by = lastPaymentBy(program), base = { installments: n, interval: pp.interval || 'month', last_payment_by: by };
   if (env.STRIPE_SECRET_KEY && !env.STRIPE_WEBHOOK_SECRET) return { ...base, available: false, reason: 'webhook not configured' };
-  if (pp.last_payment_by && addMonths(now, n - 1).toISOString().slice(0, 10) > pp.last_payment_by) {
-    return { ...base, available: false, reason: 'not enough time before ' + pp.last_payment_by };
+  if (by && addMonths(now, n - 1).toISOString().slice(0, 10) > by) {
+    return { ...base, available: false, reason: 'not enough time before ' + by };
   }
   return { ...base, available: true };
 }
@@ -218,6 +233,7 @@ export function checkAvailability(program, q, avail) {
 
 export const publicQuote = q => ({
   payment: q.payment, guests: q.guests.length, lines: q.lines, plan: q.plan,
+  programme: q.programme, programme_cents: q.programme_cents, accommodation_cents: q.accommodation_cents,
   total_cents: q.total_cents, deposit_cents: q.deposit_cents, due_now_cents: q.due_now_cents, balance_cents: q.balance_cents,
 });
 
@@ -239,6 +255,7 @@ export function bookingMetadata(program, q, ref, extra = {}) {
     aob_lead_name: `${lead.first} ${lead.last}`.slice(0, 120), aob_lead_email: lead.email,
     aob_whatsapp: q.whatsapp, aob_roommate: q.roommate.slice(0, 200),
   };
+  if (q.programme !== 'none') { md.aob_prog = q.programme; md.aob_prog_total = String(q.programme_cents); }
   if (q.plan) { md.aob_plan_n = String(q.plan.installments); md.aob_installment = String(q.plan.installment_cents); }
   q.guests.forEach((g, i) => { md[`aob_g${i + 1}`] = [`${g.first} ${g.last}`, g.email, g.gender, g.room].join(' | ').slice(0, 490); });
   const utm = extra.utm && typeof extra.utm === 'object' ? extra.utm : {};
@@ -258,6 +275,7 @@ export function parseBooking(md = {}) {
   return {
     ref: md.aob_ref, program: md.aob_program, payment: md.aob_payment, status: md.aob_status || 'active',
     total_cents: parseInt(md.aob_total || '0', 10), rooms: roomsFromString(md.aob_rooms),
+    programme: md.aob_prog || 'none', programme_cents: parseInt(md.aob_prog_total || '0', 10),
     lead: { name: md.aob_lead_name, email: md.aob_lead_email, whatsapp: md.aob_whatsapp, roommate: md.aob_roommate || '' },
     guests, utm, page: md.aob_page || '',
   };
@@ -445,10 +463,14 @@ const withQuery = (url, q) => url + (url.includes('?') ? '&' : '?') + q; // keep
 export function bookingCheckoutParams(program, q, ref, md, returnUrl) {
   const title = `${program.title}, ${program.dates.short}`;
   const rooms = q.lines.map(l => `${l.name} × ${l.guests}`).join(', ');
+  const prog = programmeFee(program), n = q.guests.length;
+  const progText = q.programme === 'included' ? `${prog.name} for ${n} ${n === 1 ? 'guest' : 'guests'} and accommodation: ${rooms}`
+    : q.programme === 'paid' ? `Accommodation: ${rooms} (${prog.name.toLowerCase()} already paid)` : rooms;
+  const cur = program.currency.toLowerCase();
   if (q.payment === 'plan') {
-    const p = q.plan, cur = program.currency.toLowerCase();
+    const p = q.plan;
     const items = [{ quantity: 1, price_data: { currency: cur, unit_amount: p.installment_cents, recurring: { interval: 'month', interval_count: 1 },
-      product_data: { name: `${title} · ${p.installments} monthly payments`, description: `${rooms}. Booking ${ref}.`.slice(0, 500) } } }];
+      product_data: { name: `${title} · ${p.installments} monthly payments`, description: `${progText}. Booking ${ref}.`.slice(0, 500) } } }];
     if (p.first_cents > p.installment_cents) items.push({ quantity: 1, price_data: { currency: cur, unit_amount: p.first_cents - p.installment_cents, product_data: { name: 'Rounding on the first payment' } } });
     return {
       mode: 'subscription', payment_method_types: ['card'], locale: 'auto', customer_email: q.guests[0].email, client_reference_id: ref,
@@ -460,17 +482,27 @@ export function bookingCheckoutParams(program, q, ref, md, returnUrl) {
       cancel_url: withQuery(returnUrl, 'status=cancelled'),
     };
   }
-  const name = q.payment === 'full' ? `${title} · stay and meals` : `${program.deposit.percent}% deposit · ${title}`;
-  const desc = `${rooms}. Booking ${ref}.` + (q.balance_cents ? ` Balance ${eur(q.balance_cents)} to pay before arrival.` : ' Paid in full.');
+  // one receipt line for the programme fee, one for the accommodation (in full, or its deposit)
+  const items = [];
+  if (q.programme_cents) items.push({ quantity: n, price_data: { currency: cur, unit_amount: q.programme_fee_cents,
+    product_data: { name: `${prog.name} · ${title}`, description: `Booking ${ref}. Per guest.` } } });
+  const stay = q.due_now_cents - q.programme_cents;
+  if (stay > 0) items.push({ quantity: 1, price_data: { currency: cur, unit_amount: stay, product_data: {
+    name: q.payment === 'full' ? `Accommodation and meals · ${title}` : `${program.deposit.percent}% accommodation deposit · ${title}`,
+    description: `${rooms}. Booking ${ref}.`.slice(0, 500) } } });
+  const desc = `${progText}. Booking ${ref}.` + (q.balance_cents ? ` Accommodation balance ${eur(q.balance_cents)} to pay before arrival.` : ' Paid in full.');
+  const submit = q.balance_cents
+    ? (q.programme_cents ? `Today you pay the ${prog.name.toLowerCase()} and a ${program.deposit.percent}% deposit on your room. ` : `You're paying the ${program.deposit.percent}% deposit today. `) + program.deposit.balance_note
+    : (q.programme_cents ? `You're paying the ${prog.name.toLowerCase()} and your accommodation in full.` : `You're paying for your stay in full.`);
   const lead = q.guests[0];
   return {
     mode: 'payment', payment_method_types: ['card'], locale: 'auto',
     customer_email: lead.email, customer_creation: 'always', client_reference_id: ref,
-    line_items: [{ quantity: 1, price_data: { currency: program.currency.toLowerCase(), unit_amount: q.due_now_cents, product_data: { name, description: desc.slice(0, 500) } } }],
+    line_items: items,
     metadata: md,
-    payment_intent_data: { metadata: md, description: `${title} · ${ref} · ${rooms}`.slice(0, 1000), receipt_email: lead.email },
+    payment_intent_data: { metadata: md, description: `${title} · ${ref} · ${progText}`.slice(0, 1000), receipt_email: lead.email },
     invoice_creation: { enabled: true, invoice_data: { description: desc.slice(0, 1500), metadata: { aob_ref: ref, aob_program: program.id } } },
-    custom_text: { submit: { message: (q.balance_cents ? `You're paying the ${program.deposit.percent}% deposit today. ${program.deposit.balance_note}` : `You're paying for your stay in full.`).slice(0, 1200) } },
+    custom_text: { submit: { message: submit.slice(0, 1200) } },
     expires_at: Math.floor(Date.now() / 1000) + 31 * 60,
     success_url: withQuery(returnUrl, 'status=success&session_id={CHECKOUT_SESSION_ID}'),
     cancel_url: withQuery(returnUrl, 'status=cancelled'),

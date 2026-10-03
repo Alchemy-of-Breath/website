@@ -13,6 +13,8 @@ Edit a JSON file (prices, capacity, photos, deposit…), run this, commit, push.
 Shared single-gender rooms use "same_gender": true, "units" (rooms still in play) and
 "occupied" (beds taken outside this system, e.g. [{"gender": "Female", "beds": 1}]).
 Rooms that sleep one use "capacity".
+"programme" (optional) adds a per-guest programme fee, paid in full at booking; the deposit
+percentage then applies to the accommodation only.
 To add a new week: copy a JSON file, change the id/dates/rooms, copy book/<id>/ to the new id,
 run this.
 """
@@ -52,6 +54,12 @@ def load():
                 raise SystemExit(f"{p['id']}/{r['id']}: missing capacity")
             if not isinstance(r['price'], int) or r['price'] < 0:
                 raise SystemExit(f"{p['id']}/{r['id']}: price must be whole euros")
+        prog = p.get('programme')
+        if prog is not None and (not isinstance(prog.get('fee'), int) or prog['fee'] < 0 or not prog.get('name')):
+            raise SystemExit(f"{p['id']}: programme needs a name and a fee in whole euros")
+        lpb = (p.get('payment_plan') or {}).get('last_payment_by')
+        if lpb not in (None, 'before_arrival') and not re.fullmatch(r'\d{4}-\d{2}-\d{2}', str(lpb)):
+            raise SystemExit(f"{p['id']}: payment_plan.last_payment_by must be \"before_arrival\", YYYY-MM-DD or null")
         programs[p['id']] = p
     return programs
 

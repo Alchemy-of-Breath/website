@@ -37,6 +37,8 @@ export async function onRequestPost({ request, env }) {
       amount_paid: ((s.amount_total || 0) / 100).toFixed(2),
       total: md.aob_total ? (parseInt(md.aob_total, 10) / 100).toFixed(2) : '',
       balance: md.aob_kind === 'booking' ? (parseInt(md.aob_balance || '0', 10) / 100).toFixed(2) : '',
+      programme: md.aob_prog === 'included' ? 'included' : md.aob_prog === 'paid' ? 'paid separately' : '',
+      programme_total: md.aob_prog_total ? (parseInt(md.aob_prog_total, 10) / 100).toFixed(2) : '',
       guests: md.aob_guests || '', rooms: Object.entries(b.rooms).map(([id, n]) => `${roomName(id)} × ${n}`).join(', '),
       guest_list: b.guests.map(g => `${g.name} <${g.email}>, ${g.gender}, ${roomName(g.room)}`).join('\n'),
       roommate: md.aob_roommate || '',
