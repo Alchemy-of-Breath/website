@@ -219,6 +219,12 @@ footer a{color:var(--slate);display:inline-block;padding:6px 0}
   .wk:hover{transform:translateY(-2px);box-shadow:var(--shadow-lift)}
 }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+/* slim header: BreathCamp itself is explained on its own page */
+.hero.slim{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 28px}
+.hero.slim h1{font-size:clamp(1.7rem,3vw,2.4rem)}
+.about-link{flex:none;display:inline-flex;align-items:center;gap:8px;font-size:.88rem;color:var(--gold-text);text-decoration:none;border:1px solid var(--line);background:#fff;border-radius:999px;padding:9px 16px;min-height:44px;box-sizing:border-box}
+.about-link:hover{border-color:var(--gold-deep)}
+.about-link:focus-visible{outline:2px solid var(--teal);outline-offset:3px}
 </style>
 </head>
 <body>
@@ -233,14 +239,14 @@ footer a{color:var(--slate);display:inline-block;padding:6px 0}
 </header>
 
 <main>
-  <section class="hero" aria-labelledby="heroH">
+  <section class="hero slim" aria-labelledby="heroH">
     <div>
       <p class="eyebrow" id="heroEyebrow">BreathCamp · ASHA, Tuscany</p>
       <h1 id="heroH">Book BreathCamp <em>at ASHA</em>.</h1>
       <p class="intro" id="heroIntro">Choose your week, then your room. One booking covers the programme and your stay at ASHA with all meals.</p>
       <ul class="chips" id="heroChips" aria-label="At a glance"></ul>
     </div>
-    <figure class="arch"><picture><source type="image/webp" id="heroWebp" sizes="(max-width:959px) 94vw, 360px"><img id="heroImg" alt="ASHA Retreat Centre in the Tuscan hills" width="1200" height="799" fetchpriority="high" decoding="async"></picture><figcaption><strong id="heroVenue">ASHA Retreat Centre</strong><span id="heroRegion">Tuscany, Italy</span></figcaption></figure>
+    <a class="about-link" href="https://alchemyofbreath.com/breathcamps/" target="_blank" rel="noopener">About BreathCamp <span aria-hidden="true">&rarr;</span></a>
   </section>
 
   <section class="weeks" aria-labelledby="weeksH">
@@ -315,14 +321,10 @@ footer a{color:var(--slate);display:inline-block;padding:6px 0}
 
   /* ---------------- hero ---------------- */
   (function(){
-    var first = WEEKS[0], hero = (first && first.hero_image) || 'asha-campus.jpg', stem = hero.replace(/\.jpg$/i, '');
-    $('heroWebp').setAttribute('srcset', IMG + stem + '-640.webp 640w, ' + IMG + stem + '-1100.webp 1100w');
-    $('heroImg').src = IMG + hero;
+    var first = WEEKS[0];
     if (first) {
       var venue = first.venue || 'ASHA Retreat Centre', region = first.region || '';
       $('heroEyebrow').textContent = 'BreathCamp · ' + venue.replace(' Retreat Centre', '') + (region ? ', ' + region : '');
-      $('heroVenue').textContent = venue; $('heroRegion').textContent = region ? region + ', Italy' : '';
-      $('heroImg').alt = venue + ' in the Tuscan hills';
     }
     var same = function(k){ return WEEKS.length && WEEKS.every(function(w){ return w[k] === first[k]; }); };
     var fee = same('programme_fee') ? first.programme_fee : null;

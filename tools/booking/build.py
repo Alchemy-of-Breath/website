@@ -89,6 +89,7 @@ def check_content(p):
         fail('booking_closes is after dates.start')
     https(p['terms_url'], 'terms_url')
     https(p.get('privacy_url'), 'privacy_url', optional=True)
+    https(p.get('about_url'), 'about_url', optional=True)
     mg = p.get('max_guests_per_booking', 6)
     if not isinstance(mg, int) or not 1 <= mg <= 12:
         fail('max_guests_per_booking must be 1..12 (metadata holds 12 guests)')
@@ -377,34 +378,24 @@ def day_month(iso):
 
 
 def hero_html(p, img_base):
-    """The hero as the page script would draw it before availability arrives (no layout shift)."""
+    """The slim booking header as the page script would draw it before availability arrives (no
+    layout shift). The week itself is explained on the BreathCamp page (about_url)."""
     e = lambda s: html.escape(str(s), quote=True)
     d, v, n = p['dates'], p['venue'], p['dates']['nights']
-    hero = p.get('hero_image') or 'asha-campus.jpg'
-    stem = hero.rsplit('.', 1)[0]
-    rt = (p.get('trust') or {}).get('rating')
     chips = ['<li class="live sk" id="placesChip"><span><b id="placesLeft">–</b> <span id="placesTxt">places left</span></span></li>',
              f'<li id="closesChip">Booking closes {e(day_month(p["booking_closes"]))}</li>' if p.get('booking_closes') else '<li id="closesChip" hidden></li>',
              '<li id="fromChip" hidden></li>']
-    if rt and rt.get('score'):
-        chips.append(f'<li class="rate" id="rateChip"><a href="{e(rt["url"])}" target="_blank" rel="noopener" title="Trustpilot rating as of {e(day_month(rt["as_of"]))}">'
-                     f'<span class="star" aria-hidden="true">&#9733;</span> {rt["score"]} on {e(rt.get("source") or "Trustpilot")} · {rt["count"]} reviews</a></li>')
-    else:
-        chips.append('<li class="rate" id="rateChip" hidden></li>')
     eyebrow = f'{p.get("edition") or p["title"]} · {v["name"].replace(" Retreat Centre", "")}, {v.get("region", "")}'
+    about = (f'  <a class="about-link" href="{e(p["about_url"])}" target="_blank" rel="noopener">About {e(p["title"])} <span aria-hidden="true">&rarr;</span></a>\n'
+             if p.get('about_url') else '')
     return (
-        '\n  <div>\n'
+        '\n  <div class="hb">\n'
         f'    <p class="eyebrow" id="heroEyebrow">{e(eyebrow)}</p>\n'
-        '    <h1 id="heroH1">Book BreathCamp and <em>choose your room</em>.</h1>\n'
+        '    <h1 id="heroH1">Book your place and <em>room</em>.</h1>\n'
         '    <p class="when"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>'
         f'<span id="heroWhen"><span class="wl">{e(d["label"])}</span><span class="ws">{e(d.get("medium") or d["label"])}</span> · {n} nights</span></p>\n'
-        '    <p class="hero-price" id="heroPrice"></p>\n'
-        f'    <p class="note" id="heroNote">{e(p.get("price_note", ""))}</p>\n'
         '    <ul class="chips" aria-label="At a glance">\n      ' + '\n      '.join(chips) + '\n    </ul>\n'
-        '  </div>\n'
-        f'  <figure class="arch"><picture><source type="image/webp" srcset="{e(img_base + stem)}-640.webp 640w, {e(img_base + stem)}-1100.webp 1100w" sizes="(max-width:900px) 94vw, 380px">'
-        f'<img id="heroImg" src="{e(img_base + hero)}" alt="{e(v["name"])} in the Tuscan hills" width="1200" height="799" fetchpriority="high" decoding="async"></picture>'
-        f'<figcaption><strong id="heroVenue">{e(v["name"])}</strong><span id="heroAddr">{e(v["address"])}</span></figcaption></figure>\n'
+        '  </div>\n' + about
     )
 
 

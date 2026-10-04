@@ -80,6 +80,7 @@ export default {
    "Male"
   ],
   "terms_url": "https://alchemyofbreath.com/terms-and-conditions/#breathcamp-policy",
+  "about_url": "https://alchemyofbreath.com/breathcamps/",
   "privacy_url": "https://alchemyofbreath.com/privacy-policy/",
   "contact": {
    "name": "Maria",
@@ -632,6 +633,7 @@ export default {
    "Male"
   ],
   "terms_url": "https://alchemyofbreath.com/terms-and-conditions/#breathcamp-policy",
+  "about_url": "https://alchemyofbreath.com/breathcamps/",
   "privacy_url": "https://alchemyofbreath.com/privacy-policy/",
   "contact": {
    "name": "Maria",

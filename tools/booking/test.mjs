@@ -1258,7 +1258,8 @@ ok(r.status === 202, 'lead with a token accepted');
   const keys = []; (function walk(v, path) { if (v && typeof v === 'object') for (const [k, x] of Object.entries(v)) { keys.push(path + k); walk(x, path + k + '.'); } })(pub, '');
   ok(!keys.some(k => /(^|\.)about$/.test(k)) && !pub.rooms.some(r => 'rg_id' in r || 'names' in r) && !pub.policy.source && !pub.trust.source && !pub.arrival.source, 'page data: no "about" notes, RetreatGuru ids, room names or source notes');
   ok(pub.source && pub.source.snapshot === J1P.source.snapshot && Object.keys(pub.source).length === 1 && pub.trust.rating.source === 'Trustpilot', 'page data keeps the snapshot date and the rating source it shows');
-  ok(/^https:\/\/cdn\.jsdelivr\.net\/gh\/Alchemy-of-Breath\/website@[0-9a-f]{40}\/assets\/booking\/rooms\/$/.test(pub.img_cdn) && html.includes(`<img id="heroImg" src="${pub.img_cdn}asha-campus.jpg"`), 'room photos and the hero are pinned to a commit on jsDelivr');
+  ok(/^https:\/\/cdn\.jsdelivr\.net\/gh\/Alchemy-of-Breath\/website@[0-9a-f]{40}\/assets\/booking\/rooms\/$/.test(pub.img_cdn), 'room photos are pinned to a commit on jsDelivr');
+  ok(html.includes('class="hero slim"') && !html.includes('id="heroImg"') && html.includes('class="about-link" href="https://alchemyofbreath.com/breathcamps/"'), 'slim booking header with an About link (the week is explained on its own page)');
   ok(J1P.programme.about && J1P.rooms[0].names && J1P.rooms[0].names.length === 5 && J1P.services.source, 'the server copy keeps its notes, room names and the catalogue source');
   ok(pub.services && pub.services.items.length === J1P.services.items.length && !('source' in pub.services) && /^https:\/\/cdn\.jsdelivr\.net\/gh\/Alchemy-of-Breath\/website@[0-9a-f]{40}\/assets\/booking\/services\/$/.test(pub.services.img_cdn), 'page data: the session catalogue with its photo base, without the source note');
 }
