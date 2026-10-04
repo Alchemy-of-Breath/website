@@ -535,50 +535,90 @@ fieldset.lock{border:0;margin:0;padding:0;min-width:0}
 .fbk button{border:1px solid rgba(93,67,22,.35);background:#fff;border-radius:999px;padding:9px 14px;min-height:40px;font-size:.84rem;cursor:pointer;color:#5d4316}
 .fbk button:hover{background:#fff8ea}
 
-/* step 3: wellbeing sessions (optional). Portraits echo the hero's arch. */
-.svc{scroll-margin-top:96px}
-.svc-intro{margin:-4px 0 18px;font-size:.9rem;color:var(--slate);line-height:1.55;max-width:42em}
+/* step 3: wellbeing sessions (optional). A tab that opens onto one card per practitioner, with their
+   sessions grouped by title and a choice of length. Portraits echo the hero's arch. */
+.svc{margin:34px 0 0;border:1px solid var(--line);border-radius:18px;background:#fff;scroll-margin-top:96px;transition:border-color .25s,box-shadow .25s}
+.svc.has{border-color:var(--gold-deep);box-shadow:0 0 0 3px rgba(225,182,104,.18)}
+.svc-h{margin:0;font-size:1rem;line-height:1.6}
+.svc-tab{all:unset;box-sizing:border-box;cursor:pointer;width:100%;display:grid;grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"av t ch" "av s ch";align-items:center;gap:4px 16px;padding:16px 18px;min-height:72px;border-radius:17px;background:linear-gradient(120deg,#fff,var(--cream));font-family:var(--sans);font-weight:300;color:var(--ink);transition:background .2s}
+.svc-tab:hover{background:linear-gradient(120deg,#fff,var(--gold-wash))}
+.svc-tab[aria-expanded="true"]{border-radius:17px 17px 0 0;box-shadow:inset 0 -1px 0 rgba(225,182,104,.32)}
+.svc-tab .tav{grid-area:av}
+.svc-tab .tav img{width:38px;height:38px}
+.svc-tab .tav picture+picture{margin-left:-12px}
+.svc-tt{grid-area:t;display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;font-family:var(--serif);font-size:1.22rem;line-height:1.25}
+.svc-tt .opt-tag{margin:0;font-family:var(--sans)}
+.svc-ts{grid-area:s;display:flex;align-items:flex-start;gap:7px;font-size:.84rem;line-height:1.45;color:var(--slate)}
+.svc-ts svg{flex:none;width:16px;height:16px;margin-top:1px;stroke:var(--teal-text);fill:none;stroke-width:2.2}
+.svc-ts b{font-weight:500;color:var(--ink)}
+.svc-ch{grid-area:ch;display:grid;place-items:center;width:40px;height:40px;border-radius:50%;border:1px solid var(--gold-soft);background:#fff;transition:background .2s}
+.svc-ch::before{content:"";width:8px;height:8px;border-right:1.6px solid var(--ink);border-bottom:1.6px solid var(--ink);transform:translateY(-2px) rotate(45deg);transition:transform .25s}
+.svc-tab:hover .svc-ch{background:var(--gold-wash)}
+.svc-tab[aria-expanded="true"] .svc-ch::before{transform:translateY(2px) rotate(-135deg)}
+.svc>.svc-err{margin:14px 18px 0}
+.svc-body{padding:18px 18px 20px;animation:svcIn .3s ease both}
+@keyframes svcIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.svc-intro{margin:0 0 16px;font-size:.88rem;color:var(--slate);line-height:1.55;max-width:44em}
 .opt-tag{display:inline-block;vertical-align:1px;margin-right:8px;padding:2px 9px;border:1px solid var(--gold-soft);border-radius:999px;background:var(--gold-wash);font-size:.64rem;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-text)}
-.svc-chips{margin:0 0 16px}
-.svcs{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:14px}
-.svcard{position:relative;display:grid;grid-template-columns:84px minmax(0,1fr);grid-template-areas:"ava t" "bio bio" "f f" "x x";grid-template-rows:auto 1fr auto auto;column-gap:16px;padding:16px 16px 14px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(180deg,#fff,#fffdf9);transition:border-color .25s,box-shadow .25s}
-.svcard:hover{border-color:rgba(214,166,82,.6)}
-.svcard.on{border-color:var(--gold-deep);box-shadow:0 0 0 3px rgba(225,182,104,.26),0 10px 26px rgba(34,31,32,.06)}
-.sv-ava{grid-area:ava;position:relative;align-self:start;width:84px;height:100px;margin-top:3px}
-.sv-ava picture{display:block;width:100%;height:100%}
-.sv-ava img{width:100%;height:100%;object-fit:cover;object-position:50% 22%;border-radius:999px 999px 12px 12px;background:var(--gold-wash);outline:1px solid rgba(225,182,104,.55);outline-offset:3px}
-.sv-ava .ck{position:absolute;right:-7px;bottom:-7px;width:26px;height:26px;border-radius:50%;background:var(--ink);display:none;place-items:center;box-shadow:0 2px 8px rgba(0,0,0,.22)}
-.sv-ava .ck::before{content:"";width:10px;height:6px;border-left:2px solid var(--gold);border-bottom:2px solid var(--gold);transform:rotate(-45deg) translate(1px,-1px)}
-.svcard.on .sv-ava .ck{display:grid}
-.sv-t{grid-area:t;min-width:0}
-.sv-who{margin:0;font-size:.76rem;color:var(--slate);line-height:1.4}
-.sv-who b{display:block;font-weight:500;font-size:.8rem;color:var(--ink);letter-spacing:.02em}
-.sv-t h4{margin:6px 0 4px;font-family:var(--serif);font-weight:400;font-size:1.14rem;line-height:1.25}
-.sv-tag{margin:0;font-size:.84rem;color:var(--slate);line-height:1.5}
-.sv-about{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:7px;margin:2px -6px -10px;padding:11px 6px;font-size:.8rem;color:var(--gold-text);text-decoration:underline;text-underline-offset:3px}
+@media(max-width:520px){
+  .svc-tab{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"av ch" "t ch" "s ch";row-gap:8px;padding:14px 14px 15px}
+  .svc-tab .tav img{width:32px;height:32px}
+  .svc-tt{font-size:1.12rem}
+  .svc-body{padding:14px 12px 16px}
+  .svc>.svc-err{margin:12px 12px 0}
+}
+/* practitioner cards: the same markup and styles on book/extras/ */
+.pracs{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,290px),1fr));gap:14px;align-items:start}
+.prac{min-width:0;padding:16px 16px 14px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(180deg,#fff,#fffdf9);transition:border-color .25s,box-shadow .25s}
+.prac:hover{border-color:rgba(214,166,82,.6)}
+.prac.on{border-color:var(--gold-deep);box-shadow:0 0 0 3px rgba(225,182,104,.26),0 10px 26px rgba(34,31,32,.06)}
+.pr-h{display:grid;grid-template-columns:80px minmax(0,1fr);column-gap:16px;align-items:center}
+.pr-ava{position:relative;width:80px;height:80px}
+.pr-ava picture{display:block;width:100%;height:100%}
+.pr-ava img{width:100%;height:100%;object-fit:cover;object-position:50% 22%;border-radius:999px 999px 12px 12px;background:var(--gold-wash);outline:1px solid rgba(225,182,104,.55);outline-offset:3px}
+.pr-ava .ck{position:absolute;right:-7px;bottom:-7px;width:26px;height:26px;border-radius:50%;background:var(--ink);display:none;place-items:center;box-shadow:0 2px 8px rgba(0,0,0,.22)}
+.pr-ava .ck::before{content:"";width:10px;height:6px;border-left:2px solid var(--gold);border-bottom:2px solid var(--gold);transform:rotate(-45deg) translate(1px,-1px)}
+.prac.on .pr-ava .ck{display:grid}
+.pr-id{min-width:0}
+.pr-n{margin:0;font-family:var(--serif);font-weight:400;font-size:1.22rem;line-height:1.2}
+.pr-role{margin:3px 0 0;font-size:.8rem;color:var(--slate);line-height:1.4}
+.sv-about{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:7px;margin:0 -6px -10px;padding:11px 6px;font-size:.8rem;color:var(--gold-text);text-decoration:underline;text-underline-offset:3px}
 .sv-about::after{content:"";width:6px;height:6px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg) translateY(-2px);transition:transform .2s}
 .sv-about[aria-expanded="true"]::after{transform:rotate(-135deg) translateY(-1px)}
-.sv-bio{grid-area:bio;align-self:start;margin:12px 0 0;padding:12px 14px;border-radius:12px;background:var(--cream);border:1px solid rgba(225,182,104,.28);font-size:.84rem;line-height:1.6}
+.sv-bio{margin:14px 0 0;padding:12px 14px;border-radius:12px;background:var(--cream);border:1px solid rgba(225,182,104,.28);font-size:.84rem;line-height:1.6}
 .sv-bio p{margin:0 0 8px}
 .sv-bio .b{color:var(--slate)}
+.sv-bio ul{margin:0 0 8px;padding:0;list-style:none}
+.sv-bio li{margin:0 0 6px}
+.sv-bio li b{font-weight:500}
 .sv-bio a{display:inline-block;padding:8px 0;margin:-6px 0 -8px}
-.sv-f{grid-area:f;display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:14px;padding-top:12px;border-top:1px dashed rgba(225,182,104,.5)}
-.sv-pr{font-size:.82rem;color:var(--slate);white-space:nowrap}
-.sv-pr b{font-family:var(--serif);font-weight:400;font-size:1.2rem;color:var(--ink);margin-left:3px}
-.sv-add{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--ink);background:#fff;color:var(--ink);border-radius:999px;padding:10px 18px;min-height:44px;font-size:.84rem;font-weight:500;cursor:pointer;transition:background .2s,color .2s}
+.pr-svcs{list-style:none;margin:4px 0 0;padding:0}
+.psv{margin-top:14px;padding-top:12px;border-top:1px dashed rgba(225,182,104,.5)}
+.psv-n{margin:0;font-family:var(--serif);font-weight:400;font-size:1.06rem;line-height:1.3}
+.psv .sv-tag{margin:3px 0 0;font-size:.84rem;color:var(--slate);line-height:1.5}
+.psv-f{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:10px}
+.psv-act{margin-left:auto}
+.dur{display:flex;flex-wrap:wrap;gap:4px;margin:0;padding:3px;border:1px solid rgba(225,182,104,.45);border-radius:14px;background:var(--cream)}
+.dur label{position:relative;display:flex;flex:1 1 auto;cursor:pointer}
+.dur input{position:absolute;opacity:0;pointer-events:none}
+.dur .o{display:flex;flex:1;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:0 12px;border-radius:11px;font-size:.84rem;color:var(--slate);white-space:nowrap;transition:background .2s,color .2s,box-shadow .2s}
+.dur .o b{font-weight:500;color:var(--ink)}
+.dur label:hover .o{background:#fff}
+.dur input:checked+.o{background:var(--ink);color:rgba(255,255,255,.84);box-shadow:0 2px 8px rgba(34,31,32,.18)}
+.dur input:checked+.o b{color:#fff}
+.dur input:focus-visible+.o{outline:2px solid var(--teal);outline-offset:2px}
+.dur1{display:inline-flex;align-items:center;gap:6px;margin:0;min-height:44px;font-size:.84rem;color:var(--slate)}
+.dur1 b{font-weight:500;color:var(--ink)}
+.cnt{display:inline-grid;place-items:center;min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:var(--gold);color:var(--ink);font-size:.72rem;font-weight:500;line-height:1}
+.sv-add{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--ink);background:#fff;color:var(--ink);border-radius:999px;padding:10px 18px;min-height:44px;font-size:.84rem;font-weight:500;cursor:pointer;white-space:nowrap;transition:background .2s,color .2s}
 .sv-add span{font-size:1.1rem;line-height:1}
-.sv-add:hover:not(:disabled){background:var(--ink);color:#fff}
-.sv-add:disabled{border-color:rgba(34,31,32,.2);color:var(--slate);cursor:not-allowed}
-.stepper.sm{padding:2px}
-.stepper.sm button{width:44px;height:40px;font-size:1.15rem}
-.stepper.sm output{min-width:26px;font-size:1.05rem}
-.sv-x{grid-area:x}
-.sv-x:empty{display:none}
-.sv-for{display:grid;gap:8px;margin-top:12px}
-.sv-for label{display:flex;align-items:center;gap:10px;font-size:.8rem;color:var(--slate)}
-.sv-for label span{flex:none;min-width:2.2em}
-.sv-for select,.svc-mine select{flex:1;min-width:0;width:100%;border:1px solid rgba(34,31,32,.18);border-radius:10px;padding:8px 10px;min-height:44px;background:#fff;font-size:.9rem;color:var(--ink)}
-.sv-lim{margin:10px 0 0;font-size:.76rem;color:var(--slate)}
+.sv-add:hover:not([aria-disabled="true"]){background:var(--ink);color:#fff}
+.sv-add[aria-disabled="true"]{border-color:rgba(34,31,32,.2);color:var(--slate);cursor:not-allowed}
+.psv-lim{margin:8px 0 0;font-size:.78rem;color:var(--slate);text-align:right}
+@media(max-width:640px){.pracs{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:480px){.prac{padding:14px 14px 12px}.pr-h{grid-template-columns:68px minmax(0,1fr);column-gap:14px}.pr-ava{width:68px;height:68px}.pr-n{font-size:1.14rem}.dur .o{position:relative;flex-direction:column;gap:0;padding:4px 14px;line-height:1.25}.dur .sep{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}.dur .cnt{position:absolute;top:-6px;right:-4px}}
+/* your sessions */
+.svc-mine select{flex:1;min-width:0;width:100%;border:1px solid rgba(34,31,32,.18);border-radius:10px;padding:8px 10px;min-height:44px;background:#fff;font-size:.9rem;color:var(--ink)}
 .svc-mine{margin:18px 0 0;border:1px solid var(--line);border-radius:16px;background:#fff;overflow:hidden}
 .sm-h{display:flex;justify-content:space-between;align-items:baseline;gap:4px 12px;flex-wrap:wrap;margin:0;padding:12px 16px;background:var(--cream);border-bottom:1px solid rgba(225,182,104,.3);font-size:.84rem;color:var(--slate)}
 .sm-h b{font-family:var(--serif);font-weight:400;font-size:1.06rem;color:var(--ink)}
@@ -599,9 +639,6 @@ fieldset.lock{border:0;margin:0;padding:0;min-width:0}
 .svc-err{margin:14px 0 0;padding:12px 14px;border-radius:12px;background:#FFF4F0;border:1px solid #F1C7B8;color:#7A2E16;font-size:.88rem}
 .svc-note{display:flex;gap:10px;align-items:flex-start;margin:16px 0 0;font-size:.84rem;color:var(--slate);line-height:1.55}
 .svc-note svg{flex:none;width:18px;height:18px;stroke:var(--teal-text);fill:none;stroke-width:1.6;margin-top:1px}
-@media(max-width:480px){.svcard{grid-template-columns:72px minmax(0,1fr);column-gap:14px;padding:14px 14px 12px}.sv-ava{width:72px;height:86px}.sv-t h4{font-size:1.08rem}}
-/* phones: the kinds of session in one row that scrolls sideways (inside the card, never the page) */
-@media(max-width:560px){.svc-chips{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;overscroll-behavior-x:contain;margin:0 -18px 16px;padding:2px 28px 4px 18px;-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent)}.svc-chips::-webkit-scrollbar{display:none}.svc-chips button{flex:none}}
 
 /* folio (summary) */
 .folio{position:sticky;top:86px}
@@ -706,17 +743,18 @@ fieldset.lock{border:0;margin:0;padding:0;min-width:0}
 .mm-yours ul{margin:6px 0 8px;padding-left:18px}
 .mm-yours li{margin:2px 0}
 .mm-yours .s{color:var(--slate);font-size:.84rem}
-.mm-cards{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
-.mm-card{border:1px solid var(--line);border-radius:16px;overflow:hidden;background:#fff}
-.mm-card picture{display:block}
-.mm-card img{width:100%;aspect-ratio:4/3;object-fit:cover;object-position:50% 30%;background:var(--gold-wash)}
-.mm-card .mt{padding:12px 14px 14px}
-.mm-card .w{margin:0;font-size:.74rem;color:var(--slate);line-height:1.4}
-.mm-card h4{margin:3px 0 4px;font-family:var(--serif);font-weight:400;font-size:1.05rem;line-height:1.25}
-.mm-card .m{margin:0;font-size:.8rem;color:var(--slate)}
+.mm-cards{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.mm-card{display:flex;flex-direction:column;align-items:center;gap:12px;padding:18px 12px 16px;border:1px solid var(--line);border-radius:16px;background:linear-gradient(180deg,#fff,#fffdf9);text-align:center}
+.mm-ava{flex:none;width:72px;height:72px}
+.mm-ava picture{display:block;width:100%;height:100%}
+.mm-ava img{width:100%;height:100%;object-fit:cover;object-position:50% 22%;border-radius:999px 999px 12px 12px;background:var(--gold-wash);outline:1px solid rgba(225,182,104,.55);outline-offset:3px}
+.mm-card .mt{min-width:0}
+.mm-card h4{margin:0;font-family:var(--serif);font-weight:400;font-size:1.08rem;line-height:1.25}
+.mm-card .w{margin:4px 0 0;font-size:.82rem;color:var(--slate);line-height:1.4}
+.mm-card .m{margin:6px 0 0;font-size:.8rem;font-weight:500;color:var(--gold-text)}
 .mmw .actions{margin-top:22px}
 .mm-note{margin:16px auto 0;font-size:.82rem}
-@media(max-width:600px){.mm-cards{grid-template-columns:minmax(0,1fr);gap:10px}.mm-card{display:grid;grid-template-columns:80px minmax(0,1fr);align-items:center}.mm-card img{aspect-ratio:1/1;height:100%}.mm-card .mt{padding:10px 14px}}
+@media(max-width:600px){.mm-cards{grid-template-columns:minmax(0,1fr);gap:10px}.mm-card{flex-direction:row;gap:16px;padding:14px 16px;text-align:left}.mm-ava{width:56px;height:56px}}
 
 /* modal */
 .modal{position:fixed;top:0;right:0;bottom:0;left:0;z-index:80;background:rgba(34,31,32,.55);display:grid;place-items:center;padding:20px}
@@ -740,6 +778,7 @@ footer a{color:var(--slate);display:inline-block;padding:6px 0}
 
 /* focus rings for controls that reset their own styles (keep after those rules) */
 .back:focus-visible,.more:focus-visible,.suggest:focus-visible,.edit:focus-visible,.sum:focus-visible,.steps button:focus-visible,.sw:focus-visible,.sheet-x:focus-visible,.ppalt:focus-visible,.sv-about:focus-visible,.sv-rm:focus-visible{outline:2px solid var(--teal);outline-offset:3px;border-radius:4px}
+.svc-tab:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
 </style>
 </head>
@@ -836,15 +875,16 @@ footer a{color:var(--slate);display:inline-block;padding:6px 0}
           <span class="err" id="e-diet"></span>
         </div>
 
-        <section class="svc" id="svcSec" aria-labelledby="svcH" hidden>
-          <h3 class="sec-h" id="svcH" tabindex="-1">Add a private session to your week</h3>
-          <p class="svc-intro"><span class="opt-tag">Optional</span>One-to-one sessions with the ASHA wellbeing team, arranged around the BreathCamp timetable.</p>
-          <div class="filters svc-chips" id="svcChips" role="group" aria-label="Filter sessions by kind"></div>
-          <div class="svcs" id="svcGrid"></div>
-          <div class="svc-mine" id="svcMine" hidden></div>
-          <p class="svc-lim" id="svcLim" hidden></p>
+        <section class="svc" id="svcSec" aria-labelledby="svcTt" hidden>
+          <h3 class="svc-h" id="svcH"><button type="button" class="svc-tab" id="svcTab" aria-expanded="false" aria-controls="svcBody"><span class="tav" id="svcAv" aria-hidden="true"></span><span class="svc-tt" id="svcTt">Add a private session to your week <span class="opt-tag">Optional</span></span><span class="svc-ts" id="svcSum"></span><span class="svc-ch" aria-hidden="true"></span></button></h3>
           <p class="svc-err" id="e-addons" hidden></p>
-          <p class="svc-note" id="svcNote" hidden></p>
+          <div class="svc-body" id="svcBody" hidden>
+            <p class="svc-intro" id="svcIntro"></p>
+            <div class="pracs" id="svcGrid"></div>
+            <div class="svc-mine" id="svcMine" hidden></div>
+            <p class="svc-lim" id="svcLim" hidden></p>
+            <p class="svc-note" id="svcNote" hidden></p>
+          </div>
           <p class="vh" id="svcLive" aria-live="polite"></p>
         </section>
 
@@ -1676,9 +1716,24 @@ footer a{color:var(--slate);display:inline-block;padding:6px 0}
   }
 
   /* ---------------- step 3 · wellbeing sessions (optional) ---------------- */
-  // Nothing is pre-selected. "Add" books one session for the lead guest; in a group each session has a
-  // "For" select (first names as typed above, or "Guest 2"…). Limits are the server's (services.limits).
-  var svcFilter = 'all', svcOpen = {}, svcOff = false, svcWant = null, svcGridSig = '', svcErrShown = false;
+  // A tab, closed until the guest opens it (open from the start when the booking already has sessions),
+  // with one card per practitioner: their sessions grouped by title, each with its lengths as a radio
+  // group (shortest first). "Add" books one session of the chosen length: the first for the lead guest,
+  // another of the same for the next guest who has none. In a group, "Your sessions" has a "For" select
+  // per session (first names as typed above, or "Guest 2"…). Limits are the server's (services.limits).
+  var svcOpen = {}, svcDur = {}, svcOff = false, svcWant = null, svcGridSig = '', svcErrShown = false, svcShow = null, svcListSent = false;
+  var SVC_UI = 'aob_svc_open_' + P.id;   // the tab open or closed, for this tab's session only
+  // practitioners in catalogue order, each with their sessions grouped by title: [{ key, i, groups:[{ key, title, opts:[service…] }] }]
+  var PRACS = [], GROUPS = {}, SVC_GROUP = {};
+  SVC_LIST.forEach(function(s){
+    var pr = null, g = null, i;
+    for (i = 0; i < PRACS.length; i++) if (PRACS[i].key === s.practitioner) pr = PRACS[i];
+    if (!pr) { pr = { key:s.practitioner, i:PRACS.length, groups:[] }; PRACS.push(pr); }
+    for (i = 0; i < pr.groups.length; i++) if (pr.groups[i].title === s.title) g = pr.groups[i];
+    if (!g) { g = { key:'g' + Object.keys(GROUPS).length, pr:pr, title:s.title, opts:[] }; GROUPS[g.key] = g; pr.groups.push(g); }
+    g.opts.push(s); SVC_GROUP[s.id] = g;
+  });
+  Object.keys(GROUPS).forEach(function(k){ GROUPS[k].opts.sort(function(a, b){ return a.minutes - b.minutes || a.price - b.price; }); });
   // a guest's first name as typed in "Your details", else "You" / "Guest 2"… (inline: "you" mid-sentence)
   function guestLabel(i, inline){ var p = people()[i], f = p ? String(p.first || '').trim() : ''; return f || (i ? 'Guest ' + (i + 1) : inline ? 'you' : 'You'); }
   function guestIn(i){ return guestLabel(i, true); }
@@ -1689,53 +1744,65 @@ footer a{color:var(--slate);display:inline-block;padding:6px 0}
     return '<picture><source type="image/webp" srcset="' + b + '.webp"><img src="' + b + '.jpg" alt="" width="' + w + '" height="' + h + '" loading="lazy" decoding="async"></picture>';
   }
   function guestOpts(sel){ var h = ''; for (var i = 0; i < state.guests; i++) h += '<option value="' + i + '"' + (i === sel ? ' selected' : '') + '>' + esc(guestLabel(i)) + '</option>'; return h; }
-  function svcName(s){ return s.title + ' with ' + pracFirst(s); }
-  function svcAction(s){
-    var n = svcCount(s.id), id = esc(s.id), more = canAdd(s.id);
-    if (!n) return '<button type="button" class="sv-add" data-act="add" data-id="' + id + '" data-fk="add:' + id + '"' + (more ? '' : ' disabled') +
-      ' aria-label="Add ' + esc(svcName(s)) + ', ' + s.minutes + ' minutes, ' + money(s.price * 100) + '"><span aria-hidden="true">+</span>Add</button>';
-    return '<span class="stepper sm" role="group" aria-label="' + esc(svcName(s)) + ': ' + n + (n === 1 ? ' session' : ' sessions') + '">' +
-      '<button type="button" data-act="minus" data-id="' + id + '" data-fk="minus:' + id + '" aria-label="One fewer ' + esc(svcName(s)) + '">&minus;</button>' +
-      '<output>' + n + '</output>' +
-      '<button type="button" data-act="plus" data-id="' + id + '" data-fk="plus:' + id + '" aria-label="One more ' + esc(svcName(s)) + '"' + (more ? '' : ' disabled') + '>+</button></span>';
+  // "Magic Massage with Muji", with the length when the same session comes in more than one
+  function svcName(s){ var g = SVC_GROUP[s.id]; return s.title + (g && g.opts.length > 1 ? ' (' + s.minutes + ' min)' : '') + ' with ' + pracFirst(s); }
+  function svcFrom(list){ var m = 0; list.forEach(function(s){ if (!m || s.price < m) m = s.price; }); return m; }
+  // the length chosen in a group (the shortest until another is chosen)
+  function svcPick(g){ var s = SVC[svcDur[g.key]]; return s && SVC_GROUP[s.id] === g ? s : g.opts[0]; }
+  function lenHtml(s){ return '<span>' + s.minutes + ' min</span><span class="sep"> · </span><b>' + money(s.price * 100) + '</b>'; }
+  function cntHtml(id){ var n = svcCount(id); return n ? '<span class="cnt" aria-hidden="true">' + n + '</span><span class="vh">, ' + n + ' added</span>' : ''; }
+  // why "Add" is off for this length (empty when it isn't)
+  function svcWhy(s){
+    if (svcCount(s.id) >= LIM.svc) return 'Up to ' + LIM.svc + ' of this session per booking.';
+    if (state.addons.length >= LIM.all) return 'That\'s the most sessions one booking can include online (' + LIM.all + ').';
+    return '';
   }
-  function svcExtra(s){
-    var n = svcCount(s.id), out = '', k = 0;
-    if (n && state.guests > 1) out += '<div class="sv-for">' + state.addons.map(function(a, ai){
-      if (a.id !== s.id) return '';
-      k++;
-      return '<label><span>For</span><select data-ai="' + ai + '" data-fk="for:' + esc(s.id) + ':' + k + '" aria-label="' + esc(s.title) + (n > 1 ? ', session ' + k : '') + ': who is it for?">' + guestOpts(a.guest) + '</select></label>';
-    }).join('') + '</div>';
-    if (n && n >= LIM.svc) out += '<p class="sv-lim">Up to ' + LIM.svc + ' of this session per booking.</p>';
-    return out;
+  // one session title of a practitioner: its tagline, its lengths and "Add" (the changing parts are filled in by refreshSvcCards)
+  function svcRow(g){
+    var s = svcPick(g), hid = 'svn-' + g.key;
+    var len = g.opts.length > 1
+      ? '<div class="dur" role="radiogroup" aria-label="' + esc(g.title) + ': choose a length">' + g.opts.map(function(o){
+          return '<label><input type="radio" name="svd-' + g.key + '" value="' + esc(o.id) + '" data-g="' + g.key + '" data-fk="dur:' + esc(o.id) + '"' + (o === s ? ' checked' : '') + '>' +
+            '<span class="o">' + lenHtml(o) + '<span data-cnt="' + esc(o.id) + '"></span></span></label>';
+        }).join('') + '</div>'
+      : '<p class="dur1">' + lenHtml(s) + '<span data-cnt="' + esc(s.id) + '"></span></p>';
+    return '<li class="psv" data-g="' + g.key + '"><h5 class="psv-n" id="' + hid + '">' + esc(g.title) + '</h5><p class="sv-tag"></p>' +
+      '<div class="psv-f">' + len + '<span class="psv-act"><button type="button" class="sv-add" data-act="add" data-g="' + g.key + '" data-fk="add:' + g.key + '"></button></span></div>' +
+      '<p class="psv-lim" id="svl-' + g.key + '" hidden></p></li>';
   }
-  function svcCard(s){
-    var p = PRAC[s.practitioner] || {}, id = esc(s.id), open = !!svcOpen[s.id], n = svcCount(s.id);
-    return '<article class="svcard' + (n ? ' on' : '') + '" data-svc="' + id + '" aria-labelledby="svh-' + id + '">' +
-      '<span class="sv-ava" aria-hidden="true">' + (p.photo ? svcPic(p.photo, 'sq-480', 480, 480) : '') + '<span class="ck"></span></span>' +
-      '<div class="sv-t"><p class="sv-who"><b>' + esc(p.name || '') + '</b>' + esc(p.role || '') + '</p><h4 id="svh-' + id + '">' + esc(s.title) + '</h4>' +
-        (s.tagline ? '<p class="sv-tag">' + esc(s.tagline) + '</p>' : '') +
-        (p.bio || s.description ? '<button type="button" class="sv-about" data-act="about" data-id="' + id + '" data-fk="about:' + id + '" aria-expanded="' + open + '" aria-controls="svb-' + id + '">About ' + esc(pracFirst(s)) + '</button>' : '') + '</div>' +
-      '<div class="sv-bio" id="svb-' + id + '"' + (open ? '' : ' hidden') + '>' + (s.description ? '<p>' + esc(s.description) + '</p>' : '') + (p.bio ? '<p class="b">' + esc(p.bio) + '</p>' : '') +
+  function pracCard(pr){
+    var p = PRAC[pr.key] || {}, id = 'svp-' + pr.i, open = !!svcOpen[pr.key], first = String(p.name || '').split(/[\s,]+/)[0];
+    var about = pr.groups.map(function(g){
+      var d = []; g.opts.forEach(function(o){ if (o.description && d.indexOf(o.description) < 0) d.push(o.description); });
+      return d.length ? '<li><b>' + esc(g.title) + '.</b> ' + esc(d.join(' ')) + '</li>' : '';
+    }).join('');
+    return '<article class="prac" data-p="' + pr.i + '" aria-labelledby="' + id + '-n">' +
+      '<div class="pr-h"><span class="pr-ava" aria-hidden="true">' + (p.photo ? svcPic(p.photo, 'sq-480', 480, 480) : '') + '<span class="ck"></span></span>' +
+        '<div class="pr-id"><h4 class="pr-n" id="' + id + '-n">' + esc(p.name || '') + '</h4>' + (p.role ? '<p class="pr-role">' + esc(p.role) + '</p>' : '') +
+        (p.bio || about ? '<button type="button" class="sv-about" data-act="about" data-p="' + pr.i + '" data-fk="about:' + pr.i + '" aria-expanded="' + open + '" aria-controls="' + id + '-b">About ' + esc(first) + '</button>' : '') + '</div></div>' +
+      '<div class="sv-bio" id="' + id + '-b"' + (open ? '' : ' hidden') + '>' + (p.bio ? '<p class="b">' + esc(p.bio) + '</p>' : '') + (about ? '<ul>' + about + '</ul>' : '') +
         (p.team_url ? '<a href="' + esc(p.team_url) + '" target="_blank" rel="noopener">More on the ASHA website<span class="vh"> (opens in a new tab)</span></a>' : '') + '</div>' +
-      '<div class="sv-f"><span class="sv-pr">' + s.minutes + ' min ·<b>' + money(s.price * 100) + '</b></span><span class="sv-act">' + svcAction(s) + '</span></div>' +
-      '<div class="sv-x">' + svcExtra(s) + '</div></article>';
+      '<ul class="pr-svcs">' + pr.groups.map(svcRow).join('') + '</ul></article>';
   }
-  function renderSvcChips(){
-    var cats = SV.categories || {}, keys = ['all'].concat(Object.keys(cats).filter(function(k){ return SVC_LIST.some(function(s){ return s.category === k; }); }));
-    if (keys.indexOf(svcFilter) < 0) svcFilter = 'all';
-    var html = keys.length > 2 ? keys.map(function(k){ return '<button type="button" data-act="chip" data-cat="' + esc(k) + '" data-fk="chip:' + esc(k) + '" aria-pressed="' + (svcFilter === k) + '">' + esc(k === 'all' ? 'All' : cats[k]) + '</button>'; }).join('') : '';
-    setHtml($('svcChips'), html);
-    $('svcChips').hidden = !html;
-  }
-  // the cards are drawn again only when the filter or the group size changes; otherwise only their
-  // changing parts are (so the photos never flicker)
+  // the parts of the cards that change (counts, chosen length, "Add", limits), in place: the photos never
+  // flicker and the control that has focus stays where it is
   function refreshSvcCards(){
-    $('svcGrid').querySelectorAll('.svcard').forEach(function(card){
-      var s = SVC[card.getAttribute('data-svc')]; if (!s) return;
-      card.classList.toggle('on', svcCount(s.id) > 0);
-      setHtml(card.querySelector('.sv-act'), svcAction(s));
-      setHtml(card.querySelector('.sv-x'), svcExtra(s));
+    $('svcGrid').querySelectorAll('.prac').forEach(function(card){
+      var on = false;
+      card.querySelectorAll('.psv').forEach(function(row){
+        var g = GROUPS[row.getAttribute('data-g')]; if (!g) return;
+        var s = svcPick(g), n = svcCount(s.id), why = svcWhy(s), b = row.querySelector('.sv-add'), lim = row.querySelector('.psv-lim');
+        g.opts.forEach(function(o){ if (svcCount(o.id)) on = true; });
+        row.querySelectorAll('[data-cnt]').forEach(function(c){ setHtml(c, cntHtml(c.getAttribute('data-cnt'))); });
+        row.querySelectorAll('input[type="radio"]').forEach(function(r){ var want = r.value === s.id; if (r.checked !== want) r.checked = want; });
+        row.querySelector('.sv-tag').textContent = s.tagline || '';
+        b.setAttribute('data-id', s.id);
+        b.setAttribute('aria-label', (n ? 'Add another ' : 'Add ') + s.title + ' with ' + pracFirst(s) + ', ' + s.minutes + ' minutes, ' + money(s.price * 100));
+        if (why) { b.setAttribute('aria-disabled', 'true'); b.setAttribute('aria-describedby', lim.id); } else { b.removeAttribute('aria-disabled'); b.removeAttribute('aria-describedby'); }
+        setHtml(b, '<span aria-hidden="true">+</span>' + (n ? 'Add another' : 'Add'));
+        lim.textContent = why; lim.hidden = !why;
+      });
+      card.classList.toggle('on', on);
     });
   }
   function renderSvcMine(){
@@ -1763,22 +1830,42 @@ footer a{color:var(--slate);display:inline-block;padding:6px 0}
     for (var i = 0; i < keys.length; i++) {
       if (!keys[i]) continue;
       var el = $('svcSec').querySelector('[data-fk="' + keys[i] + '"]');
-      if (el && !el.disabled) { if (document.activeElement !== el) focusEl(el); return; }
+      if (el && !el.disabled && el.offsetParent !== null) { if (document.activeElement !== el) focusEl(el); return; }
     }
-    focusEl($('svcH'));   // the control that had focus is gone: keep focus in the section
+    focusEl($('svcTab'));   // the control that had focus is gone: keep focus in the section
+  }
+  // the tab: open or closed, and what's in it ("from €100" until a session is added, then the count and amount)
+  function renderSvcTab(){
+    var n = state.addons.length;
+    $('svcTab').setAttribute('aria-expanded', svcShow ? 'true' : 'false');
+    $('svcBody').hidden = !svcShow;
+    $('svcSec').classList.toggle('has', n > 0);
+    setHtml($('svcSum'), n ? ICON.check + '<span><b>' + n + (n === 1 ? ' session' : ' sessions') + ' added</b> · ' + money(totals().adds) + '</span>'
+      : '<span>One-to-one sessions with the ASHA wellbeing team · from ' + money(svcFrom(SVC_LIST) * 100) + '</span>');
+    setHtml($('svcAv'), PRACS.slice(0, 4).map(function(pr){ var p = PRAC[pr.key] || {}; return p.photo ? svcPic(p.photo, 'sq-480', 38, 38) : ''; }).join(''));
+  }
+  function setSvcOpen(open){
+    svcShow = !!open;
+    try { sessionStorage.setItem(SVC_UI, svcShow ? '1' : '0'); } catch(e){}
+    renderSvcTab(); svcSeen();
+  }
+  // the first time the sessions are shown: the list for analytics (the catalogue only, nothing about the guest)
+  function svcSeen(){
+    if (svcListSent || !svcShow || !SV || svcOff || $('svcSec').hidden) return;
+    svcListSent = true;
+    dl('view_item_list', { item_list_id:'wellbeing_sessions', item_list_name:'Wellbeing sessions', items: SVC_LIST.map(function(s, i){ var it = svcItem(s, 1); it.index = i; return it; }) });
   }
   function renderSvc(){
     var sec = $('svcSec');
     if (!SV || svcOff) { sec.hidden = true; return; }
     sec.hidden = false;
+    if (svcShow === null) { var v = null; try { v = sessionStorage.getItem(SVC_UI); } catch(e){} svcShow = v === '1' || (v !== '0' && state.addons.length > 0); }
     // focus: back to the same control (or its successor) when a redraw replaced it
     var ae = document.activeElement, inSec = !!(ae && ae.closest && ae.closest('#svcSec')), fk = inSec ? ae.getAttribute('data-fk') : null, want = svcWant; svcWant = null;
-    renderSvcChips();
-    var sig = svcFilter + '|' + state.guests;
-    if (sig !== svcGridSig || !$('svcGrid').firstChild) {
-      svcGridSig = sig;
-      setHtml($('svcGrid'), SVC_LIST.filter(function(s){ return svcFilter === 'all' || s.category === svcFilter; }).map(svcCard).join(''));
-    } else refreshSvcCards();
+    renderSvcTab();
+    setHtml($('svcIntro'), 'Choose who you\'d like to work with and for how long, then press Add.' + (state.guests > 1 ? ' Each session is for one person: choose who under Your sessions.' : ''));
+    if (svcGridSig !== 'on' || !$('svcGrid').firstChild) { svcGridSig = 'on'; setHtml($('svcGrid'), PRACS.map(pracCard).join('')); }
+    refreshSvcCards();
     renderSvcMine();
     var full = state.addons.length >= LIM.all;
     var lim = full ? 'That\'s the most sessions one booking can include online (' + LIM.all + '). For more, ' + waA('message us on WhatsApp', 'Hi ' + MARIA + '! I\'d like to book more wellbeing sessions for ' + WHEN + '.') + '.' : '';
@@ -1787,6 +1874,7 @@ footer a{color:var(--slate);display:inline-block;padding:6px 0}
     if (SV.note && $('svcNote').hidden) { $('svcNote').innerHTML = ICON.info + '<span>' + esc(SV.note) + '</span>'; $('svcNote').hidden = false; }
     if (want && (inSec || !ae || ae === document.body)) svcRefocus(want.concat([fk]));
     else if (inSec && !document.body.contains(ae)) svcRefocus([fk]);
+    svcSeen();
   }
   function svcChanged(msg){
     if (svcErrShown) { svcErrShown = false; $('e-addons').hidden = true; $('e-addons').textContent = ''; if (!$('err3').hidden && /session/i.test($('err3').textContent)) showAlert(3, ''); }
@@ -1797,43 +1885,49 @@ footer a{color:var(--slate);display:inline-block;padding:6px 0}
     }
   }
   function addSvc(id){
-    var s = SVC[id]; if (!s || !canAdd(id)) return;
+    var s = SVC[id]; if (!s) return;
+    if (!canAdd(id)) { $('svcLive').textContent = svcWhy(s); return; }
     // the first is for the lead guest; another of the same goes to the next guest who hasn't one yet
     var have = state.addons.filter(function(a){ return a.id === id; }).map(function(a){ return a.guest; }), g = 0, i;
     if (have.length) for (i = 0; i < state.guests; i++) { if (have.indexOf(i) < 0) { g = i; break; } }
     state.addons.push({ id:id, guest:g });
-    svcWant = ['plus:' + id, 'minus:' + id];
+    svcWant = ['add:' + SVC_GROUP[id].key, 'dur:' + id];
     svcChanged(svcName(s) + ' added' + (state.guests > 1 ? ' for ' + guestIn(g) : '') + '.');
     dl('add_to_cart', { currency: P.currency || 'EUR', value: s.price, items:[svcItem(s, 1)] });
   }
   function removeAt(ai, want){
     var a = state.addons[ai], s = a && SVC[a.id]; if (!s) return;
     state.addons.splice(ai, 1);
-    svcWant = want || ['rm:' + ai, 'rm:' + (ai - 1)];
+    svcWant = want || ['rm:' + ai, 'rm:' + (ai - 1), 'add:' + SVC_GROUP[s.id].key];
     svcChanged(svcName(s) + ' removed.');
     dl('remove_from_cart', { currency: P.currency || 'EUR', value: s.price, items:[svcItem(s, 1)] });
   }
-  function removeSvc(id){   // the stepper's minus takes off the last one added
-    for (var i = state.addons.length - 1; i >= 0; i--) if (state.addons[i].id === id) return removeAt(i, ['minus:' + id, 'add:' + id]);
-  }
-  function svcNamesChanged(){ if (state.guests > 1 && state.addons.length && state.step === 3) { refreshSvcCards(); renderSvcMine(); renderReview(); } }
-  function svcError(msg){ svcErrShown = true; $('e-addons').textContent = msg; $('e-addons').hidden = false; }
+  function svcNamesChanged(){ if (state.guests > 1 && state.addons.length && state.step === 3) { renderSvcMine(); renderReview(); } }
+  function svcError(msg){ svcErrShown = true; $('e-addons').textContent = msg; $('e-addons').hidden = false; if (svcShow !== true) setSvcOpen(true); }
+  // open the sessions and bring them into view (from "Change" in the booking list, or a session the server refused)
+  function svcGo(){ if (svcShow !== true) setSvcOpen(true); scrollToEl($('svcSec'), 'start'); focusEl($('svcTab')); }
+  $('svcTab').addEventListener('click', function(){ setSvcOpen(!svcShow); });
   $('svcSec').addEventListener('click', function(e){
     var b = e.target && e.target.closest ? e.target.closest('[data-act]') : null;
     if (!b || b.disabled || ec || busy) return;
-    var act = b.getAttribute('data-act'), id = b.getAttribute('data-id');
-    if (act === 'chip') { svcFilter = b.getAttribute('data-cat') || 'all'; renderSvc(); return; }
+    var act = b.getAttribute('data-act');
     if (act === 'about') {
-      var open = b.getAttribute('aria-expanded') !== 'true', bio = $('svb-' + id);
-      svcOpen[id] = open; b.setAttribute('aria-expanded', open ? 'true' : 'false'); if (bio) bio.hidden = !open;
+      var pr = PRACS[+b.getAttribute('data-p')], open = b.getAttribute('aria-expanded') !== 'true', bio = $(b.getAttribute('aria-controls'));
+      if (pr) svcOpen[pr.key] = open;
+      b.setAttribute('aria-expanded', open ? 'true' : 'false'); if (bio) bio.hidden = !open;
       return;
     }
-    if (act === 'add' || act === 'plus') addSvc(id);
-    else if (act === 'minus') removeSvc(id);
+    if (act === 'add') addSvc(b.getAttribute('data-id'));
     else if (act === 'rm') removeAt(+b.getAttribute('data-ai'));
   });
   $('svcSec').addEventListener('change', function(e){
-    var s = e.target; if (!s || !s.hasAttribute || !s.hasAttribute('data-ai')) return;
+    var s = e.target; if (!s || !s.getAttribute) return;
+    if (s.type === 'radio') {   // another length: the tagline, price and "Add" follow it
+      var gk = s.getAttribute('data-g');
+      if (s.checked && GROUPS[gk] && SVC[s.value]) { svcDur[gk] = s.value; refreshSvcCards(); }
+      return;
+    }
+    if (!s.hasAttribute('data-ai')) return;
     var a = state.addons[+s.getAttribute('data-ai')], g = +s.value;
     if (a && g >= 0 && g < state.guests && a.guest !== g) { a.guest = g; svcChanged(SVC[a.id] ? svcName(SVC[a.id]) + ' is now for ' + guestIn(g) + '.' : ''); }
   });
@@ -1864,7 +1958,7 @@ footer a{color:var(--slate);display:inline-block;padding:6px 0}
     html += '<li class="sch">' + schedHtml(schedule(t)) + '</li>';
     $('review').innerHTML = html;
     $('review').querySelectorAll('[data-go]').forEach(function(b){ b.onclick = function(){ goStep(+b.getAttribute('data-go')); }; });
-    $('review').querySelectorAll('[data-svcgo]').forEach(function(b){ b.onclick = function(){ scrollToEl($('svcSec'), 'start'); focusEl($('svcH')); }; });
+    $('review').querySelectorAll('[data-svcgo]').forEach(function(b){ b.onclick = svcGo; });
   }
   function uniq(a){ return a.filter(function(x, i){ return a.indexOf(x) === i; }); }
   function andList(a){ return a.length <= 1 ? a.join('') : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1]; }
@@ -2129,7 +2223,7 @@ footer a{color:var(--slate);display:inline-block;padding:6px 0}
     if (step === 2) { goStep(2); showAlert(2, fields[keys.filter(function(k){ return /room$/.test(k); })[0]] || 'Please choose your room again.'); return; }
     var pm = fields.payment, onlySvc = keys.length && keys.every(function(k){ return /^addons\b/.test(k); });
     showAlert(3, pm ? pm + (state.payment === 'full' ? ' We\'ve switched you to paying in full; please check the amount.' : '') : onlySvc ? 'Please check your wellbeing sessions below.' : (msg && !/^Please/.test(msg) ? msg : 'A few details need your attention.'));
-    if (onlySvc && !$('svcSec').hidden) { scrollToEl($('svcSec'), 'start'); focusEl($('svcH')); return; }
+    if (onlySvc && !$('svcSec').hidden) { svcGo(); return; }
     if (!focusFirstBad('step3')) scrollToEl($('err3'));
   }
   function stripeFor(pk){ if (!sj || sj._aobPk !== pk) { sj = window.Stripe(pk); sj._aobPk = pk; } return sj; }
@@ -2547,27 +2641,22 @@ footer a{color:var(--slate);display:inline-block;padding:6px 0}
         price: a.price_cents != null ? a.price_cents / 100 : (sv.price || 0), guest: many ? (f || (g ? 'Guest ' + (g + 1) : 'you')) : '' };
     }).filter(function(x){ return x.id && x.title; });
   }
-  // after a paid booking: sessions with the ASHA team can still be added (book/extras/)
+  // after a paid booking: sessions with the ASHA team can still be added (book/extras/). Up to three
+  // practitioners (those they haven't booked first), each with their first session and the lowest price.
   function weekBlock(ref, mine){
     if (!SV || svcOff || !ref) return '';
     var booked = {}, picks = [];
-    mine.forEach(function(x){ booked[x.id] = 1; });
-    // the first session of three different kinds (one they haven't booked, where there is one)
-    Object.keys(SV.categories || {}).forEach(function(c){
-      if (picks.length >= 3) return;
-      var inCat = SVC_LIST.filter(function(x){ return x.category === c; });
-      var s = inCat.filter(function(x){ return !booked[x.id]; })[0] || inCat[0];
-      if (s) picks.push(s);
-    });
-    SVC_LIST.forEach(function(x){ if (picks.length < 3 && picks.indexOf(x) < 0) picks.push(x); });
+    mine.forEach(function(x){ var sv = SVC[x.id]; if (sv) booked[sv.practitioner] = 1; });
+    PRACS.forEach(function(pr){ if (picks.length < 3 && !booked[pr.key]) picks.push(pr); });
+    PRACS.forEach(function(pr){ if (picks.length < 3 && picks.indexOf(pr) < 0) picks.push(pr); });
     var yours = mine.length ? '<div class="mm-yours"><p><b>Your sessions</b></p><ul>' + mine.map(function(x){
       return '<li>' + esc(x.title) + (x.who ? ' with ' + esc(x.who) : '') + (x.minutes ? ' (' + x.minutes + ' min)' : '') + (x.guest ? ' for ' + esc(x.guest) : '') + '</li>';
     }).join('') + '</ul><p class="s">ASHA Reception will arrange the times with you.</p></div>' : '';
-    var cards = picks.map(function(sv){
-      var p = PRAC[sv.practitioner] || {}, b = SVC_IMG + (p.photo || '');
-      return '<li class="mm-card"><picture><source media="(max-width:600px)" type="image/webp" srcset="' + b + '-sq-480.webp"><source media="(max-width:600px)" srcset="' + b + '-sq-480.jpg">' +
-        '<source type="image/webp" srcset="' + b + '-43-960.webp"><img src="' + b + '-43-960.jpg" alt="" width="960" height="720" loading="lazy" decoding="async"></picture>' +
-        '<div class="mt"><p class="w">' + esc(p.name || '') + '</p><h4>' + esc(sv.title) + '</h4><p class="m">' + sv.minutes + ' min · ' + money(sv.price * 100) + '</p></div></li>';
+    var cards = picks.map(function(pr){
+      var p = PRAC[pr.key] || {}, all = [];
+      pr.groups.forEach(function(g){ all = all.concat(g.opts); });
+      return '<li class="mm-card"><span class="mm-ava" aria-hidden="true">' + (p.photo ? svcPic(p.photo, 'sq-480', 480, 480) : '') + '</span>' +
+        '<div class="mt"><h4>' + esc(p.name || '') + '</h4><p class="w">' + esc(pr.groups[0].title) + '</p><p class="m">from ' + money(svcFrom(all) * 100) + '</p></div></li>';
     }).join('');
     return '<section class="mmw" aria-labelledby="mmwH"><h3 id="mmwH">Make the most of <em>your week</em></h3>' +
       '<p class="mm-lead">One-to-one sessions with the ASHA wellbeing team, arranged around the BreathCamp timetable.</p>' + yours +
@@ -2605,7 +2694,7 @@ footer a{color:var(--slate);display:inline-block;padding:6px 0}
     try { $('icsBtn').href = URL.createObjectURL(new Blob([icsText(ref)], { type:'text/calendar;charset=utf-8' })); } catch(e){ $('icsBtn').hidden = true; }
     // only now is it safe to forget the saved booking, and only in the browser that booked
     if (!own) return;
-    try { localStorage.removeItem(STORE); sessionStorage.removeItem(PII); } catch(e){}
+    try { localStorage.removeItem(STORE); sessionStorage.removeItem(PII); sessionStorage.removeItem(SVC_UI); } catch(e){}
     state.pendingSession = null; state.replaceSession = null;
     var key = 'aob_purchase_' + ref, seen = false;
     try { seen = !!localStorage.getItem(key); } catch(e){}
