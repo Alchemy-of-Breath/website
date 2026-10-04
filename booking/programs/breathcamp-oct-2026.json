@@ -21,17 +21,38 @@
   "programme": {
     "fee": 888,
     "name": "Programme fee",
-    "summary": "Every workshop, class and evening session with Amy, Anthony and senior trainers, daily yoga and course materials, plus the whole of ASHA: the pool, the creeks, the Dharma Den, Nadi Shala and Prana Shala.",
-    "about": "Paid per guest at booking, in full, alongside the room deposit. Guests who already paid it elsewhere (GHL or RetreatGuru) can book their room only with ?programme=paid; those bookings are flagged in the dashboard to check."
+    "summary": "Every breathwork session, workshop, class and evening event with Amy, Anthony and senior Alchemy of Breath trainers, daily yoga and course materials, plus the land and practice spaces at ASHA.",
+    "about": "Paid per guest at booking, in full, alongside the room deposit. Guests who already paid it elsewhere (GHL or RetreatGuru) book their room only via ?programme=paid; the server tries to match an earlier programme-fee payment in Stripe by email and the dashboard flags anything it can't match.",
+    "includes": [
+      "Daily breathwork sessions and guided rituals",
+      "Movement and sound healing",
+      "Intuition, mind, body and soul workshops",
+      "The Bridge integration process",
+      "Sacred rites of passage and the closing ceremony",
+      "Course materials, and a daily practice to take home"
+    ]
   },
   "price_note": "One programme fee of €888 per person covers every workshop, class and evening session. Rooms are priced per person for 6 nights with all meals at ASHA.",
+  "stay_includes": [
+    "6 nights at ASHA in the room or tent you choose",
+    "Three plant-based meals a day, cooked on site, with dietary needs cared for",
+    "Coffee, tea and water throughout the day"
+  ],
+  "not_included": [
+    "Travel to ASHA and ground transport",
+    "Travel insurance (strongly recommended)",
+    "Optional treatments such as massage or intuitive readings"
+  ],
   "program_spaces": 17,
   "max_guests_per_booking": 6,
   "booking_closes": "2026-10-24",
   "deposit": {
     "percent": 20,
     "applies_to": "accommodation",
-    "balance_note": "The rest of your accommodation is paid before you arrive at ASHA."
+    "balance_note": "The rest of your accommodation is paid before you arrive at ASHA.",
+    "balance_due": null,
+    "available_until": null,
+    "about": "balance_due: optional YYYY-MM-DD shown as the balance due date (null = 'before you arrive'). available_until: optional YYYY-MM-DD after which only paying in full is offered."
   },
   "payment_plan": {
     "installments": 3,
@@ -40,11 +61,23 @@
     "note": "Charged automatically to the same card each month.",
     "about": "last_payment_by: \"before_arrival\" (the day before the start date), a YYYY-MM-DD date, or null for no limit. The plan is only offered while every payment falls on or before that day."
   },
+  "payment_methods": {
+    "payment": [
+      "card",
+      "link",
+      "klarna"
+    ],
+    "plan": [
+      "card",
+      "link"
+    ],
+    "about": "Stripe payment_method_types per checkout mode. Methods not activated in the Stripe Dashboard are dropped automatically (falls back to card)."
+  },
   "genders": [
     "Female",
     "Male"
   ],
-  "terms_url": "https://alchemyofbreath.com/terms-and-conditions/breathcamp/",
+  "terms_url": "https://alchemyofbreath.com/terms-and-conditions/#breathcamp-policy",
   "contact": {
     "name": "Maria",
     "email": "generalmanager@asha.global",
@@ -259,5 +292,60 @@
         "cottage-two-1.jpg"
       ]
     }
-  ]
+  ],
+  "policy": {
+    "points": [
+      "We do not offer refunds, and a booking can't be transferred to another person.",
+      "If we cancel BreathCamp, we refund the full amount, minus currency exchange and bank fees.",
+      "We strongly suggest travel insurance."
+    ],
+    "change_notice_days": 45,
+    "change_note": "Moving to another BreathCamp in the same season needs at least 45 days' notice before the start date.",
+    "source": "https://alchemyofbreath.com/terms-and-conditions/#breathcamp-policy (BreathCamp terms, updated 1 Dec 2025; checked 2026-10-04)"
+  },
+  "arrival": {
+    "checkin": "Sunday 25 October, 2:30–5:00 pm, with orientation at 4:30 pm",
+    "checkout": "Saturday 31 October, 8:00–9:30 am; the programme ends with lunch around 2 pm",
+    "travel": "Fly into Rome Fiumicino (FCO), about 2.5 hours away by car, or take the train to Chiusi-Chianciano Terme, about an hour from ASHA. A WhatsApp group helps everyone share rides.",
+    "source": "breathcamps/index.html FAQ and breathcamps/guide/index.html"
+  },
+  "trust": {
+    "rating": {
+      "source": "Trustpilot",
+      "score": 4.6,
+      "count": 53,
+      "url": "https://www.trustpilot.com/review/alchemyofbreath.com",
+      "as_of": "2026-10-04"
+    },
+    "testimonials": [
+      {
+        "quote": "I have attended many retreats, but nothing opened my heart like this.",
+        "name": "Livia",
+        "place": "Copenhagen",
+        "video": "https://www.youtube.com/watch?v=pjEa7lulP7M"
+      },
+      {
+        "quote": "It will awaken your soul and your purpose. That is what it has done for me.",
+        "name": "Ligia",
+        "place": "BreathCamper",
+        "video": "https://www.youtube.com/watch?v=fQTWLsyerdY"
+      },
+      {
+        "quote": "I finally learned how to breathe with my heart.",
+        "name": "Pippa",
+        "place": "France",
+        "video": "https://www.youtube.com/watch?v=tUchGXZ-Gsg"
+      }
+    ],
+    "hosts": {
+      "names": "Anthony Abbagnano & Amy Rachelle",
+      "line": "Founders of Alchemy of Breath and ASHA. Your week is held by Anthony, Amy and senior Alchemy of Breath trainers.",
+      "photo": "https://alchemyofbreath.com/wp-content/uploads/Anthony-Amy-900x600.jpg"
+    },
+    "facts": [
+      "13 years guiding",
+      "The last BreathCamp of 2026"
+    ],
+    "source": "Testimonials verbatim from breathcamps/index.html (video testimonials); rating from Trustpilot, re-check before relying on it; facts from the breathcamps page stat strip."
+  }
 }
