@@ -1,0 +1,169 @@
+{
+  "currency": "EUR",
+  "note": "Your session is arranged with you by ASHA Reception before or during your week. If a session can't be scheduled during your stay, we refund it in full.",
+  "booking_url": "https://www.asha.global/book-online",
+  "categories": {
+    "intuitive": "Intuitive guidance",
+    "body": "Body & movement",
+    "sound": "Sound",
+    "energy": "Energy & breath"
+  },
+  "practitioners": {
+    "anthony": {
+      "name": "Anthony Abbagnano",
+      "role": "Breathwork & inner journey",
+      "photo": "anthony",
+      "team_url": "https://www.asha.global/team/anthony-abbagnano",
+      "bio": "A pioneer of breathwork with over 40 years of experience, and founder of Alchemy of Breath and ASHA. Known for his soul-level presence and ability to “see beyond the mask”, Anthony helps people navigate trauma, reconnect with their essence and meet life with courage and compassion."
+    },
+    "amy": {
+      "name": "Amy Rachelle, ND",
+      "role": "Intuitive readings",
+      "photo": "amy",
+      "team_url": "https://www.asha.global/team/amy-rachelle",
+      "bio": "Amy bridges intuition with natural medicine. With over two decades of experience in fasting, plant-based nutrition and intuitive development, her sessions bring together emotional processing, naturopathic support and intuitive readings."
+    },
+    "muji": {
+      "name": "Muji",
+      "role": "Integrative bodywork & craniosacral therapy",
+      "photo": "muji",
+      "team_url": "https://www.asha.global/team/muji",
+      "bio": "A deeply attuned healer whose integrative approach combines somatic therapy, biodynamic craniosacral work and intuitive massage. Her sessions are spacious, restorative and finely tuned to the body’s inner rhythms."
+    },
+    "michael": {
+      "name": "Michael Reiley",
+      "role": "Music & deep listening",
+      "photo": "michael",
+      "team_url": "https://www.asha.global/team/michael-reiley",
+      "bio": "Composer, threshold musician and Deep Listening® facilitator, drawing on 25 years of practice from hospice bedsides to breathwork ceremonies. Handpan, crystal bowls, flutes and synthesis create a space where the body can release what words cannot reach."
+    },
+    "monica": {
+      "name": "Monica Gentile",
+      "role": "Movement & Qi Gong",
+      "photo": "monica",
+      "team_url": "https://www.asha.global/team/monica-gentile",
+      "bio": "A movement artist and embodiment guide with over 30 years of experience in dance, yoga, martial arts and energy medicine, integrating dance, Hatha Yoga and Medical Qi Gong."
+    },
+    "kate": {
+      "name": "Kate Hawley",
+      "role": "Reiki teacher & energetic therapy",
+      "photo": "kate",
+      "team_url": "https://www.asha.global/team/kate-hawley",
+      "bio": "A devoted energy healer with nearly 20 years of experience in Reiki, trained in three Reiki lineages, and an active teacher and leader within the Spanish Reiki Federation."
+    },
+    "nancy": {
+      "name": "Nancy Iannotti",
+      "role": "Breathwork & Reiki",
+      "photo": "nancy",
+      "team_url": "https://www.asha.global/team/iannotti",
+      "bio": "A certified Breathwork Facilitator, Reiki Master and former Registered Nurse whose work bridges science, energy and embodied awareness, with a heart-centred, trauma-aware presence."
+    }
+  },
+  "services": [
+    {
+      "id": "anthony-private-intensive",
+      "practitioner": "anthony",
+      "category": "intuitive",
+      "title": "Private Intensive",
+      "tagline": "Unhurried, one to one, and shaped entirely around you.",
+      "description": "A personalised session combining intuitive coaching, inquiry and breathwork.",
+      "minutes": 90,
+      "price": 400
+    },
+    {
+      "id": "amy-intuitive-reading",
+      "practitioner": "amy",
+      "category": "intuitive",
+      "title": "Intuitive Naturopathic Reading",
+      "tagline": "A clear read on your body, your health, and your direction.",
+      "description": "Insight into life direction, health and emotional clarity.",
+      "minutes": 60,
+      "price": 250
+    },
+    {
+      "id": "muji-magic-massage-60",
+      "practitioner": "muji",
+      "category": "body",
+      "title": "Magic Massage",
+      "tagline": "An hour of deep rest, and a gentle return to the body.",
+      "description": "A personalised fusion of Biodynamic Craniosacral Therapy, intuitive bodywork, lymphatic drainage and visceral massage, tailored to support integration, nervous system regulation and deep relaxation.",
+      "minutes": 60,
+      "price": 100
+    },
+    {
+      "id": "muji-magic-massage-90",
+      "practitioner": "muji",
+      "category": "body",
+      "title": "Magic Massage",
+      "tagline": "The full unfolding, with room to arrive completely.",
+      "description": "A personalised fusion of Biodynamic Craniosacral Therapy, intuitive bodywork, lymphatic drainage and visceral massage, tailored to support integration, nervous system regulation and deep relaxation.",
+      "minutes": 90,
+      "price": 150
+    },
+    {
+      "id": "monica-qigong",
+      "practitioner": "monica",
+      "category": "body",
+      "title": "Qi Gong for Vitality",
+      "tagline": "Move your energy, quiet your mind, come back to life.",
+      "description": "A personalised Medical Qi Gong session rooted in Ancient Chinese Medicine principles.",
+      "minutes": 90,
+      "price": 150
+    },
+    {
+      "id": "michael-deep-listening",
+      "practitioner": "michael",
+      "category": "sound",
+      "title": "Deep Listening Session",
+      "tagline": "Sound as a place to rest, not a performance to watch.",
+      "description": "A bespoke session drawing from compassionate listening, sounding, vocalisation and instrumental sound healing.",
+      "minutes": 90,
+      "price": 150
+    },
+    {
+      "id": "nancy-breathwork",
+      "practitioner": "nancy",
+      "category": "energy",
+      "title": "Breathwork for Integration & Emotional Release",
+      "tagline": "Let the breath do what words and effort cannot.",
+      "description": "A conscious breathing session supporting nervous system safety, emotional integration and a felt sense of aliveness.",
+      "minutes": 90,
+      "price": 150
+    },
+    {
+      "id": "kate-reiki",
+      "practitioner": "kate",
+      "category": "energy",
+      "title": "Reiki for Energetic Integration",
+      "tagline": "Somewhere for it all to land and settle.",
+      "description": "A calming, harmonising session to support energetic balance, nervous system regulation and deep rest.",
+      "minutes": 60,
+      "price": 120
+    },
+    {
+      "id": "nancy-reiki-60",
+      "practitioner": "nancy",
+      "category": "energy",
+      "title": "Reiki Energy Healing",
+      "tagline": "Gentle, grounding, a steady return to balance.",
+      "description": "A gentle session supporting nervous system regulation, energetic balance and deep relaxation.",
+      "minutes": 60,
+      "price": 120
+    },
+    {
+      "id": "nancy-reiki-90",
+      "practitioner": "nancy",
+      "category": "energy",
+      "title": "Reiki Energy Healing",
+      "tagline": "The same care, with more time to go deeper.",
+      "description": "A gentle session supporting nervous system regulation, energetic balance and deep relaxation.",
+      "minutes": 90,
+      "price": 150
+    }
+  ],
+  "limits": {
+    "per_service": 4,
+    "per_booking": 12
+  },
+  "source": "ASHA Wellbeing Services board (photo 2026-10-04) and https://www.asha.global/book-online (prices, durations, taglines; checked 2026-10-04). Where they differ, the website wins: Anthony 1.5 h €400; Nancy breathwork 1.5 h €150. Not included: Amy's 10-session package (no price published) and Teagûe Studio branding (enquiry only, for practitioners)."
+}
