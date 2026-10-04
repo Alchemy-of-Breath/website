@@ -77,15 +77,17 @@
 <link rel="icon" type="image/png" href="https://alchemyofbreath.com/wp-content/uploads/AOB-Gold-Black-Transparant-symbol.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Roboto:wght@300;400;500&display=swap">
 <style>
-:root{--paper-2:#FBF7EF;--cream:#FDF6E9;--gold:#E1B668;--gold-deep:#D6A652;--gold-soft:#EFDCB6;--gold-wash:#F7EBD2;--gold-text:#8A5F1C;--teal:#00A5B2;--teal-text:#00737C;--slate:#5B7889;--ink:#221F20;--line:rgba(225,182,104,.34);--grad-gold:linear-gradient(135deg,#E1B668 0%,#D6A652 100%);--serif:'Marcellus',Georgia,serif;--sans:'Roboto',-apple-system,'Segoe UI',Helvetica,Arial,sans-serif}
+:root{--paper-2:#FBF7EF;--cream:#FDF6E9;--gold:#E1B668;--gold-deep:#D6A652;--gold-soft:#EFDCB6;--gold-wash:#F7EBD2;--gold-text:#8A5F1C;--teal:#00A5B2;--teal-text:#00737C;--slate:#4E6A7B;--ink:#221F20;--line:rgba(225,182,104,.34);--grad-gold:linear-gradient(135deg,#E1B668 0%,#D6A652 100%);--serif:'Marcellus',Georgia,serif;--sans:'Roboto',-apple-system,'Segoe UI',Helvetica,Arial,sans-serif}
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 body{margin:0;font-family:var(--sans);font-weight:300;font-size:15px;color:var(--ink);background:var(--paper-2);-webkit-font-smoothing:antialiased}
+:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
 header{position:sticky;top:0;z-index:5;background:rgba(251,247,239,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
 .hin{max-width:1320px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
 .hin img{height:34px;width:auto}
 .hin h1{font-family:var(--serif);font-weight:400;font-size:1.3rem;margin:0;flex:1}
 select,input,button{font:inherit}
-select,input{border:1px solid rgba(34,31,32,.2);border-radius:10px;padding:9px 12px;background:#fff}
+select,input{border:1px solid rgba(34,31,32,.2);border-radius:10px;padding:9px 12px;background:#fff;max-width:100%}
 .btn{border:0;border-radius:999px;padding:10px 18px;font-weight:500;cursor:pointer;background:var(--grad-gold);color:var(--ink)}
 .btn-ghost{background:#fff;border:1px solid rgba(34,31,32,.2)}
 .btn-sm{padding:6px 12px;font-size:.78rem}
@@ -95,15 +97,36 @@ main{max-width:1320px;margin:0 auto;padding:24px}
 .login h2{font-family:var(--serif);font-weight:400;margin:0 0 6px}
 .login p{color:var(--slate);margin:0 0 18px}
 .login input{width:100%;margin-bottom:12px}
-.note{border-radius:12px;padding:12px 16px;margin:0 0 18px;background:var(--gold-wash);border:1px solid var(--gold-soft);font-size:.9rem}
+.note{border-radius:12px;padding:12px 16px;margin:0 0 18px;background:var(--gold-wash);border:1px solid var(--gold-soft);font-size:.9rem;line-height:1.5}
 .note.err{background:#FFF4F0;border-color:#F1C7B8;color:#7A2E16}
-.note[hidden]{display:none}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:22px}
 .stat{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px 18px}
 .stat small{display:block;font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--slate)}
 .stat b{display:block;font-family:var(--serif);font-weight:400;font-size:1.8rem;margin-top:4px}
 .panel{background:#fff;border:1px solid var(--line);border-radius:18px;padding:20px;margin-bottom:22px;overflow:auto}
 .panel h2{font-family:var(--serif);font-weight:400;font-size:1.25rem;margin:0 0 14px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.panel p{margin:0 0 12px;line-height:1.5}
+details.panel>summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px 16px;flex-wrap:wrap;border-radius:10px}
+details.panel>summary::-webkit-details-marker{display:none}
+details.panel>summary h2{margin:0}
+details.panel>summary::after{content:'Show';font-size:.78rem;font-weight:500;color:var(--teal-text);text-decoration:underline}
+details.panel[open]>summary::after{content:'Hide'}
+details.panel[open]>summary{margin-bottom:16px}
+.sum-line{flex:1;font-size:.84rem;color:var(--slate)}
+.sum-line.bad{color:#7A2E16}
+.checks{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:14px}
+.check{border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.check small{display:block;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--slate)}
+.check b{display:block;font-weight:500;margin-top:4px}
+.check span{display:block;font-size:.78rem;color:var(--slate);margin-top:2px}
+.check.good b::before{content:'\2713\00a0';color:var(--teal-text)}
+.check.bad{background:#FFF4F0;border-color:#F1C7B8}
+.check.bad b{color:#7A2E16}
+.doms{margin-top:4px}
+.tools{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.small{font-size:.8rem}
+.copyrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.copyrow code{flex:1 1 260px;min-width:0;word-break:break-all;padding:8px 10px;font-size:.8rem;line-height:1.4}
 table{width:100%;border-collapse:collapse;font-size:.86rem}
 th{text-align:left;font-weight:500;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--slate);padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
 td{padding:10px;border-bottom:1px solid rgba(225,182,104,.18);vertical-align:top}
@@ -112,15 +135,35 @@ tr.cancelled td.act{text-decoration:none;opacity:1}
 .bar{height:8px;border-radius:4px;background:rgba(91,120,137,.15);overflow:hidden;min-width:120px}
 .bar i{display:block;height:100%;background:var(--gold-deep)}
 .bar i.h{background:var(--teal)}
-.pill{display:inline-block;border-radius:999px;padding:2px 9px;font-size:.72rem;font-weight:500}
+.pill{display:inline-block;border-radius:999px;padding:2px 9px;font-size:.72rem;font-weight:500;white-space:nowrap}
+.nw{white-space:nowrap}
 .pill.full{background:#EEF8F8;color:#0B5157}.pill.dep{background:var(--gold-wash);color:var(--gold-text)}.pill.can{background:#eee;color:#555}
 .pill.chk{background:#FFF4F0;color:#7A2E16;border:1px solid #F1C7B8}
+.pill.ok{background:#EEF8F8;color:#0B5157;border:1px solid #BFE3E5}
 .prog{font-size:.78rem;margin-top:6px}
 .guests{font-size:.78rem;color:var(--slate);margin-top:4px;line-height:1.5}
+.sub-note{font-size:.74rem;color:var(--slate);margin-top:4px;line-height:1.4}
+.refund{color:#7A2E16}
+.diet{font-size:.78rem;line-height:1.45;margin-top:6px;padding:4px 8px;border-radius:8px;background:var(--gold-wash);color:#5d4316;max-width:26em}
+.diet b{font-weight:500}
 .act{white-space:nowrap}
 .act button{margin:0 4px 4px 0}
 .muted{color:var(--slate)}
 code{font-size:.82rem;background:var(--gold-wash);padding:1px 6px;border-radius:6px}
+@media (max-width:640px){
+  header{position:static}
+  .hin{padding:10px 16px;gap:10px 12px}
+  main{padding:16px}
+  .login{margin:6vh auto;padding:24px}
+  .panel{padding:16px;border-radius:16px}
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .stat{padding:12px 14px}
+  .stat b{font-size:1.35rem}
+  .panel h2 input{width:100%}
+  details.panel>summary::after{order:1}
+  .sum-line{order:2;flex-basis:100%}
+  .doms{min-width:480px}
+}
 </style>
 </head>
 <body>
@@ -133,100 +176,357 @@ code{font-size:.82rem;background:var(--gold-wash);padding:1px 6px;border-radius:
   <div class="login" id="login">
     <h2>Team sign-in</h2>
     <p>Enter the admin token set in Cloudflare (ADMIN_TOKEN). It stays in this browser tab only.</p>
-    <input id="token" type="password" autocomplete="off" placeholder="Admin token">
+    <input id="token" type="password" autocomplete="off" placeholder="Admin token" aria-label="Admin token">
     <button class="btn" id="signin" type="button">Sign in</button>
-    <p class="note err" id="loginErr" hidden style="margin-top:14px"></p>
+    <p class="note err" id="loginErr" role="alert" hidden style="margin-top:14px"></p>
   </div>
   <div id="dash" hidden>
-    <p class="note" id="note" hidden></p>
+    <p class="note" id="note" role="status" hidden></p>
+    <details class="panel" id="setup" hidden><summary><h2>Payment setup</h2><span class="sum-line" id="setupSum"></span></summary><div id="setupBody"></div></details>
+    <div class="panel" id="roomOnly"><h2>Room-only link</h2>
+      <p class="muted" id="roomOnlyNote"></p>
+      <div class="copyrow"><code id="roomOnlyUrl"></code><button class="btn btn-sm" id="roomOnlyCopy" type="button">Copy link</button></div>
+    </div>
     <div class="stats" id="stats"></div>
     <div class="panel"><h2>Rooms <span class="muted" style="font-family:var(--sans);font-size:.8rem">gold = paid · teal = checkout in progress</span></h2><table id="rooms"></table></div>
-    <div class="panel"><h2>Bookings <input id="search" type="search" placeholder="Search name, email, reference"></h2><table id="list"></table></div>
+    <div class="panel"><h2>Bookings <input id="search" type="search" placeholder="Search name, email, reference, diet" aria-label="Search bookings"></h2><table id="list"></table></div>
   </div>
 </main>
 <script type="application/json" id="programList">[{"id":"breathcamp-oct-2026","title":"BreathCamp","edition":"BreathCamp 5","dates":{"start":"2026-10-25","end":"2026-10-31","nights":6,"label":"Sunday 25 – Saturday 31 October 2026","short":"25–31 Oct 2026","medium":"25–31 October 2026"}}]</script><!-- /PROGRAM-LIST -->
 <script>
 (function(){
-  var API = /(^|\.)website-5h3\.pages\.dev$/.test(location.hostname) ? '' : 'https://website-5h3.pages.dev';
+  var API = (/(^|\.)website-5h3\.pages\.dev$/.test(location.hostname) || location.hostname === '127.0.0.1' || location.hostname === 'localhost') ? '' : 'https://website-5h3.pages.dev';
+  // Links we hand to guests always point at the public booking site, wherever this dashboard is opened.
+  var SITE = /^((www\.)?alchemyofbreath\.com|website-5h3\.pages\.dev)$/.test(location.hostname) ? location.origin : 'https://website-5h3.pages.dev';
+  var PROD_DOMAINS = ['alchemyofbreath.com', 'www.alchemyofbreath.com', 'website-5h3.pages.dev'];
   var PROGS = JSON.parse(document.getElementById('programList').textContent || '[]');
   var $ = function(id){ return document.getElementById(id); };
+  var each = function(list, fn){ Array.prototype.forEach.call(list || [], fn); };
   var esc = function(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); };
-  var money = function(c){ return '€' + ((c || 0)/100).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); };
-  var token = sessionStorage.getItem('aob_admin') || '', data = null;
-  $('prog').innerHTML = PROGS.map(function(p){ return '<option value="' + p.id + '">' + esc((p.edition || p.title) + ' · ' + p.dates.short) + '</option>'; }).join('');
+  var num = function(v){ return typeof v === 'number' && isFinite(v) ? v : 0; };
+  // money: table figures, always with cents. eur: labels, cents only when there are any.
+  var money = function(c){ return '€' + (num(c) / 100).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); };
+  var eur = function(c){ c = num(c); return '€' + (c / 100).toLocaleString('en-GB', { minimumFractionDigits: c % 100 ? 2 : 0, maximumFractionDigits: 2 }); };
+  var when = function(sec, opts){ return sec ? new Date(sec * 1000).toLocaleString('en-GB', opts || { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }) : '–'; };
+  var store = function(k, v){
+    try { if (v === undefined) return sessionStorage.getItem(k); if (v === null) sessionStorage.removeItem(k); else sessionStorage.setItem(k, v); } catch (e) {}
+    return null;
+  };
+  var token = store('aob_admin') || '', data = null, setupRendered = false, setupBad = false;
+  $('prog').innerHTML = PROGS.map(function(p){ return '<option value="' + esc(p.id) + '">' + esc((p.edition || p.title) + ' · ' + p.dates.short) + '</option>'; }).join('');
+
+  function failure(message, status, d){ var e = new Error(message); e.status = status; e.code = d && d.code; e.data = d || {}; return e; }
   function api(method, path, body){
-    return fetch(API + path, { method:method, headers:{ 'Authorization':'Bearer ' + token, 'Content-Type':'application/json' }, body: body ? JSON.stringify(body) : undefined })
-      .then(function(r){ return r.json().then(function(d){ if (r.status === 401) throw new Error('auth'); if (!r.ok) throw new Error(d.error || 'Error ' + r.status); return d; }); });
+    var headers = { 'Authorization': 'Bearer ' + token };
+    if (body) headers['Content-Type'] = 'application/json';
+    return fetch(API + path, { method: method, headers: headers, body: body ? JSON.stringify(body) : undefined, cache: 'no-store' })
+      .then(function(r){
+        return r.text().then(function(t){
+          var d = {};
+          try { d = t ? JSON.parse(t) : {}; } catch (x) { d = {}; }
+          if (r.status === 401) throw failure('auth', 401, d);
+          if (!r.ok) throw failure(d.error || ('Something went wrong (error ' + r.status + '). Please try again.'), r.status, d);
+          return d;
+        });
+      });
   }
+  var bare = function(t){ return String(t).replace(/[.\s]+$/, ''); }; // "(error)" inside a sentence, without its own full stop
+  // network failures have no status: say so plainly instead of the browser's "Failed to fetch"
+  function why(e){ return e.status ? e.message : 'Could not reach the booking system. Check your connection and try again.'; }
   function show(dash){ $('login').hidden = dash; $('dash').hidden = !dash; ['refresh','csv','logout','prog'].forEach(function(id){ $(id).hidden = !dash; }); }
-  function note(t, err){ var n = $('note'); n.innerHTML = t; n.className = 'note' + (err ? ' err' : ''); n.hidden = !t; }
-  function load(){
+  function note(t, err){ var n = $('note'); n.innerHTML = t || ''; n.className = 'note' + (err ? ' err' : ''); n.hidden = !t; }
+  function signedOut(message){
+    store('aob_admin', null); token = ''; data = null; show(false);
+    $('loginErr').textContent = message || ''; $('loginErr').hidden = !message;
+  }
+  // after: a note to show once the fresh data is in (e.g. the result of an action)
+  function load(after){
     note('Loading…');
+    renderRoomOnly();
     return api('GET', '/api/booking/admin?program=' + encodeURIComponent($('prog').value)).then(function(d){
-      data = d; note(d.demo ? 'Demo mode: Stripe isn\'t connected yet (no <code>STRIPE_SECRET_KEY</code>). Bookings appear here once payments are live.' : ''); render();
+      data = d;
+      note(d.demo ? 'Demo mode: Stripe isn\'t connected yet (no <code>STRIPE_SECRET_KEY</code>). Bookings appear here once payments are live.' + (after ? '<br>' + after : '') : (after || ''));
+      render();
     }).catch(function(e){
-      if (e.message === 'auth') { sessionStorage.removeItem('aob_admin'); token = ''; show(false); $('loginErr').textContent = 'That token was not accepted.'; $('loginErr').hidden = false; return; }
-      note(esc(e.message), true);
+      if (e.message === 'auth') return signedOut('That token was not accepted.');
+      note(esc(why(e)), true);
     });
   }
   function render(){
     var d = data, t = d.totals || { bookings:0, guests:0, paid_cents:0, balance_cents:0 }, av = d.availability || { program_left: '–', rooms: {} };
-    $('stats').innerHTML = [['Bookings', t.bookings], ['Guests', t.guests], ['Paid so far', money(t.paid_cents)], ['Balance due', money(t.balance_cents)], ['Places left', av.program_left + ' of ' + d.program.program_spaces]]
-      .map(function(s){ return '<div class="stat"><small>' + s[0] + '</small><b>' + s[1] + '</b></div>'; }).join('');
-    var rooms = d.rooms || [];
+    renderSetup(d);
+    renderRoomOnly();
+    var stats = [['Bookings', t.bookings], ['Guests', t.guests], ['Paid so far', money(t.paid_cents)], ['Balance due', money(t.balance_cents)], ['Places left', av.program_left + ' of ' + ((d.program || {}).program_spaces || '–')]];
+    if (num(t.refunded_cents) > 0) stats.splice(3, 0, ['Refunded', money(t.refunded_cents)]);
+    if (num(t.paid_after_cancel_cents) > 0) stats.splice(3, 0, ['Paid after cancelling', money(t.paid_after_cancel_cents)]);
+    $('stats').innerHTML = stats
+      .map(function(s){ return '<div class="stat"><small>' + s[0] + '</small><b>' + esc(s[1]) + '</b></div>'; }).join('');
+    var rooms = d.rooms || [], avRooms = av.rooms || {};
     $('rooms').innerHTML = '<tr><th>Room</th><th>Price</th><th>Capacity</th><th>Paid</th><th>In checkout</th><th>Left for women</th><th>Left for men</th><th></th></tr>' + rooms.map(function(r){
-      var a = av.rooms[r.id] || {}, h = (d.holds || {})[r.id] || {}, held = typeof h === 'number' ? h : (h.female || 0) + (h.male || 0) + (h.other || 0);
+      var a = avRooms[r.id] || {}, h = (d.holds || {})[r.id] || {};
+      // held per room from availability (same units as taken); older responses only have the holds map
+      var held = typeof a.held === 'number' ? a.held : typeof h === 'number' ? h : (h.female || 0) + (h.male || 0) + (h.other || 0);
       var paid = Math.max(0, (a.taken || 0) - held), cap = r.capacity || 0, L = a.left || {};
-      var cell = function(v){ return '<td><b>' + (v != null ? v : '–') + '</b></td>'; };
-      return '<tr><td>' + esc(r.name) + (r.shared ? ' <span class="muted" style="font-size:.74rem">same-gender</span>' : '') + '</td><td>€' + r.price.toLocaleString('en-GB') + '</td><td>' + cap + '</td><td>' + paid + '</td><td>' + held + '</td>' +
-        (a.kind === 'shared' ? cell(L.female) + cell(L.male) : '<td colspan="2"><b>' + (a.left_any != null ? a.left_any : '–') + '</b> <span class="muted">(anyone)</span></td>') +
+      var cell = function(v){ return '<td><b>' + (v != null ? esc(v) : '–') + '</b></td>'; };
+      return '<tr><td>' + esc(r.name) + (r.shared ? ' <span class="muted" style="font-size:.74rem">same-gender</span>' : '') + '</td><td>€' + num(r.price).toLocaleString('en-GB') + '</td><td>' + esc(cap) + '</td><td>' + paid + '</td><td>' + held +
+        (held && a.next_release_at ? ' <span class="muted" style="font-size:.74rem">until ' + when(a.next_release_at, { hour:'2-digit', minute:'2-digit' }) + '</span>' : '') + '</td>' +
+        (a.kind === 'shared' ? cell(L.female) + cell(L.male) : '<td colspan="2"><b>' + (a.left_any != null ? esc(a.left_any) : '–') + '</b> <span class="muted">(anyone)</span></td>') +
         '<td><div class="bar"><i style="width:' + (cap ? Math.min(100, paid / cap * 100) : 0) + '%"></i></div></td></tr>';
     }).join('');
     renderList();
   }
+
+  /* ---------------------------------------------------------------- payment setup */
+  function statusName(v){ return v && typeof v === 'object' ? v.status : v; }
+  function domainStatus(v){
+    // v: 'active' | 'inactive' | { status, status_details: { error_message } }
+    var s = statusName(v), detail = v && typeof v === 'object' && v.status_details && v.status_details.error_message || '';
+    if (!s) return '<span class="muted">–</span>';
+    return '<span class="pill ' + (s === 'active' ? 'ok' : 'chk') + '">' + esc(String(s).charAt(0).toUpperCase() + String(s).slice(1)) + '</span>' + (detail ? '<div class="sub-note">' + esc(detail) + '</div>' : '');
+  }
+  // a domain row counts as registered unless the API says otherwise (listDomains marks missing production hosts registered:false)
+  function isRegistered(x){ return !!x && x.registered !== false && !x.error; }
+  function renderSetup(d){
+    var el = $('setup'), s = d.setup;
+    if (!s || typeof s !== 'object') { el.hidden = true; return; }
+    var live = s.stripe === 'test' || s.stripe === 'live';
+    var pk = s.publishable, pkOk = pk === 'test' || pk === 'live';
+    var wh = s.webhook, whKnown = wh !== undefined && wh !== null, whOk = wh === true || (typeof wh === 'string' && !/^(missing|none|false|no|off|)$/i.test(wh));
+    var doms = Array.isArray(s.domains) ? s.domains : null, byName = {};
+    each(doms, function(x){ if (x && x.domain) byName[String(x.domain).toLowerCase()] = x; });
+    var missing = PROD_DOMAINS.filter(function(n){ return !isRegistered(byName[n]); });
+    var noEnd = num(d.plans_without_end), shortPlans = Array.isArray(d.plans_short) ? d.plans_short : [];
+    var tsState = s.turnstile_status || (s.turnstile ? 'on' : 'off');
+    var problems = [];
+    if (!live) problems.push('Stripe is not connected');
+    else {
+      if (!pkOk) problems.push(pk === 'mismatch' ? 'publishable key is from the other mode' : 'publishable key missing');
+      if (whKnown && !whOk) problems.push('webhook not set up');
+      if (doms && missing.length) problems.push(missing.length + ' payment domain' + (missing.length === 1 ? '' : 's') + ' not registered');
+      if (noEnd) problems.push(noEnd + ' payment plan' + (noEnd === 1 ? '' : 's') + ' without the right end date');
+      if (shortPlans.length) problems.push(shortPlans.length + ' payment plan' + (shortPlans.length === 1 ? '' : 's') + ' short-charged');
+      if (tsState === 'misconfigured') problems.push('bot check misconfigured');
+      else if (s.stripe === 'live' && tsState !== 'on') problems.push('bot check off');
+    }
+    var check = function(label, value, sub, state){ return '<div class="check ' + (state || '') + '"><small>' + label + '</small><b>' + value + '</b>' + (sub ? '<span>' + sub + '</span>' : '') + '</div>'; };
+    var html = '<div class="checks">' +
+      check('Stripe', s.stripe === 'live' ? 'Live' : s.stripe === 'test' ? 'Test mode' : 'Not connected', s.stripe === 'live' ? 'Real payments' : s.stripe === 'test' ? 'Test payments only' : 'No STRIPE_SECRET_KEY', live ? 'good' : 'bad') +
+      check('Payment form in the page', pkOk ? 'Ready' : pk === 'mismatch' ? 'Key mode mismatch' : 'Not available', pkOk ? (pk === 'live' ? 'Live publishable key' : 'Test publishable key') : 'Guests pay on Stripe\'s own page for now', pkOk ? 'good' : live ? 'bad' : '') +
+      (whKnown ? check('Webhook', whOk ? 'Set up' : 'Not set up', whOk ? 'STRIPE_WEBHOOK_SECRET is set' : 'No STRIPE_WEBHOOK_SECRET', whOk ? 'good' : live ? 'bad' : '') : '') +
+      (typeof s.ghl === 'boolean' ? check('GoHighLevel', s.ghl ? 'Connected' : 'Not connected', s.ghl ? 'Booking events are forwarded' : 'No GHL_WEBHOOK_URL', s.ghl ? 'good' : '') : '') +
+      (typeof s.turnstile === 'boolean' || s.turnstile_status ? check('Bot check', tsState === 'on' ? 'On' : tsState === 'misconfigured' ? 'Misconfigured' : 'Off',
+        tsState === 'on' ? 'Cloudflare Turnstile' : tsState === 'misconfigured' ? 'Only one of TURNSTILE_SITE_KEY / TURNSTILE_SECRET is set' : 'TURNSTILE_SITE_KEY + TURNSTILE_SECRET' + (s.stripe === 'live' ? ': needed before taking live bookings' : ''),
+        tsState === 'on' ? 'good' : (tsState === 'misconfigured' || s.stripe === 'live') ? 'bad' : '') : '') +
+      (typeof s.remind === 'boolean' ? check('Reminder email', s.remind ? 'On' : 'Off', s.remind ? '"Email me a link" shows on the booking page' : (s.ghl ? 'Needs the bot check in live mode' : 'Needs GHL_WEBHOOK_URL'), s.remind ? 'good' : '') : '') +
+      '</div>';
+    if (!live) { if (!d.demo) html += '<p class="note err">Stripe isn\'t connected yet. Add <code>STRIPE_SECRET_KEY</code> in Cloudflare (Pages → Settings → Variables and secrets).</p>'; }
+    else if (pk === 'mismatch') html += '<p class="note err"><code>STRIPE_PUBLISHABLE_KEY</code> and <code>STRIPE_SECRET_KEY</code> are from different modes (one test, one live). Use the matching pair from the same Stripe account to show the payment form inside the booking page. Variable changes apply after the next deployment.</p>';
+    else if (!pkOk) html += '<p class="note err">Add <code>STRIPE_PUBLISHABLE_KEY</code> in Cloudflare to show the payment form inside the booking page. Until then guests pay on Stripe\'s own checkout page. Variable changes apply after the next deployment.</p>';
+    if (live && whKnown && !whOk) html += '<p class="note err">Add <code>STRIPE_WEBHOOK_SECRET</code> in Cloudflare (Stripe endpoint <code>/api/booking/webhook</code>). Paid bookings reach GoHighLevel and payment plans get their end date through the webhook.</p>';
+    if (live && tsState === 'misconfigured') html += '<p class="note err">Only one of <code>TURNSTILE_SITE_KEY</code> and <code>TURNSTILE_SECRET</code> is set, so the bot check is off. Set both (from the same Turnstile widget) or neither.</p>';
+    else if (s.stripe === 'live' && tsState !== 'on') html += '<p class="note err">The bot check is off. Add <code>TURNSTILE_SITE_KEY</code> and <code>TURNSTILE_SECRET</code> in Cloudflare before taking live bookings: without it, scripts can hold places and the reminder email stays off.</p>';
+    if (live && noEnd) html += '<p class="note err">' + noEnd + ' running payment plan' + (noEnd === 1 ? ' has' : 's have') + ' no end date, or the wrong one, so ' + (noEnd === 1 ? 'it' : 'they') + ' would charge the wrong amount at the end. Press <b>Repair payment plans</b>.</p>';
+    if (live && shortPlans.length) html += '<p class="note err">' + (shortPlans.length === 1 ? 'This payment plan\'s' : 'These payment plans\'') + ' last instalment was cut short by an end date set inside the last month: ' +
+      shortPlans.map(function(x){ return '<b>' + esc(x.ref || x.subscription) + '</b>'; }).join(', ') + '. Once the plan has ended, send the guest a <b>Balance link</b> for what\'s left (or invoice the difference in Stripe).</p>';
+    if (live) {
+      if (doms) {
+        var rows = PROD_DOMAINS.map(function(n){ return byName[n] || { domain: n, registered: false }; })
+          .concat(doms.filter(function(x){ return x && x.domain && PROD_DOMAINS.indexOf(String(x.domain).toLowerCase()) < 0; }));
+        html += '<table class="doms"><tr><th>Payment domain</th><th>Apple Pay</th><th>Google Pay</th><th>Link</th></tr>' + rows.map(function(x){
+          var reg = isRegistered(x);
+          return '<tr><td>' + esc(x.domain) + (reg && x.enabled === false ? ' <span class="pill can">Disabled</span>' : '') + '</td>' +
+            (reg ? '<td>' + domainStatus(x.apple_pay) + '</td><td>' + domainStatus(x.google_pay) + '</td><td>' + domainStatus(x.link) + '</td>'
+              : '<td colspan="3"><span class="pill can">Not registered</span>' + (x.error ? '<div class="sub-note">' + esc(x.error) + '</div>' : '') + '</td>') + '</tr>';
+        }).join('') + '</table>';
+      } else html += '<p class="muted small">Stripe didn\'t return the payment domains just now. Press Refresh to try again.</p>';
+      html += '<p class="muted small" style="margin-top:12px">Apple Pay, Google Pay and Link only show in the payment form on registered domains.</p>' +
+        '<div class="tools"><button class="btn btn-sm' + (doms && !missing.length ? ' btn-ghost' : '') + '" id="regDomains" type="button">Register payment domains</button>' +
+        '<button class="btn btn-sm' + (noEnd ? '' : ' btn-ghost') + '" id="repairPlans" type="button" title="Sets the end date on any running payment plan that is missing one">Repair payment plans</button></div>';
+    }
+    $('setupBody').innerHTML = html;
+    var sum = $('setupSum');
+    sum.textContent = problems.length ? 'Needs attention: ' + problems.join(' · ')
+      : (s.stripe === 'live' ? 'Live' : 'Test mode') + ' · payment form ready' + (doms ? ' · ' + (PROD_DOMAINS.length - missing.length) + ' of ' + PROD_DOMAINS.length + ' domains registered' : '');
+    sum.className = 'sum-line' + (problems.length ? ' bad' : '');
+    // open when something needs attention; afterwards keep the team member's own choice unless a new problem appears
+    var bad = problems.length > 0;
+    if (!setupRendered || (bad && !setupBad)) el.open = bad;
+    setupRendered = true; setupBad = bad;
+    el.hidden = false;
+    var rb = $('regDomains'), pb = $('repairPlans');
+    if (rb) rb.onclick = function(){ registerDomains(rb); };
+    if (pb) pb.onclick = function(){ repairPlans(pb); };
+  }
+  function busy(btn, label){
+    var old = btn.textContent; btn.disabled = true; btn.textContent = label;
+    return function(){ btn.disabled = false; btn.textContent = old; };
+  }
+  function registerDomains(btn){
+    var done = busy(btn, 'Registering…');
+    api('POST', '/api/booking/admin', { action: 'register_domains' }).then(function(d){
+      var list = Array.isArray(d.domains) ? d.domains : [];
+      var failed = list.filter(function(x){ return x && !isRegistered(x); });
+      var added = list.filter(function(x){ return x && x.created; }).length;
+      load(failed.length
+        ? '<span class="refund">Could not register ' + failed.map(function(x){ return esc(x.domain) + (x.error ? ' (' + esc(bare(x.error)) + ')' : ''); }).join(', ') + '.</span>' + (list.length > failed.length ? ' The others are registered.' : '')
+        : 'Payment domains registered' + (list.length ? ': ' + list.length + ' of ' + list.length + (added ? ', ' + added + ' new' : ', all were already there') : '') + '.');
+    }).catch(function(e){
+      done();
+      if (e.message === 'auth') return signedOut('That token was not accepted.');
+      note('Could not register the payment domains: ' + esc(why(e)), true);
+    });
+  }
+  function repairPlans(btn){
+    var done = busy(btn, 'Checking plans…');
+    api('POST', '/api/booking/admin', { action: 'repair_plans' }).then(function(d){
+      var fixed = Array.isArray(d.repaired) ? d.repaired.length : typeof d.repaired === 'number' ? d.repaired : null;
+      var failed = Array.isArray(d.failed) ? d.failed : [], short = Array.isArray(d.short) ? d.short : [];
+      load('Payment plans checked.' + (fixed == null ? '' : fixed ? ' ' + fixed + (fixed === 1 ? ' plan now has its' : ' plans now have their') + ' end date set right.' : ' No running plan needed a new end date.') +
+        (short.length ? ' <span class="refund">Short-charged (send a balance link once the plan has ended): ' + short.map(function(x){ return esc(x.ref || x.subscription); }).join(', ') + '.</span>' : '') +
+        (failed.length ? ' <span class="refund">Could not update ' + failed.map(function(x){ return esc(x.ref || x.subscription) + (x.error ? ' (' + esc(bare(x.error)) + ')' : ''); }).join(', ') + '.</span>' : ''));
+    }).catch(function(e){
+      done();
+      if (e.message === 'auth') return signedOut('That token was not accepted.');
+      note('Could not check the payment plans: ' + esc(why(e)), true);
+    });
+  }
+
+  /* ---------------------------------------------------------------- room-only link */
+  function feeCents(){
+    var p = data && data.program || {}, list = data && data.bookings || [];
+    if (p.programme && num(p.programme.fee)) return p.programme.fee * 100;
+    for (var i = 0; i < list.length; i++) {
+      var b = list[i], n = (b.guests || []).length;
+      if (b.programme === 'included' && num(b.programme_cents) && n) return Math.round(b.programme_cents / n);
+    }
+    return 0;
+  }
+  function renderRoomOnly(){
+    var id = $('prog').value || (PROGS[0] && PROGS[0].id) || '', fee = feeCents();
+    $('roomOnly').hidden = !id;
+    $('roomOnlyUrl').textContent = SITE + '/book/' + encodeURIComponent(id) + '/?programme=paid';
+    $('roomOnlyNote').textContent = 'For guests who already paid ' + (fee ? 'the ' + eur(fee) + ' programme fee' : 'the programme fee') +
+      '. They choose and pay for their room only. Their booking shows below as "Room only": "possible match" when Stripe has earlier programme payments from their email that cover every guest (check them), otherwise "check".';
+  }
+  function copyText(text, btn){
+    var old = btn.getAttribute('data-label') || btn.textContent;
+    btn.setAttribute('data-label', old);
+    var flash = function(t){ btn.textContent = t; setTimeout(function(){ btn.textContent = old; }, 1800); };
+    var fallback = function(){ prompt('Copy this link:', text); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(function(){ flash('Copied'); }, fallback);
+    else fallback();
+  }
+  $('roomOnlyCopy').onclick = function(){ copyText($('roomOnlyUrl').textContent, $('roomOnlyCopy')); };
+
+  /* ---------------------------------------------------------------- bookings */
+  function stripeLink(id){ return 'https://dashboard.stripe.com/' + (data && data.setup && data.setup.stripe === 'test' ? 'test/' : '') + 'payments/' + encodeURIComponent(id); }
   function progCell(b){
-    if (b.programme === 'included') return '<div class="prog">Programme fee ' + money(b.programme_cents) + ' <span class="muted">(' + b.guests.length + ' × ' + money(b.programme_cents / Math.max(1, b.guests.length)) + ')</span></div>';
-    if (b.programme === 'paid') return '<div class="prog"><span class="pill chk" title="Booked room only: match this to their earlier programme fee payment">Programme fee paid separately · check</span></div>';
+    var n = Math.max(1, (b.guests || []).length);
+    if (b.programme === 'included') return '<div class="prog">Programme ' + eur(b.programme_cents) + ' <span class="muted">(' + n + ' × ' + eur(Math.round(num(b.programme_cents) / n)) + ')</span></div>';
+    if (b.programme === 'paid') {
+      var pays = Array.isArray(b.programme_payments) ? b.programme_payments : [];
+      return b.programme_verified === 'stripe'
+        ? '<div class="prog"><span class="pill ok" title="Booked room only. Stripe has earlier programme fee payments from this email that cover every guest: check they are for this week.">Room only · possible match (Stripe)</span>' +
+          (pays.length ? '<div class="sub-note">Matched: ' + pays.map(function(x){ return '<a href="' + esc(stripeLink(x.id)) + '" target="_blank" rel="noopener">' + esc(x.id) + '</a> (' + eur(x.cents) + ')'; }).join(', ') + '</div>' : '') + '</div>'
+        : '<div class="prog"><span class="pill chk" title="Booked room only. No earlier programme fee payments found in Stripe that cover every guest: match it to their GHL or RetreatGuru payment.">Room only · check</span></div>';
+    }
+    return '';
+  }
+  function planPill(b, can){
+    var p = b.plan;
+    if (p.ended && !can) return '<span class="pill chk" title="This plan takes no more payments.">Plan ended ' + esc(p.paid_count) + '/' + esc(p.installments) + '</span>' +
+      (b.balance_cents ? '<div class="sub-note refund">' + eur(b.balance_cents) + ' unpaid: send a Balance link</div>' : '');
+    return '<span class="pill dep">Plan ' + esc(p.paid_count) + '/' + esc(p.installments) + '</span>' + (p.status === 'past_due' ? '<div class="sub-note refund">Payment failed: Stripe is retrying</div>' : '');
+  }
+  function uiNote(b){
+    if (b.ui === 'embedded') return '<div class="sub-note">Paid online (embedded)</div>';
+    if (b.ui === 'hosted') return '<div class="sub-note">Paid online (redirect)</div>';
     return '';
   }
   function renderList(){
     var q = $('search').value.trim().toLowerCase();
-    var rows = (data.bookings || []).filter(function(b){ return !q || JSON.stringify([b.ref, b.lead, b.guests]).toLowerCase().indexOf(q) >= 0; });
+    var rows = (data.bookings || []).filter(function(b){ return !q || JSON.stringify([b.ref, b.lead, b.guests, b.diet || '']).toLowerCase().indexOf(q) >= 0; });
     $('list').innerHTML = '<tr><th>Reference</th><th>Booked</th><th>Lead guest</th><th>Rooms</th><th>Payment</th><th>Total</th><th>Paid</th><th>Balance</th><th></th></tr>' + (rows.length ? rows.map(function(b){
-      var can = b.status === 'cancelled';
-      return '<tr class="' + (can ? 'cancelled' : '') + '"><td><b>' + esc(b.ref) + '</b></td><td>' + new Date(b.created * 1000).toLocaleString('en-GB', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }) + '</td>' +
-        '<td>' + esc(b.lead.name) + '<div class="guests"><a href="mailto:' + esc(b.lead.email) + '">' + esc(b.lead.email) + '</a><br><a href="https://wa.me/' + esc((b.lead.whatsapp || '').replace(/\D/g, '')) + '" target="_blank" rel="noopener">' + esc(b.lead.whatsapp) + '</a>' + (b.lead.roommate ? '<br>Roommate: ' + esc(b.lead.roommate) : '') + '</div></td>' +
-        '<td>' + esc(b.room_names) + progCell(b) + '<div class="guests">' + b.guests.map(function(g){ return esc(g.name) + ' · ' + esc(g.gender); }).join('<br>') + '</div></td>' +
-        '<td>' + (can ? '<span class="pill can">Cancelled</span>' : b.plan ? '<span class="pill dep">Plan ' + b.plan.paid_count + '/' + b.plan.installments + '</span>' : b.balance_cents ? '<span class="pill dep">Deposit</span>' : '<span class="pill full">Paid in full</span>') + '</td>' +
-        '<td>' + money(b.total_cents) + '</td><td>' + money(b.paid_cents) + '</td><td>' + (b.balance_cents ? '<b>' + money(b.balance_cents) + '</b>' + (b.plan && b.plan.next_payment && !can ? '<div class="guests">Next ' + money(b.plan.installment_cents) + ' on ' + new Date(b.plan.next_payment * 1000).toLocaleDateString('en-GB', { day:'numeric', month:'short' }) + '</div>' : '') : '–') + '</td>' +
-        '<td class="act">' + (b.balance_cents && !can && !b.plan ? '<button class="btn btn-sm" data-act="balance_link" data-ref="' + esc(b.ref) + '">Balance link</button>' : '') +
-        '<button class="btn btn-ghost btn-sm" data-act="' + (can ? 'restore' : 'cancel') + '" data-ref="' + esc(b.ref) + '">' + (can ? 'Restore' : 'Cancel') + '</button></td></tr>';
-    }).join('') : '<tr><td colspan="9" class="muted">No bookings yet.</td></tr>');
-    $('list').querySelectorAll('[data-act]').forEach(function(btn){ btn.onclick = function(){ act(btn.getAttribute('data-act'), btn.getAttribute('data-ref'), btn); }; });
+      var can = b.status === 'cancelled', lead = b.lead || {}, guests = b.guests || [], wa = String(lead.whatsapp || '').replace(/\D/g, '');
+      return '<tr class="' + (can ? 'cancelled' : '') + '"><td class="nw"><b>' + esc(b.ref) + '</b></td><td>' + when(b.created) + '</td>' +
+        '<td>' + esc(lead.name) + '<div class="guests">' + (lead.email ? '<a href="mailto:' + esc(lead.email) + '">' + esc(lead.email) + '</a>' : '') +
+          (wa ? '<br><a href="https://wa.me/' + wa + '" target="_blank" rel="noopener">' + esc(lead.whatsapp) + '</a>' : '') + (lead.roommate ? '<br>Roommate: ' + esc(lead.roommate) : '') + '</div></td>' +
+        '<td>' + esc(b.room_names) + progCell(b) + '<div class="guests">' + guests.map(function(g){ return esc(g.name) + ' · ' + esc(g.gender); }).join('<br>') + '</div>' +
+          (b.diet ? '<div class="diet"><b>Diet:</b> ' + esc(b.diet) + '</div>' : '') + '</td>' +
+        '<td>' + (can ? '<span class="pill can">Cancelled</span>' + (num(b.paid_after_cancel_cents) > 0 ? '<div class="sub-note refund">' + eur(b.paid_after_cancel_cents) + ' paid after cancelling: refund or follow up</div>' : '') : b.pending ? '<span class="pill chk" title="A bank payment is still clearing. Its places are held.">Payment processing</span>' : b.plan ? planPill(b, can) : b.balance_cents ? '<span class="pill dep">Deposit</span>' : '<span class="pill full">Paid in full</span>') + uiNote(b) + '</td>' +
+        '<td>' + money(b.total_cents) + '</td>' +
+        '<td>' + money(b.paid_cents) + (num(b.refunded_cents) > 0 ? '<div class="sub-note refund">' + eur(b.refunded_cents) + ' refunded</div>' : '') + '</td>' +
+        '<td>' + (b.balance_cents ? '<b>' + money(b.balance_cents) + '</b>' + (b.plan && b.plan.next_payment && !can ? '<div class="guests">Next ' + money(b.plan.installment_cents) + ' on ' + when(b.plan.next_payment, { day:'numeric', month:'short' }) + '</div>' : '') : '–') + '</td>' +
+        '<td class="act">' + (b.balance_cents && !can && (!b.plan || b.plan.ended) && !b.pending ? '<button class="btn btn-sm" type="button" data-act="balance_link" data-ref="' + esc(b.ref) + '">Balance link</button>' : '') +
+        '<button class="btn btn-ghost btn-sm" type="button" data-act="' + (can ? 'restore' : 'cancel') + '" data-ref="' + esc(b.ref) + '">' + (can ? 'Restore' : 'Cancel') + '</button></td></tr>';
+    }).join('') : '<tr><td colspan="9" class="muted">' + (q ? 'No bookings match your search.' : 'No bookings yet.') + '</td></tr>');
+    each($('list').querySelectorAll('[data-act]'), function(btn){ btn.onclick = function(){ act(btn.getAttribute('data-act'), btn.getAttribute('data-ref'), btn); }; });
   }
-  function act(action, ref, btn){
-    var bk = (data.bookings || []).find(function(x){ return x.ref === ref; }) || {};
-    if (action === 'cancel' && !confirm('Cancel booking ' + ref + '? Its places go back on sale.' + (bk.plan ? ' Its remaining monthly payments are stopped.' : '') + ' This does not refund anything already paid: refund in Stripe separately.')) return;
+  function act(action, ref, btn, force){
+    var bk = (data.bookings || []).filter(function(x){ return x.ref === ref; })[0] || {};
+    if (action === 'cancel' && !force && !confirm('Cancel booking ' + ref + '? Its places go back on sale.' + (bk.plan ? ' Its remaining monthly payments are stopped.' : '') + ' Any balance link already sent stops working. This does not refund anything already paid: refund in Stripe separately.')) return;
+    var body = { action: action, ref: ref, return_url: SITE + '/book/balance/' };
+    if (force) body.force = true;
     btn.disabled = true;
-    api('POST', '/api/booking/admin', { action:action, ref:ref, return_url: location.origin + '/book/balance/' }).then(function(d){
-      if (d.url) { navigator.clipboard && navigator.clipboard.writeText(d.url).catch(function(){}); prompt('Balance payment link for ' + ref + ' (valid for 24 hours, copied to your clipboard). Send it to the guest:', d.url); btn.disabled = false; return; }
-      load();
-    }).catch(function(e){ btn.disabled = false; alert(e.message); });
+    api('POST', '/api/booking/admin', body).then(function(d){
+      btn.disabled = false;
+      if (d.url) {
+        var until = d.expires_at ? 'valid until ' + when(d.expires_at, { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }) : 'valid for up to 24 hours';
+        // the copy may be refused (the click was a while ago): only say "copied" when it worked
+        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(d.url).then(function(){ note('Balance link for ' + esc(ref) + ' copied to your clipboard.'); }, function(){});
+        prompt('Balance payment link for ' + ref + ' (' + until + '). Copy it and send it to the guest:', d.url);
+        return;
+      }
+      load(action === 'restore' ? 'Booking ' + esc(ref) + ' restored.' + (force ? ' Check the room numbers: it was restored over capacity.' : '') : action === 'cancel' ? 'Booking ' + esc(ref) + ' cancelled.' : '');
+    }).catch(function(e){
+      btn.disabled = false;
+      if (e.message === 'auth') return signedOut('That token was not accepted.');
+      if (action === 'restore' && !force && e.status === 409 && e.code === 'conflict') {
+        if (confirm((/overbook/i.test(e.message) ? e.message : 'This would overbook: ' + e.message) + '\n\nRestore ' + ref + ' anyway?')) act(action, ref, btn, true);
+        return;
+      }
+      if (action === 'balance_link' && !force && e.status === 409 && e.code === 'refunded') {
+        if (confirm(e.message + '\n\nRefunds are usually settled with the guest directly. Create the balance link anyway?')) act(action, ref, btn, true);
+        return;
+      }
+      alert(why(e));
+    });
   }
+
+  /* ---------------------------------------------------------------- CSV */
+  // Spreadsheet formula injection: text guests typed must never start a formula when the file is opened.
+  function csvCell(v){
+    v = String(v == null ? '' : v);
+    if (/^[=+\-@\t\r]/.test(v)) v = '\'' + v;
+    return /[",\r\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v;
+  }
+  function eurNum(c){ return (num(c) / 100).toFixed(2); }
   $('csv').onclick = function(){
     if (!data) return;
-    var head = ['reference','booked_at','status','lead_name','lead_email','whatsapp','roommate','rooms','guests','programme_fee','payment','total_eur','paid_eur','balance_eur','utm_source','utm_campaign'];
+    var head = ['reference','booked_at','status','lead_name','lead_email','whatsapp','roommate','rooms','guests','programme','programme_verified','programme_matched','programme_fee','diet','payment','total_eur','paid_eur','refunded_eur','balance_eur','paid_after_cancel_eur','utm_source','utm_campaign'];
     var lines = [head.join(',')].concat((data.bookings || []).map(function(b){
-      return [b.ref, new Date(b.created * 1000).toISOString(), b.status, b.lead.name, b.lead.email, b.lead.whatsapp, b.lead.roommate, b.room_names, b.guests.map(function(g){ return g.name + ' (' + g.gender + ', ' + g.email + ')'; }).join('; '), b.programme === 'included' ? (b.programme_cents / 100).toFixed(2) : b.programme === 'paid' ? 'paid separately (check)' : '', b.plan ? 'plan ' + b.plan.paid_count + '/' + b.plan.installments : b.balance_cents ? 'deposit' : 'full',
-        (b.total_cents / 100).toFixed(2), (b.paid_cents / 100).toFixed(2), (b.balance_cents / 100).toFixed(2), (b.utm || {}).utm_source || '', (b.utm || {}).utm_campaign || '']
-        .map(function(v){ v = String(v == null ? '' : v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }).join(',');
+      var lead = b.lead || {}, utm = b.utm || {};
+      return [b.ref, b.created ? new Date(b.created * 1000).toISOString() : '', b.status, lead.name, lead.email, lead.whatsapp, lead.roommate, b.room_names,
+        (b.guests || []).map(function(g){ return (g.name || '') + ' (' + [g.gender, g.email].filter(Boolean).join(', ') + ')'; }).join('; '),
+        b.programme === 'included' || b.programme === 'paid' ? b.programme : '',
+        b.programme === 'paid' ? (b.programme_verified === 'stripe' ? 'possible match' : 'unverified') : '',
+        b.programme === 'paid' ? (b.programme_payments || []).map(function(x){ return x.id + ' ' + eurNum(x.cents); }).join('; ') : '',
+        b.programme === 'included' ? eurNum(b.programme_cents) : '',
+        b.diet || '',
+        b.plan ? 'plan ' + b.plan.paid_count + '/' + b.plan.installments + (b.plan.ended ? ' ended' : '') : b.balance_cents ? 'deposit' : 'full',
+        eurNum(b.total_cents), eurNum(b.paid_cents), eurNum(b.refunded_cents), eurNum(b.balance_cents), eurNum(b.paid_after_cancel_cents), utm.utm_source || '', utm.utm_campaign || '']
+        .map(csvCell).join(',');
     }));
-    var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([lines.join('\n')], { type:'text/csv' })); a.download = $('prog').value + '-bookings.csv'; a.click();
+    var url = URL.createObjectURL(new Blob(['\ufeff' + lines.join('\r\n')], { type:'text/csv;charset=utf-8' }));
+    var a = document.createElement('a'); a.href = url; a.download = $('prog').value + '-bookings.csv';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
   };
-  $('signin').onclick = function(){ token = $('token').value.trim(); if (!token) return; sessionStorage.setItem('aob_admin', token); $('loginErr').hidden = true; show(true); load(); };
+
+  $('signin').onclick = function(){ token = $('token').value.trim(); if (!token) return; store('aob_admin', token); $('loginErr').hidden = true; show(true); load(); };
   $('token').addEventListener('keydown', function(e){ if (e.key === 'Enter') $('signin').click(); });
-  $('logout').onclick = function(){ sessionStorage.removeItem('aob_admin'); token = ''; data = null; show(false); };
-  $('refresh').onclick = load; $('prog').onchange = load; $('search').oninput = function(){ if (data) renderList(); };
+  $('logout').onclick = function(){ signedOut(''); };
+  $('refresh').onclick = function(){ load(); }; $('prog').onchange = function(){ load(); }; $('search').oninput = function(){ if (data) renderList(); };
   if (token) { show(true); load(); } else show(false);
 })();
 </script>

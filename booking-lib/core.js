@@ -1,77 +1,257 @@
 /* AoB booking engine — shared by the Cloudflare Pages Functions in /functions/api/booking/.
-   Runs on Workers (and Node 18+ for tests): only fetch, URL and crypto.subtle.
+   Runs on Workers (and Node 18+ for tests): only fetch, URL, AbortSignal and crypto.
 
    Source of truth
    - Programs, rooms, prices, capacity: booking/programs/*.json (compiled into ./programs.js
      by tools/booking/build.py). The browser never decides what is charged.
-   - Bookings: Stripe. Every booking is a PaymentIntent whose metadata carries the booking
-     (aob_* keys), so no separate database is needed. Balance payments are PaymentIntents with
-     aob_kind=balance and the same aob_ref.
+   - Bookings: Stripe. Every booking is a PaymentIntent (or, for payment plans, a subscription)
+     whose metadata carries the booking (aob_* keys), so no separate database is needed. Balance
+     payments are PaymentIntents with aob_kind=balance and the same aob_ref. Open Checkout
+     Sessions are the holds: places in someone's checkout right now.
 
    Environment (Cloudflare Pages → Settings → Variables and secrets)
-   - STRIPE_SECRET_KEY      required for live/test payments (sk_test_… first). Without it every
-                            endpoint answers in demo mode and nothing is charged.
-   - STRIPE_WEBHOOK_SECRET  optional, whsec_… for /api/booking/webhook
-   - ADMIN_TOKEN            required for /api/booking/admin (long random string)
-   - GHL_WEBHOOK_URL        optional, GHL inbound-webhook URL that receives each paid booking
+   - STRIPE_SECRET_KEY       required for live/test payments (sk_test_… first). Without it every
+                             endpoint answers in demo mode and nothing is charged.
+   - STRIPE_PUBLISHABLE_KEY  optional, pk_test_… / pk_live_… of the same account and mode. With it
+                             the payment form is embedded in the booking page (else: Stripe redirect).
+   - STRIPE_WEBHOOK_SECRET   optional, whsec_… for /api/booking/webhook
+   - ADMIN_TOKEN             required for /api/booking/admin (long random string)
+   - GHL_WEBHOOK_URL         optional, GHL inbound-webhook URL that receives booking events
+   - TURNSTILE_SITE_KEY + TURNSTILE_SECRET  optional Cloudflare Turnstile bot check on checkout/lead
 
    Payment plans: payment "plan" is a Stripe subscription (monthly, program.payment_plan.installments
-   payments). The webhook sets cancel_at right after checkout so it stops after the last payment;
-   the confirmation lookup and the admin dashboard re-check it as a safety net. In live mode plans
-   are only offered when STRIPE_WEBHOOK_SECRET is set. */
+   payments). The webhook sets cancel_at right after checkout to the end of the last monthly period
+   (exactly n months after the billing anchor), so the last payment is a full one and there is no
+   extra one; the confirmation lookup, each instalment and the admin "repair plans" action re-check
+   it as a safety net. In live mode plans are only offered when STRIPE_WEBHOOK_SECRET is set. */
 import PROGRAMS from './programs.js';
 
 export const STRIPE_VERSION = '2024-06-20';
+export const SITE = 'https://website-5h3.pages.dev';
+export const nowSec = () => Math.floor(Date.now() / 1000);
+
+/* ------------------------------------------------------------- key modes */
+const secretKey = env => String((env && env.STRIPE_SECRET_KEY) || '');
+/* Live mode = a live secret key. Preview hosts and localhost are only trusted outside live mode. */
+export const liveMode = env => secretKey(env).includes('_live_');
+/* 'test' | 'live' | 'none' */
+export function keyMode(env) {
+  const k = secretKey(env);
+  if (!k) return 'none';
+  return /^(sk|rk)_live_/.test(k) ? 'live' : 'test';
+}
+/* 'test' | 'live' | 'missing' | 'mismatch' (publishable key from the other mode, or no secret key) */
+export function publishableStatus(env) {
+  const pk = String((env && env.STRIPE_PUBLISHABLE_KEY) || '');
+  if (!pk) return 'missing';
+  const pm = pk.startsWith('pk_live_') ? 'live' : pk.startsWith('pk_test_') ? 'test' : null;
+  return pm && pm === keyMode(env) ? pm : 'mismatch';
+}
+export const publishableKey = env => { const s = publishableStatus(env); return s === 'test' || s === 'live' ? env.STRIPE_PUBLISHABLE_KEY : null; };
+/* Turnstile is on only with both keys: the page shows the widget exactly when the site key is handed out. */
+export const turnstileSiteKey = env => (env && env.TURNSTILE_SECRET && env.TURNSTILE_SITE_KEY) || null;
+/* 'on' | 'off' | 'misconfigured' (only one of the two keys set: the bot check is off) */
+export function turnstileStatus(env) {
+  const s = !!(env && env.TURNSTILE_SECRET), k = !!(env && env.TURNSTILE_SITE_KEY);
+  return s && k ? 'on' : s || k ? 'misconfigured' : 'off';
+}
+/* "Email me a link to finish my booking": needs GHL, and in live mode the bot check too (the form can
+   name any email address, so without it the reminder could be used to email strangers). */
+export const remindEnabled = env => !!(env && env.GHL_WEBHOOK_URL) && (!liveMode(env) || !!turnstileSiteKey(env));
 
 /* ---------------------------------------------------------------- HTTP */
-const ORIGINS = [
-  'https://alchemyofbreath.com', 'https://www.alchemyofbreath.com',
-  'https://website-5h3.pages.dev', 'https://standalone-preview.website-5h3.pages.dev',
-];
-const originOk = o => ORIGINS.includes(o) || /^https:\/\/[a-z0-9-]+\.website-5h3\.pages\.dev$/.test(o) ||
-  /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(o);
+export const PROD_ORIGINS = ['https://alchemyofbreath.com', 'https://www.alchemyofbreath.com', SITE];
+export const PROD_HOSTS = PROD_ORIGINS.map(o => new URL(o).host);
+export function originOk(o, env) {
+  if (PROD_ORIGINS.includes(o)) return true;
+  if (liveMode(env)) return false;
+  return /^https:\/\/[a-z0-9-]+\.website-5h3\.pages\.dev$/.test(o) || /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(o);
+}
 
-export function cors(request) {
+export function cors(request, env) {
   const o = request.headers.get('Origin') || '';
-  return originOk(o) ? {
+  return originOk(o, env) ? {
     'Access-Control-Allow-Origin': o, 'Vary': 'Origin',
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     'Access-Control-Max-Age': '86400',
   } : { 'Vary': 'Origin' };
 }
-export const preflight = request => new Response(null, { status: 204, headers: cors(request) });
-export function json(request, data, status = 200) {
+export const preflight = (request, env) => new Response(null, { status: 204, headers: cors(request, env) });
+export function json(request, data, status = 200, env) {
   return new Response(JSON.stringify(data), {
     status,
-    headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store', ...cors(request) },
+    headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store', ...cors(request, env) },
   });
+}
+
+/* POST guard: JSON only (so a foreign page can't post without a CORS preflight), and a present
+   Origin must be one of ours. `text` also accepts text/plain (sendBeacon / keepalive bodies). */
+export function guardPost(request, env, { text = false } = {}) {
+  const ct = (request.headers.get('Content-Type') || '').toLowerCase();
+  if (!(ct.startsWith('application/json') || (text && ct.startsWith('text/plain')))) {
+    return json(request, { error: 'Please send the request as JSON.' }, 415, env);
+  }
+  const o = request.headers.get('Origin');
+  if (o !== null && !originOk(o, env)) return json(request, { error: 'This request is not allowed from this site.' }, 403, env);
+  return null;
+}
+/* The request body as a JSON object, or null. */
+export async function readBody(request, max = 32768) {
+  let t;
+  try { t = await request.text(); } catch { return null; }
+  if (!t || t.length > max) return null;
+  try { const v = JSON.parse(t); return v && typeof v === 'object' && !Array.isArray(v) ? v : null; } catch { return null; }
+}
+export const clientIp = request => request.headers.get('CF-Connecting-IP') || '';
+
+/* Stripe errors worth a "busy, try again" answer: network/timeouts, rate limits, Stripe 5xx. */
+export const isBusy = e => !!e && (e.status === 0 || e.status === 429 || e.status >= 500);
+export const BUSY = { error: 'Payments are busy for a moment. Please try again.', code: 'busy', retry_after: 5 };
+/* Structured failure log for Cloudflare's real-time logs. Never logs messages (they can carry emails). */
+export function logError(route, e, extra = {}) {
+  try {
+    console.error(JSON.stringify({ route, ...extra, type: (e && e.type) || null, code: (e && e.code) || null,
+      param: (e && e.param) || null, status: e && e.status != null ? e.status : null, request_id: (e && e.requestId) || null }));
+  } catch {}
+}
+
+/* Best-effort per-isolate rate limit (Workers isolates are short-lived; this only blunts bursts).
+   Least recently used keys are dropped first, so a flood of new keys can't wipe everyone's counters.
+   (A durable limit needs a Cloudflare zone WAF rule on a custom API domain, or a Durable Object.) */
+const hits = new Map(), HITS_MAX = 5000;
+export function rateLimited(key, max, windowMs) {
+  if (!key) return false;
+  const now = Date.now(), list = (hits.get(key) || []).filter(t => now - t < windowMs);
+  const limited = list.length >= max;
+  if (!limited) list.push(now);
+  hits.delete(key); hits.set(key, list); // most recently used last
+  while (hits.size > HITS_MAX) hits.delete(hits.keys().next().value);
+  return limited;
+}
+
+/* The part of an address one visitor controls: an IPv4 address whole, an IPv6 address by its /64
+   (first four groups), since home and server connections get a whole /64 to pick addresses from. */
+export function ipKey(ip) {
+  let s = String(ip || '').trim().toLowerCase();
+  if (!s) return '';
+  const v4 = s.match(/^(?:::ffff:)?(\d{1,3}(?:\.\d{1,3}){3})$/);
+  if (v4) return v4[1];
+  if (!s.includes(':')) return s;
+  s = s.split('%')[0];
+  const dbl = s.indexOf('::');
+  const head = (dbl >= 0 ? s.slice(0, dbl) : s).split(':').filter(Boolean);
+  const tail = dbl >= 0 ? s.slice(dbl + 2).split(':').filter(Boolean) : [];
+  const groups = dbl >= 0 ? [...head, ...Array(Math.max(0, 8 - head.length - tail.length)).fill('0'), ...tail] : head;
+  return groups.slice(0, 4).map(g => (parseInt(g, 16) || 0).toString(16)).join(':') + '::/64';
+}
+
+/* first 16 hex of SHA-256(visitor key + pepper): groups holds per visitor without storing the address */
+export async function ipHash(env, ip) {
+  const key = ipKey(ip);
+  if (!key) return '';
+  const pepper = secretKey(env).slice(-24) || 'aob-booking';
+  const d = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(`${key}|${pepper}`));
+  return Array.from(new Uint8Array(d), b => b.toString(16).padStart(2, '0')).join('').slice(0, 16);
+}
+
+const timeoutSignal = ms => (typeof AbortSignal !== 'undefined' && AbortSignal.timeout ? AbortSignal.timeout(ms) : undefined);
+
+/* Cloudflare Turnstile, decided on siteverify's JSON answer (it uses 4xx statuses for real results).
+   Fails open only when Cloudflare can't be reached (network error, timeout, a 5xx without an answer)
+   or reports our own secret as broken (bookings must not stop because of the bot check); fails closed
+   on anything else: no token, an invalid / used token, an unreadable answer. In live mode the token
+   must also come from one of our hosts and from the widget's action. */
+const TS_OPEN = /^(missing-input-secret|invalid-input-secret|internal-error)$/;
+export async function verifyTurnstile(env, token, ip, { action = 'booking' } = {}) {
+  if (!turnstileSiteKey(env)) return { ok: true, skipped: true };
+  if (typeof token !== 'string' || !token || token.length > 4096) return { ok: false, reason: 'missing' };
+  let r;
+  try {
+    const form = new URLSearchParams({ secret: env.TURNSTILE_SECRET, response: token });
+    if (ip) form.set('remoteip', ip);
+    r = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', { method: 'POST', body: form, signal: timeoutSignal(5000) });
+  } catch (e) { logError('turnstile', { type: 'network_error', status: 0 }); return { ok: true, unavailable: true }; }
+  const d = await r.json().catch(() => null);
+  if (!d || typeof d !== 'object') {
+    logError('turnstile', { status: r.status, type: 'unreadable' });
+    return r.status >= 500 ? { ok: true, unavailable: true } : { ok: false, reason: 'unreadable' };
+  }
+  const codes = Array.isArray(d['error-codes']) ? d['error-codes'].map(String) : [];
+  if (d.success === true) {
+    if (liveMode(env)) {
+      if (!PROD_HOSTS.includes(String(d.hostname || ''))) return { ok: false, reason: 'hostname' };
+      if (d.action !== action) return { ok: false, reason: 'action' };
+    }
+    return { ok: true };
+  }
+  if (codes.some(c => TS_OPEN.test(c))) { logError('turnstile', { type: 'config', code: codes.join(','), status: r.status }); return { ok: true, unavailable: true }; }
+  return { ok: false, reason: codes.join(',') || 'failed' };
 }
 
 /* ------------------------------------------------------------ programs */
 export const getProgram = id => (typeof id === 'string' && Object.prototype.hasOwnProperty.call(PROGRAMS, id)) ? PROGRAMS[id] : null;
 export const listPrograms = () => Object.values(PROGRAMS);
+const todayIso = (now = new Date()) => now.toISOString().slice(0, 10);
 export function isClosed(program, now = new Date()) {
-  const today = now.toISOString().slice(0, 10);
-  return today > (program.booking_closes || program.dates.start);
+  return todayIso(now) > (program.booking_closes || program.dates.start);
+}
+/* The 20% deposit can be switched off from a date on (deposit.available_until, inclusive). */
+export function depositInfo(program, now = new Date()) {
+  const until = (program.deposit && program.deposit.available_until) || null;
+  return { available: !until || todayIso(now) <= until, until };
 }
 
 /* --------------------------------------------------------------- money */
 export const eur = c => '€' + (c / 100).toLocaleString('en-GB', { minimumFractionDigits: c % 100 ? 2 : 0, maximumFractionDigits: 2 });
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+/* '2026-10-25' or unix seconds → '25 October' */
+export function dayMonth(v) {
+  const d = typeof v === 'number' ? new Date(v * 1000) : new Date(String(v).slice(0, 10) + 'T00:00:00Z');
+  return `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]}`;
+}
+const andList = a => a.length <= 1 ? a.join('') : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1];
 
 /* ------------------------------------------------------------- quoting */
-const str = (v, max) => (typeof v === 'string' ? v : v == null ? '' : String(v)).replace(/[\u0000-\u001f\u007f]/g, ' ').trim().slice(0, max);
-const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+export const str = (v, max = 200) => (typeof v === 'string' ? v : v == null ? '' : String(v)).replace(/[\u0000-\u001f\u007f]/g, ' ').trim().slice(0, max);
+/* local part without leading/trailing/double dots; domain labels without leading/trailing hyphens */
+const EMAIL = /^(?!\.)(?!.*\.\.)[^\s@"(),:;<>[\\\]]{1,64}(?<!\.)@(?=.{4,255}$)(?:[\p{L}\p{N}](?:[\p{L}\p{N}-]{0,61}[\p{L}\p{N}])?\.)+(?:\p{L}{2,63}|xn--[a-z0-9-]{2,59})$/iu;
+export const validEmail = e => typeof e === 'string' && EMAIL.test(e);
+/* "jane.doe@gmail.com" → "j•••@gmail.com" (for answers that travel with a link) */
+export function maskEmail(e) {
+  const s = String(e || ''), at = s.lastIndexOf('@');
+  return at < 1 ? null : s[0] + '•••' + s.slice(at);
+}
+const NAME_BAD = /^[=+\-@]/; // spreadsheet formulas
+// links, domains, emails, markup and numbers: names are forwarded to the CRM and used in emails
+const NAME_LINK = /:\/\/|www\.|[\p{L}\p{N}]{2,}\.\p{L}{2,}|[@<>]|\d{2,}/iu;
+export const nameError = s => NAME_BAD.test(s) ? 'Please use letters for names.'
+  : NAME_LINK.test(s) ? 'Please enter just the name, without links, email addresses or numbers.' : null;
+
+/* WhatsApp numbers: strip spaces, brackets, dots and dashes; "00" → "+"; "(0)" trunk prefixes dropped. */
+export function normalizePhone(v) {
+  let s = str(v, 40).replace(/\(0\)/g, '').replace(/[\s().\-‐-―]/g, '');
+  if (s.startsWith('00')) s = '+' + s.slice(2);
+  return s;
+}
+export function phoneError(s) {
+  if (/^\+[1-9]\d{6,14}$/.test(s)) return null;
+  if (/^0/.test(s)) return 'Add your country code, e.g. +44 7700 900123.';
+  return 'Add your WhatsApp number with the country code, e.g. +44 7700 900123.';
+}
 
 /* Validate a booking request and price it from the program file.
-   input: { payment: 'deposit'|'full'|'plan', programme: 'included'|'paid', guests: [{first,last,email,gender,room}], whatsapp, roommate, terms }
-   With a programme fee, every guest pays it in full at booking (programme: 'paid' = already paid elsewhere,
-   room only), and the deposit percentage applies to the accommodation. */
+   input: { payment: 'deposit'|'full'|'plan', programme: 'included'|'paid', guests: [{first,last,email,gender,room}],
+            whatsapp, roommate, diet, terms, remind }
+   Guest 1's email is required, the others' optional. With a programme fee, every guest pays it in
+   full at booking (programme: 'paid' = already paid elsewhere, room only), and the deposit
+   percentage applies to the accommodation. */
 export const programmeFee = program => (program.programme && Number.isInteger(program.programme.fee) && program.programme.fee > 0) ? program.programme : null;
-export function quote(program, input) {
+export function quote(program, input, now = new Date()) {
+  input = input && typeof input === 'object' ? input : {};
   const errors = {};
-  const payment = input && (input.payment === 'full' || input.payment === 'plan') ? input.payment : 'deposit';
-  const raw = Array.isArray(input && input.guests) ? input.guests.slice(0, 50) : [];
+  const payment = input.payment === 'full' || input.payment === 'plan' ? input.payment : 'deposit';
+  const raw = Array.isArray(input.guests) ? input.guests.slice(0, 50) : [];
   const max = program.max_guests_per_booking || 6;
   if (raw.length < 1) errors.guests = 'Add at least one guest.';
   if (raw.length > max) errors.guests = `You can book up to ${max} guests at a time.`;
@@ -79,21 +259,28 @@ export function quote(program, input) {
   const genders = (program.genders || []).map(g => g.toLowerCase());
 
   const guests = raw.slice(0, max).map((g, i) => {
-    g = g || {};
+    g = g && typeof g === 'object' ? g : {};
     const o = { first: str(g.first, 60), last: str(g.last, 60), email: str(g.email, 120).toLowerCase(), gender: str(g.gender, 40), room: str(g.room, 40) };
-    if (!o.first) errors[`guests.${i}.first`] = 'Please add a first name.';
-    if (!o.last) errors[`guests.${i}.last`] = 'Please add a last name.';
-    if (!EMAIL.test(o.email)) errors[`guests.${i}.email`] = 'Please add a valid email address.';
+    for (const k of ['first', 'last']) {
+      if (!o[k]) errors[`guests.${i}.${k}`] = k === 'first' ? 'Please add a first name.' : 'Please add a last name.';
+      else if (nameError(o[k])) errors[`guests.${i}.${k}`] = nameError(o[k]);
+    }
+    if (i === 0 ? !validEmail(o.email) : (o.email && !validEmail(o.email))) errors[`guests.${i}.email`] = 'Please add a valid email address.';
     const gi = genders.indexOf(o.gender.toLowerCase());
     if (gi < 0) errors[`guests.${i}.gender`] = 'Please choose an option.'; else o.gender = program.genders[gi];
     if (!rooms[o.room]) errors[`guests.${i}.room`] = 'Please choose where this guest will stay.';
     return o;
   });
 
-  const whatsapp = str(input && input.whatsapp, 32).replace(/[\s().-]/g, '');
-  if (!/^\+\d{7,15}$/.test(whatsapp)) errors.whatsapp = 'Add your WhatsApp number with the country code, e.g. +44 7700 900123.';
-  const roommate = str(input && input.roommate, 200);
-  if (!(input && input.terms === true)) errors.terms = 'Please agree to the terms and conditions.';
+  const whatsapp = normalizePhone(input.whatsapp);
+  const pe = phoneError(whatsapp);
+  if (pe) errors.whatsapp = pe;
+  const roommate = str(input.roommate, 200);
+  const diet = str(input.diet, 400);
+  if (input.terms !== true) errors.terms = 'Please agree to the terms and conditions.';
+  if (payment === 'deposit' && !depositInfo(program, now).available) {
+    errors.payment = 'The deposit option has closed for this week. Please choose to pay in full.';
+  }
 
   const counts = {};
   guests.forEach(g => { if (rooms[g.room]) counts[g.room] = (counts[g.room] || 0) + 1; });
@@ -104,7 +291,7 @@ export function quote(program, input) {
   });
   const accommodation = lines.reduce((s, l) => s + l.amount_cents, 0);
   const prog = programmeFee(program);
-  const programme = !prog ? 'none' : input && input.programme === 'paid' ? 'paid' : 'included';
+  const programme = !prog ? 'none' : input.programme === 'paid' ? 'paid' : 'included';
   const programmeCents = programme === 'included' ? guests.length * prog.fee * 100 : 0;
   const total = accommodation + programmeCents;
   const deposit = programmeCents + Math.round(accommodation * (program.deposit && program.deposit.percent || 100) / 100);
@@ -116,13 +303,15 @@ export function quote(program, input) {
     dueNow = plan.first_cents;
   }
   return {
-    ok: Object.keys(errors).length === 0, errors, payment, guests, whatsapp, roommate, counts, lines, plan,
-    programme, programme_cents: programmeCents, programme_fee_cents: prog ? prog.fee * 100 : 0, accommodation_cents: accommodation,
-    total_cents: total, deposit_cents: deposit, due_now_cents: dueNow, balance_cents: total - dueNow,
+    ok: Object.keys(errors).length === 0, errors, payment, guests, whatsapp, roommate, diet, remind: input.remind === true,
+    counts, lines, plan, programme, programme_cents: programmeCents, programme_fee_cents: prog ? prog.fee * 100 : 0,
+    accommodation_cents: accommodation, total_cents: total, deposit_cents: deposit, due_now_cents: dueNow, balance_cents: total - dueNow,
   };
 }
 
 /* ---------------------------------------------------------- payment plan */
+/* k months after d, same time of day, clamped to the month's last day: the way Stripe steps monthly
+   billing periods from a billing_cycle_anchor (always counted from the anchor, never chained). */
 export function addMonths(d, k) {
   const x = new Date(d.getTime()), day = x.getUTCDate();
   x.setUTCDate(1); x.setUTCMonth(x.getUTCMonth() + k);
@@ -153,12 +342,16 @@ export function planInfo(program, env = {}, now = new Date()) {
    all with `sleeps` beds) and any beds already taken outside this system ("occupied", with the
    occupant's gender; gender null = unknown, which keeps the rest of that room off sale until
    someone sets it). An empty room can go to women or men; once a bed is taken, the other beds
-   in that room are only for the same gender. Rooms that sleep one have a simple `capacity`. */
+   in that room are only for the same gender. Rooms that sleep one have a simple `capacity`.
+   Rooms not priced per person (unit "cottage") count `capacity` and what is taken in units:
+   each booking takes ceil(its guests / sleeps) of them. */
 const gkey = g => { const k = String(g || '').toLowerCase(); return k === 'female' || k === 'male' ? k : 'other'; };
 export const isShared = r => !!r.same_gender && (r.sleeps || 1) > 1 && Number.isInteger(r.units);
+export const byUnit = r => !!r.unit && r.unit !== 'person' && !isShared(r);
+/* capacity in places (people) */
 export const roomCapacity = r => isShared(r)
   ? r.units * r.sleeps - (r.occupied || []).slice(0, r.units).reduce((s, o) => s + (o.beds || 0), 0)
-  : (r.capacity || 0);
+  : byUnit(r) ? (r.capacity || 0) * (r.sleeps || 1) : (r.capacity || 0);
 
 function sharedState(r, taken) {
   const b = r.sleeps, units = [];
@@ -173,7 +366,8 @@ function sharedState(r, taken) {
   return { beds: b, empty_units: units.filter(u => u.g === null).length, partial: { female: partial('female'), male: partial('male') } };
 }
 
-/* Can `f` women and `m` men all be placed in this room type right now? */
+/* Can `f` women and `m` men all be placed in this room type right now? (left_any is in places, so
+   for unit rooms "n places fit" ⇔ ceil(n / sleeps) units are free) */
 export function fits(a, f, m) {
   if (!a) return false;
   if (f + m > a.program_left) return false;
@@ -182,40 +376,60 @@ export function fits(a, f, m) {
   return Math.ceil(needF / a.beds) + Math.ceil(needM / a.beds) <= a.empty_units;
 }
 
-export function availability(program, occ = { booked: {}, holds: {} }) {
+/* occ = { booked, holds, release } from occupancy(); per room: { female, male, other, units }.
+   Adds per room `held` (places in open checkouts) and `next_release_at` (earliest hold expiry). */
+export function availability(program, occ) {
+  const booked = (occ && occ.booked) || {}, holds = (occ && occ.holds) || {}, release = (occ && occ.release) || {};
   const sum = id => {
-    const a = occ.booked[id] || {}, h = occ.holds[id] || {};
-    return { female: (a.female || 0) + (h.female || 0), male: (a.male || 0) + (h.male || 0), other: (a.other || 0) + (h.other || 0) };
+    const a = booked[id] || {}, h = holds[id] || {};
+    return { female: (a.female || 0) + (h.female || 0), male: (a.male || 0) + (h.male || 0), other: (a.other || 0) + (h.other || 0), units: (a.units || 0) + (h.units || 0) };
   };
   const t = {}; let used = 0;
   for (const r of program.rooms) { t[r.id] = sum(r.id); used += t[r.id].female + t[r.id].male + t[r.id].other; }
   const program_left = Math.max(0, program.program_spaces - used);
   const rooms = {};
   for (const r of program.rooms) {
-    const x = t[r.id], taken = x.female + x.male + x.other, capacity = roomCapacity(r);
+    const x = t[r.id], taken = x.female + x.male + x.other, capacity = roomCapacity(r), h = holds[r.id] || {};
+    const extra = { held: (h.female || 0) + (h.male || 0) + (h.other || 0), next_release_at: release[r.id] || null };
     if (isShared(r)) {
       const st = sharedState(r, x);
       const lf = Math.min(program_left, st.partial.female + st.empty_units * st.beds);
       const lm = Math.min(program_left, st.partial.male + st.empty_units * st.beds);
       rooms[r.id] = { kind: 'shared', capacity, taken, beds: st.beds, empty_units: st.empty_units, partial: st.partial,
-        left: { female: lf, male: lm }, left_any: Math.max(lf, lm), program_left, sold_out: Math.max(lf, lm) <= 0 };
+        left: { female: lf, male: lm }, left_any: Math.max(lf, lm), program_left, sold_out: Math.max(lf, lm) <= 0, ...extra };
+    } else if (byUnit(r)) {
+      const sleeps = r.sleeps || 1, capU = r.capacity || 0, leftU = Math.max(0, capU - x.units);
+      const la = Math.min(program_left, leftU * sleeps);
+      rooms[r.id] = { kind: 'simple', unit: r.unit, sleeps, capacity, capacity_units: capU, taken, taken_units: x.units, units_left: leftU,
+        left: { female: la, male: la }, left_any: la, program_left, sold_out: la <= 0, ...extra };
     } else {
       const la = Math.min(program_left, Math.max(0, capacity - taken));
-      rooms[r.id] = { kind: 'simple', capacity, taken, left: { female: la, male: la }, left_any: la, program_left, sold_out: la <= 0 };
+      rooms[r.id] = { kind: 'simple', capacity, taken, left: { female: la, male: la }, left_any: la, program_left, sold_out: la <= 0, ...extra };
     }
   }
-  return { program_left, rooms };
+  // What would be free if every open checkout were given up (the page says "places in checkout
+  // right now, check again after 14:32" instead of a flat "sold out"). if_released carries the
+  // room's packing (empty rooms, partly filled rooms) so the page can run fits() on it: a mixed
+  // group may need two empty rooms even when both genders have places on paper.
+  const anyHeld = Object.values(rooms).some(x => x.held > 0);
+  const base = anyHeld ? availability(program, { booked }) : null;
+  for (const id of Object.keys(rooms)) {
+    const b = base ? base.rooms[id] : rooms[id];
+    rooms[id].left_if_released = b.left;
+    rooms[id].if_released = { kind: b.kind, beds: b.beds, empty_units: b.empty_units, partial: b.partial, left_any: b.left_any, program_left: b.program_left };
+  }
+  return { program_left, program_left_if_released: base ? base.program_left : program_left, rooms };
 }
 
 export function checkAvailability(program, q, avail) {
   const n = q.guests.length;
   if (n > avail.program_left) return avail.program_left > 0
-    ? `Only ${avail.program_left} ${avail.program_left === 1 ? 'place is' : 'places are'} left this week.`
-    : 'This week is now fully booked.';
+    ? `Only ${avail.program_left} ${avail.program_left === 1 ? 'place is' : 'places are'} left for ${program.dates.short}.`
+    : `${program.edition || program.title} is now fully booked.`;
   const by = {};
   q.guests.forEach(g => { const c = by[g.room] || (by[g.room] = { female: 0, male: 0 }); c[gkey(g.gender) === 'male' ? 'male' : 'female']++; });
   for (const [id, c] of Object.entries(by)) {
-    const a = avail.rooms[id], r = program.rooms.find(x => x.id === id);
+    const a = avail.rooms[id], r = program.rooms.find(x => x.id === id) || { name: id };
     if (fits(a, c.female, c.male)) continue;
     if (!a || a.sold_out) return `${r.name} is sold out.`;
     if (a.kind === 'shared') {
@@ -237,15 +451,38 @@ export const publicQuote = q => ({
   total_cents: q.total_cents, deposit_cents: q.deposit_cents, due_now_cents: q.due_now_cents, balance_cents: q.balance_cents,
 });
 
-/* ------------------------------------------------------------- metadata */
-const UTM = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'fbclid', 'gclid'];
+/* ------------------------------------------------------------- metadata
+   Stripe allows 50 keys of ≤ 500 characters. A 6-guest booking uses about 33 (12 guests ≈ 39). */
+export const UTM = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'gclid', 'fbclid'];
+export function pickUtm(utm) {
+  const o = {};
+  if (utm && typeof utm === 'object') UTM.forEach(k => { const v = str(utm[k], 150); if (v) o[k] = v; });
+  return o;
+}
+/* All UTMs in one JSON key (≤ 490 characters; keys that don't fit are dropped, least useful last). */
+export function packUtm(utm) {
+  const all = pickUtm(utm), o = {};
+  let s = '';
+  for (const k of UTM) {
+    if (!all[k]) continue;
+    o[k] = all[k];
+    const t = JSON.stringify(o);
+    if (t.length > 490) delete o[k]; else s = t;
+  }
+  return s;
+}
+export const cleanAttempt = v => typeof v === 'string' ? v.replace(/[^A-Za-z0-9_-]/g, '').slice(0, 64) : '';
 export const roomsToString = counts => Object.entries(counts).map(([k, v]) => `${k}:${v}`).join(',');
 export function roomsFromString(s) {
   const out = {};
   String(s || '').split(',').forEach(p => { const [k, v] = p.split(':'); const n = parseInt(v, 10); if (k && n > 0) out[k] = (out[k] || 0) + n; });
   return out;
 }
+const noPipe = s => String(s).replace(/\|/g, '/');
 
+/* extra: { page, utm, ui, attempt, iph, progVerified, progPis: [{ id, cents }], now }
+   aob_iph (visitor hash) is only for the open checkout: bookingCheckoutParams leaves it off the
+   PaymentIntent / subscription, which are kept for good. */
 export function bookingMetadata(program, q, ref, extra = {}) {
   const lead = q.guests[0];
   const md = {
@@ -253,13 +490,23 @@ export function bookingMetadata(program, q, ref, extra = {}) {
     aob_total: String(q.total_cents), aob_due_now: String(q.due_now_cents), aob_balance: String(q.balance_cents),
     aob_rooms: roomsToString(q.counts), aob_guests: String(q.guests.length),
     aob_lead_name: `${lead.first} ${lead.last}`.slice(0, 120), aob_lead_email: lead.email,
-    aob_whatsapp: q.whatsapp, aob_roommate: q.roommate.slice(0, 200),
+    aob_whatsapp: q.whatsapp, aob_roommate: (q.roommate || '').slice(0, 200),
   };
   if (q.programme !== 'none') { md.aob_prog = q.programme; md.aob_prog_total = String(q.programme_cents); }
+  if (q.programme === 'paid') md.aob_prog_verified = extra.progVerified === 'stripe' ? 'stripe' : 'unverified';
+  if (q.programme === 'paid' && Array.isArray(extra.progPis) && extra.progPis.length) {
+    md.aob_prog_pi = extra.progPis.map(p => `${p.id}:${p.cents}`).join(',').slice(0, 490); // the earlier payments matched
+  }
   if (q.plan) { md.aob_plan_n = String(q.plan.installments); md.aob_installment = String(q.plan.installment_cents); }
-  q.guests.forEach((g, i) => { md[`aob_g${i + 1}`] = [`${g.first} ${g.last}`, g.email, g.gender, g.room].join(' | ').slice(0, 490); });
-  const utm = extra.utm && typeof extra.utm === 'object' ? extra.utm : {};
-  UTM.forEach(k => { if (utm[k]) md[k] = str(utm[k], 200); });
+  q.guests.forEach((g, i) => { md[`aob_g${i + 1}`] = [noPipe(`${g.first} ${g.last}`), g.email, g.gender, g.room].join(' | ').slice(0, 490); });
+  if (q.diet) md.aob_diet = q.diet.slice(0, 400);
+  if (q.remind) md.aob_remind = '1';
+  md.aob_terms_at = (extra.now || new Date()).toISOString();
+  if (program.terms_url) md.aob_terms = str(program.terms_url, 300);
+  if (extra.ui) md.aob_ui = extra.ui === 'embedded' ? 'embedded' : 'hosted';
+  const attempt = cleanAttempt(extra.attempt); if (attempt) md.aob_attempt = attempt;
+  if (extra.iph) md.aob_iph = String(extra.iph).slice(0, 32);
+  const utm = packUtm(extra.utm); if (utm) md.aob_utm = utm;
   if (extra.page) md.aob_page = str(extra.page, 300);
   return md;
 }
@@ -269,25 +516,35 @@ export function parseBooking(md = {}) {
   for (let i = 1; i <= 12; i++) {
     const v = md[`aob_g${i}`]; if (!v) continue;
     const [name, email, gender, room] = v.split(' | ');
-    guests.push({ name, email, gender, room });
+    guests.push({ name, email: email || '', gender, room });
   }
-  const utm = {}; UTM.forEach(k => { if (md[k]) utm[k] = md[k]; });
+  const utm = {};
+  if (md.aob_utm) { try { const o = JSON.parse(md.aob_utm); if (o && typeof o === 'object') UTM.forEach(k => { if (o[k]) utm[k] = String(o[k]); }); } catch {} }
+  UTM.forEach(k => { if (md[k] && !utm[k]) utm[k] = md[k]; }); // bookings made before aob_utm existed
+  const progPis = String(md.aob_prog_pi || '').split(',').filter(Boolean).map(x => { const [id, c] = x.split(':'); return { id, cents: parseInt(c || '0', 10) || 0 }; });
   return {
     ref: md.aob_ref, program: md.aob_program, payment: md.aob_payment, status: md.aob_status || 'active',
+    status_at: parseInt(md.aob_status_at || '0', 10) || null,
     total_cents: parseInt(md.aob_total || '0', 10), rooms: roomsFromString(md.aob_rooms),
     programme: md.aob_prog || 'none', programme_cents: parseInt(md.aob_prog_total || '0', 10),
+    programme_verified: md.aob_prog === 'paid' ? (md.aob_prog_verified || 'unverified') : '',
+    programme_payments: md.aob_prog === 'paid' ? progPis : [],
     lead: { name: md.aob_lead_name, email: md.aob_lead_email, whatsapp: md.aob_whatsapp, roommate: md.aob_roommate || '' },
-    guests, utm, page: md.aob_page || '',
+    guests, utm, page: md.aob_page || '', diet: md.aob_diet || '', ui: md.aob_ui || '', remind: md.aob_remind === '1',
+    attempt: md.aob_attempt || '', terms_at: md.aob_terms_at || '',
   };
 }
 
+const refPrefix = program => 'BC' + program.dates.start.replace(/-/g, '').slice(2, 6); // BC + YYMM
 export function newRef(program) {
   const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', b = new Uint8Array(6);
   crypto.getRandomValues(b);
-  const d = program.dates.start.replace(/-/g, '').slice(2, 6); // YYMM
-  return `BC${d}-` + Array.from(b, x => A[x % A.length]).join('');
+  return `${refPrefix(program)}-` + Array.from(b, x => A[x % A.length]).join('');
 }
 export const validRef = r => typeof r === 'string' && /^[A-Z0-9]{2,8}-[A-Z0-9]{4,10}$/.test(r);
+/* A reference one of our programs could have issued (checked before spending Stripe calls on it). */
+export const knownRef = r => validRef(r) && listPrograms().some(p => r.startsWith(refPrefix(p) + '-'));
+export const CS_ID = /^cs_(test|live)_[A-Za-z0-9]{10,200}$/;
 
 /* ---------------------------------------------------------------- Stripe */
 export function formEncode(obj) {
@@ -301,185 +558,469 @@ export function formEncode(obj) {
   walk(obj, '');
   return out.join('&');
 }
-const qs = o => new URLSearchParams(Object.entries(o).filter(([, v]) => v !== undefined && v !== null).map(([k, v]) => [k, String(v)])).toString();
+export const qs = o => new URLSearchParams(Object.entries(o).filter(([, v]) => v !== undefined && v !== null).map(([k, v]) => [k, String(v)])).toString();
 
-export async function stripe(env, method, path, params) {
-  const init = { method, headers: { Authorization: `Bearer ${env.STRIPE_SECRET_KEY}`, 'Stripe-Version': STRIPE_VERSION } };
-  if (params && method !== 'GET') { init.headers['Content-Type'] = 'application/x-www-form-urlencoded'; init.body = formEncode(params); }
-  const res = await fetch('https://api.stripe.com/v1' + path, init);
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) { const e = new Error((data.error && data.error.message) || `Stripe error ${res.status}`); e.status = res.status; throw e; }
-  return data;
+/* Tunables (tests shorten the backoff). */
+export const stripeConfig = { timeoutMs: 8000, retries: 2, retryBaseMs: 300 };
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+function stripeError(res, data, netErr) {
+  const se = (data && data.error) || {};
+  const http = res && !res.ok;
+  const e = new Error(http ? (se.message || `Stripe error ${res.status}`) : `Stripe unreachable (${(netErr && netErr.name) || 'error'})`);
+  e.status = http ? res.status : 0;
+  e.type = http ? (se.type || null) : 'network_error';
+  e.code = se.code || null; e.param = se.param || null;
+  e.requestId = res ? res.headers.get('Request-Id') : null;
+  return e;
+}
+/* One Stripe API call. 8 s timeout; up to 2 retries on network errors, 429 and 5xx (jittered backoff,
+   Stripe-Should-Retry honoured), reusing ONE Idempotency-Key per logical POST so a retry can't
+   create a second object. Errors carry type, code, param, status and requestId. */
+export async function stripe(env, method, path, params, opts = {}) {
+  const retries = opts.retries ?? stripeConfig.retries, timeoutMs = opts.timeoutMs ?? stripeConfig.timeoutMs;
+  const headers = { Authorization: `Bearer ${env.STRIPE_SECRET_KEY}`, 'Stripe-Version': STRIPE_VERSION };
+  let body;
+  if (params && method !== 'GET') { headers['Content-Type'] = 'application/x-www-form-urlencoded'; body = formEncode(params); }
+  if (method === 'POST') headers['Idempotency-Key'] = opts.idempotencyKey || crypto.randomUUID();
+  for (let attempt = 0; ; attempt++) {
+    let res = null, data = null, netErr = null;
+    try {
+      res = await fetch('https://api.stripe.com/v1' + path, { method, headers, body, signal: timeoutSignal(timeoutMs) });
+      const text = await res.text();
+      try { data = text ? JSON.parse(text) : {}; } catch { data = null; }
+      if (res.ok && !data) netErr = new Error('invalid JSON');
+    } catch (e) { netErr = e; res = null; }
+    if (res && res.ok && !netErr) return data;
+    const should = res && !netErr ? res.headers.get('Stripe-Should-Retry') : null;
+    const retryable = netErr ? true : should === 'true' ? true : should === 'false' ? false : (res.status === 429 || res.status >= 500);
+    if (retryable && attempt < retries) {
+      await sleep(Math.min(4000, stripeConfig.retryBaseMs * 2 ** attempt) * (0.5 + Math.random() / 2));
+      continue;
+    }
+    throw stripeError(netErr ? null : res, data, netErr);
+  }
 }
 
-async function searchAll(env, query, cap = 2000, object = 'payment_intents') {
+/* Every page of a list endpoint (newest first), up to maxPages × 100 rows. */
+export async function listAll(env, path, params = {}, { maxPages = 10 } = {}) {
+  const rows = []; let after;
+  for (let page = 0; page < maxPages; page++) {
+    const r = await stripe(env, 'GET', `${path}?` + qs({ ...params, limit: 100, starting_after: after }));
+    const data = (r && r.data) || [];
+    rows.push(...data);
+    if (!r.has_more || !data.length) break;
+    after = data[data.length - 1].id;
+  }
+  return rows;
+}
+async function searchAll(env, query, cap = 2000, object = 'payment_intents', extra = {}) {
   const rows = []; let page;
   do {
-    const r = await stripe(env, 'GET', `/${object}/search?` + qs({ query, limit: 100, page }));
-    rows.push(...r.data);
+    const r = await stripe(env, 'GET', `/${object}/search?` + qs({ query, limit: 100, page, ...extra }));
+    rows.push(...(r.data || []));
     page = r.has_more ? r.next_page : undefined;
   } while (page && rows.length < cap);
   return rows;
 }
+async function mapLimit(items, n, fn) {
+  const out = new Array(items.length); let i = 0;
+  await Promise.all(Array.from({ length: Math.min(n, items.length) }, async () => {
+    while (i < items.length) { const k = i++; out[k] = await fn(items[k], k); }
+  }));
+  return out;
+}
 
 /* Plan bookings are subscriptions. They count from the first paid invoice (status not "incomplete"). */
-const LIVE_SUB = sub => sub.status !== 'incomplete' && sub.status !== 'incomplete_expired';
-async function paidOnSub(env, subId) {
+export const LIVE_SUB = sub => sub.status !== 'incomplete' && sub.status !== 'incomplete_expired';
+export async function paidOnSub(env, subId) {
   const r = await stripe(env, 'GET', '/invoices?' + qs({ subscription: subId, status: 'paid', limit: 24 }));
   return { amount: r.data.reduce((a, inv) => a + (inv.amount_paid || 0), 0), count: r.data.length };
 }
+const subAnchor = sub => sub.billing_cycle_anchor || sub.start_date || sub.created;
 function subRecord(sub, paid) {
   const md = sub.metadata || {};
   const running = (sub.status === 'active' || sub.status === 'past_due') && (!sub.cancel_at || sub.current_period_end < sub.cancel_at);
   return {
     id: sub.id, sub: true, created: sub.created, customer: sub.customer, md, status: sub.status, cancel_at: sub.cancel_at || null,
-    amount: paid ? paid.amount : parseInt(md.aob_due_now || '0', 10), paid_count: paid ? paid.count : 1,
-    next_payment: running ? sub.current_period_end : null,
+    amount: paid ? paid.amount : parseInt(md.aob_due_now || '0', 10), paid_count: paid ? paid.count : 1, paid_known: !!paid, refunded: 0,
+    next_payment: running ? sub.current_period_end : null, period_end: sub.current_period_end || null, anchor: subAnchor(sub),
   };
 }
-function mergeRecentSessions(byId, sessions, match) {
-  for (const s of sessions) {
-    const md = s.metadata || {};
-    if (!match(md) || s.payment_status !== 'paid') continue;
-    if (s.mode === 'subscription' && s.subscription && !byId.has(s.subscription)) {
-      byId.set(s.subscription, { id: s.subscription, sub: true, created: s.created, customer: s.customer, md, status: 'active', cancel_at: null, amount: s.amount_total, paid_count: 1, next_payment: null });
-    } else if (s.payment_intent && !byId.has(s.payment_intent)) {
-      byId.set(s.payment_intent, { id: s.payment_intent, created: s.created, amount: s.amount_total, customer: s.customer, md });
-    }
-  }
+/* A plan that will take no more payments: stopped (by the team, or by Stripe after failed payments),
+   past its end date, or in its last period with nothing left to invoice. Its remaining balance, if
+   any, can then only be collected with a balance payment (after voiding its open invoices). */
+export function planEnded(p, now = nowSec()) {
+  if (!p) return false;
+  if (p.status === 'canceled' || p.status === 'unpaid' || p.status === 'incomplete_expired') return true;
+  if (p.cancel_at && p.cancel_at <= now) return true;
+  return p.status === 'active' && !!p.cancel_at && !!p.period_end && p.cancel_at <= p.period_end;
 }
+/* Open invoices of a plan (a failed instalment stays payable from its invoice link): voided before a
+   balance payment replaces them, so nothing can be paid twice. */
+export async function voidOpenPlanInvoices(env, subId) {
+  const r = await stripe(env, 'GET', '/invoices?' + qs({ subscription: subId, status: 'open', limit: 24 }));
+  for (const inv of r.data || []) await stripe(env, 'POST', `/invoices/${inv.id}/void`);
+  return (r.data || []).length;
+}
+/* A PaymentIntent that holds a place: paid, or a delayed method (bank debit) still processing.
+   Paid = amount received minus refunds (latest_charge expanded). */
+const COUNTS = pi => pi.status === 'succeeded' || pi.status === 'processing';
+function piRecord(pi) {
+  const refunded = pi.latest_charge && typeof pi.latest_charge === 'object' ? (pi.latest_charge.amount_refunded || 0) : 0;
+  const ok = pi.status === 'succeeded';
+  return { id: pi.id, created: pi.created, amount: ok ? Math.max(0, (pi.amount_received || 0) - refunded) : 0, refunded: ok ? refunded : 0,
+    pending: pi.status === 'processing', customer: pi.customer, md: pi.metadata || {} };
+}
+const EXPAND_CHARGE = { 'expand[]': 'data.latest_charge' };
+const RECENT_PAY_SEC = 40 * 60;  // safety net for Stripe's search lag, by PAYMENT time
+const OPEN_HOLD_SEC = 35 * 60;   // booking sessions expire 31 minutes after creation
 
-/* Every succeeded payment (and every plan subscription) for a program. Stripe's search index can lag
-   about a minute, so sessions completed in the last 20 minutes are merged in from the (real-time)
-   Checkout Sessions list. amounts: also total what each plan has paid so far (one call per plan). */
-export async function programPayments(env, program, { amounts = false } = {}) {
+/* Rows in order; a later row for the same id wins (lists are real time, search lags). */
+async function toRecords(env, match, pis, subs, amounts) {
   const byId = new Map();
-  for (const pi of await searchAll(env, `metadata['aob_program']:'${program.id}' AND status:'succeeded'`)) {
-    byId.set(pi.id, { id: pi.id, created: pi.created, amount: pi.amount_received, customer: pi.customer, md: pi.metadata || {} });
+  for (const pi of pis) {
+    if (!match(pi.metadata || {})) continue;
+    if (COUNTS(pi)) byId.set(pi.id, piRecord(pi)); else byId.delete(pi.id);
   }
-  for (const sub of await searchAll(env, `metadata['aob_program']:'${program.id}'`, 2000, 'subscriptions')) {
-    if (LIVE_SUB(sub)) byId.set(sub.id, subRecord(sub, amounts ? await paidOnSub(env, sub.id) : null));
+  const live = new Map();
+  for (const sub of subs) {
+    if (!match(sub.metadata || {})) continue;
+    if (LIVE_SUB(sub)) live.set(sub.id, sub); else live.delete(sub.id);
   }
-  const since = Math.floor(Date.now() / 1000) - 20 * 60;
-  const recent = await stripe(env, 'GET', '/checkout/sessions?' + qs({ status: 'complete', 'created[gte]': since, limit: 100 }));
-  mergeRecentSessions(byId, recent.data, md => md.aob_program === program.id);
+  const list = [...live.values()];
+  const paid = amounts ? await mapLimit(list, 4, s => paidOnSub(env, s.id).catch(() => null)) : [];
+  list.forEach((sub, i) => byId.set(sub.id, subRecord(sub, amounts ? paid[i] : null)));
   return [...byId.values()];
 }
+async function recentRaw(env) {
+  const since = nowSec() - RECENT_PAY_SEC;
+  const [pis, subs] = await Promise.all([
+    listAll(env, '/payment_intents', { 'created[gte]': since, ...EXPAND_CHARGE }),
+    listAll(env, '/subscriptions', { 'created[gte]': since }),
+  ]);
+  return { pis, subs };
+}
+async function collectPayments(env, match, query, { amounts = false, cap = 2000 } = {}) {
+  const [pis, subs, recent] = await Promise.all([
+    searchAll(env, query, cap, 'payment_intents', EXPAND_CHARGE),
+    searchAll(env, query, cap, 'subscriptions'),
+    recentRaw(env),
+  ]);
+  return toRecords(env, match, [...pis, ...recent.pis], [...subs, ...recent.subs], amounts);
+}
 
-/* Stop a plan after its last payment: cancel_at a week after the final monthly invoice. */
+/* Every booking/balance payment (and every plan subscription) for a program: Stripe search, plus
+   the real-time lists of PaymentIntents and subscriptions created in the last 40 minutes (Checkout
+   creates the PaymentIntent when the guest pays), because search can lag. amounts: also total
+   what each plan has paid so far (one call per plan). */
+export function programPayments(env, program, { amounts = false } = {}) {
+  return collectPayments(env, md => md.aob_program === program.id, `metadata['aob_program']:'${program.id}'`, { amounts });
+}
+/* Only the real-time part (for the post-create race check). */
+export async function recentProgramPayments(env, program) {
+  const r = await recentRaw(env);
+  return toRecords(env, md => md.aob_program === program.id, r.pis, r.subs, false);
+}
+export function mergePayments(...lists) {
+  const m = new Map();
+  for (const l of lists) for (const p of l || []) m.set(p.id, p);
+  return [...m.values()];
+}
+
+/* When a plan stops: exactly at the end of its n-th monthly period. Stripe shortens (and prorates,
+   whatever proration_behavior says) the period that contains cancel_at, so cancel_at must sit on a
+   period boundary: anything inside the last period cuts the last payment down; anything after it
+   starts an extra, prorated period. */
+export function planEndAt(sub) {
+  const n = parseInt((sub.metadata || {}).aob_plan_n || '3', 10);
+  return Math.floor(addMonths(new Date(subAnchor(sub) * 1000), n).getTime() / 1000);
+}
+const onBoundary = (sub, t) => { const a = new Date(subAnchor(sub) * 1000); for (let k = 1; k <= 36; k++) { const b = Math.floor(addMonths(a, k).getTime() / 1000); if (b === t) return true; if (b > t) return false; } return false; };
+/* For a running plan: { state, want }. 'ok' | 'missing' (no end date) | 'movable' (wrong end date that
+   only touches a future period: safe to move now) | 'short' (the current period already stops at a
+   wrong date, so its payment was or will be cut down: invoice the difference by hand) | 'ended'. */
+export function planEndCheck(sub) {
+  if (sub.status === 'canceled' || !LIVE_SUB(sub)) return { state: 'ended' };
+  const want = planEndAt(sub), pe = sub.current_period_end || 0;
+  if (sub.cancel_at === want) return { state: 'ok', want };
+  if (!sub.cancel_at) return { state: 'missing', want };
+  if (want < pe) return { state: 'short', want };                        // already billing past the last period
+  if (sub.cancel_at > pe || onBoundary(sub, sub.cancel_at)) return { state: 'movable', want };
+  return { state: 'short', want };
+}
+/* Set (or correct, when that can't change any payment) the plan's end date. Returns the subscription. */
 export async function ensurePlanEnds(env, subId) {
   const sub = await stripe(env, 'GET', `/subscriptions/${subId}`);
-  if (sub.cancel_at || sub.status === 'canceled' || !LIVE_SUB(sub)) return sub;
-  const n = parseInt((sub.metadata || {}).aob_plan_n || '3', 10);
-  const anchor = new Date((sub.billing_cycle_anchor || sub.start_date || sub.created) * 1000);
-  const cancelAt = Math.floor(addMonths(anchor, n - 1).getTime() / 1000) + 7 * 86400;
-  return stripe(env, 'POST', `/subscriptions/${subId}`, { cancel_at: cancelAt, proration_behavior: 'none' });
+  const c = planEndCheck(sub);
+  if (c.state !== 'missing' && c.state !== 'movable') return sub;
+  if (c.state === 'movable') logError('plan.end_moved', { type: 'plan_end' }, { subscription: subId });
+  return stripe(env, 'POST', `/subscriptions/${subId}`, { cancel_at: c.want, proration_behavior: 'none' });
 }
+/* planEndCheck for a subscription record from programPayments / findBooking */
+export const planEndCheckRecord = p => planEndCheck({ status: p.status, cancel_at: p.cancel_at, current_period_end: p.period_end, billing_cycle_anchor: p.anchor, metadata: p.md });
 export function planDates(anchorSec, n) {
   const a = new Date(anchorSec * 1000);
   return Array.from({ length: n }, (_, k) => Math.floor(addMonths(a, k).getTime() / 1000));
 }
 
-/* Places taken per room and gender: paid bookings (not cancelled) + open checkouts holding places. */
-function addGuests(into, md) {
+/* ------------------------------------------------------------- occupancy */
+const isBookingHold = (s, program) => !!s && s.status === 'open' && (s.metadata || {}).aob_kind === 'booking' && (s.metadata || {}).aob_program === program.id;
+/* Open booking Checkout Sessions (holds) for a program: created in the last 35 minutes, all pages. */
+export async function openBookingSessions(env, program) {
+  const rows = await listAll(env, '/checkout/sessions', { status: 'open', 'created[gte]': nowSec() - OPEN_HOLD_SEC });
+  return rows.filter(s => isBookingHold(s, program));
+}
+
+/* Places one booking takes, per room and gender (+ units for rooms not priced per person). */
+function addGuests(into, md, program) {
+  const per = {};
+  const bump = (room, k, n) => {
+    if (!room) return;
+    const c = into[room] || (into[room] = { female: 0, male: 0, other: 0, units: 0 });
+    c[k] += n; per[room] = (per[room] || 0) + n;
+  };
   let any = false;
   for (let i = 1; i <= 12; i++) {
     const v = md[`aob_g${i}`]; if (!v) continue;
     any = true;
-    const parts = v.split(' | '), k = gkey(parts[2]), room = parts[3];
-    const c = into[room] || (into[room] = { female: 0, male: 0, other: 0 }); c[k]++;
+    const parts = v.split(' | ');
+    bump(parts[3], gkey(parts[2]), 1);
   }
-  if (!any) Object.entries(roomsFromString(md.aob_rooms)).forEach(([room, n]) => {
-    const c = into[room] || (into[room] = { female: 0, male: 0, other: 0 }); c.other += n;
-  });
+  if (!any) Object.entries(roomsFromString(md.aob_rooms)).forEach(([room, n]) => bump(room, 'other', n));
+  for (const [room, n] of Object.entries(per)) {
+    const r = program.rooms.find(x => x.id === room);
+    if (r && byUnit(r)) into[room].units += Math.ceil(n / (r.sleeps || 1));
+  }
+  return per;
 }
-export async function occupancy(env, program, payments) {
-  const booked = {}, holds = {};
-  for (const p of payments || await programPayments(env, program)) {
-    if (p.md.aob_kind === 'booking' && p.md.aob_status !== 'cancelled') addGuests(booked, p.md);
+/* booked (paid, not cancelled) + holds (open checkouts, minus `exclude`d session ids) + per-room
+   earliest hold expiry. Pure: payments and sessions come from programPayments/openBookingSessions. */
+export function buildOccupancy(program, payments, sessions, exclude = []) {
+  const booked = {}, holds = {}, release = {}, skip = new Set(exclude);
+  for (const p of payments || []) {
+    const md = p.md || {};
+    if (md.aob_kind === 'booking' && md.aob_program === program.id && md.aob_status !== 'cancelled') addGuests(booked, md, program);
   }
-  const open = await stripe(env, 'GET', '/checkout/sessions?' + qs({ status: 'open', limit: 100 }));
-  for (const s of open.data) {
-    const md = s.metadata || {};
-    if (md.aob_program === program.id && md.aob_kind === 'booking') addGuests(holds, md);
+  const open = (sessions || []).filter(s => !skip.has(s.id) && isBookingHold(s, program));
+  for (const s of open) {
+    const per = addGuests(holds, s.metadata || {}, program);
+    for (const room of Object.keys(per)) if (s.expires_at && (!release[room] || s.expires_at < release[room])) release[room] = s.expires_at;
   }
-  return { booked, holds };
+  return { booked, holds, release, open };
+}
+export async function occupancy(env, program, payments, { exclude = [], open } = {}) {
+  const [pays, sessions] = await Promise.all([payments || programPayments(env, program), open || openBookingSessions(env, program)]);
+  return buildOccupancy(program, pays, sessions, exclude);
 }
 
-/* Group a program's payments into bookings with paid / balance figures. */
-export function groupBookings(program, payments) {
+/* Availability memo per program (module scope = per isolate): 15 s TTL + single flight, so a burst
+   of page polls costs one round of Stripe calls. It keeps the raw payments and open checkouts (not
+   the computed answer), so each request can leave out the asking visitor's own checkout (exclude).
+   Checkout clears it and always reads fresh. The last good read is also kept as a snapshot for when
+   Stripe can't be reached. */
+const MEMO_TTL_MS = 15000, SNAPSHOT_MAX_MS = 3600 * 1000;
+const memo = new Map(), snapshots = new Map();
+let memoGen = 0;
+export function clearAvailabilityMemo(programId, { snapshot = false } = {}) {
+  memoGen++;
+  if (programId) { memo.delete(programId); if (snapshot) snapshots.delete(programId); }
+  else { memo.clear(); if (snapshot) snapshots.clear(); }
+}
+/* { pays, open, at, cached } */
+export function liveOccupancy(env, program) {
+  const m = memo.get(program.id);
+  if (m && m.raw && Date.now() - m.at < MEMO_TTL_MS) return Promise.resolve({ ...m.raw, at: m.at, cached: true });
+  if (m && m.inflight) return m.inflight;
+  const gen = memoGen, entry = { inflight: null };
+  entry.inflight = Promise.all([programPayments(env, program), openBookingSessions(env, program)]).then(([pays, open]) => {
+    const v = { pays, open, at: Date.now() };
+    snapshots.set(program.id, v);
+    if (memoGen === gen && memo.get(program.id) === entry) memo.set(program.id, { raw: { pays, open }, at: v.at });
+    return v;
+  }, e => { if (memo.get(program.id) === entry) memo.delete(program.id); throw e; });
+  memo.set(program.id, entry);
+  return entry.inflight;
+}
+/* { avail, at, cached }: availability without the `exclude`d checkouts (the asking visitor's own). */
+export function liveAvailability(env, program, exclude = []) {
+  return liveOccupancy(env, program).then(v => ({ avail: availability(program, buildOccupancy(program, v.pays, v.open, exclude)), at: v.at, cached: !!v.cached }));
+}
+/* The last good read ({ pays, open, at }), up to an hour old. */
+export function lastSnapshot(programId) {
+  const s = snapshots.get(programId);
+  return s && Date.now() - s.at < SNAPSHOT_MAX_MS ? s : null;
+}
+
+/* ------------------------------------------------------------ bookings */
+/* Group a program's payments into bookings with paid / balance figures.
+   paid_cents is net of refunds (what we kept); the balance still to pay counts what was received
+   before any refund, so a refund never becomes payable again. */
+export function groupBookings(program, payments, now = nowSec()) {
   const byRef = new Map();
   for (const p of payments) {
     const ref = p.md.aob_ref; if (!ref) continue;
-    const b = byRef.get(ref) || { ref, payments: [], paid_cents: 0 };
-    b.payments.push({ id: p.id, kind: p.md.aob_kind, amount_cents: p.amount, created: p.created });
+    const b = byRef.get(ref) || { ref, payments: [], paid_cents: 0, refunded_cents: 0 };
+    b.payments.push({ id: p.id, kind: p.md.aob_kind, amount_cents: p.amount, refunded_cents: p.refunded || 0, pending: !!p.pending, created: p.created });
     b.paid_cents += p.amount || 0;
+    b.refunded_cents += p.refunded || 0;
     if (p.md.aob_kind === 'booking') {
-      Object.assign(b, parseBooking(p.md)); b.created = p.created; b.booking_pi = p.id; b.customer = p.customer;
-      if (p.sub) b.plan = { subscription: p.id, installments: parseInt(p.md.aob_plan_n || '3', 10), installment_cents: parseInt(p.md.aob_installment || '0', 10),
-        paid_count: p.paid_count, next_payment: p.next_payment, status: p.status, cancel_at: p.cancel_at };
+      Object.assign(b, parseBooking(p.md)); b.created = p.created; b.booking_pi = p.id; b.customer = p.customer; b.pending = !!p.pending;
+      if (p.sub) {
+        const end = planEndCheckRecord(p);
+        b.plan = { subscription: p.id, installments: parseInt(p.md.aob_plan_n || '3', 10), installment_cents: parseInt(p.md.aob_installment || '0', 10),
+          paid_count: p.paid_count, paid_known: !!p.paid_known, next_payment: p.next_payment, status: p.status, cancel_at: p.cancel_at,
+          period_end: p.period_end, ended: planEnded(p, now), end_check: end.state };
+      }
     }
     byRef.set(ref, b);
   }
-  return [...byRef.values()].filter(b => b.booking_pi).map(b => ({
-    ...b, balance_cents: Math.max(0, b.total_cents - b.paid_cents),
-    room_names: Object.entries(b.rooms).map(([id, n]) => `${(program.rooms.find(r => r.id === id) || { name: id }).name} × ${n}`).join(', '),
-  })).sort((a, b) => b.created - a.created);
+  return [...byRef.values()].filter(b => b.booking_pi).map(b => {
+    // payments that came in after the team cancelled the booking (e.g. a balance link already sent)
+    const after = b.status === 'cancelled' && b.status_at
+      ? b.payments.filter(x => x.kind === 'balance' && x.created > b.status_at).reduce((s, x) => s + (x.amount_cents || 0), 0) : 0;
+    return {
+      ...b, balance_cents: Math.max(0, b.total_cents - b.paid_cents - b.refunded_cents), paid_after_cancel_cents: after,
+      room_names: Object.entries(b.rooms).map(([id, n]) => `${(program.rooms.find(r => r.id === id) || { name: id }).name} × ${n}`).join(', '),
+    };
+  }).sort((a, b) => b.created - a.created);
 }
 
-/* One booking (and its balance payments) by reference. */
-export async function findBooking(env, ref) {
-  if (!validRef(ref)) return null;
-  const byId = new Map();
-  for (const pi of await searchAll(env, `metadata['aob_ref']:'${ref}' AND status:'succeeded'`, 200)) {
-    byId.set(pi.id, { id: pi.id, created: pi.created, amount: pi.amount_received, customer: pi.customer, md: pi.metadata || {} });
-  }
-  for (const sub of await searchAll(env, `metadata['aob_ref']:'${ref}'`, 50, 'subscriptions')) {
-    if (LIVE_SUB(sub)) byId.set(sub.id, subRecord(sub, await paidOnSub(env, sub.id)));
-  }
-  const since = Math.floor(Date.now() / 1000) - 20 * 60;
-  const recent = await stripe(env, 'GET', '/checkout/sessions?' + qs({ status: 'complete', 'created[gte]': since, limit: 100 }));
-  mergeRecentSessions(byId, recent.data, md => md.aob_ref === ref);
-  const pays = [...byId.values()];
+/* One booking (and its balance payments) by reference. cached: answer from a 30 s per-isolate memo
+   when there is one (lookups only; anything that takes money reads fresh). Unknown references are
+   refused before any Stripe call. */
+const bookingMemo = new Map(), BOOKING_MEMO_MS = 30000;
+export const forgetBooking = ref => { bookingMemo.delete(ref); };
+export async function findBooking(env, ref, { cached = false } = {}) {
+  if (!knownRef(ref)) return null;
+  if (cached) { const m = bookingMemo.get(ref); if (m && Date.now() - m.at < BOOKING_MEMO_MS) return m.v; }
+  const pays = await collectPayments(env, md => md.aob_ref === ref, `metadata['aob_ref']:'${ref}'`, { amounts: true, cap: 200 });
   const first = pays.find(p => p.md.aob_kind === 'booking');
   const program = first && getProgram(first.md.aob_program);
-  if (!program) return null;
-  const [booking] = groupBookings(program, pays);
-  return booking ? { program, booking } : null;
+  const [booking] = program ? groupBookings(program, pays) : [];
+  const v = booking ? { program, booking } : null;
+  bookingMemo.delete(ref); bookingMemo.set(ref, { v, at: Date.now() });
+  while (bookingMemo.size > 500) bookingMemo.delete(bookingMemo.keys().next().value);
+  return v;
 }
 
-export const programSummary = p => ({ id: p.id, title: p.title, edition: p.edition, dates: p.dates, venue: p.venue.name, currency: p.currency, program_spaces: p.program_spaces });
+export const programSummary = p => {
+  const prog = programmeFee(p);
+  return { id: p.id, title: p.title, edition: p.edition, dates: p.dates, venue: p.venue.name, currency: p.currency, program_spaces: p.program_spaces,
+    programme: prog ? { name: prog.name || 'Programme fee', fee: prog.fee } : null };
+};
 
-/* --------------------------------------------------------------- checkout */
-export function safeReturnUrl(url, fallback) {
+/* ---------------------------------------------------------- sessions */
+/* Expire an open Checkout Session (frees its hold). true when it was expired. */
+export const expireSession = (env, id) => stripe(env, 'POST', `/checkout/sessions/${id}/expire`).then(() => true, () => false);
+/* Expire, and when that fails say why: { state: 'expired' } (by us or just before us), 'complete'
+   (with the session: it was paid or is paying), 'open' (still open), or 'unknown'. */
+export async function expireOrCheck(env, id) {
+  if (await expireSession(env, id)) return { state: 'expired' };
+  try { const s = await stripe(env, 'GET', `/checkout/sessions/${id}`); return { state: s.status, session: s }; }
+  catch (e) { return { state: e.status === 404 ? 'expired' : 'unknown' }; }
+}
+
+/* 'paid' | 'processing' | 'open' | 'expired' | 'unpaid' */
+export async function sessionState(env, s) {
+  if (s.status === 'open') return 'open';
+  if (s.status === 'expired') return 'expired';
+  if (s.payment_status === 'paid' || s.payment_status === 'no_payment_required') return 'paid';
+  // complete but unpaid: a delayed method (bank debit) is in flight, or it failed
   try {
-    const u = new URL(url);
-    if (!originOk(u.origin)) return fallback;
-    return u.origin + u.pathname;
-  } catch { return fallback; }
+    if (s.payment_intent) {
+      const pi = typeof s.payment_intent === 'object' ? s.payment_intent : await stripe(env, 'GET', `/payment_intents/${s.payment_intent}`);
+      return pi.status === 'succeeded' ? 'paid' : pi.status === 'processing' ? 'processing' : 'unpaid';
+    }
+  } catch {}
+  return 'processing';
+}
+
+/* Open balance sessions for a booking (admin links live up to 24 h). */
+export async function openBalanceSessions(env, ref) {
+  const rows = await listAll(env, '/checkout/sessions', { status: 'open', 'created[gte]': nowSec() - 24 * 3600 });
+  return rows.filter(s => (s.metadata || {}).aob_kind === 'balance' && s.metadata.aob_ref === ref);
+}
+/* One payable balance session per booking: reuse an open one for the same amount that still has
+   `minLeftSec` to run, otherwise expire the others and create a new one. For a plan that has ended
+   short, its open invoices are voided first (they would otherwise stay payable from their links). */
+export async function balanceSession(env, program, booking, returnUrl, { hours = 0.52, minLeftSec = 600 } = {}) {
+  if (booking.plan) await voidOpenPlanInvoices(env, booking.booking_pi);
+  const open = await openBalanceSessions(env, booking.ref);
+  const now = nowSec();
+  const reuse = open.find(s => s.amount_total === booking.balance_cents && s.url && s.expires_at - now >= minLeftSec);
+  if (reuse) return { session: reuse, reused: true };
+  await Promise.all(open.map(s => expireSession(env, s.id)));
+  const session = await stripe(env, 'POST', '/checkout/sessions', balanceCheckoutParams(program, booking, booking.balance_cents, returnUrl, hours));
+  return { session, reused: false };
+}
+
+/* --------------------------------------------------------------- checkout
+   Return / resume links: only the origin comes from the request (when it is one of ours); the path
+   is always our own page, so a link in our emails or a Stripe return can't point anywhere else. */
+export function pageOrigin(url, env) {
+  try { const o = new URL(url).origin; return originOk(o, env) ? o : null; } catch { return null; }
+}
+export const bookingPageUrl = (program, page, env) => `${pageOrigin(page, env) || SITE}/book/${program.id}/`;
+export const balancePageUrl = (page, env) => `${pageOrigin(page, env) || SITE}/book/balance/`;
+/* Origin of a booking page URL we may link guests to (production only), else the pages.dev site. */
+export function siteOrigin(page) {
+  try { const o = new URL(page).origin; if (PROD_ORIGINS.includes(o)) return o; } catch {}
+  return SITE;
 }
 const withQuery = (url, q) => url + (url.includes('?') ? '&' : '?') + q; // keeps {CHECKOUT_SESSION_ID} literal
+const PM_TYPE = /^[a-z][a-z0-9_]{1,40}$/;
+export function paymentMethodTypes(program, mode) {
+  const l = program.payment_methods && program.payment_methods[mode === 'subscription' ? 'plan' : 'payment'];
+  const out = Array.isArray(l) ? [...new Set(l.filter(x => typeof x === 'string' && PM_TYPE.test(x)))] : [];
+  return out.length ? out : ['card'];
+}
+const descriptorSuffix = program => String(program.title || '').toUpperCase().replace(/[^A-Z0-9 ]/g, '').replace(/\s+/g, ' ').trim().slice(0, 22) || undefined;
 
-export function bookingCheckoutParams(program, q, ref, md, returnUrl) {
+/* The dated schedule and the policy line shown above Stripe's pay button (≤ 1200 characters). */
+export function scheduleText(program, q, now = new Date()) {
+  const prog = programmeFee(program), pct = program.deposit && program.deposit.percent;
+  const due = (program.deposit && program.deposit.balance_due) ? `by ${dayMonth(program.deposit.balance_due)}` : `before you arrive on ${dayMonth(program.dates.start)}`;
+  let s;
+  if (q.payment === 'plan' && q.plan) {
+    const p = q.plan, later = planDates(Math.floor(now.getTime() / 1000), p.installments).slice(1).map(t => dayMonth(t));
+    s = `${p.installments} monthly payments: ${eur(p.first_cents)} today, then ${eur(p.installment_cents)} on ${andList(later)}, charged automatically to the same card.`;
+  } else if (q.balance_cents > 0) {
+    const what = q.programme_cents && prog ? `${prog.name.toLowerCase()} + ${pct}% room deposit` : `${pct}% room deposit`;
+    s = `Today ${eur(q.due_now_cents)} (${what}). Then ${eur(q.balance_cents)} ${due}.`;
+  } else {
+    s = `Today ${eur(q.due_now_cents)}: ${q.programme_cents && prog ? `${prog.name.toLowerCase()}, room and meals` : 'room and meals'}, paid in full.`;
+  }
+  if (program.policy) s += ` Payments are non-refundable unless we cancel ${program.title}; see the ${program.title} terms.`;
+  return s.slice(0, 1200);
+}
+
+/* Checkout Session params. embedded: the payment form inside our page (ui_mode 'embedded' on API
+   2024-06-20; success_url/cancel_url are not allowed there, return_url is used only by redirect
+   methods). hosted: Stripe's own page with success/cancel URLs. */
+export function bookingCheckoutParams(program, q, ref, md, returnUrl, { embedded = false, now = new Date() } = {}) {
   const title = `${program.title}, ${program.dates.short}`;
   const rooms = q.lines.map(l => `${l.name} × ${l.guests}`).join(', ');
   const prog = programmeFee(program), n = q.guests.length;
   const progText = q.programme === 'included' ? `${prog.name} for ${n} ${n === 1 ? 'guest' : 'guests'} and accommodation: ${rooms}`
     : q.programme === 'paid' ? `Accommodation: ${rooms} (${prog.name.toLowerCase()} already paid)` : rooms;
   const cur = program.currency.toLowerCase();
+  const ui = embedded
+    ? { ui_mode: 'embedded', redirect_on_completion: 'if_required', return_url: withQuery(returnUrl, 'status=success&session_id={CHECKOUT_SESSION_ID}') }
+    : { success_url: withQuery(returnUrl, 'status=success&session_id={CHECKOUT_SESSION_ID}'), cancel_url: withQuery(returnUrl, `status=cancelled&ref=${encodeURIComponent(ref)}`) };
+  const submit = { message: scheduleText(program, q, now) };
+  const expires_at = Math.floor(now.getTime() / 1000) + 31 * 60;
+  const { aob_iph, ...keep } = md; // the visitor hash only matters while the checkout is open
   if (q.payment === 'plan') {
     const p = q.plan;
     const items = [{ quantity: 1, price_data: { currency: cur, unit_amount: p.installment_cents, recurring: { interval: 'month', interval_count: 1 },
       product_data: { name: `${title} · ${p.installments} monthly payments`, description: `${progText}. Booking ${ref}.`.slice(0, 500) } } }];
     if (p.first_cents > p.installment_cents) items.push({ quantity: 1, price_data: { currency: cur, unit_amount: p.first_cents - p.installment_cents, product_data: { name: 'Rounding on the first payment' } } });
     return {
-      mode: 'subscription', payment_method_types: ['card'], locale: 'auto', customer_email: q.guests[0].email, client_reference_id: ref,
+      mode: 'subscription', ...ui, payment_method_types: paymentMethodTypes(program, 'subscription'), locale: 'auto',
+      customer_email: q.guests[0].email, client_reference_id: ref,
       line_items: items, metadata: md,
-      subscription_data: { metadata: md, description: `${title} · ${ref} · ${p.installments} monthly payments of ${eur(p.installment_cents)}` },
-      custom_text: { submit: { message: `${p.installments} monthly payments of ${eur(p.installment_cents)}: the first today, then automatically each month to the same card, ${p.installments} payments in total.` } },
-      expires_at: Math.floor(Date.now() / 1000) + 31 * 60,
-      success_url: withQuery(returnUrl, 'status=success&session_id={CHECKOUT_SESSION_ID}'),
-      cancel_url: withQuery(returnUrl, 'status=cancelled'),
+      subscription_data: { metadata: keep, description: `${title} · ${ref} · ${p.installments} monthly payments of ${eur(p.installment_cents)}` },
+      custom_text: { submit }, expires_at,
     };
   }
   // one receipt line for the programme fee, one for the accommodation (in full, or its deposit)
@@ -491,22 +1032,39 @@ export function bookingCheckoutParams(program, q, ref, md, returnUrl) {
     name: q.payment === 'full' ? `Accommodation and meals · ${title}` : `${program.deposit.percent}% accommodation deposit · ${title}`,
     description: `${rooms}. Booking ${ref}.`.slice(0, 500) } } });
   const desc = `${progText}. Booking ${ref}.` + (q.balance_cents ? ` Accommodation balance ${eur(q.balance_cents)} to pay before arrival.` : ' Paid in full.');
-  const submit = q.balance_cents
-    ? (q.programme_cents ? `Today you pay the ${prog.name.toLowerCase()} and a ${program.deposit.percent}% deposit on your room. ` : `You're paying the ${program.deposit.percent}% deposit today. `) + program.deposit.balance_note
-    : (q.programme_cents ? `You're paying the ${prog.name.toLowerCase()} and your accommodation in full.` : `You're paying for your stay in full.`);
   const lead = q.guests[0];
   return {
-    mode: 'payment', payment_method_types: ['card'], locale: 'auto',
+    mode: 'payment', ...ui, payment_method_types: paymentMethodTypes(program, 'payment'), locale: 'auto', submit_type: 'book',
     customer_email: lead.email, customer_creation: 'always', client_reference_id: ref,
     line_items: items,
     metadata: md,
-    payment_intent_data: { metadata: md, description: `${title} · ${ref} · ${progText}`.slice(0, 1000), receipt_email: lead.email },
+    payment_intent_data: { metadata: keep, description: `${title} · ${ref} · ${progText}`.slice(0, 1000), receipt_email: lead.email,
+      statement_descriptor_suffix: descriptorSuffix(program) },
     invoice_creation: { enabled: true, invoice_data: { description: desc.slice(0, 1500), metadata: { aob_ref: ref, aob_program: program.id } } },
-    custom_text: { submit: { message: submit.slice(0, 1200) } },
-    expires_at: Math.floor(Date.now() / 1000) + 31 * 60,
-    success_url: withQuery(returnUrl, 'status=success&session_id={CHECKOUT_SESSION_ID}'),
-    cancel_url: withQuery(returnUrl, 'status=cancelled'),
+    custom_text: { submit }, expires_at,
   };
+}
+
+/* Create a Checkout Session; when Stripe refuses an optional setting (a payment method that isn't
+   activated, the statement descriptor suffix, submit_type), drop/downgrade it and retry once per
+   setting. Returns { session, dropped: [params] }. */
+const DOWNGRADES = [
+  { match: p => /^payment_method_types/.test(p), fix: x => { if (x.payment_method_types && x.payment_method_types.join() === 'card') return false; x.payment_method_types = ['card']; return true; } },
+  { match: p => /statement_descriptor_suffix/.test(p), fix: x => { if (!x.payment_intent_data || !x.payment_intent_data.statement_descriptor_suffix) return false; delete x.payment_intent_data.statement_descriptor_suffix; return true; } },
+  { match: p => p === 'submit_type', fix: x => { if (!x.submit_type) return false; delete x.submit_type; return true; } },
+];
+export async function safeCreateSession(env, params) {
+  const p = structuredClone(params), used = new Set(), dropped = [];
+  for (;;) {
+    try { return { session: await stripe(env, 'POST', '/checkout/sessions', p), dropped }; }
+    catch (e) {
+      if (e.type !== 'invalid_request_error' || !e.param) throw e;
+      const i = DOWNGRADES.findIndex(d => d.match(e.param));
+      if (i < 0 || used.has(i) || !DOWNGRADES[i].fix(p)) throw e;
+      used.add(i); dropped.push(e.param);
+      logError('checkout.downgrade', e);
+    }
+  }
 }
 
 export function balanceCheckoutParams(program, booking, balanceCents, returnUrl, hours = 0.52) {
@@ -518,12 +1076,94 @@ export function balanceCheckoutParams(program, booking, balanceCents, returnUrl,
     metadata: md,
     payment_intent_data: { metadata: md, description: `${title} · ${booking.ref} · balance`, receipt_email: booking.lead.email || undefined },
     invoice_creation: { enabled: true, invoice_data: { description: `Balance for booking ${booking.ref}`, metadata: { aob_ref: booking.ref, aob_program: program.id } } },
-    expires_at: Math.floor(Date.now() / 1000) + Math.max(31 * 60, Math.min(24 * 3600 - 60, Math.round(hours * 3600))),
+    expires_at: nowSec() + Math.max(31 * 60, Math.min(24 * 3600 - 60, Math.round(hours * 3600))),
     success_url: withQuery(returnUrl, `status=paid&ref=${encodeURIComponent(booking.ref)}&session_id={CHECKOUT_SESSION_ID}`),
     cancel_url: withQuery(returnUrl, `ref=${encodeURIComponent(booking.ref)}`),
   };
   if (booking.customer) p.customer = booking.customer; else p.customer_email = booking.lead.email;
   return p;
+}
+
+/* ------------------------------------------------- programme verification
+   Room-only bookings ("programme already paid"): best effort, never blocks, and only ever a
+   "possible match" for the team to confirm. Earlier programme-fee payments of the lead's Stripe
+   customer(s) (exact email): succeeded, in the program currency, not one of our own bookings, made
+   in the year before this edition starts, and, after refunds, a whole number of fees. A booking is
+   marked 'stripe' only when payments no other room-only booking has used cover every guest; the
+   payments used are stored on the booking (aob_prog_pi). */
+export async function programmeFeePayments(env, program, email) {
+  const prog = programmeFee(program);
+  if (!prog || !validEmail(email)) return [];
+  const o = { retries: 0, timeoutMs: 4000 };
+  try {
+    const want = email.toLowerCase();
+    const q = `email:'${email.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
+    const cs = await stripe(env, 'GET', '/customers/search?' + qs({ query: q, limit: 10 }), null, o);
+    const custs = (cs.data || []).filter(c => String(c.email || '').toLowerCase() === want).slice(0, 5);
+    const start = Math.floor(Date.parse(program.dates.start + 'T00:00:00Z') / 1000);
+    const since = Math.max(nowSec() - 400 * 86400, start - 365 * 86400), unit = prog.fee * 100, cur = program.currency.toLowerCase();
+    const lists = await Promise.all(custs.map(c =>
+      stripe(env, 'GET', '/payment_intents?' + qs({ customer: c.id, 'created[gte]': since, limit: 100, ...EXPAND_CHARGE }), null, o).catch(() => ({ data: [] }))));
+    const out = [];
+    for (const l of lists) for (const pi of l.data || []) {
+      if (pi.status !== 'succeeded' || pi.currency !== cur || (pi.metadata || {}).aob_kind || pi.created < since) continue;
+      if (!pi.latest_charge || typeof pi.latest_charge !== 'object') continue; // refunds unknown: don't count it
+      const net = (pi.amount_received || 0) - (pi.latest_charge.amount_refunded || 0);
+      if (net > 0 && net % unit === 0) out.push({ id: pi.id, cents: net, fees: net / unit, created: pi.created });
+    }
+    return out.sort((a, b) => a.created - b.created);
+  } catch (e) { logError('programme.verify', e); return []; }
+}
+/* Fee payments already used by another room-only booking (paid, or in an open checkout other than
+   the `exclude`d ones being replaced). Cancelled bookings give theirs back. */
+export function claimedProgrammePayments(payments, sessions, exclude = []) {
+  const skip = new Set(exclude), out = new Set();
+  const add = md => {
+    if (!md || md.aob_kind !== 'booking' || md.aob_prog !== 'paid' || md.aob_status === 'cancelled') return;
+    String(md.aob_prog_pi || '').split(',').forEach(x => { const id = x.split(':')[0]; if (id) out.add(id); });
+  };
+  (payments || []).forEach(p => add(p.md));
+  (sessions || []).forEach(s => { if (!skip.has(s.id)) add(s.metadata); });
+  return out;
+}
+/* { status: 'stripe' | 'unverified', pis: [{ id, cents }] } */
+export function matchProgramme(feePays, guests, claimed = new Set()) {
+  const used = []; let fees = 0;
+  for (const p of feePays || []) {
+    if (fees >= guests) break;
+    if (claimed.has(p.id)) continue;
+    used.push({ id: p.id, cents: p.cents }); fees += p.fees;
+  }
+  return fees >= guests && used.length ? { status: 'stripe', pis: used } : { status: 'unverified', pis: [] };
+}
+
+/* ------------------------------------------------- payment method domains
+   Wallets (Apple Pay, Google Pay, Link) in embedded Checkout need every page host registered. */
+const domainSeen = new Set();
+const pmStatus = x => (x && x.status) || null;
+export const domainInfo = d => ({ domain: d.domain_name, registered: true, enabled: d.enabled !== false,
+  apple_pay: pmStatus(d.apple_pay), google_pay: pmStatus(d.google_pay), link: pmStatus(d.link), paypal: pmStatus(d.paypal) });
+export async function ensurePaymentMethodDomain(env, host) {
+  const r = await stripe(env, 'GET', '/payment_method_domains?' + qs({ domain_name: host, limit: 1 }));
+  if (r.data && r.data.length) return { ...domainInfo(r.data[0]), created: false };
+  return { ...domainInfo(await stripe(env, 'POST', '/payment_method_domains', { domain_name: host })), created: true };
+}
+/* Fire-and-forget, once per isolate per production host. Never affects the checkout. */
+export function autoRegisterDomain(env, request, waitUntil) {
+  let host;
+  try { host = new URL(request.headers.get('Origin') || '').host; } catch { return null; }
+  if (!PROD_HOSTS.includes(host) || domainSeen.has(host)) return null;
+  domainSeen.add(host);
+  const p = ensurePaymentMethodDomain(env, host).catch(e => { domainSeen.delete(host); logError('domains.auto', e); });
+  if (typeof waitUntil === 'function') { try { waitUntil(p); } catch {} }
+  return p;
+}
+/* The production hosts first (registered or not), then any other registered domains. */
+export async function listDomains(env) {
+  const rows = await listAll(env, '/payment_method_domains', {}, { maxPages: 3 });
+  const info = rows.map(domainInfo);
+  const out = PROD_HOSTS.map(h => info.find(d => d.domain === h) || { domain: h, registered: false, enabled: false, apple_pay: null, google_pay: null, link: null, paypal: null });
+  return out.concat(info.filter(d => !PROD_HOSTS.includes(d.domain)));
 }
 
 /* ---------------------------------------------------------------- webhook */

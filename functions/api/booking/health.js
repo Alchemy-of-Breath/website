@@ -1,12 +1,16 @@
 // GET /api/booking/health — which pieces are configured (never reveals the values).
-import { json, preflight, listPrograms } from '../../../booking-lib/core.js';
-export const onRequestOptions = ({ request }) => preflight(request);
+import { json, preflight, listPrograms, keyMode, publishableStatus, turnstileSiteKey, turnstileStatus, remindEnabled } from '../../../booking-lib/core.js';
+export const onRequestOptions = ({ request, env }) => preflight(request, env);
 export function onRequestGet({ request, env }) {
-  const key = env.STRIPE_SECRET_KEY || '';
+  const mode = keyMode(env);
   return json(request, {
     ok: true,
-    stripe: key ? (key.startsWith('sk_live_') || key.startsWith('rk_live_') ? 'live' : 'test') : 'not connected (demo mode)',
+    stripe: mode === 'none' ? 'not connected (demo mode)' : mode,
+    publishable: publishableStatus(env), // test | live | missing | mismatch (wrong mode for the secret key)
     webhook: !!env.STRIPE_WEBHOOK_SECRET, admin: !!(env.ADMIN_TOKEN && env.ADMIN_TOKEN.length >= 16), ghl: !!env.GHL_WEBHOOK_URL,
+    turnstile: !!turnstileSiteKey(env),
+    turnstile_status: turnstileStatus(env), // on | off | misconfigured (only one of TURNSTILE_SITE_KEY / TURNSTILE_SECRET set)
+    remind: remindEnabled(env),
     programs: listPrograms().map(p => p.id),
-  });
+  }, 200, env);
 }

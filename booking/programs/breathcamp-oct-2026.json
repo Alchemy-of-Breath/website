@@ -78,6 +78,7 @@
     "Male"
   ],
   "terms_url": "https://alchemyofbreath.com/terms-and-conditions/#breathcamp-policy",
+  "privacy_url": "https://alchemyofbreath.com/privacy-policy/",
   "contact": {
     "name": "Maria",
     "email": "generalmanager@asha.global",
@@ -101,7 +102,7 @@
       "unit": "person",
       "sleeps": 2,
       "shared_with": "same gender",
-      "summary": "Two single beds and a private bathroom shared by just the two of you.",
+      "summary": "Two single beds and a private bathroom, shared only by the two people in the room (same gender).",
       "description": "With two single beds to a room, these rooms have a private bathroom that only the two people in the room share, with their own gender. This accommodation is rustic, unique, and cozy. Pricing is per person.",
       "photos": [
         "twin-ensuite-1.jpg",
@@ -295,13 +296,16 @@
   ],
   "policy": {
     "points": [
-      "We do not offer refunds, and a booking can't be transferred to another person.",
+      "We do not offer refunds. Your booking is for BreathCamp at ASHA and can't be moved to another location.",
       "If we cancel BreathCamp, we refund the full amount, minus currency exchange and bank fees.",
       "We strongly suggest travel insurance."
     ],
     "change_notice_days": 45,
-    "change_note": "Moving to another BreathCamp in the same season needs at least 45 days' notice before the start date.",
-    "source": "https://alchemyofbreath.com/terms-and-conditions/#breathcamp-policy (BreathCamp terms, updated 1 Dec 2025; checked 2026-10-04)"
+    "change_note": "With at least 45 days' notice before the start, we'll do our best to move you to another BreathCamp at ASHA in the same season, if there's space. Email info@asha.global with the subject DATE CHANGE REQUEST.",
+    "health_note": "BreathCamp is a residential breathwork retreat. It is not a substitute for medical or psychological treatment. If you are managing a physical or mental health condition, please consult your doctor, and mention it to our team, before attending.",
+    "medical_url": "https://alchemyofbreath.com/medical-disclaimer-contraindications/",
+    "waiver_url": "https://alchemyofbreath.com/waiver-and-release/",
+    "source": "https://alchemyofbreath.com/terms-and-conditions/#breathcamp-policy (BreathCamp terms, updated 1 Dec 2025; checked 2026-10-04); health_note verbatim from the breathcamps page footer (breathcamps/index.html); medical_url and waiver_url from the site's terms navigation and footer."
   },
   "arrival": {
     "checkin": "Sunday 25 October, 2:30–5:00 pm, with orientation at 4:30 pm",
@@ -340,7 +344,7 @@
     "hosts": {
       "names": "Anthony Abbagnano & Amy Rachelle",
       "line": "Founders of Alchemy of Breath and ASHA. Your week is held by Anthony, Amy and senior Alchemy of Breath trainers.",
-      "photo": "https://alchemyofbreath.com/wp-content/uploads/Anthony-Amy-900x600.jpg"
+      "photo": "https://alchemyofbreath.com/wp-content/uploads/Anthony-Amy-300x200.jpg"
     },
     "facts": [
       "13 years guiding",

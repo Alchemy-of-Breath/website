@@ -78,33 +78,65 @@
 <link rel="icon" type="image/png" href="https://alchemyofbreath.com/wp-content/uploads/AOB-Gold-Black-Transparant-symbol.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Roboto:wght@300;400;500&display=swap">
 <style>
-:root{--paper-2:#FBF7EF;--cream:#FDF6E9;--gold:#E1B668;--gold-deep:#D6A652;--gold-soft:#EFDCB6;--gold-wash:#F7EBD2;--gold-text:#8A5F1C;--teal:#00A5B2;--teal-text:#00737C;--slate:#5B7889;--ink:#221F20;--line:rgba(225,182,104,.34);--grad-gold:linear-gradient(135deg,#E1B668 0%,#D6A652 100%);--serif:'Marcellus',Georgia,serif;--sans:'Roboto',-apple-system,'Segoe UI',Helvetica,Arial,sans-serif}
+:root{--paper-2:#FBF7EF;--cream:#FDF6E9;--gold:#E1B668;--gold-deep:#D6A652;--gold-soft:#EFDCB6;--gold-wash:#F7EBD2;--gold-text:#8A5F1C;--teal:#00A5B2;--teal-text:#00737C;--slate:#4E6A7B;--ink:#221F20;--line:rgba(225,182,104,.34);--grad-gold:linear-gradient(135deg,#E1B668 0%,#D6A652 100%);--serif:'Marcellus',Georgia,serif;--sans:'Roboto',-apple-system,'Segoe UI',Helvetica,Arial,sans-serif}
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 body{margin:0;min-height:100vh;font-family:var(--sans);font-weight:300;color:var(--ink);background:radial-gradient(120% 80% at 50% 0%,var(--cream),var(--paper-2) 60%);-webkit-font-smoothing:antialiased;display:flex;flex-direction:column}
+:focus-visible{outline:2px solid var(--teal);outline-offset:3px}
+[tabindex="-1"]:focus{outline:none}
 header{padding:18px 24px}header img{height:38px;width:auto}
-main{flex:1;display:grid;place-items:center;padding:20px 18px 60px}
+main{flex:1;display:grid;place-items:center;padding:20px 16px 60px}
 .card{width:100%;max-width:480px;background:#fff;border:1px solid var(--line);border-radius:22px;box-shadow:0 2px 4px rgba(34,31,32,.05),0 14px 34px rgba(34,31,32,.10),0 34px 80px rgba(34,31,32,.08);padding:38px clamp(22px,5vw,40px)}
 .eyebrow{font-size:.7rem;font-weight:500;letter-spacing:.24em;text-transform:uppercase;color:var(--slate);margin:0 0 12px}
 h1{font-family:var(--serif);font-weight:400;font-size:2rem;line-height:1.15;margin:0}
 h1 em{font-style:italic;color:var(--gold-text)}
 p.sub{color:var(--slate);margin:10px 0 24px;line-height:1.6}
 label{display:block;font-size:.8rem;font-weight:500;margin:0 0 7px}
-input{width:100%;border:1px solid rgba(34,31,32,.18);border-radius:12px;padding:13px 14px;font:inherit;font-size:1rem;margin-bottom:16px}
-input:focus{outline:none;border-color:var(--gold-deep);box-shadow:0 0 0 4px rgba(225,182,104,.22)}
+input{width:100%;border:1px solid rgba(34,31,32,.18);border-radius:12px;padding:13px 14px;font:inherit;font-size:1rem;margin-bottom:16px;background:#fff;color:var(--ink)}
+input:focus{outline:none;border-color:var(--gold-text);box-shadow:0 0 0 1px var(--gold-text),0 0 0 5px rgba(225,182,104,.28)}
+#tsBox{margin:0 0 14px}
+#tsBox:empty{display:none}
+input[aria-invalid="true"]{border-color:#C0563A}
 #ref{text-transform:uppercase;letter-spacing:.08em}
-.btn{width:100%;display:inline-flex;justify-content:center;align-items:center;gap:10px;border:0;border-radius:999px;padding:16px 26px;font:inherit;font-weight:500;font-size:.95rem;cursor:pointer;background:var(--grad-gold);color:var(--ink);box-shadow:0 10px 26px rgba(214,166,82,.4);text-decoration:none}
-.btn:disabled{opacity:.5;cursor:default}
+#ref::placeholder{letter-spacing:.04em}
+.btn{width:100%;display:inline-flex;justify-content:center;align-items:center;gap:10px;border:0;border-radius:999px;padding:16px 26px;font:inherit;font-weight:500;font-size:.95rem;letter-spacing:.03em;cursor:pointer;background:var(--grad-gold);color:var(--ink);box-shadow:0 10px 26px rgba(214,166,82,.4);text-decoration:none;transition:transform .2s,box-shadow .2s}
+.btn:hover{transform:translateY(-1px)}
+.btn .arr{transition:transform .2s}.btn:hover .arr{transform:translateX(3px)}
+.btn:disabled{opacity:.6;cursor:default;transform:none}
 .btn-ghost{background:transparent;border:1px solid rgba(34,31,32,.24);box-shadow:none;margin-top:10px}
-.msg{border-radius:12px;padding:12px 14px;font-size:.9rem;margin:0 0 16px;background:#FFF4F0;border:1px solid #F1C7B8;color:#7A2E16}
+.linkbtn{all:unset;box-sizing:border-box;display:flex;align-items:center;justify-content:center;width:100%;min-height:44px;margin-top:8px;font-size:.88rem;color:var(--slate);text-decoration:underline;text-underline-offset:3px;cursor:pointer;border-radius:10px}
+.linkbtn:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+.msg{border-radius:12px;padding:12px 14px;font-size:.9rem;line-height:1.5;margin:0 0 16px;background:#FFF4F0;border:1px solid #F1C7B8;color:#7A2E16}
 .msg.ok{background:#EEF8F8;border-color:#BFE3E5;color:#0B5157}
-.msg[hidden]{display:none}
-.lock{display:flex;align-items:center;gap:8px;justify-content:center;margin-top:16px;font-size:.78rem;color:var(--slate)}
+.msg a{color:inherit}
+.lock{display:flex;align-items:center;gap:8px;justify-content:center;margin:16px 0 0;font-size:.78rem;color:var(--slate)}
 .lock svg{width:15px;height:15px;stroke:var(--teal-text);fill:none;stroke-width:1.8}
 .big{font-family:var(--serif);font-size:2.2rem;margin:8px 0 2px}
+.due{border:1px solid var(--line);border-radius:16px;background:var(--paper-2);padding:20px 20px 16px;margin:0 0 18px}
+.due-ref{margin:0;font-size:.74rem;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--slate)}
+.due-ref b{font-weight:500;color:var(--ink);letter-spacing:.08em}
+.due .big{font-size:2.4rem;line-height:1.1;margin:10px 0 4px}
+.due-when{margin:0;color:var(--ink);line-height:1.5}
+.rows{margin:14px 0 0;padding:12px 0 0;border-top:1px solid rgba(225,182,104,.3);display:grid;grid-template-columns:1fr auto;gap:6px 12px;font-size:.88rem}
+.rows dt{color:var(--slate)}
+.rows dd{margin:0;text-align:right;font-variant-numeric:tabular-nums}
+.terms{margin:12px 0 0;font-size:.8rem;color:var(--slate);text-align:center;line-height:1.5}
+.terms a{color:var(--slate)}
 .seal{width:70px;height:70px;border-radius:50%;background:var(--grad-gold);display:grid;place-items:center;margin:0 0 18px}
 .seal::before{content:"";width:24px;height:13px;border-left:3px solid var(--ink);border-bottom:3px solid var(--ink);transform:rotate(-45deg) translate(2px,-2px)}
+.seal.wait{background:var(--gold-wash)}
+.seal.wait::before{width:22px;height:22px;border:2px solid var(--gold-deep);border-top-color:transparent;border-radius:50%;transform:none;animation:sp 1.2s linear infinite}
 .spin{width:16px;height:16px;border-radius:50%;border:2px solid rgba(34,31,32,.25);border-top-color:var(--ink);animation:sp .8s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}
-footer{text-align:center;font-size:.78rem;color:var(--slate);padding:0 20px 30px}footer a{color:var(--slate)}
+footer{text-align:center;font-size:.78rem;color:var(--slate);padding:0 20px 20px;line-height:1.8}footer a{color:var(--slate);display:inline-block;padding:13px 4px}
+@media (max-width:640px){
+  header{padding:14px 16px}
+  main{padding:8px 16px 40px;place-items:start center}
+  .card{padding:28px 20px;border-radius:20px}
+  h1{font-size:1.75rem}
+  .due{padding:18px 16px 14px}
+  .due .big{font-size:2.1rem}
+}
+@media (prefers-reduced-motion:reduce){.btn,.btn .arr{transition:none}.spin,.seal.wait::before{animation-duration:3s}}
 </style>
 </head>
 <body>
@@ -112,45 +144,235 @@ footer{text-align:center;font-size:.78rem;color:var(--slate);padding:0 20px 30px
 <main><div class="card" id="card">
   <p class="eyebrow">BreathCamp at ASHA</p>
   <h1>Pay your <em>balance</em>.</h1>
-  <p class="sub">Enter your booking reference and the email you booked with. You'll pay the remaining amount on Stripe's secure checkout.</p>
+  <p class="sub" id="intro">Enter your booking reference and the email you booked with. We'll show you what's left to pay before you go to the secure payment page.</p>
   <p class="msg" id="msg" role="alert" hidden></p>
   <form id="form" novalidate>
-    <label for="ref">Booking reference</label><input id="ref" autocomplete="off" placeholder="BC2610-XXXXXX" maxlength="20" required>
-    <label for="email">Email</label><input id="email" type="email" autocomplete="email" placeholder="name@example.com" required>
-    <button class="btn" id="go" type="submit">Continue to secure payment <span>&rarr;</span></button>
+    <label for="ref">Booking reference</label><input id="ref" name="ref" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" placeholder="BC2610-XXXXXX" maxlength="24" required>
+    <label for="email">Email</label><input id="email" name="email" type="email" autocomplete="email" inputmode="email" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="name@example.com" maxlength="200" required>
+    <div id="tsBox"></div>
+    <button class="btn" id="go" type="submit">Show my balance <span class="arr" aria-hidden="true">&rarr;</span></button>
   </form>
-  <p class="lock"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Secure payment by Stripe</p>
+  <section id="due" hidden aria-label="Your balance">
+    <div class="due">
+      <p class="due-ref">Booking <b id="dueRef"></b></p>
+      <p class="big" id="dueAmt" tabindex="-1"></p>
+      <p class="due-when" id="dueWhen"></p>
+      <dl class="rows" id="dueRows" hidden></dl>
+    </div>
+    <button class="btn" id="pay" type="button"></button>
+    <p class="terms">You'll finish on Stripe's secure checkout page. Your booking follows the <a href="https://alchemyofbreath.com/terms-and-conditions/#breathcamp-policy" target="_blank" rel="noopener">BreathCamp terms</a>.</p>
+    <button class="linkbtn" id="other" type="button">Look up a different booking</button>
+  </section>
+  <p class="lock" id="lock"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Secure payment by Stripe</p>
 </div></main>
-<footer>Need help? <a href="https://wa.me/393534527348" target="_blank" rel="noopener">Message us on WhatsApp</a> &middot; <a href="https://alchemyofbreath.com/terms-and-conditions/breathcamp/" target="_blank" rel="noopener">Terms</a></footer>
+<footer>Need help? <a href="https://wa.me/393534527348" target="_blank" rel="noopener">Message us on WhatsApp</a> &middot; <a href="https://alchemyofbreath.com/terms-and-conditions/#breathcamp-policy" target="_blank" rel="noopener">BreathCamp terms</a></footer>
 <script>
 (function(){
-  var API = /(^|\.)website-5h3\.pages\.dev$/.test(location.hostname) ? '' : 'https://website-5h3.pages.dev';
+  var API = (/(^|\.)website-5h3\.pages\.dev$/.test(location.hostname) || location.hostname === '127.0.0.1' || location.hostname === 'localhost') ? '' : 'https://website-5h3.pages.dev';
+  var WA = 'https://wa.me/393534527348';
   var $ = function(id){ return document.getElementById(id); };
-  var money = function(c){ return '€' + (c/100).toLocaleString('en-GB', { minimumFractionDigits: c % 100 ? 2 : 0, maximumFractionDigits: 2 }); };
-  var q = new URLSearchParams(location.search);
-  if (q.get('ref')) $('ref').value = q.get('ref');
-  function msg(t, ok){ var m = $('msg'); m.textContent = t; m.className = 'msg' + (ok ? ' ok' : ''); m.hidden = !t; }
+  var esc = function(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); };
+  var num = function(v){ return typeof v === 'number' && isFinite(v) ? v : 0; };
+  var money = function(c){ c = num(c); return '€' + (c / 100).toLocaleString('en-GB', { minimumFractionDigits: c % 100 ? 2 : 0, maximumFractionDigits: 2 }); };
+  var ss = function(k, v){ try { if (v === undefined) return sessionStorage.getItem(k); sessionStorage.setItem(k, v); } catch (e) {} return null; };
+  var cleanRef = function(s){ return String(s || '').toUpperCase().replace(/[‐-―−]/g, '-').replace(/[^A-Z0-9-]/g, '').slice(0, 24); };
+  var REF = /^[A-Z0-9]{2,8}-[A-Z0-9]{4,10}$/, EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  var isoDay = /^\d{4}-\d{2}-\d{2}$/;
+  function dayLabel(iso){ return new Date(iso + 'T12:00:00Z').toLocaleDateString('en-GB', { day:'numeric', month:'long', timeZone:'UTC' }); }
+  function today(){ var d = new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
+  // The arrival date, if this response carries one (lookup may include the programme's dates).
+  function arrival(d){
+    var c = [d.arrival_date, d.start, d.dates && d.dates.start, d.program && d.program.dates && d.program.dates.start];
+    for (var i = 0; i < c.length; i++) if (typeof c[i] === 'string' && isoDay.test(c[i])) return c[i];
+    return '';
+  }
+  function dueText(d){
+    if (typeof d.balance_due === 'string' && isoDay.test(d.balance_due)) return (d.balance_due < today() ? 'was due on ' : 'due by ') + dayLabel(d.balance_due);
+    var a = arrival(d);
+    return a ? 'due before you arrive on ' + dayLabel(a) : 'due before you arrive';
+  }
+  function msg(html, ok){ var m = $('msg'); m.innerHTML = html || ''; m.className = 'msg' + (ok ? ' ok' : ''); m.hidden = !html; }
+  /* --------------------------------------------- bot check (only when the server has it on) */
+  var ts = { key:null, id:null, token:null, waiters:[], err:false, appearance:'interaction-only' };
+  function wake(){ var w = ts.waiters.shift(); if (w) w(); }
+  function renderTs(){
+    if (!ts.key || ts.id != null || !window.turnstile) return;
+    try {
+      ts.id = window.turnstile.render('#tsBox', { sitekey: ts.key, action:'balance', appearance: ts.appearance,
+        callback: function(t){ ts.token = t; ts.err = false; wake(); }, 'expired-callback': function(){ ts.token = null; }, 'error-callback': function(){ ts.token = null; ts.err = true; wake(); } });
+    } catch (e) { ts.err = true; }
+  }
+  function initTurnstile(key){
+    if (!key || ts.key) return; ts.key = key;
+    window.aobTurnstileReady = renderTs;
+    var sc = document.createElement('script'); sc.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=aobTurnstileReady'; sc.async = true; sc.defer = true;
+    sc.onerror = function(){ ts.err = true; var w; while ((w = ts.waiters.shift())) w(); };
+    document.head.appendChild(sc);
+  }
+  function getToken(){
+    if (!ts.key) return Promise.resolve(undefined);
+    if (ts.token) { var t = ts.token; ts.token = null; return Promise.resolve(t); }
+    renderTs();
+    var max = window.turnstile ? 8000 : 3000;
+    return new Promise(function(res){
+      var done = false, fin = function(){ if (done) return; done = true; var t = ts.token; ts.token = null; res(t || undefined); };
+      ts.waiters.push(fin); setTimeout(fin, max);
+    });
+  }
+  function resetTs(){ ts.token = null; try { if (window.turnstile && ts.id != null) window.turnstile.reset(ts.id); } catch (e) {} }
+  function tsRefused(){
+    if (!window.turnstile || ts.err) { msg('Our security check couldn\'t load in this browser. Please try another browser or network, or turn off content blockers for this page. You can also <a href="' + WA + '" target="_blank" rel="noopener">message us on WhatsApp</a>.'); return; }
+    try { if (ts.id != null) window.turnstile.remove(ts.id); } catch (e) {}
+    ts.id = null; ts.appearance = 'always'; renderTs();
+    msg('Please complete the security check, then try again.');
+  }
+  fetch(API + '/api/booking/balance', { cache:'no-store' }).then(function(r){ return r.ok ? r.json() : null; })
+    .then(function(d){ if (d && d.turnstile_site_key) initTurnstile(d.turnstile_site_key); }).catch(function(){});
+
+  function post(body){
+    return getToken().then(function(tok){ body.turnstile = tok; return fetch(API + '/api/booking/balance', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify(body) }); })
+      .then(function(r){ resetTs(); return r.text().then(function(t){ var d = {}; try { d = t ? JSON.parse(t) : {}; } catch (e) { d = {}; } if (!d || typeof d !== 'object') d = {}; d._ok = r.ok; d._status = r.status; return d; }); });
+  }
+  function busy(btn, label){
+    var old = btn.innerHTML; btn.disabled = true; btn.innerHTML = '<span class="spin" aria-hidden="true"></span> ' + label;
+    return function(){ btn.disabled = false; btn.innerHTML = old; };
+  }
+
+  /* --------------------------------------------- back from Stripe after paying */
+  var q = new URLSearchParams(location.search), qRef = cleanRef(q.get('ref'));
   if (q.get('status') === 'paid') {
-    $('card').innerHTML = '<div class="seal" aria-hidden="true"></div><p class="eyebrow">Payment received</p><h1>Thank you.</h1><p class="sub" id="paidSub">Your balance payment for booking <b>' + (q.get('ref') || '').replace(/[^A-Z0-9-]/gi, '') + '</b> is complete. Your receipt is on its way by email.</p><a class="btn btn-ghost" href="https://alchemyofbreath.com/">Back to Alchemy of Breath</a>';
-    if (q.get('session_id')) fetch(API + '/api/booking/session?id=' + encodeURIComponent(q.get('session_id'))).then(function(r){ return r.json(); }).then(function(s){
-      if (s && s.amount_paid_cents) $('paidSub').innerHTML = 'We received <b>' + money(s.amount_paid_cents) + '</b> for booking <b>' + s.ref + '</b>. ' + (s.balance_cents ? 'Still to pay: ' + money(s.balance_cents) + '.' : 'You are now paid in full. See you at ASHA!');
-    }).catch(function(){});
+    var sid = q.get('session_id') || ss('aob_balance_session') || '';
+    if (q.get('session_id')) {
+      ss('aob_balance_session', sid);
+      // keep the session id out of the address bar (history, screenshots, analytics)
+      try { history.replaceState(null, '', location.pathname + '?status=paid' + (qRef ? '&ref=' + encodeURIComponent(qRef) : '')); } catch (e) {}
+    }
+    if (!/^cs_[A-Za-z0-9_]+$/.test(sid)) { renderPaid(qRef, null); return; }
+    // Stripe only returns here after checkout completes, so if the check can't be made, the plain thank-you is right.
+    var settled = false, settle = function(s){ if (!settled) { settled = true; renderPaid(qRef, s); } };
+    $('card').innerHTML = '<div class="seal wait" aria-hidden="true"></div><p class="eyebrow">Balance payment</p><h1>Confirming your payment…</h1><p class="sub">This only takes a moment.</p>';
+    setTimeout(function(){ settle(null); }, 8000);
+    fetch(API + '/api/booking/session?id=' + encodeURIComponent(sid)).then(function(r){ return r.ok ? r.json() : null; })
+      .then(function(s){ settle(s && typeof s === 'object' && !s.error ? s : null); }).catch(function(){ settle(null); });
     return;
+  }
+  function renderPaid(ref, s){
+    s = s || {};
+    var r = esc(cleanRef(s.ref) || ref), state = s.state, card = $('card');
+    var help = ' Questions? <a href="' + WA + '" target="_blank" rel="noopener">Message us on WhatsApp</a>.';
+    if (state === 'processing') {
+      card.innerHTML = '<div class="seal wait" aria-hidden="true"></div><p class="eyebrow">Balance payment</p><h1>Payment <em>processing</em>.</h1><p class="sub">Your payment' + (r ? ' for booking <b>' + r + '</b>' : '') + ' is still being confirmed by your bank. There\'s nothing more to do now.' + help + '</p><a class="btn btn-ghost" href="https://alchemyofbreath.com/">Back to Alchemy of Breath</a>';
+      return;
+    }
+    if (state === 'open' || state === 'expired' || state === 'unpaid') {
+      card.innerHTML = '<p class="eyebrow">Balance payment</p><h1>Payment not <em>completed</em>.</h1><p class="sub">We haven\'t received this payment' + (r ? ' for booking <b>' + r + '</b>' : '') + '. You can try again whenever you\'re ready.' + help + '</p><a class="btn" href="' + esc(location.pathname + (r ? '?ref=' + encodeURIComponent(r) : '')) + '">Try again <span class="arr" aria-hidden="true">&rarr;</span></a>';
+      return;
+    }
+    var sub = 'Your balance payment' + (r ? ' for booking <b>' + r + '</b>' : '') + ' is complete. Your receipt is on its way by email.';
+    if (num(s.amount_paid_cents)) sub = 'We received <b>' + money(s.amount_paid_cents) + '</b>' + (r ? ' for booking <b>' + r + '</b>' : '') + '. ' + (num(s.balance_cents) ? 'Still to pay: ' + money(s.balance_cents) + '.' : 'You are now paid in full. See you at ASHA!');
+    card.innerHTML = '<div class="seal" aria-hidden="true"></div><p class="eyebrow">Payment received</p><h1>Thank you.</h1><p class="sub">' + sub + '</p><a class="btn btn-ghost" href="https://alchemyofbreath.com/">Back to Alchemy of Breath</a>';
+  }
+
+  /* --------------------------------------------- step 1: find the booking */
+  var cur = null; // { ref, email, balance, url }
+  if (qRef) $('ref').value = qRef;
+  function invalid(el, bad){ if (bad) el.setAttribute('aria-invalid', 'true'); else el.removeAttribute('aria-invalid'); }
+  ['ref', 'email'].forEach(function(id){ $(id).addEventListener('input', function(){ invalid($(id), false); }); });
+  function planText(d, ref){
+    var p = d.plan && typeof d.plan === 'object' ? d.plan : d, made = num(p.paid_count), of = num(p.installments);
+    return 'Booking <b>' + esc(ref) + '</b> is on the monthly payment plan' + (of ? ': ' + made + ' of ' + of + ' payments made' : '') + '. ' +
+      (num(p.next_payment) && num(p.installment_cents) ? 'The next ' + money(p.installment_cents) + ' is taken automatically on ' + new Date(p.next_payment * 1000).toLocaleDateString('en-GB', { day:'numeric', month:'long' }) + '.' : 'The remaining payments are taken automatically.') +
+      ' Nothing to do here.';
+  }
+  // Server errors may already say "Message us on WhatsApp": link that phrase rather than adding a second one.
+  function withWa(text){
+    var t = esc(text), link = function(m){ return '<a href="' + WA + '" target="_blank" rel="noopener">' + m + '</a>'; };
+    if (/message us on whatsapp/i.test(t)) return t.replace(/message us on whatsapp/i, link);
+    return /whatsapp/i.test(t) ? t : t + ' ' + link('Message us on WhatsApp') + ' if you need a hand.';
+  }
+  // Shows the outcome of a lookup (or pay) response. Returns true when there is a balance to pay.
+  function outcome(d, ref){
+    ref = cleanRef(d.ref) || ref;
+    if (d.paid_in_full || (d._ok && d.balance_cents === 0 && !d.plan)) { msg('Booking <b>' + esc(ref) + '</b> is already paid in full. Nothing more to pay. See you at ASHA!', true); return false; }
+    if (d.plan) { msg(planText(d, ref), true); return false; }
+    if (d._ok && num(d.balance_cents) > 0) return true;
+    if (d._status === 403 && d.code === 'turnstile') { tsRefused(); return false; }
+    if (d._status === 404 || d._status === 409) msg(withWa(d.error || 'We could not find a booking with that reference and email.'));
+    else msg(esc(d.error || 'Something went wrong. Please try again.'));
+    return false;
+  }
+  function showDue(d, ref, email){
+    cur = { ref: cleanRef(d.ref) || ref, email: email, balance: d.balance_cents, url: typeof d.url === 'string' ? d.url : null, info: d };
+    $('dueRef').textContent = cur.ref;
+    $('dueAmt').textContent = money(cur.balance);
+    $('dueWhen').textContent = d.plan_ended
+      ? 'left to pay: your monthly payment plan has ended' + (num(d.paid_count) && num(d.installments) ? ' (' + d.paid_count + ' of ' + d.installments + ' payments made)' : '') + ' · ' + dueText(d)
+      : 'left to pay · ' + dueText(d);
+    var rows = '';
+    if (num(d.total_cents)) rows += '<dt>Booking total</dt><dd>' + money(d.total_cents) + '</dd>';
+    if (num(d.total_cents) && typeof d.paid_cents === 'number') rows += '<dt>Paid so far</dt><dd>' + money(d.paid_cents) + '</dd>';
+    $('dueRows').innerHTML = rows; $('dueRows').hidden = !rows;
+    $('pay').innerHTML = 'Pay ' + money(cur.balance) + ' securely <span class="arr" aria-hidden="true">&rarr;</span>';
+    $('pay').disabled = false;
+    $('intro').textContent = 'Here\'s what\'s left to pay on your booking.';
+    $('form').hidden = true; $('due').hidden = false;
+    $('dueAmt').focus();
+  }
+  function backToForm(){
+    cur = null; $('due').hidden = true; $('form').hidden = false;
+    $('intro').textContent = 'Enter your booking reference and the email you booked with. We\'ll show you what\'s left to pay before you go to the secure payment page.';
   }
   $('form').addEventListener('submit', function(e){
     e.preventDefault(); msg('');
-    var ref = $('ref').value.trim().toUpperCase(), email = $('email').value.trim();
-    if (!ref || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return msg('Enter your booking reference and a valid email.');
-    var b = $('go'), old = b.innerHTML; b.disabled = true; b.innerHTML = '<span class="spin"></span> Finding your booking…';
-    fetch(API + '/api/booking/balance', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ ref:ref, email:email, return_url: location.origin + location.pathname }) })
-      .then(function(r){ return r.json(); }).then(function(d){
-        if (d.url) { location.href = d.url; return; }
-        b.disabled = false; b.innerHTML = old;
-        if (d.paid_in_full) return msg('Booking ' + d.ref + ' is already paid in full. Nothing more to pay. See you at ASHA!', true);
-        if (d.plan) return msg('Booking ' + d.ref + ' is on the monthly payment plan: ' + d.paid_count + ' of ' + d.installments + ' payments made. ' + (d.next_payment ? 'The next ' + money(d.installment_cents) + ' is taken automatically on ' + new Date(d.next_payment * 1000).toLocaleDateString('en-GB', { day:'numeric', month:'long' }) + '.' : 'The remaining payments are taken automatically.') + ' Nothing to do here.', true);
-        msg(d.error || 'Something went wrong. Please try again.');
-      }).catch(function(){ b.disabled = false; b.innerHTML = old; msg('We could not reach the booking system. Please try again.'); });
+    var ref = cleanRef($('ref').value), email = $('email').value.trim();
+    $('ref').value = ref;
+    var badRef = !REF.test(ref), badEmail = !EMAIL.test(email);
+    invalid($('ref'), badRef); invalid($('email'), badEmail);
+    if (badRef || badEmail) {
+      msg(badRef ? 'Please check your booking reference. It looks like BC2610-XXXXXX.' : 'Please enter the email you booked with.');
+      (badRef ? $('ref') : $('email')).focus();
+      return;
+    }
+    var done = busy($('go'), 'Finding your booking…');
+    post({ action:'lookup', ref:ref, email:email }).then(function(d){
+      done();
+      if (outcome(d, ref)) showDue(d, ref, email);
+    }).catch(function(){ done(); msg('We could not reach the booking system. Please check your connection and try again.'); });
   });
+  $('other').addEventListener('click', function(){ msg(''); backToForm(); $('ref').focus(); });
+
+  /* --------------------------------------------- step 2: pay */
+  function go(url){
+    if (!/^https:\/\//.test(url)) { msg('Something went wrong. Please try again.'); return false; }
+    location.href = url; return true;
+  }
+  $('pay').addEventListener('click', function(){
+    if (!cur) return;
+    msg('');
+    var btn = $('pay'), done = busy(btn, 'Opening secure payment…');
+    if (cur.url) { if (!go(cur.url)) done(); return; }
+    post({ action:'pay', ref:cur.ref, email:cur.email, return_url: location.origin + location.pathname }).then(function(d){
+      if (d._ok && typeof d.url === 'string') {
+        if (typeof d.balance_cents === 'number' && d.balance_cents > 0 && d.balance_cents !== cur.balance) {
+          // the amount moved since the lookup (e.g. a payment just came in): show it before sending them on
+          var info = cur.info || {};
+          info.balance_cents = d.balance_cents; info.url = d.url;
+          if (num(info.total_cents)) info.paid_cents = typeof d.paid_cents === 'number' ? d.paid_cents : info.total_cents - d.balance_cents;
+          showDue(info, cur.ref, cur.email);
+          msg('The amount left to pay is now ' + money(d.balance_cents) + '. Please check it and press Pay again.');
+          return;
+        }
+        if (!go(d.url)) done();
+        return;
+      }
+      done();
+      var ref = cur.ref;
+      if (d.paid_in_full || d.plan || (d._ok && d.balance_cents === 0)) { backToForm(); outcome(d, ref); return; }
+      if (outcome(d, ref)) msg('We could not start the payment. Please try again in a moment.');
+    }).catch(function(){ done(); msg('We could not reach the booking system. Please check your connection and try again.'); });
+  });
+  // Back from Stripe's page via the browser's back button: the page may come back frozen mid-redirect.
+  window.addEventListener('pageshow', function(e){ if (e.persisted && cur) { $('pay').disabled = false; $('pay').innerHTML = 'Pay ' + money(cur.balance) + ' securely <span class="arr" aria-hidden="true">&rarr;</span>'; } });
 })();
 </script>
 </body>
