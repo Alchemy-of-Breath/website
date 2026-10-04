@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<!-- AOB-UTM:start -->
+<script>
+/* AoB UTM keeper: remembers the campaign tags a visitor arrived with and hands
+   them to GoHighLevel on whatever page they later sign up on.
+   - Stores utm_*, fbclid, gclid, msclkid from the landing URL for 90 days
+     (latest campaign wins), in localStorage and an .alchemyofbreath.com cookie.
+   - Seeds GHL's own form_embed.js memory (sessionStorage "UPS"), so GHL forms
+     attribute the contact to the campaign even when the form page has no tags.
+   - Adds the tags to GHL form/booking iframes and to links into GHL funnels
+     (go. / breathcamp. / link.alchemyofbreath.com), so hidden fields with a
+     matching query key are filled too.
+   Source: tools/utm/aob-utm.js. Inlined into every page by tools/utm/inject.py. */
+(function(){
+  var KEYS=['utm_source','utm_medium','utm_campaign','utm_term','utm_content','utm_id','fbclid','gclid','msclkid'];
+  var STORE='aob_utm', DAYS=90, MS=DAYS*864e5;
+  var ls=function(k,v){ try{ if(v===undefined) return localStorage.getItem(k); localStorage.setItem(k,v); }catch(e){ return null; } };
+  var qs=new URLSearchParams(location.search), got={}, any=false;
+  KEYS.forEach(function(k){ var v=qs.get(k); if(v){ got[k]=v.slice(0,250); any=true; } });
+  var rec=null;
+  if(any){
+    rec={p:got,t:Date.now(),landing:location.origin+location.pathname};
+    ls(STORE,JSON.stringify(rec));
+    try{ document.cookie=STORE+'='+encodeURIComponent(JSON.stringify(got))+';path=/;max-age='+(DAYS*86400)+';SameSite=Lax'+
+      (/(^|\.)alchemyofbreath\.com$/.test(location.hostname)?';domain=.alchemyofbreath.com':''); }catch(e){}
+  } else {
+    try{ rec=JSON.parse(ls(STORE)||'null'); }catch(e){ rec=null; }
+    if(!rec || !rec.p || Date.now()-rec.t>MS) return;
+  }
+  var P=rec.p;
+
+  // GHL form_embed.js falls back to sessionStorage "UPS" when the page URL has no utm_ tags
+  try{
+    var ups=new URLSearchParams(sessionStorage.getItem('UPS')||''), changed=false;
+    for(var k in P){ if(k.indexOf('utm_')===0 && ups.get(k)!==P[k]){ ups.set(k,P[k]); changed=true; } }
+    if(changed) sessionStorage.setItem('UPS','?'+ups.toString());
+  }catch(e){}
+
+  var GHL=/^https:\/\/((link|api)\.(alchemyofbreath\.com|leadconnectorhq\.com)\/widget\/(form|survey|booking|quiz)\/|(go|breathcamp)\.alchemyofbreath\.com\/)/;
+  var withTags=function(url){
+    var u; try{ u=new URL(url,location.href); }catch(e){ return null; }
+    if(!GHL.test(u.href)) return null;
+    var ch=false;
+    for(var k in P){ if(!u.searchParams.has(k)){ u.searchParams.set(k,P[k]); ch=true; } }
+    return ch?u.href:null;
+  };
+  var fixFrame=function(f){
+    ['src','data-src'].forEach(function(a){ var v=f.getAttribute(a), n=v&&withTags(v); if(n) f.setAttribute(a,n); });
+  };
+  var scan=function(root){
+    if(root.tagName==='IFRAME'){ fixFrame(root); return; }
+    if(root.querySelectorAll) [].forEach.call(root.querySelectorAll('iframe'),fixFrame);
+  };
+  scan(document);
+  if('MutationObserver' in window){
+    new MutationObserver(function(ms){ ms.forEach(function(m){ [].forEach.call(m.addedNodes,function(n){ if(n.nodeType===1) scan(n); }); }); })
+      .observe(document.documentElement,{childList:true,subtree:true});
+  }
+  // links into GHL funnels: tag them at click time (covers links built by scripts too)
+  var tagLink=function(e){
+    var a=e.target && e.target.closest && e.target.closest('a[href]'); if(!a) return;
+    var n=withTags(a.getAttribute('href')); if(n) a.setAttribute('href',n);
+  };
+  document.addEventListener('mousedown',tagLink,true);
+  document.addEventListener('touchstart',tagLink,{capture:true,passive:true});
+  document.addEventListener('keydown',function(e){ if(e.key==='Enter') tagLink(e); },true);
+  document.addEventListener('click',tagLink,true);
+})();
+</script>
+<!-- AOB-UTM:end -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Book BreathCamp at ASHA | Alchemy of Breath</title>
+<meta name="description" content="Choose your BreathCamp week at ASHA Retreat Centre in Tuscany, then your room: live availability, the programme and your stay with all meals in one booking, secure payment by Stripe.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#FBF7EF">
+<link rel="icon" type="image/png" href="https://alchemyofbreath.com/wp-content/uploads/AOB-Gold-Black-Transparant-symbol.png">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Roboto:ital,wght@0,300;0,400;0,500;1,300&display=swap">
+<style>
+/* Same tokens and type as the booking pages (book/<week>/). Mobile first. */
+:root{
+  --paper:#FFFFFF;--paper-2:#FBF7EF;--cream:#FDF6E9;--gold:#E1B668;--gold-deep:#D6A652;--gold-soft:#EFDCB6;--gold-wash:#F7EBD2;
+  --gold-text:#8A5F1C;--teal:#00A5B2;--teal-text:#00737C;--slate:#4E6A7B;--ink:#221F20;--line:rgba(225,182,104,.34);
+  --grad-gold:linear-gradient(135deg,#E1B668 0%,#D6A652 100%);
+  --shadow-soft:0 1px 2px rgba(34,31,32,.04),0 8px 24px rgba(34,31,32,.06),0 24px 64px rgba(34,31,32,.07);
+  --shadow-lift:0 2px 4px rgba(34,31,32,.05),0 14px 34px rgba(34,31,32,.10),0 34px 80px rgba(34,31,32,.10);
+  --serif:'Marcellus',Georgia,'Times New Roman',serif;--sans:'Roboto',-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;
+  --gut:max(16px,env(safe-area-inset-left));--gutr:max(16px,env(safe-area-inset-right));
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;font-family:var(--sans);font-weight:300;font-size:16px;line-height:1.6;color:var(--ink);background:var(--paper-2);-webkit-font-smoothing:antialiased;overflow-x:clip}
+body::before{content:"";position:fixed;top:0;right:0;bottom:0;left:0;pointer-events:none;z-index:0;opacity:.045;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+img{max-width:100%;height:auto;display:block}
+a{color:var(--gold-text)}
+h1,h2,h3{font-family:var(--serif);font-weight:400;line-height:1.15;margin:0}
+.vh{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+:focus-visible{outline:2px solid var(--teal);outline-offset:3px}
+[hidden]{display:none!important}
+
+/* top bar */
+.top{position:sticky;top:0;z-index:40;background:rgba(251,247,239,.86);backdrop-filter:saturate(1.4) blur(12px);-webkit-backdrop-filter:saturate(1.4) blur(12px);border-bottom:1px solid rgba(225,182,104,.22)}
+.top-in{max-width:1180px;margin:0 auto;padding:10px var(--gutr) 10px var(--gut);display:flex;align-items:center;justify-content:space-between;gap:16px}
+.top img{height:32px;width:auto}
+.top-r{display:flex;align-items:center;gap:18px;font-size:.8rem;color:var(--slate);white-space:nowrap}
+.top-r .sec{display:none;align-items:center;gap:7px}
+.top-r .sec svg{width:15px;height:15px;stroke:var(--teal-text);fill:none;stroke-width:1.8}
+.help{display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;color:var(--ink);font-weight:500;border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 11px;min-width:44px;min-height:44px}
+.help svg{width:16px;height:16px;fill:#1DA851}
+.help span{display:none}
+
+/* hero */
+.hero{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:14px var(--gutr) 8px var(--gut);display:grid;gap:16px}
+.arch{position:relative;margin:0;order:-1}
+.arch picture{display:block}
+.arch img{width:100%;height:160px;object-fit:cover;object-position:50% 30%;border-radius:16px;box-shadow:var(--shadow-soft);background:var(--gold-wash)}
+.arch figcaption{display:none}
+.eyebrow{display:inline-flex;align-items:center;gap:12px;font-size:.72rem;font-weight:500;letter-spacing:.24em;text-transform:uppercase;color:var(--slate);margin:0 0 10px}
+.eyebrow::before{content:"";width:30px;height:1px;background:var(--gold)}
+.hero h1{font-size:2rem;letter-spacing:-.01em}
+.hero h1 em{font-style:italic;color:var(--gold-text)}
+.intro{margin:12px 0 0;color:var(--slate);max-width:36em}
+.chips{list-style:none;padding:0;margin:16px 0 0;display:flex;flex-wrap:wrap;gap:8px}
+.chips li{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:.78rem;color:var(--ink);box-shadow:0 2px 8px rgba(34,31,32,.04)}
+.chips li::before{content:"";flex:none;width:7px;height:7px;border-radius:50%;background:var(--gold-deep)}
+.chips li:nth-child(n+3){display:none}
+
+/* weeks */
+.weeks{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:18px var(--gutr) 8px var(--gut)}
+.sec-h{display:flex;align-items:center;gap:14px;font-size:1.35rem;margin:6px 0 16px;scroll-margin-top:80px}
+.sec-h::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--gold-soft),rgba(225,182,104,0))}
+.wks{display:grid;grid-template-columns:minmax(0,1fr);gap:18px}
+.wk{position:relative;display:flex;flex-direction:column;background:var(--paper);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow-soft);transition:transform .25s,box-shadow .25s;animation:rise .55s cubic-bezier(.22,.61,.36,1) both}
+.wk:nth-child(2){animation-delay:.08s}.wk:nth-child(3){animation-delay:.16s}.wk:nth-child(4){animation-delay:.24s}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.wk-h{--stub:var(--cream);padding:20px 20px 12px;border-radius:22px 22px 0 0;background:linear-gradient(180deg,#fff,var(--stub))}
+.wk-top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.wk-ed{margin:0;font-size:.72rem;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--slate)}
+.pl{display:inline-flex;align-items:center;gap:8px;margin:0;padding:6px 12px;border-radius:999px;background:#fff;border:1px solid var(--line);font-size:.8rem;color:var(--ink);white-space:nowrap}
+.pl::before{content:"";flex:none;width:7px;height:7px;border-radius:50%;background:var(--gold-soft)}
+.pl.live::before{background:var(--teal);animation:pulse 2.4s ease-out infinite}
+.pl.full::before,.pl.closed::before{background:#9AA5AD}
+.pl.sk b{display:inline-block;min-width:1.4em;text-align:center;border-radius:6px;background:linear-gradient(90deg,var(--gold-wash),#fff,var(--gold-wash));background-size:200% 100%;animation:shimmer 1.6s linear infinite;color:transparent}
+.pl b{font-weight:500}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(0,165,178,.5)}75%,100%{box-shadow:0 0 0 7px rgba(0,165,178,0)}}
+@keyframes shimmer{to{background-position:-200% 0}}
+.wk h3{margin:14px 0 0;line-height:1}
+.wk h3 .dd{display:block;font-size:2.7rem;letter-spacing:-.015em}
+.wk h3 .mm{display:block;margin-top:6px;font-size:1.2rem;font-style:italic;color:var(--gold-text)}
+.wk-l{margin:10px 0 0;font-size:.88rem;color:var(--slate);line-height:1.5}
+.perf{--stub:var(--cream);position:relative;height:22px;margin:0 0 6px;background:linear-gradient(180deg,var(--stub) 50%,#fff 50%)}
+.perf::before{content:"";position:absolute;left:22px;right:22px;top:50%;border-top:1.5px dashed rgba(225,182,104,.6)}
+.perf i{position:absolute;top:0;width:22px;height:22px;border-radius:50%;background:var(--paper-2);border:1px solid var(--line)}
+.perf i:first-child{left:-12px;clip-path:inset(0 0 0 50%)}.perf i:last-child{right:-12px;clip-path:inset(0 50% 0 0)}
+.wk-b{display:flex;flex-direction:column;flex:1;padding:0 20px 20px}
+.wk-p{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 8px;margin:0}
+.wk-p small{font-size:.8rem;color:var(--slate)}
+.wk-p b{font-family:var(--serif);font-weight:400;font-size:2rem;line-height:1.05}
+.wk-s{margin:4px 0 0;font-size:.82rem;color:var(--slate)}
+.wk-c{display:flex;align-items:center;gap:8px;margin:12px 0 0;font-size:.82rem;color:var(--ink)}
+.wk-c svg{flex:none;width:16px;height:16px;stroke:var(--gold-deep);fill:none;stroke-width:1.6}
+.wk-a{margin-top:auto;padding-top:18px;display:flex;flex-direction:column;align-items:stretch;gap:6px}
+.wk-a .alt{align-self:center;display:inline-block;padding:12px 6px;margin:-4px 0 -10px;font-size:.84rem}
+.wk.is-full .wk-h,.wk.is-closed .wk-h,.wk.is-full .perf,.wk.is-closed .perf{--stub:#F4F2EE}
+.wk.is-full h3 .mm,.wk.is-closed h3 .mm{color:var(--slate)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;border:0;cursor:pointer;text-decoration:none;font-weight:500;font-size:.95rem;letter-spacing:.03em;border-radius:999px;padding:15px 26px;min-height:48px;transition:transform .2s,box-shadow .2s,filter .2s,background .2s}
+.btn-primary{background:var(--grad-gold);color:var(--ink);box-shadow:0 10px 26px rgba(214,166,82,.4)}
+.btn-primary:hover{transform:translateY(-1px);filter:brightness(1.05);box-shadow:0 14px 34px rgba(214,166,82,.52)}
+.btn-ghost{background:transparent;border:1px solid rgba(34,31,32,.24);color:var(--ink)}
+.btn-ghost:hover{background:rgba(34,31,32,.04)}
+.btn .arr{transition:transform .2s}.btn:hover .arr{transform:translateX(3px)}
+.empty{margin:0;padding:22px;border:1px dashed rgba(34,31,32,.2);border-radius:18px;background:#fff;color:var(--slate)}
+
+/* how it works + trust */
+.how{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:26px var(--gutr) 0 var(--gut)}
+.how ol{list-style:none;margin:0;padding:0;display:grid;gap:12px;counter-reset:n}
+.how li{position:relative;padding:14px 16px 14px 60px;border:1px solid var(--line);border-radius:16px;background:#fff;counter-increment:n;font-size:.88rem;color:var(--slate);line-height:1.5}
+.how li::before{content:counter(n);position:absolute;left:16px;top:14px;width:30px;height:30px;border-radius:50%;border:1px solid var(--gold);display:grid;place-items:center;font-family:var(--serif);color:var(--gold-text);background:var(--cream)}
+.how li b{display:block;font-family:var(--serif);font-weight:400;font-size:1.05rem;color:var(--ink)}
+.how .opt{margin:12px 2px 0;font-size:.84rem;color:var(--slate)}
+.trust{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:22px var(--gutr) 0 var(--gut)}
+.trust ul{list-style:none;margin:0;padding:16px 0 0;border-top:1px solid rgba(225,182,104,.3);display:flex;flex-wrap:wrap;gap:10px 22px;font-size:.84rem;color:var(--slate)}
+.trust li{display:inline-flex;align-items:center;gap:9px}
+.trust svg{flex:none;width:16px;height:16px;stroke:var(--teal-text);fill:none;stroke-width:1.8}
+.trust .wa svg{fill:#1DA851;stroke:none}
+.trust a{display:inline-block;padding:10px 0;margin:-10px 0}
+footer{position:relative;z-index:1;text-align:center;font-size:.8rem;color:var(--slate);padding:30px 24px calc(36px + env(safe-area-inset-bottom))}
+footer a{color:var(--slate);display:inline-block;padding:6px 0}
+
+@media(min-width:641px){
+  .top-in{padding:12px max(24px,env(safe-area-inset-right)) 12px max(24px,env(safe-area-inset-left))}
+  .top img{height:38px}
+  .top-r .sec{display:inline-flex}
+  .help span{display:inline}.help{padding:8px 14px;min-width:0}
+  .hero,.weeks,.how,.trust{padding-left:max(24px,env(safe-area-inset-left));padding-right:max(24px,env(safe-area-inset-right))}
+  .hero{padding-top:26px;gap:22px}
+  .arch img{height:220px;border-radius:22px;outline:1px solid rgba(225,182,104,.55);outline-offset:5px}
+  .hero h1{font-size:clamp(2.2rem,4.4vw,3.2rem)}
+  .chips li{padding:8px 14px;font-size:.82rem}
+  .chips li:nth-child(n+3){display:inline-flex}
+  .wks{grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:24px}
+  .wk-h{padding:26px 28px 14px}.wk-b{padding:0 28px 26px}
+  .wk h3 .dd{font-size:3.1rem}
+  .wk-a{flex-direction:row;align-items:center;flex-wrap:wrap}
+  .wk-a .btn{flex:1}
+  .how ol{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(min-width:960px){
+  .hero{grid-template-columns:1.25fr .75fr;gap:48px;align-items:center;padding-top:46px;padding-bottom:18px}
+  .arch{order:0;justify-self:end;width:min(100%,360px)}
+  .arch img{height:auto;aspect-ratio:4/5;border-radius:220px 220px 22px 22px;box-shadow:var(--shadow-lift);outline-offset:9px}
+  .arch figcaption{display:block;position:absolute;left:-28px;bottom:34px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 16px;box-shadow:var(--shadow-soft);font-size:.78rem;line-height:1.4;max-width:220px}
+  .arch figcaption strong{display:block;font-family:var(--serif);font-weight:400;font-size:1rem}
+  .wk:hover{transform:translateY(-2px);box-shadow:var(--shadow-lift)}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-in">
+    <a href="https://alchemyofbreath.com/" aria-label="Alchemy of Breath home"><img src="https://alchemyofbreath.com/wp-content/uploads/AOB-Gold-Black-Transparant.png" alt="Alchemy of Breath" width="252" height="72"></a>
+    <div class="top-r">
+      <span class="sec"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Secure booking</span>
+      <a class="help" id="helpLink" href="https://wa.me/393534527348" target="_blank" rel="noopener" aria-label="Need help? WhatsApp us"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.2 14.1c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .2-3.3-.7-2.8-1.1-4.5-4-4.7-4.2-.1-.2-1.1-1.5-1.1-2.9s.7-2.1 1-2.3c.3-.3.6-.3.8-.3h.6c.2 0 .4 0 .6.5l.9 2.1c.1.2.1.4 0 .6l-.4.6-.4.5c-.1.1-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.4 2.4 1.5.3.1.5.1.7-.1l.9-1.1c.2-.3.4-.2.7-.1l2 1c.3.1.5.2.6.3.1.2.1.8-.1 1.4z"/></svg><span>Need help? WhatsApp</span></a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="hero" aria-labelledby="heroH">
+    <div>
+      <p class="eyebrow" id="heroEyebrow">BreathCamp · ASHA, Tuscany</p>
+      <h1 id="heroH">Book BreathCamp <em>at ASHA</em>.</h1>
+      <p class="intro" id="heroIntro">Choose your week, then your room. One booking covers the programme and your stay at ASHA with all meals.</p>
+      <ul class="chips" id="heroChips" aria-label="At a glance"></ul>
+    </div>
+    <figure class="arch"><picture><source type="image/webp" id="heroWebp" sizes="(max-width:959px) 94vw, 360px"><img id="heroImg" alt="ASHA Retreat Centre in the Tuscan hills" width="1200" height="799" fetchpriority="high" decoding="async"></picture><figcaption><strong id="heroVenue">ASHA Retreat Centre</strong><span id="heroRegion">Tuscany, Italy</span></figcaption></figure>
+  </section>
+
+  <section class="weeks" aria-labelledby="weeksH">
+    <h2 class="sec-h" id="weeksH">Choose your week</h2>
+    <div class="wks" id="weeks"></div>
+    <noscript><p class="empty">Online booking needs JavaScript. Please turn it on, or <a href="https://wa.me/393534527348">message us on WhatsApp</a> and we'll help you book.</p></noscript>
+  </section>
+
+  <section class="how" aria-labelledby="howH">
+    <h2 class="sec-h" id="howH">How booking works</h2>
+    <ol>
+      <li><b>Choose your week</b>Every week shows its live places and its all-in price per person.</li>
+      <li><b>Choose your room</b>Pick a room or tent with space for your group. Every room includes all meals.</li>
+      <li><b>Pay securely</b>Payment is by Stripe, and your receipt and invoice come by email. You'll see every payment option before you pay.</li>
+    </ol>
+    <p class="opt" id="howOpt" hidden>Optional: add a private session with the ASHA wellbeing team in the last step.</p>
+  </section>
+
+  <section class="trust" aria-label="Booking with us">
+    <ul>
+      <li><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Secure payment by Stripe</li>
+      <li><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Live availability</li>
+      <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12l5 5L20 6"/></svg>Receipt and invoice by email</li>
+      <li class="wa"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.2 14.1c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .2-3.3-.7-2.8-1.1-4.5-4-4.7-4.2-.1-.2-1.1-1.5-1.1-2.9s.7-2.1 1-2.3c.3-.3.6-.3.8-.3h.6c.2 0 .4 0 .6.5l.9 2.1c.1.2.1.4 0 .6l-.4.6-.4.5c-.1.1-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.4 2.4 1.5.3.1.5.1.7-.1l.9-1.1c.2-.3.4-.2.7-.1l2 1c.3.1.5.2.6.3.1.2.1.8-.1 1.4z"/></svg><span>Questions? <a id="trustWa" href="https://wa.me/393534527348" target="_blank" rel="noopener">We reply on WhatsApp</a></span></li>
+    </ul>
+  </section>
+</main>
+
+<footer><p>Questions? <a id="footHelp" href="https://wa.me/393534527348" target="_blank" rel="noopener">Message us on WhatsApp</a> &middot; <a href="https://alchemyofbreath.com/terms-and-conditions/#breathcamp-policy" target="_blank" rel="noopener">Terms</a> &middot; <a href="https://alchemyofbreath.com/privacy-policy/" target="_blank" rel="noopener">Privacy Policy</a> &middot; <a href="https://alchemyofbreath.com/medical-disclaimer-contraindications/" target="_blank" rel="noopener">Medical disclaimer</a> &middot; &copy; Alchemy of Breath &amp; ASHA</p></footer>
+
+<script type="application/json" id="programsData">{"img_cdn":"https://cdn.jsdelivr.net/gh/Alchemy-of-Breath/website@d71a16219026b2ca74751a407f3e0d63c9b60e5d/assets/booking/rooms/","weeks":[{"id":"breathcamp-jul-2027-1","title":"BreathCamp","edition":"BreathCamp 1","dates":{"start":"2027-07-18","end":"2027-07-24","nights":6,"label":"Sunday 18 – Saturday 24 July 2027","short":"18–24 Jul 2027","medium":"18–24 July 2027"},"venue":"ASHA Retreat Centre","region":"Tuscany","currency":"EUR","url":"/book/breathcamp-jul-2027-1/","booking_closes":"2027-07-17","program_spaces":49,"programme_fee":888,"from_all_in":1649,"room_from":761,"hero_image":"asha-campus.jpg","services":10,"rooms":[{"id":"twin-ensuite","price":1407,"unit":"person","sleeps":2},{"id":"twin-shared-bath","price":1171,"unit":"person","sleeps":2},{"id":"triple-ensuite","price":1107,"unit":"person","sleeps":3},{"id":"glamping-single","price":1161,"unit":"person","sleeps":1},{"id":"glamping-twin","price":1037,"unit":"person","sleeps":2},{"id":"camper","price":807,"unit":"person","sleeps":1},{"id":"own-tent","price":761,"unit":"person","sleeps":1},{"id":"single-ensuite","price":1857,"unit":"person","sleeps":1},{"id":"cottage-one","price":2612,"unit":"person","sleeps":1},{"id":"cottage-two","price":5224,"unit":"cottage","sleeps":2}]},{"id":"breathcamp-jul-2027-2","title":"BreathCamp","edition":"BreathCamp 2","dates":{"start":"2027-07-25","end":"2027-07-31","nights":6,"label":"Sunday 25 – Saturday 31 July 2027","short":"25–31 Jul 2027","medium":"25–31 July 2027"},"venue":"ASHA Retreat Centre","region":"Tuscany","currency":"EUR","url":"/book/breathcamp-jul-2027-2/","booking_closes":"2027-07-24","program_spaces":49,"programme_fee":888,"from_all_in":1649,"room_from":761,"hero_image":"asha-campus.jpg","services":10,"rooms":[{"id":"twin-ensuite","price":1407,"unit":"person","sleeps":2},{"id":"twin-shared-bath","price":1171,"unit":"person","sleeps":2},{"id":"triple-ensuite","price":1107,"unit":"person","sleeps":3},{"id":"glamping-single","price":1161,"unit":"person","sleeps":1},{"id":"glamping-twin","price":1037,"unit":"person","sleeps":2},{"id":"camper","price":807,"unit":"person","sleeps":1},{"id":"own-tent","price":761,"unit":"person","sleeps":1},{"id":"single-ensuite","price":1857,"unit":"person","sleeps":1},{"id":"cottage-one","price":2612,"unit":"person","sleeps":1},{"id":"cottage-two","price":5224,"unit":"cottage","sleeps":2}]}]}</script><!-- /PROGRAMS-DATA -->
+<script>
+(function(){
+  'use strict';
+  // The weeks come from build.py (booking/programs/*.json); places are live from the booking API.
+  var D = {}; try { D = JSON.parse(document.getElementById('programsData').textContent) || {}; } catch(e){ D = {}; }
+  var WEEKS = Array.isArray(D.weeks) ? D.weeks : [];
+  // Same-origin API on the Pages deployment and on a local wrangler pages dev; everywhere else (the WordPress proxy) call Pages directly.
+  // No trailing slash: the proxy rewrites "https://website-5h3.pages.dev/" in the HTML.
+  var API = (/(^|\.)website-5h3\.pages\.dev$/.test(location.hostname) || location.hostname === '127.0.0.1' || location.hostname === 'localhost') ? '' : 'https://website-5h3.pages.dev';
+  // Photos: on alchemyofbreath.com from jsDelivr (pinned by build.py), elsewhere from this site (same rule as the week pages).
+  var IMG = /alchemyofbreath\.com$/.test(location.hostname) ? (D.img_cdn || 'https://cdn.jsdelivr.net/gh/Alchemy-of-Breath/website@main/assets/booking/rooms/') : '/assets/booking/rooms/';
+  var WA = '393534527348';
+  // the room-only link (?programme=paid, for guests who paid the programme fee elsewhere): room prices, as on the week page
+  var ROOM_ONLY = new URLSearchParams(location.search).get('programme') === 'paid';
+  var $ = function(id){ return document.getElementById(id); };
+  var esc = function(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); };
+  var money = function(eur){ return '€' + Math.round(eur || 0).toLocaleString('en-GB'); };
+  var pad = function(n){ return (n < 10 ? '0' : '') + n; };
+  function utcDate(iso){ var m = String(iso || '').match(/^(\d{4})-(\d{2})-(\d{2})$/); return m ? new Date(Date.UTC(+m[1], +m[2] - 1, +m[3], 12)) : null; }
+  function fmt(d, o){ o.timeZone = 'UTC'; return d.toLocaleDateString('en-GB', o); }
+  function todayISO(){ var d = new Date(); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+  function waLink(msg){ return 'https://wa.me/' + WA + '?text=' + encodeURIComponent(msg); }
+  // the booking link keeps the visitor's room-only and campaign parameters
+  var KEEP = ['programme','utm_source','utm_medium','utm_campaign','utm_term','utm_content','utm_id','gclid','fbclid','msclkid'];
+  function weekUrl(w){
+    var qp = new URLSearchParams(location.search), out = new URLSearchParams();
+    KEEP.forEach(function(k){ var v = qp.get(k); if (v) out.set(k, v.slice(0, 250)); });
+    var q = out.toString();
+    return w.url + (q ? '?' + q : '');
+  }
+  function closedByDate(w){ return todayISO() > (w.booking_closes || (w.dates && w.dates.start) || '9999'); }
+  // "18–24" + "July 2027"; across two months "28 Jul – 3 Aug" + "2027"
+  function range(d){
+    var s = utcDate(d.start), e = utcDate(d.end);
+    if (!s || !e) return { big: d.medium || d.label || '', small: '' };
+    if (s.getUTCMonth() === e.getUTCMonth()) return { big: s.getUTCDate() + '–' + e.getUTCDate(), small: fmt(e, { month:'long', year:'numeric' }) };
+    return { big: fmt(s, { day:'numeric', month:'short' }) + ' – ' + fmt(e, { day:'numeric', month:'short' }), small: String(e.getUTCFullYear()) };
+  }
+  function days(d){ var s = utcDate(d.start), e = utcDate(d.end); return s && e ? fmt(s, { weekday:'long' }) + ' to ' + fmt(e, { weekday:'long' }) : ''; }
+  var CAL = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>';
+
+  /* ---------------- hero ---------------- */
+  (function(){
+    var first = WEEKS[0], hero = (first && first.hero_image) || 'asha-campus.jpg', stem = hero.replace(/\.jpg$/i, '');
+    $('heroWebp').setAttribute('srcset', IMG + stem + '-640.webp 640w, ' + IMG + stem + '-1100.webp 1100w');
+    $('heroImg').src = IMG + hero;
+    if (first) {
+      var venue = first.venue || 'ASHA Retreat Centre', region = first.region || '';
+      $('heroEyebrow').textContent = 'BreathCamp · ' + venue.replace(' Retreat Centre', '') + (region ? ', ' + region : '');
+      $('heroVenue').textContent = venue; $('heroRegion').textContent = region ? region + ', Italy' : '';
+      $('heroImg').alt = venue + ' in the Tuscan hills';
+    }
+    var same = function(k){ return WEEKS.length && WEEKS.every(function(w){ return w[k] === first[k]; }); };
+    var fee = same('programme_fee') ? first.programme_fee : null;
+    var nights = WEEKS.length && WEEKS.every(function(w){ return w.dates && w.dates.nights === first.dates.nights; }) ? first.dates.nights : null;
+    $('heroIntro').textContent = ROOM_ONLY
+      ? 'Choose your week, then your room: ' + (nights ? nights + ' nights' : 'your stay') + ' at ASHA with all meals, for guests who have already paid the programme fee.'
+      : 'Choose your week, then your room. One booking covers ' + (fee ? 'the ' + money(fee) + ' programme fee and ' : '') + (nights ? nights + ' nights at ASHA' : 'your stay at ASHA') + ' with all meals.';
+    var chips = [];
+    if (WEEKS.length) {
+      var months = WEEKS.map(function(w){ var d = utcDate(w.dates.start); return d ? fmt(d, { month:'long', year:'numeric' }) : ''; }).filter(function(x, i, a){ return x && a.indexOf(x) === i; });
+      chips.push(WEEKS.length + (WEEKS.length === 1 ? ' week' : ' weeks') + (months.length === 1 ? ' in ' + months[0] : ''));
+    }
+    if (nights) chips.push(nights + ' nights, all meals');
+    chips.push('Live availability');
+    $('heroChips').innerHTML = chips.map(function(c){ return '<li>' + esc(c) + '</li>'; }).join('');
+    if (WEEKS.some(function(w){ return w.services > 0; })) $('howOpt').hidden = false;
+  })();
+
+  /* ---------------- weeks ---------------- */
+  var live = {};   // id → availability answer, or { error:true }
+  function placesHtml(w){
+    var a = live[w.id], closed = (a && a.closed === true) || closedByDate(w);
+    if (closed) return { cls:'pl closed', html:'Booking closed', state:'closed' };
+    if (!a) return { cls:'pl sk', html:'<b>–</b> places left', state:'loading' };
+    if (a.error || typeof a.program_left !== 'number') return { cls:'pl', html:'', state:'unknown' };
+    if (a.program_left <= 0) return { cls:'pl full', html:'Fully booked', state:'full' };
+    return { cls:'pl' + (a.live ? ' live' : ''), html:'<b>' + a.program_left + '</b> ' + (a.program_left === 1 ? 'place' : 'places') + ' left', state:'open' };
+  }
+  // "From" price over the rooms that still have space, with the week page's formula: a per-person room
+  // plus the programme fee (room only: the room). Rooms not priced per person (the cottage for two) only
+  // when nothing per person is left, shown for the whole cottage. Before the live numbers: the build's figure.
+  function priceFor(w){
+    var a = live[w.id], fee = ROOM_ONLY ? 0 : (w.programme_fee || 0), rooms = Array.isArray(w.rooms) ? w.rooms : [];
+    if (!a || a.error || !a.rooms || typeof a.rooms !== 'object' || !rooms.length) {
+      if (ROOM_ONLY) return w.room_from ? { from: w.room_from, room: w.room_from } : null;
+      return w.from_all_in ? { from: w.from_all_in, room: w.room_from } : null;
+    }
+    var room = null, unit = null;
+    rooms.forEach(function(r){
+      var s = a.rooms[r.id]; if (!s || s.sold_out || typeof r.price !== 'number') return;
+      if (r.unit === 'person') { if (room === null || r.price < room) room = r.price; return; }
+      var g = r.sleeps || 1, all = r.price + fee * g;
+      if (!unit || all < unit.from) unit = { from: all, room: r.price, guests: g, unit: r.unit };
+    });
+    if (room !== null) return { from: room + fee, room: room };
+    return unit;
+  }
+  function priceHtml(w, n){
+    var p = priceFor(w); if (!p) return '';
+    var fee = w.programme_fee || 0;
+    if (p.guests) {   // only a cottage (priced for the group) is left
+      var what = p.unit === 'cottage' ? 'cottage' : 'room';
+      if (ROOM_ONLY) return '<p class="wk-p"><small>From</small><b>' + money(p.from) + '</b><small>for ' + p.guests + ' guests</small></p><p class="wk-s">The ' + what + ' &amp; meals' + (n ? ' for ' + n + ' nights' : '') + ', programme fee already paid</p>';
+      return '<p class="wk-p"><small>From</small><b>' + money(p.from) + '</b><small>' + (fee ? 'all-in ' : '') + 'for ' + p.guests + ' guests</small></p>' +
+        (fee ? '<p class="wk-s">' + (p.guests > 1 ? p.guests + ' × ' : '') + money(fee) + ' programme fee + ' + money(p.room) + ' ' + what + ' &amp; meals</p>' : '');
+    }
+    if (ROOM_ONLY) return '<p class="wk-p"><small>Rooms from</small><b>' + money(p.from) + '</b><small>per person</small></p><p class="wk-s">Room &amp; meals' + (n ? ' for ' + n + ' nights' : '') + ', programme fee already paid</p>';
+    return '<p class="wk-p"><small>From</small><b>' + money(p.from) + '</b><small>' + (fee ? 'all-in per person' : 'per person') + '</small></p>' +
+      (fee && p.room ? '<p class="wk-s">' + money(fee) + ' programme fee + room &amp; meals from ' + money(p.room) + '</p>' : '');
+  }
+  function card(w){
+    var r = range(w.dates || {}), pl = placesHtml(w), n = w.dates && w.dates.nights, closes = utcDate(w.booking_closes);
+    var when = (w.edition || w.title) + ' (' + ((w.dates && w.dates.short) || r.big + ' ' + r.small) + ')';
+    var action;
+    if (pl.state === 'closed') action = '<a class="btn btn-ghost" href="' + esc(waLink('Hi! Online booking for ' + when + ' has closed. Is a place still possible?')) + '" target="_blank" rel="noopener">Message us on WhatsApp</a>';
+    else if (pl.state === 'full') action = '<a class="btn btn-ghost" href="' + esc(waLink('Hi! I\'d like to join the waitlist for ' + when + '.')) + '" target="_blank" rel="noopener">Join the waitlist</a><a class="alt" href="' + esc(weekUrl(w)) + '">See this week</a>';
+    else action = '<a class="btn btn-primary" href="' + esc(weekUrl(w)) + '" aria-label="Choose ' + esc(w.edition || w.title) + ', ' + esc(r.big + ' ' + r.small) + '">Choose this week <span class="arr" aria-hidden="true">&rarr;</span></a>';
+    return '<article class="wk' + (pl.state === 'full' ? ' is-full' : pl.state === 'closed' ? ' is-closed' : '') + '" id="wk-' + esc(w.id) + '" aria-labelledby="wkh-' + esc(w.id) + '">' +
+      '<div class="wk-h"><div class="wk-top"><p class="wk-ed">' + esc(w.edition || w.title) + '</p><p class="' + pl.cls + '"' + (pl.html ? '' : ' hidden') + '>' + pl.html + '</p></div>' +
+        '<h3 id="wkh-' + esc(w.id) + '"><span class="vh">' + esc(w.edition || w.title) + ', </span><span class="dd">' + esc(r.big) + '</span><span class="mm">' + esc(r.small) + '</span></h3>' +
+        '<p class="wk-l">' + esc(days(w.dates || {})) + (n ? ' · ' + n + ' nights' : '') + '<br>' + esc(w.venue || '') + (w.region ? ', ' + esc(w.region) : '') + '</p></div>' +
+      '<div class="perf" aria-hidden="true"><i></i><i></i></div>' +
+      '<div class="wk-b">' +
+        // no price on a week that is fully booked or closed
+        (pl.state === 'full' || pl.state === 'closed' ? '' : priceHtml(w, n)) +
+        (closes && pl.state !== 'closed' ? '<p class="wk-c">' + CAL + 'Booking closes ' + esc(fmt(closes, { day:'numeric', month:'long' })) + '</p>' : '') +
+        '<div class="wk-a">' + action + '</div></div></article>';
+  }
+  function render(){
+    $('weeks').innerHTML = WEEKS.length ? WEEKS.map(card).join('')
+      : '<p class="empty">There are no weeks open for booking right now. <a href="' + esc(waLink('Hi! When can I book the next BreathCamp?')) + '" target="_blank" rel="noopener">Message us on WhatsApp</a> and we\'ll tell you when the next one opens.</p>';
+  }
+  // only the places line and the button change once the live numbers arrive
+  function update(w){
+    var el = $('wk-' + w.id); if (!el) return;
+    var tmp = document.createElement('div'); tmp.innerHTML = card(w);
+    var fresh = tmp.firstChild;
+    fresh.style.animation = 'none';
+    var had = el.contains(document.activeElement);
+    el.parentNode.replaceChild(fresh, el);
+    if (had) { var a = fresh.querySelector('a'); if (a) a.focus(); }
+  }
+  var loadedAt = 0;
+  function load(w, retried){
+    if (closedByDate(w)) return;
+    fetch(API + '/api/booking/availability?program=' + encodeURIComponent(w.id), { cache:'no-store' })
+      .then(function(r){
+        if (r.status === 503 && !retried) { return r.json().catch(function(){ return {}; }).then(function(b){ setTimeout(function(){ load(w, true); }, Math.min(15, Math.max(1, +(b && b.retry_after) || 5)) * 1000); return null; }); }
+        return r.ok ? r.json() : { error:true };
+      })
+      .then(function(d){ if (!d) return; live[w.id] = d && typeof d.program_left === 'number' ? d : { error:true }; update(w); })
+      .catch(function(){ live[w.id] = { error:true }; update(w); });
+  }
+  function loadAll(){ loadedAt = Date.now(); WEEKS.forEach(function(w){ load(w); }); }
+  render();
+  loadAll();
+  document.addEventListener('visibilitychange', function(){ if (!document.hidden && Date.now() - loadedAt > 60000) loadAll(); });
+
+  var wa = waLink('Hi! I have a question about booking BreathCamp at ASHA.');
+  ['helpLink','trustWa','footHelp'].forEach(function(id){ $(id).href = wa; });
+})();
+</script>
+</body>
+</html>

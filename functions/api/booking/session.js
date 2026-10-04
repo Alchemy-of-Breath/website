@@ -1,11 +1,14 @@
 // GET /api/booking/session?id=cs_… — what the confirmation screen shows after a checkout.
 // state: paid | processing | open | expired | unpaid. Only "paid" means the place is confirmed.
+// kind: booking | balance | addon (wellbeing sessions added after booking, from /book/extras/).
 // The session id travels in return URLs, so the answer carries nothing personal beyond a first name
-// and a masked receipt address.
+// and a masked receipt address (sessions name their guest by number, not by name).
 import {
-  json, preflight, getProgram, stripe, roomsFromString, findBooking, ensurePlanEnds, planDates, sessionState, clientIp, ipHash, rateLimited,
-  maskEmail, isBusy, logError, nowSec, BUSY, CS_ID,
+  json, preflight, getProgram, stripe, roomsFromString, findBooking, forgetBooking, ensurePlanEnds, planDates, sessionState, clientIp, ipHash, rateLimited,
+  parseAddons, maskEmail, isBusy, logError, nowSec, BUSY, CS_ID,
 } from '../../../booking-lib/core.js';
+
+const sessionOut = a => ({ id: a.id, guest: a.guest, title: a.title, practitioner: a.practitioner, practitioner_name: a.practitioner_name, minutes: a.minutes, price_cents: a.price_cents });
 export const onRequestOptions = ({ request, env }) => preflight(request, env);
 
 export async function onRequestGet({ request, env }) {
@@ -21,6 +24,9 @@ export async function onRequestGet({ request, env }) {
     const program = getProgram(md.aob_program);
     if (!program) return send({ error: 'Not found.' }, 404);
     const state = await sessionState(env, s);
+    // a payment just went through: this isolate's 30 s booking memo (filled before it) is stale now
+    // (the webhook clears it too, but in whichever isolate Stripe's call lands)
+    if (state === 'paid' && md.aob_ref) forgetBooking(md.aob_ref);
     const rooms = Object.entries(roomsFromString(md.aob_rooms)).map(([rid, n]) => ({ name: (program.rooms.find(r => r.id === rid) || { name: rid }).name, guests: n }));
     let balance = md.aob_kind === 'booking' ? parseInt(md.aob_balance || '0', 10) : null;
     if (md.aob_kind === 'balance' && state === 'paid') { try { const f = await findBooking(env, md.aob_ref); balance = f ? f.booking.balance_cents : null; } catch {} }
@@ -44,6 +50,8 @@ export async function onRequestGet({ request, env }) {
       balance_due: (program.deposit && program.deposit.balance_due) || null,
       guests: parseInt(md.aob_guests || '0', 10) || null, rooms, plan,
       programme: md.aob_prog || 'none', programme_cents: parseInt(md.aob_prog_total || '0', 10),
+      addons: parseAddons(md.aob_addons, program).map(sessionOut), addons_cents: parseInt(md.aob_addons_total || '0', 10) || 0,
+      services_note: md.aob_addons && program.services ? program.services.note || null : null,
       first_name: (md.aob_lead_name || '').split(' ')[0],
       receipt_email: maskEmail((s.customer_details && s.customer_details.email) || s.customer_email || md.aob_lead_email),
       arrival: (program.arrival && program.arrival.checkin) || null,

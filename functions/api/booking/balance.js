@@ -2,8 +2,9 @@
 //   GET                                          → { turnstile_site_key } (the page's bot check, when on)
 //   POST { action:'lookup', ref, email }         → what's paid and what's left (no Stripe session)
 //   POST { action:'pay' (default), ref, email, return_url } → one payable balance session (reused if open)
-// Bookings with a refund are settled with the team, not here (a refund must never become payable
-// again). Plans pay themselves; a plan that has ended short gets a normal balance payment.
+// Bookings with a refund of their booking or balance payment are settled with the team, not here (a
+// refund must never become payable again; a refunded wellbeing session doesn't count, it never touches
+// the balance). Plans pay themselves; a plan that has ended short gets a normal balance payment.
 import {
   json, preflight, guardPost, readBody, clientIp, ipHash, rateLimited, verifyTurnstile, turnstileSiteKey, validRef, knownRef, findBooking,
   balanceSession, balancePageUrl, isBusy, logError, BUSY,
@@ -52,7 +53,7 @@ export async function onRequestPost({ request, env }) {
       if (!p.paid_known) return send(BUSY, 503); // can't tell what the plan has paid: never guess a balance
       Object.assign(info, { plan_ended: true, paid_count: p.paid_count, installments: p.installments });
     }
-    if (booking.refunded_cents > 0) {
+    if (booking.refunded_booking_cents > 0) { // a refunded wellbeing session (extras) doesn't stop the balance
       return send({ ...info, code: 'refunded', error: 'Part of this booking has been refunded, so we\'ll settle what\'s left with you directly. Please message us on WhatsApp.' }, 409);
     }
     if (action === 'lookup') return send(info);

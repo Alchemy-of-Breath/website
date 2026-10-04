@@ -3,11 +3,12 @@
 //   checkout.session.completed, checkout.session.async_payment_succeeded, checkout.session.async_payment_failed,
 //   checkout.session.expired, invoice.paid, invoice.payment_failed, customer.subscription.deleted
 // and put its signing secret in STRIPE_WEBHOOK_SECRET.
-// Delivery to GHL is awaited (5 s); if GHL fails we answer 500 so Stripe retries. Paid bookings are
-// forwarded once: after a successful forward the PaymentIntent/subscription gets aob_ghl=<event id>.
+// Delivery to GHL is awaited (5 s); if GHL fails we answer 500 so Stripe retries. Paid bookings and
+// paid wellbeing sessions are forwarded once: after a successful forward the PaymentIntent /
+// subscription gets aob_ghl=<event id>.
 import {
-  verifyStripeSignature, parseBooking, getProgram, ensurePlanEnds, planDates, stripe, paidOnSub, liveMode,
-  siteOrigin, findBooking, logError, nowSec, openBookingSessions, programPayments,
+  verifyStripeSignature, parseBooking, parseAddons, sessionLabel, getProgram, ensurePlanEnds, planDates, stripe, paidOnSub, liveMode,
+  siteOrigin, findBooking, forgetBooking, currentBookingMeta, str, isBusy, logError, nowSec, openBookingSessions, programPayments,
 } from '../../../booking-lib/core.js';
 
 const done = (t = 'ok', status = 200) => new Response(t, { status });
@@ -20,11 +21,15 @@ async function forward(env, body) {
   if (!r.ok) { const e = new Error(`GHL answered ${r.status}`); e.status = r.status; e.type = 'ghl_error'; throw e; }
 }
 
-/* What every booking event carries: who, which week, which rooms. */
+/* "Muji: Magic Massage (60 min) for Ana Lee", one per session (guests: [{ name }] of the booking) */
+const sessionLines = (addons, guests) => addons.map(a => `${sessionLabel(a)} for ${(guests[a.guest] && guests[a.guest].name) || `Guest ${a.guest + 1}`}`);
+
+/* What every booking event carries: who, which week, which rooms, which wellbeing sessions. */
 function bookingFields(event, md, program) {
-  const b = parseBooking(md);
+  const b = parseBooking(md, program);
   const [first, ...rest] = String(md.aob_lead_name || '').split(' ');
   const roomName = id => (program && program.rooms.find(r => r.id === id) || { name: id }).name;
+  const sessions = sessionLines(b.addons, b.guests);
   return {
     event_id: event.id, ref: md.aob_ref || '', program: md.aob_program,
     program_title: program ? `${program.edition || program.title} · ${program.dates.label}` : '',
@@ -33,6 +38,7 @@ function bookingFields(event, md, program) {
     guests: md.aob_guests || '', rooms: Object.entries(b.rooms).map(([id, n]) => `${roomName(id)} × ${n}`).join(', '),
     guest_list: b.guests.map(g => `${g.name}${g.email ? ` <${g.email}>` : ''}, ${g.gender}, ${roomName(g.room)}`).join('\n'),
     roommate: md.aob_roommate || '', diet: md.aob_diet || '',
+    sessions, sessions_text: sessions.join('\n'), sessions_total: md.aob_addons_total ? money(md.aob_addons_total) : '',
     ...b.utm,
   };
 }
@@ -51,11 +57,59 @@ function moneyFields(s, md, program, paid) {
   };
 }
 
+/* Wellbeing sessions bought after booking (aob_kind addon), once paid: addon_paid for the team to
+   arrange the times (addon_paid_after_cancel when the booking was cancelled meanwhile: refund or
+   follow up). Forwarded once per payment, like booking_paid. Guest names come from the booking. */
+async function onAddonPaid(env, event, s, md, program, paid) {
+  if (!env.GHL_WEBHOOK_URL) return done();
+  if (!paid) return done('addon pending'); // a delayed method: async_payment_succeeded forwards it
+  let pi = null;
+  if (s.payment_intent) pi = typeof s.payment_intent === 'object' ? s.payment_intent : await stripe(env, 'GET', `/payment_intents/${s.payment_intent}`);
+  if (pi && (pi.metadata || {}).aob_ghl) return done('already forwarded');
+  const f = md.aob_ref ? await findBooking(env, md.aob_ref) : null; // a Stripe error throws: 500, Stripe retries
+  let afterCancel = false;
+  if (f) afterCancel = (await currentBookingMeta(env, f.booking)).aob_status === 'cancelled'; // read fresh (an ended plan: its overlay)
+  const guests = f ? f.booking.guests : [], lead = f ? f.booking.lead : {};
+  const sessions = sessionLines(parseAddons(md.aob_addons, program), guests);
+  const [first, ...rest] = String(md.aob_lead_name || '').split(' ');
+  await forward(env, {
+    event: afterCancel ? 'addon_paid_after_cancel' : 'addon_paid', event_id: event.id, ref: md.aob_ref || '', program: md.aob_program,
+    program_title: program ? `${program.edition || program.title} · ${program.dates.label}` : '',
+    first_name: first || '', last_name: rest.join(' '), email: md.aob_lead_email || '', phone: lead.whatsapp || '',
+    sessions, sessions_text: sessions.join('\n'), sessions_total: money(md.aob_addons_total || s.amount_total || 0),
+    amount_paid: money(s.amount_total || 0), currency: String(s.currency || (program && program.currency) || '').toUpperCase(),
+    ui: md.aob_ui || '', stripe_session: s.id || '',
+    tag: afterCancel ? `${md.aob_program}-addon-after-cancel` : `${md.aob_program}-addon-paid`,
+  });
+  if (pi) { try { await stripe(env, 'POST', `/payment_intents/${pi.id}`, { metadata: { aob_ghl: event.id } }); } catch (e) { logError('webhook.mark', e); } }
+  if (md.aob_ref) forgetBooking(md.aob_ref);
+  return done();
+}
+
+/* aob_terms_at (when the guest accepted, ISO) and aob_terms (the terms page) on the booking's
+   PaymentIntent / subscription. Idempotent: nothing is written once aob_terms_at is there. Returns the
+   updated subscription (plans), else null. */
+async function recordTerms(env, event, s, md, program, sub) {
+  let path, cur;
+  if (sub) { path = `/subscriptions/${sub.id}`; cur = sub.metadata || {}; }
+  else if (s.payment_intent) {
+    const pi = typeof s.payment_intent === 'object' ? s.payment_intent : await stripe(env, 'GET', `/payment_intents/${s.payment_intent}`);
+    path = `/payment_intents/${pi.id}`; cur = pi.metadata || {};
+  } else return null;
+  if (cur.aob_terms_at) return null;
+  const at = new Date(((event.created || nowSec()) * 1000)).toISOString();
+  const terms = (program && program.terms_url) ? str(program.terms_url, 300) : (md.aob_terms || '');
+  const updated = await stripe(env, 'POST', path, { metadata: { aob_terms_at: at, ...(terms ? { aob_terms: terms } : {}) } });
+  if (md.aob_ref) forgetBooking(md.aob_ref);
+  return sub ? updated : null;
+}
+
 /* checkout.session.completed / async_payment_succeeded */
 async function onCompleted(env, event, s, asyncSucceeded) {
   const md = s.metadata || {};
-  if (!md.aob_program || (md.aob_kind !== 'booking' && md.aob_kind !== 'balance')) return done('not a booking');
+  if (!md.aob_program || !['booking', 'balance', 'addon'].includes(md.aob_kind)) return done('not a booking');
   const program = getProgram(md.aob_program);
+  if (md.aob_kind === 'addon') return onAddonPaid(env, event, s, md, program, asyncSucceeded || s.payment_status === 'paid' || s.payment_status === 'no_payment_required');
   let sub = null, planEnd = null, planPayDates = [];
   if (s.mode === 'subscription' && s.subscription) {
     // a payment plan: make sure it stops after its last monthly payment
@@ -64,6 +118,15 @@ async function onCompleted(env, event, s, asyncSucceeded) {
       planEnd = sub.cancel_at || null;
       planPayDates = planDates(sub.billing_cycle_anchor || sub.start_date || s.created, parseInt(md.aob_plan_n || '3', 10));
     } catch (e) { logError('webhook.plan_end', e); return done('could not set plan end', 500); } // Stripe retries
+  }
+  // An admin booking link: the guest accepted the terms on Stripe's page; record it on the booking
+  // (a guest's own checkout records aob_terms_at when it starts). Once, whatever GHL is set to.
+  if (md.aob_kind === 'booking' && md.aob_source === 'admin' && s.consent && s.consent.terms_of_service === 'accepted') {
+    try { sub = await recordTerms(env, event, s, md, program, sub) || sub; }
+    catch (e) {
+      logError('webhook.terms', e);
+      if (isBusy(e)) return done('could not record the terms acceptance', 500); // Stripe retries
+    }
   }
   if (!env.GHL_WEBHOOK_URL) return done();
   const paid = asyncSucceeded || s.payment_status === 'paid' || s.payment_status === 'no_payment_required';
@@ -83,11 +146,7 @@ async function onCompleted(env, event, s, asyncSucceeded) {
   let afterCancel = false;
   if (paid && md.aob_kind === 'balance' && md.aob_ref) {
     const f = await findBooking(env, md.aob_ref); // a Stripe error throws: 500, Stripe retries
-    if (f) {
-      const b = f.booking;
-      const cur = await stripe(env, 'GET', b.plan ? `/subscriptions/${b.booking_pi}` : `/payment_intents/${b.booking_pi}`);
-      afterCancel = ((cur && cur.metadata) || {}).aob_status === 'cancelled';
-    }
+    if (f) afterCancel = (await currentBookingMeta(env, f.booking)).aob_status === 'cancelled'; // read fresh (an ended plan: its overlay)
   }
   const tag = !paid ? `${md.aob_program}-pending` : kind === 'booking' ? `${md.aob_program}-booked`
     : afterCancel ? `${md.aob_program}-balance-after-cancel` : `${md.aob_program}-balance-paid`;
@@ -107,8 +166,8 @@ async function onAsyncFailed(env, event, s) {
   if (!md.aob_program || !md.aob_kind) return done('not a booking');
   if (!env.GHL_WEBHOOK_URL) return done();
   const program = getProgram(md.aob_program);
-  await forward(env, { event: md.aob_kind === 'balance' ? 'booking_balance_payment_failed' : 'booking_payment_failed',
-    ...bookingFields(event, md, program), ...moneyFields(s, md, program, false), tag: `${md.aob_program}-payment-failed` });
+  const name = md.aob_kind === 'balance' ? 'booking_balance_payment_failed' : md.aob_kind === 'addon' ? 'addon_payment_failed' : 'booking_payment_failed';
+  await forward(env, { event: name, ...bookingFields(event, md, program), ...moneyFields(s, md, program, false), tag: `${md.aob_program}-payment-failed` });
   return done();
 }
 

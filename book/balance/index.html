@@ -110,6 +110,9 @@ input[aria-invalid="true"]{border-color:#C0563A}
 .msg.ok{background:#EEF8F8;border-color:#BFE3E5;color:#0B5157}
 .msg a{color:inherit}
 .lock{display:flex;align-items:center;gap:8px;justify-content:center;margin:16px 0 0;font-size:.78rem;color:var(--slate)}
+.xtra{margin:14px 0 0;text-align:center;font-size:.88rem}
+.xtra a{display:inline-flex;align-items:center;gap:6px;min-height:44px;color:var(--gold-text);text-underline-offset:3px}
+.xtra a span{transition:transform .2s}.xtra a:hover span{transform:translateX(3px)}
 .lock svg{width:15px;height:15px;stroke:var(--teal-text);fill:none;stroke-width:1.8}
 .big{font-family:var(--serif);font-size:2.2rem;margin:8px 0 2px}
 .due{border:1px solid var(--line);border-radius:16px;background:var(--paper-2);padding:20px 20px 16px;margin:0 0 18px}
@@ -147,7 +150,7 @@ footer{text-align:center;font-size:.78rem;color:var(--slate);padding:0 20px 20px
   <p class="sub" id="intro">Enter your booking reference and the email you booked with. We'll show you what's left to pay before you go to the secure payment page.</p>
   <p class="msg" id="msg" role="alert" hidden></p>
   <form id="form" novalidate>
-    <label for="ref">Booking reference</label><input id="ref" name="ref" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" placeholder="BC2610-XXXXXX" maxlength="24" required>
+    <label for="ref">Booking reference</label><input id="ref" name="ref" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" placeholder="BC0000-ABC123" maxlength="24" required>
     <label for="email">Email</label><input id="email" name="email" type="email" autocomplete="email" inputmode="email" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="name@example.com" maxlength="200" required>
     <div id="tsBox"></div>
     <button class="btn" id="go" type="submit">Show my balance <span class="arr" aria-hidden="true">&rarr;</span></button>
@@ -163,6 +166,7 @@ footer{text-align:center;font-size:.78rem;color:var(--slate);padding:0 20px 20px
     <p class="terms">You'll finish on Stripe's secure checkout page. Your booking follows the <a href="https://alchemyofbreath.com/terms-and-conditions/#breathcamp-policy" target="_blank" rel="noopener">BreathCamp terms</a>.</p>
     <button class="linkbtn" id="other" type="button">Look up a different booking</button>
   </section>
+  <p class="xtra" id="xtra" hidden><a id="xtraLink" href="../extras/">Add a private session to your week <span aria-hidden="true">&rarr;</span></a></p>
   <p class="lock" id="lock"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Secure payment by Stripe</p>
 </div></main>
 <footer>Need help? <a href="https://wa.me/393534527348" target="_blank" rel="noopener">Message us on WhatsApp</a> &middot; <a href="https://alchemyofbreath.com/terms-and-conditions/#breathcamp-policy" target="_blank" rel="noopener">BreathCamp terms</a></footer>
@@ -192,6 +196,9 @@ footer{text-align:center;font-size:.78rem;color:var(--slate);padding:0 20px 20px
     return a ? 'due before you arrive on ' + dayLabel(a) : 'due before you arrive';
   }
   function msg(html, ok){ var m = $('msg'); m.innerHTML = html || ''; m.className = 'msg' + (ok ? ' ok' : ''); m.hidden = !html; }
+  // wellbeing sessions can be added to a booking that was found (same path rules as the balance link)
+  function extrasHref(ref){ return '../extras/' + (ref ? '?ref=' + encodeURIComponent(ref) : ''); }
+  function showExtras(ref){ $('xtraLink').href = extrasHref(ref); $('xtra').hidden = !ref; }
   /* --------------------------------------------- bot check (only when the server has it on) */
   var ts = { key:null, id:null, token:null, waiters:[], err:false, appearance:'interaction-only' };
   function wake(){ var w = ts.waiters.shift(); if (w) w(); }
@@ -270,7 +277,8 @@ footer{text-align:center;font-size:.78rem;color:var(--slate);padding:0 20px 20px
     }
     var sub = 'Your balance payment' + (r ? ' for booking <b>' + r + '</b>' : '') + ' is complete. Your receipt is on its way by email.';
     if (num(s.amount_paid_cents)) sub = 'We received <b>' + money(s.amount_paid_cents) + '</b>' + (r ? ' for booking <b>' + r + '</b>' : '') + '. ' + (num(s.balance_cents) ? 'Still to pay: ' + money(s.balance_cents) + '.' : 'You are now paid in full. See you at ASHA!');
-    card.innerHTML = '<div class="seal" aria-hidden="true"></div><p class="eyebrow">Payment received</p><h1>Thank you.</h1><p class="sub">' + sub + '</p><a class="btn btn-ghost" href="https://alchemyofbreath.com/">Back to Alchemy of Breath</a>';
+    card.innerHTML = '<div class="seal" aria-hidden="true"></div><p class="eyebrow">Payment received</p><h1>Thank you.</h1><p class="sub">' + sub + '</p><a class="btn btn-ghost" href="https://alchemyofbreath.com/">Back to Alchemy of Breath</a>' +
+      (r ? '<p class="xtra"><a href="' + esc(extrasHref(r)) + '">Add a private session to your week <span aria-hidden="true">&rarr;</span></a></p>' : '');
   }
 
   /* --------------------------------------------- step 1: find the booking */
@@ -293,9 +301,10 @@ footer{text-align:center;font-size:.78rem;color:var(--slate);padding:0 20px 20px
   // Shows the outcome of a lookup (or pay) response. Returns true when there is a balance to pay.
   function outcome(d, ref){
     ref = cleanRef(d.ref) || ref;
-    if (d.paid_in_full || (d._ok && d.balance_cents === 0 && !d.plan)) { msg('Booking <b>' + esc(ref) + '</b> is already paid in full. Nothing more to pay. See you at ASHA!', true); return false; }
-    if (d.plan) { msg(planText(d, ref), true); return false; }
-    if (d._ok && num(d.balance_cents) > 0) return true;
+    showExtras('');
+    if (d.paid_in_full || (d._ok && d.balance_cents === 0 && !d.plan)) { msg('Booking <b>' + esc(ref) + '</b> is already paid in full. Nothing more to pay. See you at ASHA!', true); showExtras(ref); return false; }
+    if (d.plan) { msg(planText(d, ref), true); showExtras(ref); return false; }
+    if (d._ok && num(d.balance_cents) > 0) { showExtras(ref); return true; }
     if (d._status === 403 && d.code === 'turnstile') { tsRefused(); return false; }
     if (d._status === 404 || d._status === 409) msg(withWa(d.error || 'We could not find a booking with that reference and email.'));
     else msg(esc(d.error || 'Something went wrong. Please try again.'));
@@ -319,7 +328,7 @@ footer{text-align:center;font-size:.78rem;color:var(--slate);padding:0 20px 20px
     $('dueAmt').focus();
   }
   function backToForm(){
-    cur = null; $('due').hidden = true; $('form').hidden = false;
+    cur = null; $('due').hidden = true; $('form').hidden = false; showExtras('');
     $('intro').textContent = 'Enter your booking reference and the email you booked with. We\'ll show you what\'s left to pay before you go to the secure payment page.';
   }
   $('form').addEventListener('submit', function(e){
@@ -329,7 +338,7 @@ footer{text-align:center;font-size:.78rem;color:var(--slate);padding:0 20px 20px
     var badRef = !REF.test(ref), badEmail = !EMAIL.test(email);
     invalid($('ref'), badRef); invalid($('email'), badEmail);
     if (badRef || badEmail) {
-      msg(badRef ? 'Please check your booking reference. It looks like BC2610-XXXXXX.' : 'Please enter the email you booked with.');
+      msg(badRef ? 'Please check your booking reference. It looks like BC0000-ABC123 and is in your confirmation email.' : 'Please enter the email you booked with.');
       (badRef ? $('ref') : $('email')).focus();
       return;
     }

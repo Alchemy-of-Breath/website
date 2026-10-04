@@ -1,0 +1,384 @@
+{
+  "id": "breathcamp-jul-2027-2",
+  "title": "BreathCamp",
+  "edition": "BreathCamp 2",
+  "heading": "Book your place and choose your room",
+  "dates": {
+    "start": "2027-07-25",
+    "end": "2027-07-31",
+    "nights": 6,
+    "label": "Sunday 25 – Saturday 31 July 2027",
+    "short": "25–31 Jul 2027",
+    "medium": "25–31 July 2027"
+  },
+  "venue": {
+    "name": "ASHA Retreat Centre",
+    "address": "58034 Castell'Azzara, Province of Grosseto, Italy",
+    "region": "Tuscany",
+    "country": "IT"
+  },
+  "currency": "EUR",
+  "programme": {
+    "fee": 888,
+    "name": "Programme fee",
+    "summary": "Every breathwork session, workshop, class and evening event with Amy, Anthony and senior Alchemy of Breath trainers, daily yoga and course materials, plus the whole of ASHA in summer: the pool, the creeks, the Dharma Den, Nadi Shala and Prana Shala.",
+    "about": "Paid per guest at booking, in full, alongside the room deposit. Guests who already paid it elsewhere (GHL or RetreatGuru) book their room only via ?programme=paid; the server tries to match an earlier programme-fee payment in Stripe by email and the dashboard flags anything it can't match.",
+    "includes": [
+      "Daily breathwork sessions and guided rituals",
+      "Movement and sound healing",
+      "Intuition, mind, body and soul workshops",
+      "The Bridge integration process",
+      "Sacred rites of passage and the closing ceremony",
+      "Course materials, and a daily practice to take home"
+    ]
+  },
+  "price_note": "One programme fee of €888 per person covers every workshop, class and evening session. Rooms are priced per person for 6 nights with all meals at ASHA.",
+  "stay_includes": [
+    "6 nights at ASHA in the room or tent you choose",
+    "Three plant-based meals a day, cooked on site, with dietary needs cared for",
+    "Coffee, tea and water throughout the day"
+  ],
+  "not_included": [
+    "Travel to ASHA and ground transport",
+    "Travel insurance (strongly recommended)",
+    "Optional treatments such as massage or intuitive readings"
+  ],
+  "program_spaces": 49,
+  "max_guests_per_booking": 6,
+  "booking_closes": "2027-07-24",
+  "deposit": {
+    "percent": 20,
+    "applies_to": "accommodation",
+    "balance_note": "The rest of your accommodation is paid before you arrive at ASHA.",
+    "balance_due": null,
+    "available_until": null,
+    "about": "balance_due: optional YYYY-MM-DD shown as the balance due date (null = 'before you arrive'). available_until: optional YYYY-MM-DD after which only paying in full is offered."
+  },
+  "payment_plan": {
+    "installments": 3,
+    "interval": "month",
+    "last_payment_by": "before_arrival",
+    "note": "Charged automatically to the same card each month.",
+    "about": "last_payment_by: \"before_arrival\" (the day before the start date), a YYYY-MM-DD date, or null for no limit. The plan is only offered while every payment falls on or before that day."
+  },
+  "payment_methods": {
+    "payment": [
+      "card",
+      "link",
+      "klarna"
+    ],
+    "plan": [
+      "card",
+      "link"
+    ],
+    "about": "Stripe payment_method_types per checkout mode. Methods not activated in the Stripe Dashboard are dropped automatically (falls back to card)."
+  },
+  "genders": [
+    "Female",
+    "Male"
+  ],
+  "terms_url": "https://alchemyofbreath.com/terms-and-conditions/#breathcamp-policy",
+  "privacy_url": "https://alchemyofbreath.com/privacy-policy/",
+  "contact": {
+    "name": "Maria",
+    "email": "generalmanager@asha.global",
+    "whatsapp": "+393534527348"
+  },
+  "hero_image": "asha-campus.jpg",
+  "source": {
+    "system": "example",
+    "snapshot": "2026-10-04",
+    "note": "EXAMPLE week for 2027. Prices are the 2026 published rates (breathcamps page / RetreatGuru) and the €888 programme fee; confirm 2027 prices. Inventory is the full ASHA room list from the owner (2026-10-04) mapped to room types: twin ensuite 1B + Temple 2A–2D, twin shared bathroom 1A + 1C (Peace Cottage), triple 4A + 4B, single ensuite The Ark 5A–5C, cottage for one = Solitude (3), cottage for two = 4C + 4D combined, campervan spots 1–8, glamping single 1–5, glamping twin 1–4. 4E and 'Peace Cottage (whole)' are not sold here. Own-tent capacity (10) and programme spaces (49) are placeholders. Confirm all of this before going live."
+  },
+  "rooms": [
+    {
+      "id": "twin-ensuite",
+      "name": "Twin Room Ensuite",
+      "category": "shared",
+      "bath": "Ensuite",
+      "price": 1407,
+      "unit": "person",
+      "sleeps": 2,
+      "shared_with": "same gender",
+      "summary": "Two single beds and a private bathroom, shared only by the two people in the room (same gender).",
+      "description": "With two single beds to a room, these rooms have a private bathroom that only the two people in the room share, with their own gender. This accommodation is rustic, unique, and cozy. Pricing is per person.",
+      "photos": [
+        "twin-ensuite-1.jpg",
+        "twin-ensuite-2.jpg",
+        "twin-ensuite-3.jpg",
+        "twin-ensuite-4.jpg",
+        "twin-ensuite-5.jpg"
+      ],
+      "plan": "twin-ensuite-plan.jpg",
+      "same_gender": true,
+      "units": 5,
+      "occupied": [],
+      "names": [
+        "1B · Peace Cottage",
+        "2A · Temple Cottage",
+        "2B · Temple Cottage",
+        "2C · Temple Cottage",
+        "2D · Temple Cottage"
+      ]
+    },
+    {
+      "id": "twin-shared-bath",
+      "name": "Twin Room, Shared Bathroom",
+      "category": "shared",
+      "bath": "Shared bathroom",
+      "price": 1171,
+      "unit": "person",
+      "sleeps": 2,
+      "shared_with": "same gender",
+      "summary": "Two single beds in a newly renovated three-bedroom cottage with its own living room and kitchen.",
+      "description": "Two single beds to a room, shared with the same gender, in a private cottage. The bathroom is shared between four people who may be of mixed gender. This beautiful three-bedroom cottage has its own living room and kitchen, and is newly renovated. Pricing is per person.",
+      "photos": [
+        "twin-shared-bath-1.jpg",
+        "twin-shared-bath-2.jpg",
+        "twin-shared-bath-3.jpg",
+        "twin-shared-bath-4.jpg"
+      ],
+      "plan": "twin-shared-bath-plan.jpg",
+      "same_gender": true,
+      "units": 2,
+      "occupied": [],
+      "names": [
+        "1A · Peace Cottage",
+        "1C · Peace Cottage"
+      ]
+    },
+    {
+      "id": "triple-ensuite",
+      "name": "Shared Room for Three, Ensuite",
+      "category": "shared",
+      "bath": "Ensuite",
+      "price": 1107,
+      "unit": "person",
+      "sleeps": 3,
+      "shared_with": "same gender",
+      "summary": "Three single beds with the room's own bathroom, in a cottage or the Main House.",
+      "description": "Each room with three single beds has its own private bathroom. The beds are typically a metre apart, and the room is shared with the same gender. These rooms are in either a private cottage or the Main House. Pricing is per person.",
+      "photos": [
+        "triple-ensuite-1.jpg",
+        "triple-ensuite-2.jpg"
+      ],
+      "plan": "triple-ensuite-plan.jpg",
+      "same_gender": true,
+      "units": 2,
+      "occupied": [],
+      "names": [
+        "4A · Alchemy Cottage",
+        "4B · Alchemy Cottage"
+      ]
+    },
+    {
+      "id": "glamping-single",
+      "name": "Single Glamping, ASHA Bell Tent",
+      "category": "glamping",
+      "bath": "Shared facilities",
+      "price": 1161,
+      "unit": "person",
+      "sleeps": 1,
+      "capacity": 5,
+      "summary": "Your own bell tent with a single mattress and a sitting area, close to nature.",
+      "description": "Guests love our bell tents. Single tents are furnished with a single mattress and a sitting area. They are lovely, and so very close to nature. Toilets and showers are close to your tent. Summer nights in Tuscany are warm, and mornings can be cool.",
+      "photos": [
+        "glamping-single-1.jpg",
+        "glamping-single-2.jpg",
+        "glamping-single-3.jpg"
+      ],
+      "names": [
+        "Glamping Single 1",
+        "Glamping Single 2",
+        "Glamping Single 3",
+        "Glamping Single 4",
+        "Glamping Single 5"
+      ]
+    },
+    {
+      "id": "glamping-twin",
+      "name": "Twin Glamping, ASHA Bell Tent",
+      "category": "glamping",
+      "bath": "Shared facilities",
+      "price": 1037,
+      "unit": "person",
+      "sleeps": 2,
+      "shared_with": "same gender",
+      "summary": "A bell tent with two mattresses, shared by two people.",
+      "description": "Guests love our bell tents. Twin tents are furnished with two mattresses and shared by two people. They are lovely, and so very close to nature. Toilets and showers are close to your tent. Summer nights in Tuscany are warm, and mornings can be cool. Pricing is per person.",
+      "photos": [
+        "glamping-twin-1.jpg",
+        "glamping-twin-2.jpg",
+        "glamping-twin-3.jpg"
+      ],
+      "same_gender": true,
+      "units": 4,
+      "occupied": [],
+      "names": [
+        "Glamping Twin 1",
+        "Glamping Twin 2",
+        "Glamping Twin 3",
+        "Glamping Twin 4"
+      ]
+    },
+    {
+      "id": "camper",
+      "name": "Come in a Camper",
+      "category": "camping",
+      "bath": "Shared facilities",
+      "price": 807,
+      "unit": "person",
+      "sleeps": 1,
+      "capacity": 8,
+      "summary": "Bring your camper and enjoy full use of ASHA's facilities.",
+      "description": "Campers are welcome at ASHA. Space is limited, so we suggest booking as soon as you can: this is one of our most popular options. You're welcome to use all of our facilities. Would you like to bring a guest? Message us on WhatsApp.",
+      "photos": [
+        "camper-1.jpg"
+      ],
+      "names": [
+        "Campervan Spot 1",
+        "Campervan Spot 2",
+        "Campervan Spot 3",
+        "Campervan Spot 4",
+        "Campervan Spot 5",
+        "Campervan Spot 6",
+        "Campervan Spot 7",
+        "Campervan Spot 8"
+      ]
+    },
+    {
+      "id": "own-tent",
+      "name": "Bring Your Own Tent",
+      "category": "camping",
+      "bath": "Shared facilities",
+      "price": 761,
+      "unit": "person",
+      "sleeps": 1,
+      "capacity": 10,
+      "summary": "Pitch your own tent in our secluded woods.",
+      "description": "Pitch your own tent in our secluded woods, with full use of our facilities. Be sure to bring your own tent, bedding, and anything else you may need. Summer nights in Tuscany are warm, and mornings can be cool.",
+      "photos": [
+        "own-tent-1.jpg",
+        "own-tent-2.jpg"
+      ]
+    },
+    {
+      "id": "single-ensuite",
+      "name": "Private Single Room Ensuite",
+      "category": "private",
+      "bath": "Ensuite",
+      "price": 1857,
+      "unit": "person",
+      "sleeps": 1,
+      "capacity": 3,
+      "summary": "A private room with its own bathroom in the Main House.",
+      "description": "Enjoy a private room with its own bathroom in the Main House. It's perfect for one person, with its own single bed and a desk. In your own private oasis, rest, process, and be in your own space.",
+      "photos": [
+        "single-ensuite-1.jpg",
+        "single-ensuite-2.jpg",
+        "single-ensuite-3.jpg"
+      ],
+      "plan": "single-ensuite-plan.jpg",
+      "names": [
+        "5A · The Ark",
+        "5B · The Ark",
+        "5C · The Ark"
+      ]
+    },
+    {
+      "id": "cottage-one",
+      "name": "Private Cottage for One",
+      "category": "private",
+      "bath": "Private bathroom",
+      "price": 2612,
+      "unit": "person",
+      "sleeps": 1,
+      "capacity": 1,
+      "summary": "A cozy private cottage, all to yourself.",
+      "description": "Cozy private cottage accommodation for one person, offering comfort, privacy, and a peaceful stay.",
+      "photos": [
+        "cottage-one-1.jpg"
+      ],
+      "names": [
+        "3 · Solitude Cottage"
+      ]
+    },
+    {
+      "id": "cottage-two",
+      "name": "Private Cottage for Two",
+      "category": "private",
+      "bath": "Private bathroom",
+      "price": 5224,
+      "unit": "cottage",
+      "sleeps": 2,
+      "capacity": 1,
+      "summary": "A two-room cottage facing an open field. The price covers both guests.",
+      "description": "A two-room cottage in a private house facing an open field, with a cozy living room, kitchen, private bathroom, and a double pull-out sofa bed. Ideal for couples, families, or anyone who wants space. The price is for the whole cottage and covers two guests.",
+      "photos": [
+        "cottage-two-1.jpg"
+      ],
+      "names": [
+        "4C + 4D · Alchemy Cottage (combined)"
+      ]
+    }
+  ],
+  "policy": {
+    "points": [
+      "We do not offer refunds. Your booking is for BreathCamp at ASHA and can't be moved to another location.",
+      "If we cancel BreathCamp, we refund the full amount, minus currency exchange and bank fees.",
+      "We strongly suggest travel insurance."
+    ],
+    "change_notice_days": 45,
+    "change_note": "With at least 45 days' notice before the start, we'll do our best to move you to another BreathCamp at ASHA in the same season, if there's space. Email info@asha.global with the subject DATE CHANGE REQUEST.",
+    "health_note": "BreathCamp is a residential breathwork retreat. It is not a substitute for medical or psychological treatment. If you are managing a physical or mental health condition, please consult your doctor, and mention it to our team, before attending.",
+    "medical_url": "https://alchemyofbreath.com/medical-disclaimer-contraindications/",
+    "waiver_url": "https://alchemyofbreath.com/waiver-and-release/",
+    "source": "https://alchemyofbreath.com/terms-and-conditions/#breathcamp-policy (BreathCamp terms, updated 1 Dec 2025; checked 2026-10-04); health_note verbatim from the breathcamps page footer (breathcamps/index.html); medical_url and waiver_url from the site's terms navigation and footer."
+  },
+  "arrival": {
+    "checkin": "Sunday 25 July, 2:30–5:00 pm, with orientation at 4:30 pm",
+    "checkout": "Saturday 31 July, 8:00–9:30 am; the programme ends with lunch around 2 pm",
+    "travel": "Fly into Rome Fiumicino (FCO), about 2.5 hours away by car, or take the train to Chiusi-Chianciano Terme, about an hour from ASHA. A WhatsApp group helps everyone share rides.",
+    "source": "breathcamps/index.html FAQ and breathcamps/guide/index.html"
+  },
+  "trust": {
+    "rating": {
+      "source": "Trustpilot",
+      "score": 4.6,
+      "count": 53,
+      "url": "https://www.trustpilot.com/review/alchemyofbreath.com",
+      "as_of": "2026-10-04"
+    },
+    "testimonials": [
+      {
+        "quote": "I have attended many retreats, but nothing opened my heart like this.",
+        "name": "Livia",
+        "place": "Copenhagen",
+        "video": "https://www.youtube.com/watch?v=pjEa7lulP7M"
+      },
+      {
+        "quote": "It will awaken your soul and your purpose. That is what it has done for me.",
+        "name": "Ligia",
+        "place": "BreathCamper",
+        "video": "https://www.youtube.com/watch?v=fQTWLsyerdY"
+      },
+      {
+        "quote": "I finally learned how to breathe with my heart.",
+        "name": "Pippa",
+        "place": "France",
+        "video": "https://www.youtube.com/watch?v=tUchGXZ-Gsg"
+      }
+    ],
+    "hosts": {
+      "names": "Anthony Abbagnano & Amy Rachelle",
+      "line": "Founders of Alchemy of Breath and ASHA. Your week is held by Anthony, Amy and senior Alchemy of Breath trainers.",
+      "photo": "https://alchemyofbreath.com/wp-content/uploads/Anthony-Amy-300x200.jpg"
+    },
+    "facts": [
+      "13 years guiding",
+      "Summer at ASHA: pool, creeks and the Tuscan hills"
+    ],
+    "source": "Testimonials verbatim from breathcamps/index.html (video testimonials); rating from Trustpilot, re-check before relying on it; facts from the breathcamps page stat strip."
+  },
+  "services": "all"
+}
