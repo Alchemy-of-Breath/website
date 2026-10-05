@@ -2,18 +2,21 @@
    Each demo booking is priced by quote() and checked by checkAvailability() exactly like a real one,
    then paid server-side with Stripe's test card (pm_card_visa) as a PaymentIntent carrying the usual
    aob_* metadata plus aob_demo='1'. Removing them renames their aob_program / aob_kind, so they drop
-   out of every booking search (PaymentIntents can't be deleted). Refused with a live key. */
+   out of every booking search (PaymentIntents can't be deleted). Refused with a live key.
+   The team's records count like everywhere else: blocked rooms and manual bookings take their places
+   out of the availability, and demo guests are never placed in a blocked room or beside a manual
+   booking's guests where that breaks the room's rules. */
 import {
   quote, checkAvailability, availability, buildOccupancy, programPayments, openBookingSessions,
   bookingMetadata, newRef, stripe, searchAll, clearAvailabilityMemo, liveMode, serviceItems, logError,
-  parseAssign, assignToString, nameCapacity,
+  parseAssign, assignToString, nameCapacity, listRecords, recordsFor,
 } from './core.js';
 
 const FEMALE = ['Anna', 'Sofia', 'Clara', 'Maja', 'Lucia', 'Emma', 'Ingrid', 'Nadia', 'Hannah', 'Chiara', 'Elena', 'Freya', 'Lea', 'Amara', 'Julia', 'Marta', 'Noor', 'Isla', 'Greta', 'Rosa'];
 const MALE = ['Luca', 'Jonas', 'Marco', 'Oliver', 'Tomás', 'Erik', 'Daniel', 'Felix', 'Samir', 'Hugo', 'Matteo', 'Liam', 'Kai', 'Pavel', 'Arjun'];
 const LAST = ['Rossi', 'Berg', 'Novak', 'Silva', 'Meyer', 'Laurent', 'Kowalski', 'Jensen', 'Costa', 'Fischer', 'Moreau', 'Andersson', 'Kelly', 'Varga', 'Bianchi', 'Hughes', 'Okafor', 'Lindqvist'];
 const DIET = ['Vegetarian, no nuts please', 'Gluten-free', 'Lactose intolerant', 'No onion or garlic', 'Coeliac'];
-const MAX_BOOKINGS = 14;   // Workers allow ~50 Stripe calls per request: 1 per booking + a few balances + the reads
+const MAX_BOOKINGS = 14;   // Workers allow ~50 Stripe calls per request: 1 per booking + a few balances + the reads (7)
 
 const pick = (rnd, a) => a[Math.floor(rnd() * a.length)];
 function rng(seed) { // small deterministic PRNG, seeded per request
@@ -27,13 +30,18 @@ function rng(seed) { // small deterministic PRNG, seeded per request
 const gk = g => (String(g || '').toLowerCase() === 'male' ? 'male' : 'female');
 const guestsOf = md => { const out = []; for (let i = 1; i <= 12; i++) { const v = md[`aob_g${i}`]; if (!v) continue; const p = v.split(' | '); out.push({ i: i - 1, gender: p[2], room: p[3] }); } return out; };
 // physical rooms of the week and what is already in them, from every active booking's aob_assign
-function physicalRooms(program, mds) {
+// and the team's records overlapping the week (a blocked room is full; manual guests are in theirs)
+function physicalRooms(program, mds, records = []) {
   const phys = {};
   for (const r of program.rooms) for (const name of r.names || []) phys[name] = { room: r.id, cap: nameCapacity(r), shared: !!r.same_gender, unit: r.unit !== 'person', used: 0, gender: null, refs: new Set() };
   for (const md of mds) {
     if (md.aob_kind !== 'booking' || md.aob_status === 'cancelled' || md.aob_program !== program.id) continue;
     const a = parseAssign(md.aob_assign), gs = guestsOf(md);
     for (const g of gs) { const slot = phys[a[g.i]]; if (!slot) continue; slot.used++; slot.gender = slot.gender || gk(g.gender); slot.refs.add(md.aob_ref); }
+  }
+  for (const rec of recordsFor(program, records)) {
+    if (rec.type === 'block') { rec.rooms.forEach(n => { if (phys[n]) { phys[n].used = phys[n].cap; phys[n].blocked = true; } }); continue; }
+    for (const g of rec.guests) { const slot = phys[g.room_name]; if (!slot) continue; slot.used++; slot.gender = slot.gender || gk(g.gender); slot.refs.add(rec.ref); }
   }
   return phys;
 }
@@ -48,7 +56,7 @@ export function placeGuests(program, phys, guests, rnd, ref = '') {
     while (left.length) {
       const free = shuffle(Object.keys(phys).filter(n => {
         const p = phys[n];
-        if (p.room !== room || p.used >= p.cap) return false;
+        if (p.room !== room || p.blocked || p.used >= p.cap) return false;
         if (p.unit && p.used && !p.refs.has(ref)) return false;         // a whole cottage belongs to one booking
         if (p.shared && p.used && p.gender !== gender) return false;      // shared rooms stay single-gender
         return true;
@@ -68,10 +76,10 @@ export function placeGuests(program, phys, guests, rnd, ref = '') {
 export async function seedDemo(env, program, { percent = 40, now = new Date() } = {}) {
   if (liveMode(env)) { const e = new Error('Demo bookings can only be added in Stripe test mode.'); e.status = 403; throw e; }
   const rnd = rng(program.id + ':' + now.getTime());
-  const [pays, sessions] = await Promise.all([programPayments(env, program), openBookingSessions(env, program)]);
+  const [pays, sessions, recs] = await Promise.all([programPayments(env, program), openBookingSessions(env, program), listRecords(env, { recent: true })]);
   const records = pays.slice();
-  let avail = availability(program, buildOccupancy(program, records, sessions));
-  const phys = physicalRooms(program, records.map(p => p.md || {}));
+  let avail = availability(program, buildOccupancy(program, records, sessions, [], recs));
+  const phys = physicalRooms(program, records.map(p => p.md || {}), recs);
   const usedBefore = program.program_spaces - avail.program_left;
   const target = Math.round(program.program_spaces * Math.min(90, Math.max(5, percent)) / 100);
   let need = target - usedBefore;
@@ -119,7 +127,7 @@ export async function seedDemo(env, program, { percent = 40, now = new Date() } 
       records.push({ id: pi.id, md, amount: pi.amount_received || q.due_now_cents, created: pi.created });
       created.push({ ref, guests: size, room, payment: q.payment, due_now_cents: q.due_now_cents, balance_cents: q.balance_cents, lead: guests[0] });
       need -= size;
-      avail = availability(program, buildOccupancy(program, records, sessions));
+      avail = availability(program, buildOccupancy(program, records, sessions, [], recs));
     } catch (e) { logError('demo.seed', e, { ref }); break; }
   }
   // a few deposit bookings have already paid their balance
@@ -147,9 +155,9 @@ export async function seedDemo(env, program, { percent = 40, now = new Date() } 
 export async function placeDemo(env, program, { now = new Date() } = {}) {
   if (liveMode(env)) { const e = new Error('Demo bookings only exist in Stripe test mode.'); e.status = 403; throw e; }
   const rnd = rng(program.id + ':place:' + now.getTime());
-  const pays = await programPayments(env, program);
+  const [pays, recs] = await Promise.all([programPayments(env, program), listRecords(env, { recent: true })]);
   const mds = pays.map(p => p.md || {});
-  const phys = physicalRooms(program, mds);
+  const phys = physicalRooms(program, mds, recs);
   let placed = 0, guests = 0, unplaced = 0;
   for (const p of pays) {
     const md = p.md || {};

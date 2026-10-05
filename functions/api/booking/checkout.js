@@ -4,7 +4,7 @@ import {
   json, preflight, guardPost, readBody, clientIp, ipHash, verifyTurnstile, getProgram, isClosed, quote, planInfo,
   checkAvailability, availability, buildOccupancy, programPayments, recentProgramPayments, mergePayments, openBookingSessions,
   newRef, bookingMetadata, bookingCheckoutParams, bookingPageUrl, publicQuote, stripe, safeCreateSession, expireSession, expireOrCheck,
-  sessionState, programmeFeePayments, claimedProgrammePayments, matchProgramme, publishableKey, autoRegisterDomain, clearAvailabilityMemo,
+  sessionState, programmeFeePayments, claimedProgrammePayments, matchProgramme, publishableKey, autoRegisterDomain, clearAvailabilityMemo, listRecords,
   cleanAttempt, remindEnabled, isBusy, logError, BUSY, CS_ID, nowSec,
 } from '../../../booking-lib/core.js';
 
@@ -68,8 +68,9 @@ export async function onRequestPost(context) {
   const iph = await ipHash(env, ip);
   const feeLookup = q.programme === 'paid' ? programmeFeePayments(env, program, lead).catch(() => []) : Promise.resolve(null);
 
-  let payments, open;
-  try { [payments, open] = await Promise.all([programPayments(env, program), openBookingSessions(env, program)]); }
+  // the team's room blocks and manual bookings: read fresh (with the real-time list of new ones)
+  let payments, open, records;
+  try { [payments, open, records] = await Promise.all([programPayments(env, program), openBookingSessions(env, program), listRecords(env, { recent: true })]); }
   catch (e) {
     logError('checkout.read', e);
     return isBusy(e) ? send(BUSY, 503) : send({ error: 'We could not check availability just now. Please try again in a moment.' }, 502);
@@ -100,7 +101,7 @@ export async function onRequestPost(context) {
   // Abuse cap: a few open checkouts, and one booking's worth of places, per visitor and week.
   if (iph && overCap(program, open.filter(s => !mine.has(s.id) && s.metadata.aob_iph === iph), q.guests.length)) return send(TOO_MANY, 429);
 
-  const avail = availability(program, buildOccupancy(program, payments, open, ids));
+  const avail = availability(program, buildOccupancy(program, payments, open, ids, records));
   const full = checkAvailability(program, q, avail);
   if (full) return send({ error: full, code: 'unavailable', availability: avail }, 409);
 
@@ -133,9 +134,9 @@ export async function onRequestPost(context) {
     const earlier = fresh.filter(s => s.id !== session.id && !mine.has(s.id) && s.created <= created);
     if (iph && overCap(program, earlier.filter(s => s.metadata.aob_iph === iph), q.guests.length)) return await drop(429, TOO_MANY);
     const pays = mergePayments(payments, recent);
-    const clash = checkAvailability(program, q, availability(program, buildOccupancy(program, pays, earlier)));
+    const clash = checkAvailability(program, q, availability(program, buildOccupancy(program, pays, earlier, [], records)));
     if (clash) {
-      const now = availability(program, buildOccupancy(program, pays, fresh, [...ids, session.id]));
+      const now = availability(program, buildOccupancy(program, pays, fresh, [...ids, session.id], records));
       return await drop(409, { error: clash, code: 'unavailable', availability: now });
     }
   } catch (e) { logError('checkout.race', e, { ref }); } // the first checks passed: keep the session

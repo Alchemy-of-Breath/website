@@ -155,7 +155,7 @@ svg.i{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stro
 .lnk{all:unset;cursor:pointer;color:var(--gold-text);text-decoration:underline;text-underline-offset:3px;font-size:.82rem;border-radius:4px}
 .lnk:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
 .lnk:disabled{color:var(--slate);text-decoration:none;cursor:default}
-.in,select,input[type="text"],input[type="search"],input[type="email"],input[type="tel"],input[type="password"],input:not([type]),textarea{border:1px solid var(--field);border-radius:10px;padding:7px 11px;background:#fff;min-height:38px;font-size:.88rem;max-width:100%}
+.in,select,input[type="text"],input[type="search"],input[type="email"],input[type="tel"],input[type="password"],input[type="date"],input:not([type]),textarea{border:1px solid var(--field);border-radius:10px;padding:7px 11px;background:#fff;min-height:38px;font-size:.88rem;max-width:100%}
 select{-webkit-appearance:none;appearance:none;padding-right:30px;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%234E6A7B' stroke-width='1.5'/%3E%3C/svg%3E") no-repeat right 11px center;cursor:pointer;text-overflow:ellipsis}
 textarea{min-height:76px;resize:vertical;line-height:1.45;width:100%}
 input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold-text);box-shadow:0 0 0 1px var(--gold-text),0 0 0 4px rgba(225,182,104,.25)}
@@ -456,6 +456,152 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
 .bar i{display:block;height:100%;background:var(--gold-deep)}
 .bar i.h{background:var(--teal)}
 .wkpick{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:10px}
+/* blocked rooms and manual guests on the week board */
+.rcard.blk{background:repeating-linear-gradient(135deg,rgba(34,31,32,.07) 0 2px,transparent 2px 8px),#FBF9F5;border-style:dashed;border-color:rgba(34,31,32,.32)}
+.rcard .rb{all:unset;cursor:pointer;display:block;margin:6px 0 0;font-size:.74rem;line-height:1.4;color:var(--ink);border-radius:6px}
+.rcard .rb b{font-weight:500;letter-spacing:.08em;text-transform:uppercase;font-size:.66rem}
+.rcard .rb:hover{text-decoration:underline;text-underline-offset:3px}
+.rcard .rb:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+.bed.man{background:#EEF2F5;border-color:#C9D6DE}
+.bed.blkd{background:transparent;border:1px dashed rgba(34,31,32,.3);color:var(--slate);cursor:default;font-size:.76rem}
+.mtag{flex:none;font-size:.6rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:#2F4A5A;background:#DCE6EC;border-radius:999px;padding:1px 6px}
+.pill.man{background:#EEF2F5;color:#22394A;border-color:#C9D6DE}
+
+/* ---------- calendar (rooming, all weeks) */
+.cal-tb{margin-bottom:10px}
+.cal-nav{display:inline-flex;align-items:center;gap:6px;min-width:0}
+.cal-range{display:inline-flex;align-items:baseline;gap:8px;flex-wrap:wrap;font-family:var(--serif);font-size:1.12rem;padding:0 4px;min-width:0}
+.cal-range small{font-family:var(--sans);font-size:.74rem;color:var(--slate)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.chips .lbl{font-size:.7rem;color:var(--slate);font-weight:400}
+.chip{all:unset;box-sizing:border-box;cursor:pointer;display:inline-flex;align-items:baseline;gap:6px;padding:5px 12px;min-height:30px;border-radius:999px;border:1px solid var(--gold-soft);background:#fff;font-size:.78rem;color:var(--ink);white-space:nowrap}
+.chip small{font-size:.7rem;color:var(--slate)}
+.chip:hover{background:var(--gold-wash)}
+.chip[aria-current="true"]{background:var(--gold-wash);border-color:var(--gold-deep)}
+.chip:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+.calinfo{display:flex;flex-wrap:wrap;align-items:center;gap:6px 18px;margin:0 0 10px;font-size:.76rem;color:var(--slate)}
+.calinfo b{color:var(--ink);font-weight:500}
+.calleg{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:4px 14px}
+.calleg li{display:inline-flex;align-items:center;gap:6px}
+.sw{display:inline-block;width:20px;height:12px;border-radius:3px;border:1px solid rgba(34,31,32,.14);border-left:3px solid;flex:none}
+.calwrap{position:relative;background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow-soft);overflow:hidden}
+.calwrap.busy::before{content:"";position:absolute;left:0;right:0;top:0;height:2px;z-index:6;background:linear-gradient(90deg,transparent,var(--teal),transparent);background-size:50% 100%;background-repeat:no-repeat;animation:calload 1.1s linear infinite}
+@keyframes calload{from{background-position:-50% 0}to{background-position:150% 0}}
+.calwrap.busy .cb{opacity:.6}
+.calsc{overflow:auto;max-height:max(440px,calc(100vh - 250px));overscroll-behavior-x:contain;scroll-padding:84px 0 0 var(--rw,184px);-webkit-overflow-scrolling:touch}
+.cal{--rw:184px;--cmin:35px;--lh:34px;position:relative;min-width:calc(var(--rw) + var(--n) * var(--cmin));font-size:.78rem}
+.cal-g{display:grid;grid-template-columns:var(--rw) repeat(var(--n),minmax(var(--cmin),1fr))}
+.cal-head{position:sticky;top:0;z-index:5;background:#fff;grid-template-rows:20px 24px 40px;box-shadow:0 1px 0 var(--line),0 6px 12px -10px rgba(34,31,32,.25)}
+.cal-corner{position:sticky;left:0;z-index:2;grid-column:1;grid-row:1/4;background:#fff;border-right:1px solid var(--line);display:flex;flex-direction:column;justify-content:flex-end;padding:0 12px 8px}
+.cal-corner b{font-family:var(--serif);font-weight:400;font-size:1rem;line-height:1.2}
+.cal-corner small{font-size:.68rem;color:var(--slate)}
+.cal-mo{grid-row:1;min-width:0;border-left:1px solid var(--rule);font-size:.64rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--slate);padding:4px 0 0}
+.cal-mo span{position:sticky;left:calc(var(--rw) + 6px);padding:0 6px;white-space:nowrap}
+.cal-wk{all:unset;box-sizing:border-box;grid-row:2;min-width:0;margin:2px 1px;padding:0 8px;border-radius:7px;background:var(--grad-gold);color:var(--ink);font-size:.72rem;font-weight:500;display:flex;align-items:center;gap:6px;overflow:hidden;white-space:nowrap;cursor:pointer;box-shadow:inset 0 -1px 0 rgba(138,95,28,.25)}
+.cal-wk small{font-weight:400;color:#5d4316;overflow:hidden;text-overflow:ellipsis}
+.cal-wk:hover{filter:brightness(1.05)}
+.cal-wk:focus-visible{outline:2px solid var(--teal);outline-offset:1px}
+.cal-d{grid-row:3;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;border-left:1px solid var(--rule);line-height:1.1;min-width:0}
+.cal-d small{font-size:.6rem;letter-spacing:.06em;text-transform:uppercase;color:var(--slate)}
+.cal-d b{font-weight:500;font-size:.86rem;font-variant-numeric:tabular-nums;padding:1px 5px;border-radius:999px}
+.cal-d.we small{color:var(--gold-text)}
+.cal-d.w{background:var(--gold-wash)}
+.cal-d.ws,.cc.ws{border-left-color:var(--gold)}
+.cal-d.mo,.cc.mo{border-left-color:rgba(78,106,123,.45)}
+.cal-d.t b{background:var(--teal);color:#fff}
+.cal-area{position:relative;height:28px;background:var(--paper-2);border-top:1px solid var(--line);display:flex;align-items:center}
+.cal-area span{position:sticky;left:0;padding:0 12px;font-family:var(--serif);font-size:.96rem;white-space:nowrap}
+.cal-area small{font-family:var(--sans);font-size:.7rem;color:var(--slate);margin-left:6px}
+.cal-area.unp span{color:var(--err)}
+.cal-row{grid-template-rows:repeat(var(--l,1),var(--lh));border-top:1px solid var(--rule)}
+.cal-rl{position:sticky;left:0;z-index:3;grid-column:1;grid-row:1/-1;background:#fff;border-right:1px solid var(--line);padding:3px 10px 3px 12px;display:flex;flex-direction:column;justify-content:center;min-width:0}
+.cal-rl b{font-weight:500;font-size:.84rem;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cal-rl small{font-size:.66rem;color:var(--slate);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3}
+.cal-rl.bad b::after{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--err-strong);margin-left:6px;vertical-align:middle}
+.cal-row:hover .cal-rl{background:var(--cream)}
+.cc{all:unset;box-sizing:border-box;display:block;grid-row:1/-1;border-left:1px solid var(--rule);cursor:cell;position:relative;min-width:0}
+.cc.w{background:rgba(247,235,210,.42)}
+.cc.t{background:rgba(0,165,178,.07);box-shadow:inset 1px 0 0 rgba(0,165,178,.35),inset -1px 0 0 rgba(0,165,178,.35)}
+.cc:hover{background:var(--cream)}
+.cc:hover::after{content:"+";position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);text-align:center;color:var(--gold-text);font-size:1rem;line-height:1}
+.cc:focus-visible{outline:2px solid var(--teal);outline-offset:-2px;background:var(--teal-wash)}
+.ccx{display:block;grid-row:1/-1;border-left:1px solid var(--rule);min-width:0}
+.ccx.w{background:rgba(247,235,210,.5)}
+.ccx.t{background:rgba(0,165,178,.07)}
+.ccx.ws{border-left-color:var(--gold)}
+.ccx.mo{border-left-color:rgba(78,106,123,.45)}
+.cb{all:unset;box-sizing:border-box;position:relative;z-index:1;display:flex;align-items:stretch;min-width:0;margin:4px 2px;border-radius:7px;overflow:hidden;font-size:.74rem;line-height:1;cursor:pointer;box-shadow:0 1px 2px rgba(34,31,32,.08)}
+.cb .t,.sg{display:flex;align-items:center;gap:5px;min-width:0;overflow:hidden;white-space:nowrap;padding:0 7px}
+.cb .t span,.sg span{overflow:hidden;text-overflow:ellipsis}
+.cb em,.sg em{font-style:normal;font-size:.6rem;font-weight:500;letter-spacing:.09em;text-transform:uppercase;flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.cb.n1 .t{padding:0}
+.cb.n1 .t>*{display:none}
+.cb.cl{border-top-left-radius:0;border-bottom-left-radius:0;margin-left:0}
+.cb.cr{border-top-right-radius:0;border-bottom-right-radius:0;margin-right:0}
+.cb:focus-visible,.sg:focus-visible{outline:2px solid var(--teal);outline-offset:1px}
+.cb.on{background:#fff;cursor:default;box-shadow:0 1px 2px rgba(34,31,32,.1),inset 0 0 0 1px rgba(34,31,32,.06)}
+.sg{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:5px;flex:1 1 0;min-width:0;padding:0 7px;cursor:pointer;border-left:3px solid;white-space:nowrap;overflow:hidden}
+.sg+.sg{box-shadow:inset 1px 0 0 rgba(255,255,255,.9)}
+.sg:hover,.cb.man:hover,.cb.unp:hover{filter:brightness(.97)}
+.sg.paid,.sw.paid{background:#D6EFF1;color:#0B5157;border-left-color:var(--teal)}
+.sg.deposit,.sw.deposit{background:#F5E0B3;color:#5d4316;border-left-color:#C99539}
+.sg.plan,.sw.plan{background:#fff;color:var(--gold-text);border-left-color:#C99539;box-shadow:inset 0 0 0 1px #E5C88E}
+.sg.processing,.sw.processing{background:repeating-linear-gradient(90deg,#FFF6EA 0 6px,#FDEBD0 6px 12px);color:var(--warn);border-left-color:#D9952B}
+.sg.demo{opacity:.55;border-left-style:dashed}
+.sw.demo{background:#D6EFF1;border-left-color:var(--teal);border-left-style:dashed;opacity:.55}
+.sg .dtag{background:rgba(255,255,255,.75);border-radius:999px;padding:1px 5px;color:#2F4A5A}
+.gc{display:inline-grid;place-items:center;width:15px;height:15px;border-radius:50%;font-size:.55rem;font-weight:500;flex:none;background:rgba(255,255,255,.8);font-style:normal}
+.gc.f{color:var(--gold-text);box-shadow:inset 0 0 0 1px var(--gold-soft)}
+.gc.m{color:var(--teal-text);box-shadow:inset 0 0 0 1px var(--teal-line)}
+.gc.o{color:#555;box-shadow:inset 0 0 0 1px #ccc}
+.cb.man,.sw.man{background:#DFE8EE;color:#1F3747;border-left:3px solid var(--slate)}
+.cb.man em{color:#4E6A7B}
+.cb.blk,.sw.blk{background:repeating-linear-gradient(135deg,rgba(34,31,32,.16) 0 2px,transparent 2px 7px),#F3F0EA;color:var(--ink);border:1px solid rgba(34,31,32,.3);box-shadow:none}
+.sw.blk{border-left-width:1px}
+.cb.blk em{color:var(--ink)}
+.cb.blk .t span{color:#4b4446}
+.cb.unp{background:#fff;color:var(--err);border:1px dashed var(--err-line);box-shadow:none}
+.cb.clash{box-shadow:0 0 0 2px var(--err-strong);z-index:2}
+.sw.wk{background:var(--gold-wash);border-left:0;border:1px solid var(--gold-soft)}
+.calhint{margin:10px 2px 0;font-size:.74rem;color:var(--slate)}
+@media (max-width:760px){
+  .cal{--rw:108px;--cmin:33px;--lh:34px}
+  .cal-rl{padding:3px 6px 3px 8px}
+  .cal-rl b{font-size:.78rem}
+  .calsc{max-height:72vh}
+  .cal-tb .sp{display:none}
+  .cal-nav{flex:1 1 100%}
+}
+@media (min-width:1500px){.cal{--cmin:38px}}
+
+/* ---------- block or manual booking (modal) */
+.rpick{max-height:260px;overflow:auto;overscroll-behavior:contain;border:1px solid var(--field);border-radius:12px;padding:10px 12px;background:#fff}
+.rpick fieldset{margin:0 0 10px}
+.rpick fieldset:last-child{margin-bottom:0}
+.rpick legend{font-size:.66rem;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--slate);padding:0;margin-bottom:4px}
+.rp{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:2px 12px}
+.rp label{display:flex;align-items:center;gap:8px;font-size:.84rem;padding:4px 0;cursor:pointer;min-width:0}
+.rp label input{width:17px;height:17px;accent-color:var(--ink);margin:0;flex:none}
+.rp label span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rp label small{display:block;font-size:.7rem;color:var(--slate);overflow:hidden;text-overflow:ellipsis}
+.rp label small.busy{color:var(--err)}
+.rp label small.ok{color:var(--teal-text)}
+.rfn{align-self:end;font-size:.8rem;color:var(--slate);padding-bottom:9px;line-height:1.4}
+.rfn b{color:var(--ink);font-weight:500}
+.rf-mode{margin:2px 0 6px}
+.rfconf{margin:14px 0 0;padding:12px 14px;border-radius:12px;background:var(--warn-wash);border:1px solid var(--warn-line);color:var(--warn);font-size:.85rem}
+.rfconf ul{margin:6px 0 10px;padding-left:18px}
+.rfconf li{margin:2px 0}
+.rfconf .btn{margin-right:8px}
+
+/* ---------- record a payment (drawer) */
+.payf{border:1px solid var(--gold-soft);border-radius:14px;padding:12px 14px;background:linear-gradient(180deg,#fff,var(--cream))}
+.payf .mact{margin-top:12px}
+.tl li.off .k{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap}
+.pm{display:inline-block;font-size:.62rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;border-radius:999px;padding:1px 7px;background:var(--teal-wash);color:#0B5157;border:1px solid var(--teal-line)}
+.tl .undo{font-size:.74rem;margin-left:4px}
+.mprice{display:flex;gap:8px;align-items:center;justify-content:flex-end;flex-wrap:wrap}
+.mprice input{width:120px;min-height:32px;font-size:.84rem;text-align:right}
 
 /* ---------- sessions */
 .prac{background:#fff;border:1px solid var(--line);border-radius:16px;margin:0 0 14px;overflow:hidden;box-shadow:var(--shadow-soft)}
@@ -664,8 +810,35 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     prev: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 15l-6-6-6 6"/></svg>',
     next: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>',
     ext: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="width:13px;height:13px"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>',
-    check: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>'
+    check: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+    left: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>',
+    right: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>'
   };
+  // dates as YYYY-MM-DD (UTC arithmetic: nights, not hours)
+  function pad2(n){ return (n < 10 ? '0' : '') + n; }
+  function todayIso(){ var t = new Date(); return t.getFullYear() + '-' + pad2(t.getMonth() + 1) + '-' + pad2(t.getDate()); }
+  function addDays(iso, n){ return new Date(Date.parse(iso + 'T00:00:00Z') + n * 864e5).toISOString().slice(0, 10); }
+  function nightsOf(a, b){ return Math.round((Date.parse(b + 'T00:00:00Z') - Date.parse(a + 'T00:00:00Z')) / 864e5); }
+  function overlaps(a1, a2, b1, b2){ return a1 < b2 && a2 > b1; }
+  // a stay [from, to): "18–21 Jul 2027" (to is the check-out day)
+  function stayLabel(from, to){
+    if (!ISO.test(from || '') || !ISO.test(to || '')) return '';
+    var y = from.slice(0, 4) !== to.slice(0, 4), m = from.slice(0, 7) !== to.slice(0, 7);
+    return isoLabel(from, y || m ? { day: 'numeric', month: 'short', year: y ? 'numeric' : undefined, timeZone: 'UTC' } : { day: 'numeric', timeZone: 'UTC' }) + '–' + isoLabel(to, { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
+  }
+  // euros typed by the team ("1,125.60", "1125,60", "€ 900") → cents, or NaN
+  function parseEuro(s){
+    s = String(s == null ? '' : s).replace(/[€\s ]/g, '');
+    if (!s) return NaN;
+    if (/,\d{1,2}$/.test(s) && s.indexOf('.') < 0) s = s.replace(',', '.');
+    s = s.replace(/,/g, '');
+    if (!/^\d+(\.\d{1,2})?$/.test(s)) return NaN;
+    return Math.round(parseFloat(s) * 100);
+  }
+  var METHODS = [['bank_transfer', 'Bank transfer'], ['cash', 'Cash'], ['other', 'Other']];
+  function methodLabel(m){ var o = findBy(METHODS, function(x){ return x[0] === m; }); return o ? o[1] : (m ? String(m) : 'Recorded payment'); }
+  var REASONS = [['maintenance', 'Maintenance'], ['staff', 'Staff'], ['owner', 'Owner'], ['other', 'Other']];
+  function reasonLabel(r){ var o = findBy(REASONS, function(x){ return x[0] === r; }); return o ? o[1] : (r ? String(r) : 'Blocked'); }
 
   /* ================================================================ API */
   var token = store('s', 'aob_admin') || '';
@@ -696,14 +869,32 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
      status, cancel/restore) are remembered for a few minutes and laid over fresh data, because
      Stripe's search can take up to a minute to show changed metadata. */
   var cache = {}, ovw = null, inflight = {}, ov = {}, hint = {}, lastWarn = {}, dataVer = 0;
+  var STAY = 'stay'; // the cache key of the manual bookings outside every week
   function D(id){ return cache[id] && cache[id].d; }
   function remember(ref, key, value){ (ov[ref] = ov[ref] || {})[key] = { v: JSON.parse(JSON.stringify(value)), at: Date.now() }; }
   function normAssign(a){ var o = {}; Object.keys(a || {}).forEach(function(k){ if (a[k]) o[String(k)] = String(a[k]); }); return o; }
   function sameJSON(a, b){ return JSON.stringify(a) === JSON.stringify(b); }
+  function payIndex(b, id){ for (var i = 0; i < (b.payments || []).length; i++) { var x = b.payments[i]; if ((x.invoice_id || x.id) === id) return i; } return -1; }
+  function rebalance(b){ b.balance_cents = Math.max(0, num(b.total_cents) - num(b.paid_cents) - (b.source === 'manual' ? 0 : num(b.refunded_cents))); }
   function applyOv(b){
     var o = ov[b.ref]; if (!o) return;
     Object.keys(o).forEach(function(k){
       var x = o[k], fresh = Date.now() - x.at < OV_TTL;
+      // a payment recorded by hand / undone: Stripe's invoice search lags behind, so show it at once
+      if (k.indexOf('pay:add:') === 0 || k.indexOf('pay:void:') === 0) {
+        var add = k.indexOf('pay:add:') === 0, pid = k.slice(add ? 8 : 9), at = payIndex(b, pid);
+        if ((add ? at >= 0 : at < 0) || !fresh) { delete o[k]; return; }
+        if (add) { b.payments.push(JSON.parse(JSON.stringify(x.v))); b.paid_cents = num(b.paid_cents) + num(x.v.amount_cents); }
+        else { b.paid_cents = num(b.paid_cents) - num(b.payments[at].amount_cents); b.payments.splice(at, 1); }
+        rebalance(b);
+        return;
+      }
+      if (k === 'mcomment') {
+        var m = b.manual || (b.manual = {});
+        if ((m.comment || '') === x.v) { delete o[k]; return; }
+        if (fresh) m.comment = x.v; else delete o[k];
+        return;
+      }
       if (k.indexOf('svc:') === 0) {
         var a = findBy(b.addons, function(y){ return y.key === k.slice(4); });
         if (!a) { if (!fresh) delete o[k]; return; }
@@ -713,27 +904,50 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
       }
       var cur = k === 'assign' ? normAssign(b.assign) : k === 'note' ? (b.note || '') : b[k];
       if (sameJSON(cur, x.v)) { delete o[k]; return; }
-      if (fresh) b[k] = JSON.parse(JSON.stringify(x.v)); else delete o[k];
+      if (fresh) { b[k] = JSON.parse(JSON.stringify(x.v)); if (k === 'total_cents') rebalance(b); } else delete o[k];
     });
     if (!Object.keys(o).length) delete ov[b.ref];
   }
+  // one booking as the page uses it, online or manual (manual: physical rooms on the guests, the stay's dates in b.manual)
+  function normBooking(b){
+    if (!Array.isArray(b.guests)) b.guests = [];
+    if (!Array.isArray(b.addons)) b.addons = [];
+    if (!Array.isArray(b.payments)) b.payments = [];
+    if (!b.lead || typeof b.lead !== 'object') b.lead = {};
+    b.assign = normAssign(b.assign && typeof b.assign === 'object' ? b.assign : {});
+    if (b.manual || b.source === 'manual' || /^MB\d{4}-/.test(b.ref || '')) {
+      b.source = 'manual';
+      var m = b.manual && typeof b.manual === 'object' ? b.manual : (b.manual = {});
+      if (!m.from) m.from = b.from || ''; if (!m.to) m.to = b.to || '';
+      if (m.programme == null) m.programme = b.programme_attend || (b.programme === 'yes' ? 'yes' : 'no');
+      if (m.comment == null) m.comment = b.comment || '';
+      if (m.programme === true) m.programme = 'yes';
+      if (!b.lead.name) b.lead.name = b.lead_name || (b.guests[0] && b.guests[0].name) || '';
+      if (!b.lead.email && b.lead_email) b.lead.email = b.lead_email;
+      if (!b.lead.whatsapp && b.whatsapp) b.lead.whatsapp = b.whatsapp;
+      b.guests.forEach(function(g, i){
+        if (!g.name) g.name = [g.first, g.last].filter(Boolean).join(' ');
+        var nm = g.room_name || b.assign[i] || '';
+        if (nm) { g.room_name = nm; if (!b.assign[i]) b.assign[i] = nm; }
+        if (!g.room && nm) g.room = roomIdOfName(nm);
+      });
+      if (b.total_cents == null) b.total_cents = num(b.total);
+      if (b.paid_cents == null) b.paid_cents = sum(b.payments, function(x){ return x.amount_cents; });
+      if (b.balance_cents == null) rebalance(b);
+      if (!b.status) b.status = 'active';
+      if (!b.room_names) b.room_names = uniq(b.guests.map(function(g){ return g.room_name; }).filter(Boolean)).join(', ');
+    }
+    return b;
+  }
   function prepWeek(id, d){
     if (!Array.isArray(d.bookings)) d.bookings = [];
-    d.bookings.forEach(function(b){
-      b._w = id;
-      if (!Array.isArray(b.guests)) b.guests = [];
-      if (!Array.isArray(b.addons)) b.addons = [];
-      if (!Array.isArray(b.payments)) b.payments = [];
-      if (!b.lead || typeof b.lead !== 'object') b.lead = {};
-      b.assign = normAssign(b.assign && typeof b.assign === 'object' ? b.assign : {});
-      applyOv(b);
-    });
+    d.bookings.forEach(function(b){ b._w = id; normBooking(b); applyOv(b); });
   }
   function loadWeek(id, force){
     var c = cache[id];
     if (!force && c && c.d && Date.now() - c.at < FRESH) return Promise.resolve(c.d);
     if (inflight[id]) return inflight[id];
-    var p = api('GET', '/api/booking/admin?program=' + encodeURIComponent(id)).then(function(d){
+    var p = api('GET', id === STAY ? '/api/booking/admin?stays=1' : '/api/booking/admin?program=' + encodeURIComponent(id)).then(function(d){
       prepWeek(id, d);
       cache[id] = { d: d, at: Date.now() };
       delete inflight[id]; dataVer++;
@@ -748,7 +962,10 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     return p;
   }
   function scopeIds(){ return week === 'all' ? PROGS.map(function(p){ return p.id; }) : [week]; }
-  function loadScope(force){ return Promise.all(scopeIds().map(function(id){ return loadWeek(id, force).then(null, function(e){ return { _err: e }; }); })); }
+  function loadScope(force){
+    var ids = scopeIds().concat(week === 'all' ? [STAY] : []);
+    return Promise.all(ids.map(function(id){ return loadWeek(id, force).then(null, function(e){ return { _err: e }; }); }));
+  }
   function loadOverview(force){
     if (!force && ovw && ovw.d && Date.now() - ovw.at < FRESH) return Promise.resolve(ovw.d);
     if (inflight._ov) return inflight._ov;
@@ -765,7 +982,9 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     return p;
   }
   function weekBookings(id){ var d = D(id); return d && d.bookings || []; }
-  function scopeBookings(){ var out = []; scopeIds().forEach(function(id){ out = out.concat(weekBookings(id)); }); return out; }
+  // a manual booking over two weeks is in both weeks' data: list it once
+  // All weeks also lists the manual bookings outside every week (cache[STAY], from ?stays=1)
+  function scopeBookings(){ var out = [], seen = {}; scopeIds().concat(week === 'all' ? [STAY] : []).forEach(function(id){ weekBookings(id).forEach(function(b){ if (b.source === 'manual') { if (seen[b.ref]) return; seen[b.ref] = 1; } out.push(b); }); }); return out; }
   function allLoadedBookings(){ var out = []; Object.keys(cache).forEach(function(id){ out = out.concat(weekBookings(id)); }); return out; }
   function bookingByRef(ref){ return findBy(allLoadedBookings(), function(b){ return b.ref === ref; }); }
   function scopeErrors(){ return scopeIds().filter(function(id){ return cache[id] && cache[id].err; }); }
@@ -808,40 +1027,92 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
   function unverified(b){ return active(b) && b.programme === 'paid' && b.programme_verified !== 'stripe' && b.programme_verified !== 'admin'; }
   function lastPayment(b){ var l = (b.payments || []).filter(function(p){ return !p.pending; }).sort(function(x, y){ return num(y.created) - num(x.created); }); return l[0] || null; }
   function stripeMode(b){ var d = D(b._w) || setupData() || {}; return d.setup && d.setup.stripe; }
-  function stripeUrl(id, mode){ return 'https://dashboard.stripe.com/' + (mode === 'test' ? 'test/' : '') + (/^sub_/.test(id) ? 'subscriptions/' : 'payments/') + encodeURIComponent(id); }
-  function arrival(b){ return (wk(b._w).dates || {}).start; }
+  function stripeUrl(id, mode){ return 'https://dashboard.stripe.com/' + (mode === 'test' ? 'test/' : '') + (/^sub_/.test(id) ? 'subscriptions/' : /^in_/.test(id) ? 'invoices/' : /^cus_/.test(id) ? 'customers/' : 'payments/') + encodeURIComponent(id); }
+  function arrival(b){ return b.manual && b.manual.from ? b.manual.from : (wk(b._w).dates || {}).start; }
+  function isManual(b){ return !!b && b.source === 'manual'; }
+  function offlinePays(b){ return (b.payments || []).filter(function(x){ return x.kind === 'offline'; }); }
 
   /* ---------------------------------------------------------------- rooming (from the bookings the
      page holds, so the team's latest assignments show at once) */
+  /* Blocks (rooms the team took off sale) are known from three places: the calendar, a week's rooming
+     map, and the ones made in this tab (kept until Stripe's search shows them). blkReg collects them. */
+  var blkReg = {}, recOv = { blocks: {}, gone: {}, manual: {} };
+  function regBlock(bl, name){
+    if (!bl || !bl.id) return null;
+    var r = blkReg[bl.id] || (blkReg[bl.id] = { id: bl.id, rooms: [] });
+    ['from', 'to', 'reason', 'comment', 'created_at', 'created'].forEach(function(k){ if (bl[k] != null && bl[k] !== '') r[k] = bl[k]; });
+    (Array.isArray(bl.rooms) ? bl.rooms : []).concat(name ? [name] : []).forEach(function(n){ if (n && r.rooms.indexOf(n) < 0) r.rooms.push(n); });
+    return r;
+  }
+  function blockGone(id){ var t = recOv.gone[id]; if (t && Date.now() - t > OV_TTL) { delete recOv.gone[id]; t = 0; } return !!t; }
+  // blocks made in this tab that the server doesn't list yet
+  function ovBlocks(listed){
+    var out = [];
+    Object.keys(recOv.blocks).forEach(function(id){
+      var o = recOv.blocks[id];
+      if (Date.now() - o.at > OV_TTL || (listed && listed[id])) { if (Date.now() - o.at > OV_TTL) delete recOv.blocks[id]; return; }
+      if (!blockGone(id)) out.push(o.v);
+    });
+    return out;
+  }
+  function manualCancelled(ref){ var o = ov[ref] && ov[ref].status; return !!o && o.v === 'cancelled' && Date.now() - o.at < OV_TTL; }
+  function roomIdOfName(n){
+    var ids = PROGS.map(function(p){ return p.id; });
+    for (var i = 0; i < ids.length; i++) { var r = findBy(detail(ids[i]).rooms, function(x){ return (x.names || []).indexOf(n) >= 0; }); if (r) return r.id; }
+    var c = calRoom(n); return c ? c.room_id : '';
+  }
   function rooming(id){
     var d = D(id); if (!d) return null;
-    var rooms = detail(id).rooms, byName = {}, order = [], unassigned = [], noRoom = [];
-    rooms.forEach(function(r){ (r.names || []).forEach(function(n){ if (!byName[n]) { byName[n] = { name: n, room: r, beds: bedsOf(r), guests: [], gender: null, conflict: null }; order.push(n); } }); });
+    var rooms = detail(id).rooms, byName = {}, order = [], unassigned = [], noRoom = [], seen = {};
+    var dts = wk(id).dates || {};
+    rooms.forEach(function(r){ (r.names || []).forEach(function(n){ if (!byName[n]) { byName[n] = { name: n, room: r, beds: bedsOf(r), guests: [], gender: null, conflict: null, blocked: null }; order.push(n); } }); });
     (d.bookings || []).forEach(function(b){
       if (!active(b)) return;
+      var man = b.source === 'manual';
       b.guests.forEach(function(g, i){
-        var rt = findBy(rooms, function(r){ return r.id === g.room; }), nm = b.assign[i];
-        var who = { ref: b.ref, index: i, name: g.name, gender: g.gender, room: g.room, b: b };
+        var nm = b.assign[i] || (man && g.room_name) || '';
+        var rt = findBy(rooms, function(r){ return r.id === g.room; }) || (nm && byName[nm] ? byName[nm].room : null);
+        var who = { ref: b.ref, index: i, name: g.name, gender: g.gender, room: g.room || (rt && rt.id) || '', b: b, manual: man };
+        seen[b.ref + '|' + g.name] = 1;
         if (nm && byName[nm]) byName[nm].guests.push(who);
-        else if (rt && rt.names && rt.names.length) { if (nm) who.stale = nm; unassigned.push(who); }
+        else if (!man && rt && rt.names && rt.names.length) { if (nm) who.stale = nm; unassigned.push(who); }
         else noRoom.push(who);
       });
+    });
+    // the server's rooming map: blocks, and manual guests the bookings list doesn't carry
+    var sr = d.rooming && typeof d.rooming === 'object' ? d.rooming : {};
+    Object.keys(sr).forEach(function(n){
+      var s = sr[n] || {}, x = byName[n]; if (!x) return;
+      if (s.blocked && s.blocked.id && !blockGone(s.blocked.id)) x.blocked = regBlock(s.blocked, n);
+      (s.guests || []).forEach(function(g){
+        if (!g || !g.manual || seen[g.ref + '|' + g.name] || manualCancelled(g.ref)) return;
+        seen[g.ref + '|' + g.name] = 1;
+        x.guests.push({ ref: g.ref, index: num(g.index), name: g.name, gender: g.gender, room: x.room.id, b: null, manual: true, from: g.from, to: g.to });
+      });
+    });
+    var listed = {};
+    (Array.isArray(d.blocks) ? d.blocks : []).forEach(function(bl){ if (bl && bl.id) listed[bl.id] = 1; });
+    (Array.isArray(d.blocks) ? d.blocks : []).concat(ovBlocks(listed)).forEach(function(bl){
+      if (!bl || !bl.id || blockGone(bl.id) || (dts.start && !overlaps(bl.from, bl.to, dts.start, dts.end))) return;
+      (bl.rooms || []).forEach(function(n){ if (byName[n] && !byName[n].blocked) byName[n].blocked = regBlock(bl, n); });
     });
     var conflicts = 0;
     order.forEach(function(n){
       var x = byName[n], kinds = uniq(x.guests.map(function(g){ return gKey(g.gender); }));
       x.gender = kinds.length === 1 ? x.guests[0].gender : null;
-      x.conflict = kinds.length > 1 && x.room.same_gender ? 'mixed' : x.guests.length > x.beds ? 'over' : null;
+      x.conflict = x.blocked && x.guests.length ? 'blocked' : kinds.length > 1 && x.room.same_gender ? 'mixed' : x.guests.length > x.beds ? 'over' : null;
       if (x.conflict) conflicts++;
     });
     return { byName: byName, order: order, unassigned: unassigned, noRoom: noRoom, conflicts: conflicts, rooms: rooms };
   }
+  function conflictText(x){ return x.conflict === 'blocked' ? 'Guests placed in a blocked room' : x.conflict === 'mixed' ? 'Women and men in a same-gender room' : x.guests.length + ' guests for ' + plural(x.beds, 'bed'); }
   function areaOf(name){ var p = String(name).split(' · '); return p.length > 1 ? p.slice(1).join(' · ').replace(/\s*\([^)]*\)\s*$/, '') : (String(name).replace(/\s*\d+$/, '') || String(name)); }
   function codeOf(name){ var p = String(name).split(' · '); return p.length > 1 ? p[0] : String(name); }
   // how each room is right now: "· 1/2 women", "· free", "· full" ("full" only for rooms this guest isn't in)
   function occHint(rm, name, ref, idx){
     var x = rm && rm.byName[name]; if (!x) return '';
     var n = x.guests.length, mine = x.guests.some(function(g){ return g.ref === ref && g.index === idx; });
+    if (x.blocked) return ' · blocked (' + reasonLabel(x.blocked.reason).toLowerCase() + ')';
     if (!n) return ' · free';
     var ks = uniq(x.guests.map(function(g){ return gWord(g.gender); }));
     return ' · ' + n + '/' + x.beds + (ks.length === 1 && ks[0] && x.room.same_gender ? ' ' + ks[0] : ks.length > 1 && x.room.same_gender ? ' mixed' : '') + (!mine && n >= x.beds ? ' · full' : '');
@@ -997,7 +1268,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     if (!(id === 'all' || PBY[id])) return;
     week = id; store('l', 'aob_admin_week', id); $('week').value = id; mounted = '';
     if (fromRoute) return;
-    var q = copyObj(route.q); q.w = id; delete q.room; replaceQ(q);
+    var q = copyObj(route.q); q.w = id; delete q.room; delete q.from; replaceQ(q);
     renderView();
   }
   $('week').onchange = function(){ setWeek($('week').value); };
@@ -1024,6 +1295,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
   }
   function ensure(tab, force){
     var p = tab === 'overview' ? loadOverview(force) : loadScope(force), v0 = dataVer;
+    if (tab === 'rooming' && calOn()) p = Promise.all([p, loadCal(force).then(null, function(e){ return e && e.message === 'auth' ? Promise.reject(e) : null; })]);
     loadingN++; updateStamp();
     return p.then(function(){ return null; }, function(e){ return e; }).then(function(e){
       loadingN--;
@@ -1040,7 +1312,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
   // re-rendering a view replaces its buttons and fields: put focus back on the same control
   function focusKey(el){
     if (!el || el === document.body) return null;
-    var attrs = ['data-open', 'data-sort', 'data-svc', 'data-when', 'data-qa', 'data-bal', 'data-week', 'data-copy', 'data-retry'];
+    var attrs = ['data-open', 'data-sort', 'data-svc', 'data-when', 'data-qa', 'data-bal', 'data-week', 'data-copy', 'data-retry', 'data-cell', 'data-block', 'data-jump', 'data-cal', 'data-act', 'data-board', 'data-pay', 'data-void'];
     for (var i = 0; i < attrs.length; i++) {
       var v = el.getAttribute(attrs[i]); if (v == null) continue;
       var q = function(x){ return '"' + String(x).replace(/["\\]/g, '\\$&') + '"'; }, r = el.getAttribute('data-ref');
@@ -1057,6 +1329,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     if (route.tab === 'overview') return ovw && ovw.d ? ovw.at : 0;
     var t = Infinity;
     scopeIds().forEach(function(id){ t = Math.min(t, (cache[id] && cache[id].d) ? cache[id].at : 0); });
+    if (route.tab === 'rooming' && calOn()) { var c = calc[calKey(calWin())]; t = Math.min(t, c && c.d ? c.at : 0); }
     return t === Infinity ? 0 : t;
   }
   function updateStamp(){
@@ -1070,7 +1343,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     var setCt = function(id, n){ $('ct-' + id).textContent = n ? String(n) : ''; };
     setCt('bookings', scopeMissing().length ? 0 : list.filter(active).length);
     setCt('payments', list.filter(function(b){ return balanceDue(b) || planIssue(b); }).length);
-    var conf = 0; if (week !== 'all') { var rm = rooming(week); conf = rm ? rm.conflicts : 0; }
+    var conf = 0; (week === 'all' ? PROGS.map(function(p){ return p.id; }) : [week]).forEach(function(id){ var rm = rooming(id); conf += rm ? rm.conflicts : 0; });
     setCt('rooming', conf);
     setCt('sessions', 0);
     var n = 0; each(PROGS, function(p){ var d = D(p.id); if (d) n += sum(d.bookings.filter(active), function(b){ return liveSessions(b).filter(function(a){ return (a.status || 'todo') === 'todo'; }).length; }); });
@@ -1127,6 +1400,10 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
   }
   function payPill2(b){
     if (!active(b)) return '<span class="pill can">Cancelled</span>';
+    if (isManual(b)) {
+      if (!num(b.total_cents)) return num(b.paid_cents) ? '<span class="pill full">Paid</span>' : '<span class="pill can" title="No price agreed for this stay">No price set</span>';
+      return num(b.balance_cents) > 0 ? (num(b.paid_cents) ? '<span class="pill dep">Part paid</span>' : '<span class="pill plan">Not paid yet</span>') : '<span class="pill full">Paid in full</span>';
+    }
     if (b.pending) return '<span class="pill proc" title="A bank payment is still clearing. Its places are held.">Processing</span>';
     if (b.plan) return planPill(b);
     return num(b.balance_cents) > 0 ? '<span class="pill dep">Deposit</span>' : '<span class="pill full">Paid in full</span>';
@@ -1137,7 +1414,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     if (b.programme_verified === 'admin') return '<span class="pill ok" title="Room-only booking link made by the team.">Room only · by the team</span>';
     return '<span class="pill chk" title="Booked room only. No earlier programme fee payments found in Stripe that cover every guest: match it to their GHL or RetreatGuru payment.">Room only · check</span>';
   }
-  function srcPill(b){ return b.source === 'admin' ? '<span class="pill adm" title="Made with a booking link from this dashboard">Team link</span>' : ''; }
+  function srcPill(b){ return b.source === 'admin' ? '<span class="pill adm" title="Made with a booking link from this dashboard">Team link</span>' : isManual(b) ? '<span class="pill man" title="Recorded by the team: no online payment">Manual</span>' : ''; }
   function discText(x){ return x ? (x.type === 'percent' ? x.value + '%' : eur(x.value)) + ' off ' + (x.scope === 'programme' ? 'the programme' : x.scope === 'room' ? 'the room' : 'the total') + (x.reason ? ' (' + x.reason + ')' : '') : ''; }
   function discPill(b){ return b.discount ? '<span class="pill disc" title="' + esc(discText(b.discount)) + '">−' + esc(b.discount.type === 'percent' ? b.discount.value + '%' : eur(b.discount.cents || b.discount.value)) + '</span>' : ''; }
   function planNext(b){ return b.plan && b.plan.next_payment && active(b) ? '<span class="sub">Next ' + eur(b.plan.installment_cents) + ' on ' + fmtWhen(b.plan.next_payment, { day: 'numeric', month: 'short' }) + '</span>' : ''; }
@@ -1198,13 +1475,14 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
       box.innerHTML = (d.demo ? demoNote() : '') + (ovw.err ? '<p class="note err">Could not refresh: ' + esc(why(ovw.err)) + '. Showing the figures from ' + clock(ovw.at) + '.</p>' : '') +
         '<section class="kpis" aria-label="All weeks">' + kpi('Bookings', num(T.bookings), plural(weeks.length, 'week')) + kpi('Guests', num(T.guests)) +
           kpi('Paid so far', eur(T.paid_cents), num(T.refunded_cents) ? eur(T.refunded_cents) + ' refunded' : '') + kpi('Still to receive', eur(T.balance_cents), 'incl. running plans and payments clearing') +
-          kpi('Sessions sold', num(T.sessions_count), eur(T.sessions_cents)) + '</section>' +
+          kpi('Sessions sold', num(T.sessions_count), eur(T.sessions_cents)) +
+          (d.stay && d.stay.totals && num(d.stay.totals.bookings) ? kpi('Stays outside the weeks', num(d.stay.totals.bookings), plural(num(d.stay.totals.guests), 'guest') + ' · paid ' + eur(d.stay.totals.paid_cents) + (num(d.stay.totals.balance_cents) ? ' · ' + eur(d.stay.totals.balance_cents) + ' to receive' : '')) : '') + '</section>' +
         '<section class="weeks" aria-label="Weeks">' + weeks.map(weekCard).join('') + '</section>' +
         '<section class="panel"><div class="ph"><h2>Recent bookings <small>newest first, all weeks</small></h2></div>' +
         (recent.length ? '<table class="tbl stack"><thead><tr><th>Booking</th><th>Week</th><th>Lead guest</th><th class="num">Guests</th><th class="num">Total</th><th class="num">Paid</th><th>Status</th></tr></thead><tbody>' +
           recent.map(function(r){
             return '<tr class="rowlink' + (r.status === 'cancelled' ? ' cancelled' : '') + '" data-open="' + esc(r.ref) + '" data-w="' + esc(r.program || '') + '">' +
-              '<td class="main"><button type="button" class="refbtn" data-open="' + esc(r.ref) + '" data-w="' + esc(r.program || '') + '">' + esc(r.ref) + '</button><span class="sub">' + esc(ago(r.created)) + '</span></td>' +
+              '<td class="main"><button type="button" class="refbtn" data-open="' + esc(r.ref) + '" data-w="' + esc(PBY[r.program] ? r.program : '') + '">' + esc(r.ref) + '</button>' + (r.source === 'manual' ? ' <span class="pill man">Manual</span>' : '') + '<span class="sub">' + esc(ago(r.created)) + '</span></td>' +
               '<td data-l="Week">' + esc(r.edition || wkName(r.program)) + '</td><td data-l="Lead guest">' + esc(r.lead_name || '–') + '</td>' +
               '<td data-l="Guests" class="num">' + num(r.guests) + '</td><td data-l="Total" class="num">' + money(r.total_cents) + '</td><td data-l="Paid" class="num">' + money(r.paid_cents) + '</td>' +
               '<td data-l="Status">' + statusPill(r.status) + '</td></tr>';
@@ -1234,9 +1512,10 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     if (f.svc === 'yes' && !liveSessions(b).length) return false;
     if (f.svc === 'no' && liveSessions(b).length) return false;
     if (f.src === 'admin' && b.source !== 'admin') return false;
-    if (f.src === 'online' && b.source === 'admin') return false;
+    if (f.src === 'manual' && !isManual(b)) return false;
+    if (f.src === 'online' && (b.source === 'admin' || isManual(b))) return false;
     if (f.q) {
-      var l = b.lead, hay = [b.ref, l.name, l.email, l.whatsapp, digits(l.whatsapp), b.diet, b.note, b.room_names].concat(
+      var l = b.lead, hay = [b.ref, l.name, l.email, l.whatsapp, digits(l.whatsapp), b.diet, b.note, b.room_names, b.manual && b.manual.comment].concat(
         b.guests.map(function(g){ return g.name + ' ' + (g.email || ''); }), b.addons.map(function(a){ return a.title + ' ' + (a.practitioner_name || ''); })).join(' ').toLowerCase();
       var terms = f.q.toLowerCase().split(/\s+/).filter(Boolean);
       for (var i = 0; i < terms.length; i++) {
@@ -1266,7 +1545,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
       '<td class="main">' + openBtn(b) + '<span class="sub">' + esc(fmtWhen(b.created)) + '</span></td>' +
       (showWeek ? '<td data-l="Week">' + esc(wkName(b._w)) + '</td>' : '') +
       '<td data-l="Lead guest"><span class="nm">' + esc(l.name || '–') + '</span><span class="sub">' + esc(l.email || '') + '</span></td>' +
-      '<td data-l="Guests">' + b.guests.length + gLetters(b) + '<span class="sub">' + esc(b.room_names || '') + '</span></td>' +
+      '<td data-l="Guests">' + b.guests.length + gLetters(b) + '<span class="sub">' + esc(isManual(b) ? [stayLabel(b.manual.from, b.manual.to), b.room_names].filter(Boolean).join(' · ') : b.room_names || '') + '</span></td>' +
       '<td data-l="Payment">' + payPill(b) + progPill(b) + srcPill(b) + discPill(b) + '</td>' +
       '<td data-l="Total" class="num">' + money(b.total_cents) + '</td>' +
       '<td data-l="Paid" class="num">' + money(b.paid_cents) + (num(b.refunded_cents) ? '<span class="sub refund">' + eur(b.refunded_cents) + ' refunded</span>' : '') + '</td>' +
@@ -1299,7 +1578,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
       $('fRoom').innerHTML = opt('', 'Any room type', f.room) + rooms.map(function(r){ return opt(r.id, r.name, f.room); }).join('') + (f.room && !findBy(rooms, function(r){ return r.id === f.room; }) ? opt(f.room, f.room, f.room) : '');
       $('fProg').innerHTML = opt('', 'Any programme', f.prog) + opt('included', 'Programme included', f.prog) + opt('paid', 'Room only', f.prog) + opt('unverified', 'Room only · to check', f.prog);
       $('fSvc').innerHTML = opt('', 'Sessions: any', f.svc) + opt('yes', 'Has sessions', f.svc) + opt('no', 'No sessions', f.svc);
-      $('fSrc').innerHTML = opt('', 'Any source', f.src) + opt('online', 'Booked online', f.src) + opt('admin', 'Team link', f.src);
+      $('fSrc').innerHTML = opt('', 'Any source', f.src) + opt('online', 'Booked online', f.src) + opt('admin', 'Team link', f.src) + opt('manual', 'Manual (' + n(isManual) + ')', f.src);
       $('fClear').hidden = !Object.keys(BF).some(function(k){ return k !== 'sort' && k !== 'dir' && f[k] !== BF[k]; });
       var nf = ['status', 'pay', 'room', 'prog', 'svc', 'src'].filter(function(k){ return f[k] !== BF[k]; }).length;
       $('fToggle').textContent = 'Filters' + (nf ? ' (' + nf + ')' : '');
@@ -1339,21 +1618,23 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
   function bookingsCsv(){
     var f = bf(), rows = sorted(scopeBookings().filter(function(b){ return matches(b, f); }), f);
     downloadCsv(fileWeek() + '-bookings.csv',
-      ['week', 'reference', 'booked_at', 'status', 'source', 'lead_name', 'lead_email', 'whatsapp', 'roommate', 'rooms', 'guests', 'assigned_rooms', 'programme', 'programme_verified', 'programme_matched', 'programme_fee',
-        'diet', 'sessions', 'sessions_eur', 'discount', 'discount_eur', 'payment', 'total_eur', 'paid_eur', 'refunded_eur', 'balance_eur', 'paid_after_cancel_eur', 'note', 'utm_source', 'utm_campaign'],
+      ['week', 'reference', 'booked_at', 'status', 'source', 'stay_from', 'stay_to', 'lead_name', 'lead_email', 'whatsapp', 'roommate', 'rooms', 'guests', 'assigned_rooms', 'programme', 'programme_verified', 'programme_matched', 'programme_fee',
+        'diet', 'sessions', 'sessions_eur', 'discount', 'discount_eur', 'payment', 'total_eur', 'paid_eur', 'refunded_eur', 'balance_eur', 'paid_after_cancel_eur', 'paid_by_hand_eur', 'payments_by_hand', 'note', 'utm_source', 'utm_campaign'],
       rows.map(function(b){
-        var l = b.lead, utm = b.utm || {}, ses = liveSessions(b);
-        return [wkName(b._w), b.ref, b.created ? new Date(b.created * 1000).toISOString() : '', b.status, b.source || 'online', l.name, l.email, l.whatsapp, l.roommate, b.room_names,
+        var l = b.lead, utm = b.utm || {}, ses = liveSessions(b), man = isManual(b), off = offlinePays(b), dts = wk(b._w).dates || {};
+        return [wkName(b._w), b.ref, b.created ? new Date(b.created * 1000).toISOString() : '', b.status, b.source || 'online', man ? b.manual.from : dts.start || '', man ? b.manual.to : dts.end || '', l.name, l.email, l.whatsapp, l.roommate, b.room_names,
           b.guests.map(function(g){ return (g.name || '') + ' (' + [g.gender, g.email].filter(Boolean).join(', ') + ')'; }).join('; '),
           b.guests.map(function(g, i){ return b.assign[i] ? (g.name || '') + ': ' + b.assign[i] : ''; }).filter(Boolean).join('; '),
-          b.programme === 'included' || b.programme === 'paid' ? b.programme : '',
+          man ? (b.manual.programme === 'yes' ? 'attends' : 'stay only') : b.programme === 'included' || b.programme === 'paid' ? b.programme : '',
           b.programme === 'paid' ? (b.programme_verified === 'stripe' ? 'possible match' : b.programme_verified === 'admin' ? 'team link' : 'unverified') : '',
           b.programme === 'paid' ? (b.programme_payments || []).map(function(x){ return x.id + ' ' + eurNum(x.cents); }).join('; ') : '',
           b.programme === 'included' ? eurNum(b.programme_cents) : '', b.diet || '',
           ses.map(function(a){ return (a.practitioner_name ? a.practitioner_name + ': ' : '') + a.title + ' for ' + guestName(b, a) + ' [' + svcLabel(a.status) + (a.when ? ', ' + a.when : '') + ']'; }).join('; '),
           eurNum(sum(ses, sessCents)), b.discount ? discText(b.discount) : '', b.discount ? eurNum(b.discount.cents) : '',
-          b.plan ? 'plan ' + b.plan.paid_count + '/' + b.plan.installments + (b.plan.ended ? ' ended' : '') : b.pending ? 'processing' : num(b.balance_cents) ? 'deposit' : 'full',
-          eurNum(b.total_cents), eurNum(b.paid_cents), eurNum(b.refunded_cents), eurNum(b.balance_cents), eurNum(b.paid_after_cancel_cents), b.note || '', utm.utm_source || '', utm.utm_campaign || ''];
+          man ? (num(b.balance_cents) ? (num(b.paid_cents) ? 'part paid' : 'not paid') : 'paid') : b.plan ? 'plan ' + b.plan.paid_count + '/' + b.plan.installments + (b.plan.ended ? ' ended' : '') : b.pending ? 'processing' : num(b.balance_cents) ? 'deposit' : 'full',
+          eurNum(b.total_cents), eurNum(b.paid_cents), eurNum(b.refunded_cents), eurNum(b.balance_cents), eurNum(b.paid_after_cancel_cents),
+          eurNum(sum(off, function(x){ return x.amount_cents; })), off.map(function(x){ return methodLabel(x.method) + ' ' + (x.received || '') + ' ' + eurNum(x.amount_cents) + (x.comment ? ' (' + x.comment + ')' : ''); }).join('; '),
+          man ? b.manual.comment || '' : b.note || '', utm.utm_source || '', utm.utm_campaign || ''];
       }));
   }
 
@@ -1367,7 +1648,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
   // Ctrl+P on the rooming, kitchen or sessions view prints the same clean sheet as the Print button
   window.addEventListener('beforeprint', function(){
     if (document.body.classList.contains('print-sheet') || !token) return;
-    var s = route.tab === 'rooming' && week !== 'all' ? (route.q.view === 'kitchen' ? kitchenPrint() : roomingPrint()) : route.tab === 'sessions' ? sessionsPrint() : null;
+    var s = route.tab === 'rooming' && !calOn() ? (route.q.view === 'kitchen' ? kitchenPrint() : roomingPrint()) : route.tab === 'sessions' ? sessionsPrint() : null;
     if (!s) return;
     $('printRoot').innerHTML = '<h1>' + esc(s[0]) + '</h1><p class="pmeta">' + esc(week === 'all' ? 'All weeks' : wkFull(week)) + '</p>' + s[1];
     document.body.classList.add('print-sheet');
@@ -1383,13 +1664,16 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
   function shortType(r){ return r ? r.name.replace(/, ASHA Bell Tent$/, '').replace(/^Shared Room for Three, Ensuite$/, 'Triple ensuite') : ''; }
   function rcard(x, id, oneType){
     var slots = x.guests.map(function(g){
-      return '<button type="button" class="bed" data-open="' + esc(g.ref) + '" data-w="' + esc(id) + '" title="' + esc(g.name + ' · ' + g.ref) + '">' + gBadge(g.gender) + '<span class="bn">' + esc(g.name) + '</span><span class="br">' + esc(g.ref) + '</span></button>';
+      var gm = g.manual ? (g.b && g.b.manual) || g : null;
+      return '<button type="button" class="bed' + (g.manual ? ' man' : '') + '" data-open="' + esc(g.ref) + '" data-w="' + esc(id) + '" title="' + esc(g.name + ' · ' + g.ref + (gm ? ' · manual booking' + (gm.from ? ' · ' + stayLabel(gm.from, gm.to) : '') : '')) + '">' + gBadge(g.gender) + '<span class="bn">' + esc(g.name) + '</span>' + (g.manual ? '<span class="mtag">Manual</span>' : '<span class="br">' + esc(g.ref) + '</span>') + '</button>';
     }).join('');
-    for (var i = x.guests.length; i < x.beds; i++) slots += '<div class="bed free">Free bed</div>';
+    for (var i = x.guests.length; i < x.beds; i++) slots += x.blocked ? '<div class="bed blkd">Blocked</div>' : '<div class="bed free">Free bed</div>';
     var gw = x.gender && x.room.same_gender && x.beds > 1 ? (gKey(x.gender) === 'f' ? 'Women\'s room' : gKey(x.gender) === 'm' ? 'Men\'s room' : '') : '';
-    return '<article class="rcard' + (x.conflict ? ' conf' : '') + '"><div class="rn"><b>' + esc(codeOf(x.name)) + '</b>' + (oneType ? '' : '<span>' + esc(shortType(x.room)) + '</span>') + '</div>' +
+    var bl = x.blocked;
+    return '<article class="rcard' + (x.conflict ? ' conf' : '') + (bl ? ' blk' : '') + '"><div class="rn"><b>' + esc(codeOf(x.name)) + '</b>' + (oneType ? '' : '<span>' + esc(shortType(x.room)) + '</span>') + '</div>' +
       (gw ? '<p class="rg">' + gw + '</p>' : '') +
-      (x.conflict ? '<p class="cf">' + (x.conflict === 'mixed' ? 'Women and men in a same-gender room' : x.guests.length + ' guests for ' + plural(x.beds, 'bed')) + '</p>' : '') +
+      (bl ? '<button type="button" class="rb" data-block="' + esc(bl.id) + '" title="Block details"><b>Blocked · ' + esc(reasonLabel(bl.reason)) + '</b><br>' + esc(stayLabel(bl.from, bl.to) || '') + (bl.comment ? ' · ' + esc(bl.comment) : '') + '</button>' : '') +
+      (x.conflict ? '<p class="cf">' + esc(conflictText(x)) + '</p>' : '') +
       '<div class="beds">' + slots + '</div></article>';
   }
   function availTable(id){
@@ -1408,16 +1692,27 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
           '<td data-l="Taken"><div class="bar"><i style="width:' + (cap ? Math.min(100, paid / cap * 100) : 0) + '%"></i><i class="h" style="width:' + (cap ? Math.min(100, held / cap * 100) : 0) + '%"></i></div></td></tr>';
       }).join('') + '</tbody></table></div></details>';
   }
+  function calOn(){ return week === 'all' || route.q.view === 'calendar'; }
   VIEWS.rooming = {
     mount: function(el){
-      if (week === 'all') { el.innerHTML = chooseWeek('Rooming is planned one week at a time.'); return; }
-      el.innerHTML = '<div class="toolbar"><div class="seg" role="group" aria-label="View"><a href="#rooming" id="segRooms">Rooms</a><a href="#rooming?view=kitchen" id="segKitchen">Kitchen list</a></div>' +
+      if (week === 'all') {
+        el.innerHTML = '<div id="calRoot">' + calShell() + '</div>';
+        bindCal($('calRoot'));
+        return;
+      }
+      el.innerHTML = '<div class="toolbar"><div class="seg" role="group" aria-label="View"><a href="#rooming" id="segRooms">Rooms</a><a href="#rooming?view=kitchen" id="segKitchen">Kitchen list</a><a href="#rooming?view=calendar" id="segCal">Calendar</a></div>' +
         '<span class="sumline" id="rmSum" aria-live="polite"></span><span class="sp"></span>' +
         '<label class="tick" id="kAllWrap" hidden><input type="checkbox" id="kAll"> Show every guest</label>' +
+        '<span id="rmBoardBtns"><button type="button" class="btn btn-ghost btn-sm" data-act="block">+ Block</button> <button type="button" class="btn btn-ghost btn-sm" data-act="manual">+ Manual booking</button></span>' +
         '<button type="button" class="btn btn-ghost btn-sm" id="rmPrint">Print</button><button type="button" class="btn btn-ghost btn-sm" id="rmCsv">Export CSV</button></div><div id="rmBody"></div>';
       $('rmPrint').onclick = function(){ var s = route.q.view === 'kitchen' ? kitchenPrint() : roomingPrint(); if (s) printSheet(s[0], s[1]); };
       $('rmCsv').onclick = function(){ if (route.q.view === 'kitchen') kitchenCsv(); else roomingCsv(); };
       $('kAll').onchange = function(){ var q = copyObj(route.q); if ($('kAll').checked) q.all = '1'; else delete q.all; replaceQ(q); VIEWS.rooming.update(); };
+      $('rmBoardBtns').addEventListener('click', function(e){
+        var b = e.target.closest && e.target.closest('[data-act]'); if (!b) return;
+        var dt = wk(week).dates || {};
+        openRec(b.getAttribute('data-act'), { from: dt.start, to: dt.end, ret: b });
+      });
       $('rmBody').addEventListener('change', function(e){
         var s = e.target; if (!s.hasAttribute('data-qa')) return;
         var p = s.getAttribute('data-qa').split('|'), b = bookingByRef(p[0]), pos = qsa('#rmBody [data-qa]').indexOf(s);
@@ -1427,22 +1722,29 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
           if (n) n.focus(); else { var h = $('rmSum'); h.setAttribute('tabindex', '-1'); h.focus(); }
         });
       });
+      bindCal($('rmBody'));
     },
     sync: function(){
       if (week === 'all' || !$('segRooms')) return;
-      var k = route.q.view === 'kitchen';
-      $('segRooms').setAttribute('aria-current', k ? 'false' : 'true'); $('segKitchen').setAttribute('aria-current', k ? 'true' : 'false');
+      var k = route.q.view === 'kitchen', c = route.q.view === 'calendar';
+      $('segRooms').setAttribute('aria-current', k || c ? 'false' : 'true'); $('segKitchen').setAttribute('aria-current', k ? 'true' : 'false'); $('segCal').setAttribute('aria-current', c ? 'true' : 'false');
       $('kAllWrap').hidden = !k; $('kAll').checked = route.q.all === '1';
+      // the calendar has its own buttons and CSV
+      $('rmPrint').hidden = c; $('rmCsv').hidden = c; $('rmBoardBtns').hidden = c || k;
+      if (c) $('rmSum').textContent = '';
     },
     update: function(){
-      if (week === 'all' || !$('rmBody')) return;
-      var box = $('rmBody'), wait = notReady(); if (wait) { box.innerHTML = wait; $('rmSum').textContent = ''; return; }
+      if (week === 'all') return calUpdate();
+      if (!$('rmBody')) return;
+      var box = $('rmBody');
+      if (route.q.view === 'calendar') { if (!$('calMain')) box.innerHTML = calShell(); return calUpdate(); }
+      var wait = notReady(); if (wait) { box.innerHTML = wait; $('rmSum').textContent = ''; return; }
       if (route.q.view === 'kitchen') return kitchenView(box);
       var rm = rooming(week), id = week, d = D(id);
-      var guests = sum(weekBookings(id).filter(active), function(b){ return b.guests.length; }), placed = 0;
-      rm.order.forEach(function(n){ placed += rm.byName[n].guests.length; });
+      var guests = sum(weekBookings(id).filter(active), function(b){ return b.guests.length; }), placed = 0, blocked = 0;
+      rm.order.forEach(function(n){ var x = rm.byName[n]; placed += x.guests.filter(function(g){ return !!g.b; }).length; if (x.blocked) blocked++; });
       navList = uniq(rm.unassigned.map(function(g){ return g.ref; }));
-      $('rmSum').innerHTML = '<b>' + placed + '</b> of ' + esc(plural(guests - rm.noRoom.length, 'guest')) + ' placed' + (rm.conflicts ? ' · <b class="refund">' + esc(plural(rm.conflicts, 'conflict')) + '</b>' : '');
+      $('rmSum').innerHTML = '<b>' + placed + '</b> of ' + esc(plural(guests - rm.noRoom.length, 'guest')) + ' placed' + (blocked ? ' · ' + esc(plural(blocked, 'room')) + ' blocked' : '') + (rm.conflicts ? ' · <b class="refund">' + esc(plural(rm.conflicts, 'conflict')) + '</b>' : '');
       var html = (d.demo ? demoNote() : '') + errorNote(scopeErrors());
       if (!rm.order.length) html += '<p class="note">This week\'s room types have no physical room names yet (<code>names</code> in the program file), so guests can\'t be placed here.</p>';
       if (rm.unassigned.length) {
@@ -1455,18 +1757,18 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
           }).join('') + '</tbody></table></div></section>';
       } else if (rm.order.length && guests) html += '<p class="note ok">Everyone with a room is placed.</p>';
       html += '<div class="areas">' + areas(rm).map(function(a){
-        var beds = sum(a.rooms, function(x){ return x.beds; }), used = sum(a.rooms, function(x){ return x.guests.length; });
+        var beds = sum(a.rooms, function(x){ return x.blocked ? 0 : x.beds; }), used = sum(a.rooms, function(x){ return x.blocked ? 0 : x.guests.length; }), nb = a.rooms.filter(function(x){ return x.blocked; }).length;
         var types = uniq(a.rooms.map(function(x){ return x.room.id; })), real = a.rooms.some(function(x){ return x.name.indexOf(' · ') > 0; });
         var oneType = types.length === 1 && !real;
-        return '<section class="area"><h3>' + esc(a.name) + ' <small>' + (oneType ? esc(a.rooms[0].room.name) + ' · ' : real ? esc(plural(a.rooms.length, 'room')) + ' · ' : '') + used + ' of ' + beds + ' taken</small></h3><div class="rgrid">' +
+        return '<section class="area"><h3>' + esc(a.name) + ' <small>' + (oneType ? esc(a.rooms[0].room.name) + ' · ' : real ? esc(plural(a.rooms.length, 'room')) + ' · ' : '') + used + ' of ' + beds + ' taken' + (nb ? ' · ' + nb + ' blocked' : '') + '</small></h3><div class="rgrid">' +
           a.rooms.map(function(x){ return rcard(x, id, oneType); }).join('') + '</div></section>';
       }).join('') + '</div>';
       if (rm.noRoom.length) {
         var byType = {}; rm.noRoom.forEach(function(g){ (byType[g.room] = byType[g.room] || []).push(g); });
         html += '<section class="area" style="margin-top:20px"><h3>No room to assign <small>' + esc(plural(rm.noRoom.length, 'guest')) + '</small></h3><div class="rgrid">' + Object.keys(byType).map(function(rid){
           var rt = roomType(id, rid);
-          return '<article class="rcard"><div class="rn"><b>' + esc(rt ? rt.name : rid) + '</b><span>' + byType[rid].length + '</span></div><div class="beds">' + byType[rid].map(function(g){
-            return '<button type="button" class="bed" data-open="' + esc(g.ref) + '" data-w="' + esc(id) + '">' + gBadge(g.gender) + '<span class="bn">' + esc(g.name) + '</span><span class="br">' + esc(g.ref) + '</span></button>';
+          return '<article class="rcard"><div class="rn"><b>' + esc(rt ? rt.name : rid || 'Manual bookings') + '</b><span>' + byType[rid].length + '</span></div><div class="beds">' + byType[rid].map(function(g){
+            return '<button type="button" class="bed' + (g.manual ? ' man' : '') + '" data-open="' + esc(g.ref) + '" data-w="' + esc(id) + '">' + gBadge(g.gender) + '<span class="bn">' + esc(g.name) + '</span>' + (g.manual ? '<span class="mtag">Manual</span>' : '<span class="br">' + esc(g.ref) + '</span>') + '</button>';
           }).join('') + '</div></article>';
         }).join('') + '</div></section>';
       }
@@ -1477,8 +1779,10 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     var rm = rooming(week); if (!rm) return null;
     var body = areas(rm).map(function(a){
       return '<h2>' + esc(a.name) + '</h2><table><thead><tr><th style="width:22%">Room</th><th style="width:22%">Type</th><th>Guests</th><th style="width:10%">Free</th></tr></thead><tbody>' + a.rooms.map(function(x){
-        return '<tr><td>' + esc(x.name) + (x.conflict ? '<div class="warn">' + (x.conflict === 'mixed' ? 'Mixed genders' : 'Over capacity') + '</div>' : '') + '</td><td>' + esc(x.room.name) + '</td><td>' +
-          (x.guests.length ? x.guests.map(function(g){ return esc(g.name) + ' (' + esc((g.gender || '?').charAt(0)) + ') · ' + esc(g.ref); }).join('<br>') : '–') + '</td><td class="r">' + Math.max(0, x.beds - x.guests.length) + '</td></tr>';
+        var bl = x.blocked;
+        return '<tr><td>' + esc(x.name) + (x.conflict ? '<div class="warn">' + esc(x.conflict === 'blocked' ? 'Guests in a blocked room' : x.conflict === 'mixed' ? 'Mixed genders' : 'Over capacity') + '</div>' : '') + '</td><td>' + esc(x.room.name) + '</td><td>' +
+          (bl ? '<div class="warn">Blocked · ' + esc(reasonLabel(bl.reason)) + ' · ' + esc(stayLabel(bl.from, bl.to)) + (bl.comment ? ' · ' + esc(bl.comment) : '') + '</div>' : '') +
+          (x.guests.length ? x.guests.map(function(g){ return esc(g.name) + ' (' + esc((g.gender || '?').charAt(0)) + ') · ' + esc(g.ref) + (g.manual ? ' · manual' : ''); }).join('<br>') : bl ? '' : '–') + '</td><td class="r">' + (bl ? 0 : Math.max(0, x.beds - x.guests.length)) + '</td></tr>';
       }).join('') + '</tbody></table>';
     }).join('');
     if (rm.unassigned.length) body += '<h2>Not placed yet</h2><table><thead><tr><th>Guest</th><th>Room type</th><th>Booking</th></tr></thead><tbody>' + rm.unassigned.map(function(g){ var rt = roomType(week, g.room); return '<tr><td>' + esc(g.name) + ' (' + esc((g.gender || '?').charAt(0)) + ')</td><td>' + esc(rt ? rt.name : g.room) + '</td><td>' + esc(g.ref) + '</td></tr>'; }).join('') + '</tbody></table>';
@@ -1488,14 +1792,15 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
   function roomingCsv(){
     var rm = rooming(week); if (!rm) return;
     var rows = [];
+    var lead = function(g){ return g.b && g.b.lead ? g.b.lead.name || '' : ''; };
     areas(rm).forEach(function(a){ a.rooms.forEach(function(x){
-      var lead = function(g){ return g.b && g.b.lead ? g.b.lead.name || '' : ''; };
-      if (!x.guests.length) rows.push([a.name, x.name, x.room.name, x.beds, '', '', '', '', '']);
-      x.guests.forEach(function(g){ rows.push([a.name, x.name, x.room.name, x.beds, g.name, g.gender, g.ref, lead(g), x.conflict || '']); });
+      var bl = x.blocked, bt = bl ? reasonLabel(bl.reason) + ' ' + (bl.from || '') + ' to ' + (bl.to || '') + (bl.comment ? ' (' + bl.comment + ')' : '') : '';
+      if (!x.guests.length) rows.push([a.name, x.name, x.room.name, x.beds, '', '', '', '', '', '', bt]);
+      x.guests.forEach(function(g){ rows.push([a.name, x.name, x.room.name, x.beds, g.name, g.gender, g.ref, g.manual ? 'manual' : 'online', lead(g), x.conflict || '', bt]); });
     }); });
-    rm.unassigned.forEach(function(g){ var rt = roomType(week, g.room); rows.push(['Not placed yet', '', rt ? rt.name : g.room, '', g.name, g.gender, g.ref, g.b.lead.name || '', '']); });
-    rm.noRoom.forEach(function(g){ var rt = roomType(week, g.room); rows.push(['No room to assign', '', rt ? rt.name : g.room, '', g.name, g.gender, g.ref, g.b.lead.name || '', '']); });
-    downloadCsv(week + '-rooming.csv', ['area', 'room', 'room_type', 'beds', 'guest', 'gender', 'reference', 'lead_guest', 'conflict'], rows);
+    rm.unassigned.forEach(function(g){ var rt = roomType(week, g.room); rows.push(['Not placed yet', '', rt ? rt.name : g.room, '', g.name, g.gender, g.ref, 'online', lead(g), '', '']); });
+    rm.noRoom.forEach(function(g){ var rt = roomType(week, g.room); rows.push(['No room to assign', '', rt ? rt.name : g.room, '', g.name, g.gender, g.ref, g.manual ? 'manual' : 'online', lead(g), '', '']); });
+    downloadCsv(week + '-rooming.csv', ['area', 'room', 'room_type', 'beds', 'guest', 'gender', 'reference', 'source', 'lead_guest', 'conflict', 'blocked'], rows);
   }
   function kitchenRows(){
     var showAll = route.q.all === '1', rm = rooming(week);
@@ -1523,6 +1828,704 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     var k = kitchenRows(), rows = [];
     k.rows.forEach(function(b){ b.guests.forEach(function(g, i){ rows.push([g.name, g.gender, placeOf(b, i), b.ref, b.diet || '']); }); });
     downloadCsv(week + '-kitchen.csv', ['guest', 'gender', 'room', 'reference', 'diet'], rows);
+  }
+
+  /* ================================================================ calendar
+     Rooming with "All weeks" (or Calendar on a week): physical rooms as rows, grouped by area, nights as
+     columns. Online guests come from a week's data when the page holds it (so the team's latest room
+     changes show at once), otherwise from the calendar endpoint; manual stays and blocks from the
+     calendar endpoint, plus what this tab has just saved (Stripe's search lags up to a minute). */
+  var CAL_N = 28, CAL_STEP = 14, calc = {}, calLast = null, calFocus = null, calKeep = null;
+  var PAY_STATE = { paid: 'paid in full', deposit: 'deposit paid', plan: 'payment plan', processing: 'payment processing' };
+  var MAN_PAY = { none: 'no price set', unpaid: 'not paid yet', deposit: 'part paid', paid: 'paid in full' };
+  function cssq(s){ return '"' + String(s).replace(/["\\]/g, '\\$&') + '"'; }
+  function wd2(d){ return new Date(d + 'T12:00:00Z').toLocaleDateString('en-GB', { weekday: 'short', timeZone: 'UTC' }).slice(0, 2); }
+  function dayLong(d){ return isoLabel(d, { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' }); }
+  function shortTypeName(n){
+    return String(n || '').replace(/, ASHA Bell Tent$/, '').replace(/^Shared Room for Three, Ensuite$/, 'Triple ensuite').replace(/^Twin Room, Shared Bathroom$/, 'Twin, shared bath')
+      .replace(/^Private Single Room Ensuite$/, 'Single ensuite').replace(/^Private Cottage for (One|Two)$/, function(m, x){ return 'Cottage for ' + x.toLowerCase(); });
+  }
+  // "2A · Temple Cottage" → "2A"; "Glamping Single 3" (area Glamping Single) → "Single 3"
+  function shortRoom(r){
+    var n = String(r.name || ''), p = n.split(' · ');
+    if (p.length > 1) return p[0];
+    if (r.area && n.indexOf(r.area + ' ') === 0) { var aw = r.area.split(' '); return aw[aw.length - 1] + ' ' + n.slice(r.area.length + 1); }
+    return n;
+  }
+  function payState(b){ return b.pending ? 'processing' : b.plan ? 'plan' : num(b.balance_cents) > 0 ? 'deposit' : 'paid'; }
+  function gChips(gs){ return gs.slice(0, 3).map(function(g){ var k = gKey(g.gender); return '<i class="gc ' + k + '" aria-hidden="true">' + (k === 'o' ? '?' : k.toUpperCase()) + '</i>'; }).join(''); }
+  function shortNames(gs){ return gs.map(function(g){ var p = String(g.name || '').trim().split(/\s+/); return p.length > 1 ? p[0] + ' ' + p[p.length - 1].charAt(0) + '.' : p[0] || 'Guest'; }).join(', '); }
+  function fullNames(gs){ return gs.map(function(g){ return (g.name || 'Guest') + (g.gender ? ' (' + String(g.gender).charAt(0) + ')' : ''); }).join(', '); }
+  function roomsText(list){ list = list || []; return list.length > 3 ? list.slice(0, 3).join(', ') + ' and ' + (list.length - 3) + ' more' : list.join(', '); }
+  function progSpan(){
+    var s = null, e = null;
+    PROGS.forEach(function(p){ var d = p.dates || {}; if (ISO.test(d.start || '') && (!s || d.start < s)) s = d.start; if (ISO.test(d.end || '') && (!e || d.end > e)) e = d.end; });
+    return { start: s, end: e };
+  }
+  function calDefaultFrom(){
+    if (week !== 'all' && PBY[week] && ISO.test((PBY[week].dates || {}).start || '')) return addDays(PBY[week].dates.start, -7);
+    var sp = progSpan(), t = todayIso();
+    if (!sp.start || (t >= addDays(sp.start, -7) && t <= addDays(sp.end, 7))) return addDays(t, -3);
+    return addDays(sp.start, -7);
+  }
+  function calWin(){
+    var f = route.q.from;
+    if (!ISO.test(f || '') || f < '2026-01-01' || f > '2030-12-03') f = calDefaultFrom();
+    return { from: f, to: addDays(f, CAL_N), n: CAL_N };
+  }
+  function calKey(w){ return w.from + '|' + w.to; }
+  function loadCal(force){
+    var w = calWin(), k = calKey(w), c = calc[k], fk = 'cal:' + k;
+    if (!force && c && c.d && Date.now() - c.at < FRESH) return Promise.resolve(c.d);
+    if (inflight[fk]) return inflight[fk];
+    var p = api('GET', '/api/booking/admin?calendar=1&from=' + w.from + '&to=' + w.to).then(function(d){
+      // an API without the calendar answers with a week: build the calendar from the weeks instead
+      if (!d || d.calendar !== true) d = { calendar: false, legacy: true, demo: !!(d && d.demo) };
+      calc[k] = { d: d, at: Date.now() }; calLast = k; delete inflight[fk]; dataVer++;
+      var ks = Object.keys(calc).filter(function(x){ return x !== k && calc[x].d; });
+      if (ks.length > 6) ks.sort(function(a, b){ return calc[a].at - calc[b].at; }).slice(0, ks.length - 6).forEach(function(x){ delete calc[x]; });
+      return d;
+    }, function(e){
+      delete inflight[fk];
+      var o = calc[k]; calc[k] = { d: o && o.d, at: o ? o.at : 0, err: e }; dataVer++;
+      throw e;
+    });
+    inflight[fk] = p;
+    return p;
+  }
+  function calData(){ var ks = Object.keys(calc).filter(function(k){ return calc[k].d; }).sort(function(a, b){ return calc[b].at - calc[a].at; }); return ks.map(function(k){ return calc[k].d; }); }
+  function calRoom(n){
+    var ds = calData();
+    for (var i = 0; i < ds.length; i++) { var r = Array.isArray(ds[i].rooms) && findBy(ds[i].rooms, function(x){ return x.name === n; }); if (r) return r; }
+    return null;
+  }
+  function manualStays(b){
+    var m = b.manual || {};
+    var ps = !num(b.total_cents) ? 'none' : !num(b.balance_cents) ? 'paid' : num(b.paid_cents) ? 'deposit' : 'unpaid';
+    return b.guests.map(function(g, i){ return { kind: 'manual', ref: b.ref, name: g.name, gender: g.gender, room_name: g.room_name || b.assign[i] || null, from: m.from, to: m.to, programme: m.programme, comment: m.comment, pay_state: ps }; });
+  }
+  // every room of every week (when no calendar data is in yet)
+  function weekRooms(){
+    var out = [], seen = {};
+    PROGS.forEach(function(p){ detail(p.id).rooms.forEach(function(r){ (r.names || []).forEach(function(n){ if (seen[n]) return; seen[n] = 1; out.push({ name: n, area: areaOf(n), room_id: r.id, room_name: r.name, capacity: bedsOf(r), same_gender: !!r.same_gender }); }); }); });
+    return out;
+  }
+  function calModel(){
+    var w = calWin(), k = calKey(w), c = calc[k], d = c && c.d, prov = false;
+    if (!d) { if (!calLast || !calc[calLast] || !calc[calLast].d) return null; d = calc[calLast].d; prov = true; }
+    var legacy = d.calendar !== true, rooms = [], byName = {}, areaList = [];
+    var addRoom = function(r, area){
+      if (!r || !r.name) return null;
+      if (byName[r.name]) return byName[r.name];
+      var x = { name: r.name, room_id: r.room_id || '', room_name: r.room_name || '', area: r.area || area || areaOf(r.name), capacity: Math.max(1, num(r.capacity) || 1), same_gender: !!r.same_gender, items: [] };
+      byName[x.name] = x; rooms.push(x); if (areaList.indexOf(x.area) < 0) areaList.push(x.area);
+      return x;
+    };
+    if (!legacy && Array.isArray(d.areas)) d.areas.forEach(function(a){ if (a && areaList.indexOf(a) < 0) areaList.push(a); });
+    if (!legacy && Array.isArray(d.rooms)) d.rooms.forEach(function(r){ addRoom(r); });
+    if (!rooms.length) weekRooms().forEach(function(r){ addRoom(r); });
+    var progs = [];
+    (!legacy && Array.isArray(d.programs) && d.programs.length ? d.programs : PROGS).forEach(function(p){
+      if (p && p.id && p.dates && ISO.test(p.dates.start || '') && ISO.test(p.dates.end || '')) progs.push({ id: p.id, edition: p.edition || (PBY[p.id] || {}).edition || p.title || p.id, dates: p.dates });
+    });
+    var stays = [], fromWeek = {}, manDone = {};
+    progs.forEach(function(p){
+      var wd = D(p.id); if (!wd) return;
+      fromWeek[p.id] = 1;
+      wd.bookings.forEach(function(b){
+        if (!active(b) || isManual(b)) return;
+        b.guests.forEach(function(g, i){ stays.push({ kind: 'online', ref: b.ref, program: p.id, name: g.name, gender: g.gender, room_id: g.room, room_name: b.assign[i] || null, from: p.dates.start, to: p.dates.end, demo: !!b.demo, pay_state: payState(b) }); });
+      });
+    });
+    (legacy ? [] : d.stays || []).forEach(function(s){
+      if (!s || !s.ref) return;
+      if (s.kind === 'manual') { if (!manualCancelled(s.ref)) { stays.push(s); manDone[s.ref] = 1; } return; }
+      if (!fromWeek[s.program]) stays.push(s);
+    });
+    // manual bookings the calendar doesn't list (yet): saved in this tab, or only in a week's data
+    var addManual = function(b){ if (!b || manDone[b.ref] || !active(b)) return; manDone[b.ref] = 1; manualStays(b).forEach(function(s){ stays.push(s); }); };
+    Object.keys(recOv.manual).forEach(function(ref){ if (Date.now() - recOv.manual[ref].at > OV_TTL) { delete recOv.manual[ref]; return; } if (!manDone[ref]) addManual(manualFromOv(ref)); });
+    progs.forEach(function(p){ weekBookings(p.id).forEach(function(b){ if (isManual(b)) addManual(b); }); });
+    // blocks
+    var blocks = [], listed = {}, src = [];
+    if (!legacy) (d.blocks || []).forEach(function(bl){ if (bl && bl.id && !listed[bl.id] && (!bl.status || bl.status === 'active')) { listed[bl.id] = 1; src.push(bl); } });
+    else progs.forEach(function(p){
+      var wd = D(p.id), sr = wd && wd.rooming || {};
+      Object.keys(sr).forEach(function(n){ var s = sr[n]; if (s && s.blocked && s.blocked.id) { var r = regBlock(s.blocked, n); if (!listed[r.id]) { listed[r.id] = 1; src.push(r); } } });
+      (wd && Array.isArray(wd.blocks) ? wd.blocks : []).forEach(function(bl){ if (bl && bl.id && !listed[bl.id]) { listed[bl.id] = 1; src.push(bl); } });
+    });
+    src.concat(ovBlocks(listed)).forEach(function(bl){ if (bl && bl.id && !blockGone(bl.id)) blocks.push(regBlock(bl)); });
+    // guests without a physical room yet, per room type
+    var unp = {}, addU = function(u){ if (u && u.room_id && num(u.count) > 0 && u.placeable !== false) (unp[u.room_id] = unp[u.room_id] || []).push(u); };
+    progs.forEach(function(p){
+      if (!fromWeek[p.id]) return;
+      var by = {};
+      rooming(p.id).unassigned.forEach(function(g){
+        var x = by[g.room] || (by[g.room] = { program: p.id, room_id: g.room, count: 0, female: 0, male: 0 });
+        x.count++; if (gKey(g.gender) === 'f') x.female++; else if (gKey(g.gender) === 'm') x.male++;
+      });
+      Object.keys(by).forEach(function(r){ addU(by[r]); });
+    });
+    (legacy ? [] : d.unplaced || []).forEach(function(u){ if (u && !fromWeek[u.program]) addU(u); });
+    // bars: online guests per room per week, manual stays per booking per room, blocks per room
+    var groups = {};
+    stays.forEach(function(s){
+      if (!s.room_name || !ISO.test(s.from || '') || !ISO.test(s.to || '') || s.to <= s.from) return;
+      var r = byName[s.room_name] || addRoom({ name: s.room_name, room_id: s.room_id, room_name: '', capacity: 1 }, 'Other rooms');
+      var man = s.kind === 'manual', key = (man ? 'm|' + s.ref : 'o|' + (s.program || s.from + s.to)) + '|' + s.room_name, it = groups[key];
+      if (!it) {
+        it = groups[key] = man ? { type: 'man', ref: s.ref, from: s.from, to: s.to, guests: [], programme: s.programme, comment: s.comment || '', pay_state: s.pay_state || '' }
+          : { type: 'on', program: s.program, from: s.from, to: s.to, segs: [], guests: [] };
+        r.items.push(it);
+      }
+      var g = { name: s.name, gender: s.gender };
+      it.guests.push(g);
+      if (!man) {
+        var sg = findBy(it.segs, function(x){ return x.ref === s.ref; });
+        if (!sg) it.segs.push(sg = { ref: s.ref, program: s.program, guests: [], pay_state: PAY_STATE[s.pay_state] ? s.pay_state : 'paid', demo: !!s.demo });
+        sg.guests.push(g);
+      }
+    });
+    blocks.forEach(function(bl){
+      if (!ISO.test(bl.from || '') || !ISO.test(bl.to || '')) return;
+      (bl.rooms || []).forEach(function(n){ var r = byName[n]; if (r) r.items.push({ type: 'blk', id: bl.id, from: bl.from, to: bl.to, reason: bl.reason, comment: bl.comment || '' }); });
+    });
+    // nights in view: who is in each room, blocked or not, clashes, and the lines bars sit on
+    var days = [], cls = [], dl = [], t = todayIso();
+    for (var i = 0; i < w.n; i++) {
+      var dd = addDays(w.from, i), pw = findBy(progs, function(p){ return p.dates.start <= dd && dd < p.dates.end; }), wd = new Date(dd + 'T12:00:00Z').getUTCDay(), cc = '';
+      if (pw) cc += ' w'; if (pw && pw.dates.start === dd) cc += ' ws'; if (dd === t) cc += ' t'; if (i && dd.slice(8) === '01') cc += ' mo'; if (wd === 0 || wd === 6) cc += ' we';
+      days.push(dd); cls.push(cc); dl.push(dayLong(dd));
+    }
+    rooms.forEach(function(r){
+      r.guests = []; r.blocked = []; r.gens = [];
+      for (var i = 0; i < w.n; i++) { r.guests.push(0); r.blocked.push(null); r.gens.push(0); }
+      var span = function(it){ return [Math.max(0, nightsOf(w.from, it.from)), Math.min(w.n, nightsOf(w.from, it.to))]; };
+      r.items.forEach(function(it){
+        var s = span(it);
+        for (var i = s[0]; i < s[1]; i++) {
+          if (it.type === 'blk') { r.blocked[i] = it; continue; }
+          r.guests[i] += it.guests.length;
+          it.guests.forEach(function(g){ var k = gKey(g.gender); r.gens[i] |= k === 'f' ? 1 : k === 'm' ? 2 : 0; });
+        }
+      });
+      r.clash = false;
+      r.items.forEach(function(it){
+        var s = span(it);
+        for (var i = s[0]; i < s[1]; i++) if ((r.blocked[i] && r.guests[i]) || r.guests[i] > r.capacity || (r.same_gender && r.gens[i] === 3)) { it.clash = true; r.clash = true; break; }
+      });
+      var rank = { blk: 0, man: 1, on: 2 }, ends = [];
+      r.vis = r.items.filter(function(it){ return overlaps(it.from, it.to, w.from, w.to); });
+      r.vis.sort(function(x, y){ return x.from < y.from ? -1 : x.from > y.from ? 1 : rank[x.type] - rank[y.type]; });
+      r.vis.forEach(function(it){ var l = 0; while (l < ends.length && ends[l] > it.from) l++; ends[l] = it.to; it.lane = l; });
+      r.lanes = Math.max(1, ends.length);
+    });
+    rooms.sort(function(a, b){ return areaList.indexOf(a.area) - areaList.indexOf(b.area) || natural(a.name, b.name); });
+    return { win: w, days: days, cls: cls, dl: dl, rooms: rooms, byName: byName, areas: areaList.filter(function(a){ return rooms.some(function(r){ return r.area === a; }); }),
+      programs: progs, unplaced: unp, provisional: prov, legacy: legacy, demo: !!d.demo, err: c && c.err };
+  }
+
+  function calHead(m){
+    var w = m.win, n = w.n, h = '<div class="cal-g cal-head"><div class="cal-corner"><b>Rooms</b><small>' + esc(plural(m.rooms.length, 'room')) + ' · nights →</small></div>';
+    for (var i = 0; i < n;) {
+      var mo = m.days[i].slice(0, 7), j = i;
+      while (j < n && m.days[j].slice(0, 7) === mo) j++;
+      var span = j - i, lab = span >= 4 ? isoLabel(m.days[i], { month: 'long', year: 'numeric', timeZone: 'UTC' }) : span >= 2 ? isoLabel(m.days[i], { month: 'short', timeZone: 'UTC' }) : '';
+      h += '<div class="cal-mo" style="grid-column:' + (i + 2) + '/' + (j + 2) + '">' + (lab ? '<span>' + esc(lab) + '</span>' : '') + '</div>';
+      i = j;
+    }
+    m.programs.forEach(function(p){
+      var a = Math.max(0, nightsOf(w.from, p.dates.start)), z = Math.min(n, nightsOf(w.from, p.dates.end));
+      if (z <= a) return;
+      var lab = esc(p.edition) + '<small>' + esc(p.dates.short || stayLabel(p.dates.start, p.dates.end)) + '</small>', st = ' style="grid-column:' + (a + 2) + '/' + (z + 2) + '"';
+      h += PBY[p.id] ? '<button type="button" class="cal-wk"' + st + ' data-board="' + esc(p.id) + '" title="' + esc(p.edition + ' · ' + (p.dates.label || p.dates.short || '') + ': open its rooming board') + '">' + lab + '</button>'
+        : '<div class="cal-wk"' + st + '>' + lab + '</div>';
+    });
+    m.days.forEach(function(d, i){ h += '<div class="cal-d' + m.cls[i] + '" style="grid-column:' + (i + 2) + '" title="' + esc(m.dl[i]) + '"><small>' + esc(wd2(d)) + '</small><b>' + (+d.slice(8)) + '</b></div>'; });
+    return h + '</div>';
+  }
+  function calBar(m, r, it){
+    var w = m.win, a = nightsOf(w.from, it.from), z = nightsOf(w.from, it.to);
+    if (z <= 0 || a >= w.n) return '';
+    var cl = a < 0, cr = z > w.n; a = Math.max(0, a); z = Math.min(w.n, z);
+    var span = z - a, pos = ' style="grid-column:' + (a + 2) + '/' + (z + 2) + ';grid-row:' + (it.lane + 1) + '"', cls = (cl ? ' cl' : '') + (cr ? ' cr' : '') + (it.clash ? ' clash' : '') + (span < 2 ? ' n1' : '');
+    var when = stayLabel(it.from, it.to) + ' (' + plural(nightsOf(it.from, it.to), 'night') + ')';
+    if (it.type === 'blk') {
+      var tb = 'Blocked · ' + reasonLabel(it.reason) + ' · ' + r.name + ' · ' + when + (it.comment ? ' · ' + it.comment : '') + (it.clash ? ' · guests are booked in this room on these nights' : '');
+      return '<button type="button" class="cb blk' + cls + '"' + pos + ' data-block="' + esc(it.id) + '" title="' + esc(tb) + '" aria-label="' + esc(tb) + '"><span class="t"><em>' + esc(reasonLabel(it.reason)) + '</em><span>' + esc(it.comment || 'Blocked') + '</span></span></button>';
+    }
+    if (it.type === 'man') {
+      var tm = 'Manual booking ' + it.ref + ' · ' + fullNames(it.guests) + ' · ' + r.name + ' · ' + when + (it.programme === 'yes' ? ' · attends the programme' : '') + (MAN_PAY[it.pay_state] ? ' · ' + MAN_PAY[it.pay_state] : '') + (it.comment ? ' · ' + it.comment : '') + (it.clash ? ' · clashes with a block or another booking' : '');
+      return '<button type="button" class="cb man' + cls + '"' + pos + ' data-open="' + esc(it.ref) + '" data-w="" title="' + esc(tm) + '" aria-label="' + esc(tm) + '"><span class="t">' + (span >= 5 ? '<em>Manual</em>' : '') + (span >= 3 ? gChips(it.guests) : '') + '<span>' + esc(shortNames(it.guests)) + '</span></span></button>';
+    }
+    return '<div class="cb on' + cls + '"' + pos + '>' + it.segs.map(function(sg){
+      var tt = sg.ref + ' · ' + fullNames(sg.guests) + ' · ' + PAY_STATE[sg.pay_state] + (sg.demo ? ' · demo booking' : '') + ' · ' + r.name + ' · ' + (wkName(sg.program) || when) + (it.clash ? ' · clash in this room' : '');
+      return '<button type="button" class="sg ' + sg.pay_state + (sg.demo ? ' demo' : '') + '" style="flex-grow:' + sg.guests.length + '" data-open="' + esc(sg.ref) + '" data-w="' + esc(PBY[sg.program] ? sg.program : '') + '" title="' + esc(tt) + '" aria-label="' + esc(tt) + '">' +
+        (span >= 3 ? gChips(sg.guests) : '') + '<span>' + esc(shortNames(sg.guests)) + '</span>' + (sg.demo ? '<em class="dtag">Demo</em>' : '') + '</button>';
+    }).join('') + '</div>';
+  }
+  function calRow(m, r, ri){
+    var w = m.win, short = shortRoom(r), type = shortTypeName(r.room_name);
+    var h = '<div class="cal-row cal-g" style="--l:' + r.lanes + '"><div class="cal-rl' + (r.clash ? ' bad' : '') + '" title="' + esc(r.name + (r.room_name ? ' · ' + r.room_name : '') + ' · ' + plural(r.capacity, 'bed') + (r.clash ? ' · has a clash in these nights' : '')) + '"><b>' + esc(short) + '</b><small>' + esc([type, plural(r.capacity, 'bed')].filter(Boolean).join(' · ')) + '</small></div>';
+    for (var i = 0; i < w.n; i++) {
+      var st = r.blocked[i] ? 'blocked' : r.guests[i] ? plural(r.guests[i], 'guest') + ' of ' + r.capacity : 'free';
+      h += '<button type="button" class="cc' + m.cls[i] + '" style="grid-column:' + (i + 2) + '" tabindex="-1" data-cell="' + esc(r.name + '|' + m.days[i]) + '" data-ri="' + ri + '" data-ci="' + i + '" aria-label="' + esc(short + (short !== r.name ? ', ' + r.area : '') + ', night of ' + m.dl[i] + ': ' + st) + '"></button>';
+    }
+    r.vis.forEach(function(it){ h += calBar(m, r, it); });
+    return h + '</div>';
+  }
+  function calUnplaced(m){
+    var w = m.win, total = 0, rows = '';
+    Object.keys(m.unplaced).forEach(function(rid){
+      var r0 = findBy(m.rooms, function(r){ return r.room_id === rid; }); if (!r0) return;   // tent pitches etc. have no rooms here
+      var bars = '';
+      m.unplaced[rid].forEach(function(u){
+        var p = findBy(m.programs, function(x){ return x.id === u.program; }); if (!p) return;
+        var a = Math.max(0, nightsOf(w.from, p.dates.start)), z = Math.min(w.n, nightsOf(w.from, p.dates.end)); if (z <= a) return;
+        total += num(u.count);
+        var tx = plural(num(u.count), 'guest') + ' not placed' + (num(u.female) ? ' · ' + num(u.female) + ' F' : '') + (num(u.male) ? ' · ' + num(u.male) + ' M' : ''), tt = tx + ' · ' + (r0.room_name || rid) + ' · ' + p.edition;
+        bars += (PBY[p.id] ? '<button type="button" class="cb unp" data-board="' + esc(p.id) + '"' : '<div class="cb unp"') + ' style="grid-column:' + (a + 2) + '/' + (z + 2) + ';grid-row:1" title="' + esc(tt + (PBY[p.id] ? ': place them on the week\'s rooming board' : '')) + '" aria-label="' + esc(tt + ': open the rooming board') + '"><span class="t"><span>' + esc(num(u.count) + ' not placed' + (num(u.female) ? ' · ' + num(u.female) + ' F' : '') + (num(u.male) ? ' · ' + num(u.male) + ' M' : '')) + '</span></span>' + (PBY[p.id] ? '</button>' : '</div>');
+      });
+      if (!bars) return;
+      var cells = ''; for (var i = 0; i < w.n; i++) cells += '<div class="ccx' + m.cls[i] + '" style="grid-column:' + (i + 2) + '"></div>';
+      rows += '<div class="cal-row cal-g" style="--l:1"><div class="cal-rl" title="' + esc(r0.room_name || rid) + '"><b>' + esc(shortTypeName(r0.room_name) || rid) + '</b><small>room type</small></div>' + cells + bars + '</div>';
+    });
+    return rows ? '<div class="cal-area unp"><span>Not placed yet<small>' + esc(plural(total, 'guest')) + ' still need a room</small></span></div>' + rows : '';
+  }
+  function calShell(){
+    return '<div class="toolbar cal-tb"><div class="cal-nav"><button type="button" class="ibtn" data-cal="-' + CAL_STEP + '" title="Previous two weeks" aria-label="Previous two weeks">' + IC.left + '</button>' +
+      '<button type="button" class="ibtn" data-cal="' + CAL_STEP + '" title="Next two weeks" aria-label="Next two weeks">' + IC.right + '</button>' +
+      '<span class="cal-range" id="calRange" aria-live="polite"></span><button type="button" class="btn btn-ghost btn-sm" data-cal="today">Today</button></div>' +
+      '<div class="chips" id="calChips" role="group" aria-label="Jump to week"></div><span class="sp"></span>' +
+      '<button type="button" class="btn btn-ghost btn-sm" data-act="block">+ Block</button><button type="button" class="btn btn-sm" data-act="manual">+ Manual booking</button>' +
+      '<button type="button" class="btn btn-ghost btn-sm" data-act="csv">Export CSV</button></div><div id="calMain"></div>';
+  }
+  function calUpdate(){
+    var main = $('calMain'); if (!main) return;
+    var w = calWin(), k = calKey(w), c = calc[k], last = addDays(w.to, -1);
+    $('calRange').innerHTML = esc(stayLabel(w.from, last)) + '<small>' + esc(plural(w.n, 'night')) + '</small>';
+    $('calChips').innerHTML = '<span class="lbl">Jump to</span>' + PROGS.map(function(p){
+      var dt = p.dates || {}, inView = ISO.test(dt.start || '') && dt.start >= w.from && dt.end <= w.to;
+      return '<button type="button" class="chip" data-jump="' + esc(p.id) + '" aria-current="' + (inView ? 'true' : 'false') + '">' + esc(p.edition || p.title || p.id) + ' <small>' + esc(dt.short || '') + '</small></button>';
+    }).join('');
+    var m = calModel();
+    if (!m) {
+      main.innerHTML = c && c.err && !inflight['cal:' + k] ? '<p class="note err">Could not load the calendar: ' + esc(why(c.err)) + ' <button type="button" class="lnk" data-retry>Try again</button></p>' : skeleton(9);
+      return;
+    }
+    var old = $('calSc'), keep = old && calKeep === k ? { l: old.scrollLeft, t: old.scrollTop } : null;
+    var guests = 0, man = {}, blk = {}, unpl = 0;
+    m.rooms.forEach(function(r){ r.vis.forEach(function(it){ if (it.type === 'blk') blk[it.id] = 1; else { guests += it.guests.length; if (it.type === 'man') man[it.ref] = 1; } }); });
+    Object.keys(m.unplaced).forEach(function(rid){ m.unplaced[rid].forEach(function(u){ var p = findBy(m.programs, function(x){ return x.id === u.program; }); if (p && overlaps(p.dates.start, p.dates.end, w.from, w.to) && findBy(m.rooms, function(r){ return r.room_id === rid; })) unpl += num(u.count); }); });
+    var clashes = m.rooms.filter(function(r){ return r.clash; }).length, ri = 0;
+    var legend = '<ul class="calleg" aria-label="Colours"><li><i class="sw paid"></i>Paid</li><li><i class="sw deposit"></i>Deposit</li><li><i class="sw plan"></i>Plan</li><li><i class="sw processing"></i>Processing</li><li><i class="sw demo"></i>Demo</li><li><i class="sw man"></i>Manual</li><li><i class="sw blk"></i>Blocked</li><li><i class="sw wk"></i>BreathCamp week</li></ul>';
+    var html = (m.demo ? demoNote() : '') + (m.err && !m.provisional ? '<p class="note err">Could not refresh the calendar: ' + esc(why(m.err)) + ' <button type="button" class="lnk" data-retry>Try again</button></p>' : '') +
+      (m.legacy ? '<p class="note">The booking system doesn\'t send the calendar yet, so this shows the BreathCamp weeks\' guests only (no blocks or manual stays).</p>' : '') +
+      '<div class="calinfo"><span><b>' + esc(plural(guests, 'guest')) + '</b> in rooms · ' + esc(plural(Object.keys(man).length, 'manual booking')) + ' · ' + esc(plural(Object.keys(blk).length, 'block')) +
+        (unpl ? ' · <b class="refund">' + esc(unpl + ' not placed') + '</b>' : '') + (clashes ? ' · <b class="refund">' + esc(plural(clashes, 'room')) + ' with a clash</b>' : '') + '</span>' + legend + '</div>' +
+      '<div class="calwrap' + (m.provisional ? ' busy' : '') + '"' + (m.provisional ? ' aria-busy="true"' : '') + '><div class="calsc" id="calSc" role="region" aria-label="' + esc('Room calendar, ' + stayLabel(w.from, last)) + '">' +
+        '<div class="cal" style="--n:' + w.n + '">' + calHead(m) + calUnplaced(m) +
+        m.areas.map(function(a){
+          var rs = m.rooms.filter(function(r){ return r.area === a; });
+          return '<div class="cal-area"><span>' + esc(a) + '<small>' + esc(plural(rs.length, 'room') + ' · ' + plural(sum(rs, function(r){ return r.capacity; }), 'bed')) + '</small></span></div>' + rs.map(function(r){ return calRow(m, r, ri++); }).join('');
+        }).join('') + '</div></div></div>' +
+      '<p class="calhint">Click an empty night to block a room or add a manual booking (keyboard: arrow keys, then Enter). Click a bar to open it. The week labels open that week\'s rooming board.</p>';
+    main.innerHTML = html;
+    // J / K in a booking's panel walk through the bookings in view, top to bottom
+    var refs = []; each(main.querySelectorAll('.cal-row [data-open]'), function(x){ var v = x.getAttribute('data-open'); if (refs.indexOf(v) < 0) refs.push(v); }); navList = refs;
+    var sc = $('calSc');
+    if (keep) { sc.scrollLeft = keep.l; sc.scrollTop = keep.t; }
+    calKeep = k;
+    // one tab stop in the grid: the last cell used, else today, else the first night of the first room
+    var f = (calFocus && sc.querySelector('.cc[data-cell=' + cssq(calFocus) + ']')) || sc.querySelector('.cc.t') || sc.querySelector('.cc');
+    if (f) f.setAttribute('tabindex', '0');
+  }
+  function calGo(from){
+    var q = copyObj(route.q); q.from = from; replaceQ(q);
+    keepFocus(calUpdate);
+    ensure(route.tab);
+  }
+  function focusCell(key){
+    var sc = $('calSc'), c = sc && key && sc.querySelector('.cc[data-cell=' + cssq(key) + ']');
+    if (!c) return false;
+    each(sc.querySelectorAll('.cc[tabindex="0"]'), function(x){ x.setAttribute('tabindex', '-1'); });
+    c.setAttribute('tabindex', '0'); c.focus(); calFocus = key;
+    return true;
+  }
+  // calendar events, delegated from its container (the Rooming view or the week's board body)
+  function bindCal(root){
+    root.addEventListener('click', function(e){
+      var t = e.target, el;
+      if (!t.closest) return;
+      if ((el = t.closest('[data-cal]'))) {
+        var v = el.getAttribute('data-cal');
+        calGo(v === 'today' ? addDays(todayIso(), -3) : addDays(calWin().from, +v));
+        return;
+      }
+      if ((el = t.closest('[data-jump]'))) { var p = PBY[el.getAttribute('data-jump')]; if (p && p.dates) calGo(addDays(p.dates.start, -7)); return; }
+      if ((el = t.closest('[data-board]'))) {
+        var id = el.getAttribute('data-board'), q = copyObj(route.q);
+        delete q.view; delete q.from; replaceQ(q); setWeek(id);
+        return;
+      }
+      if ((el = t.closest('.cc'))) {
+        var c = (el.getAttribute('data-cell') || '').split('|');
+        if (c.length === 2) { calFocus = el.getAttribute('data-cell'); openRec(null, { room: c[0], from: c[1], to: addDays(c[1], 1), ret: el }); }
+        return;
+      }
+      if ((el = t.closest('[data-block]'))) { openBlock(el.getAttribute('data-block'), el); return; }
+      if ((el = t.closest('[data-act]'))) {
+        var act = el.getAttribute('data-act');
+        if (act === 'csv') calCsv(); else openRec(act, { ret: el });
+      }
+    });
+    root.addEventListener('focusin', function(e){
+      var c = e.target;
+      if (!c.classList || !c.classList.contains('cc')) return;
+      if (c.getAttribute('tabindex') !== '0') { each(root.querySelectorAll('.cc[tabindex="0"]'), function(x){ x.setAttribute('tabindex', '-1'); }); c.setAttribute('tabindex', '0'); }
+      calFocus = c.getAttribute('data-cell');
+    });
+    root.addEventListener('keydown', function(e){
+      var c = e.target;
+      if (!c.classList || !c.classList.contains('cc') || e.altKey || e.ctrlKey || e.metaKey) return;
+      var r = +c.getAttribute('data-ri'), i = +c.getAttribute('data-ci');
+      if (e.key === 'ArrowLeft') i--; else if (e.key === 'ArrowRight') i++; else if (e.key === 'ArrowUp') r--; else if (e.key === 'ArrowDown') r++;
+      else if (e.key === 'Home') i = 0; else if (e.key === 'End') i = CAL_N - 1; else if (e.key === 'PageUp') r -= 5; else if (e.key === 'PageDown') r += 5;
+      else return;
+      e.preventDefault();
+      var rows = root.querySelectorAll('.cc[data-ci="0"]').length;
+      r = Math.max(0, Math.min(rows - 1, r)); i = Math.max(0, Math.min(CAL_N - 1, i));
+      var n = root.querySelector('.cc[data-ri="' + r + '"][data-ci="' + i + '"]');
+      if (n) focusCell(n.getAttribute('data-cell'));
+    });
+  }
+  function calCsv(){
+    var m = calModel(); if (!m) { toast('The calendar is still loading.', 'warn'); return; }
+    var w = m.win, rows = [];
+    m.rooms.forEach(function(r){ r.vis.forEach(function(it){
+      var base = [r.area, r.name, r.room_name, it.from, it.to, nightsOf(it.from, it.to)];
+      if (it.type === 'blk') rows.push(['block', it.id].concat(base, ['', reasonLabel(it.reason), '', '', it.comment || '']));
+      else if (it.type === 'man') rows.push(['manual', it.ref].concat(base, [fullNames(it.guests), '', it.programme === 'yes' ? 'attends the programme' : 'stay only', '', it.comment || '']));
+      else it.segs.forEach(function(sg){ rows.push(['online', sg.ref].concat(base, [fullNames(sg.guests), '', wkName(sg.program), PAY_STATE[sg.pay_state] + (sg.demo ? ' (demo)' : ''), ''])); });
+    }); });
+    Object.keys(m.unplaced).forEach(function(rid){ m.unplaced[rid].forEach(function(u){
+      var p = findBy(m.programs, function(x){ return x.id === u.program; }), r0 = findBy(m.rooms, function(r){ return r.room_id === rid; });
+      if (!p || !r0 || !overlaps(p.dates.start, p.dates.end, w.from, w.to)) return;
+      rows.push(['not placed', '', 'Not placed yet', '', r0.room_name || rid, p.dates.start, p.dates.end, nightsOf(p.dates.start, p.dates.end), num(u.count) + ' guests (' + num(u.female) + ' F, ' + num(u.male) + ' M)', '', p.edition, '', '']);
+    }); });
+    downloadCsv('rooming-calendar-' + w.from + '-to-' + addDays(w.to, -1) + '.csv', ['type', 'reference', 'area', 'room', 'room_type', 'from', 'to', 'nights', 'guests', 'block_reason', 'week_or_programme', 'payment', 'comment'], rows);
+  }
+
+  /* ================================================================ block or manual booking (modal) */
+  var rf = null, rfMode = 'block', EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  function rfRooms(){ var m = calModel(); return m && m.rooms.length ? m.rooms : weekRooms(); }
+  // how full a room is on the nights [from, to), from the calendar in view (null when it doesn't cover them)
+  function nameState(name, from, to){
+    var m = calModel();
+    if (!m || m.provisional || !ISO.test(from || '') || !ISO.test(to || '') || to <= from || from < m.win.from || to > m.win.to) return null;
+    var r = m.byName[name]; if (!r) return null;
+    var a = nightsOf(m.win.from, from), z = nightsOf(m.win.from, to), s = { guests: 0, blocked: null, gens: 0, cap: r.capacity, same: r.same_gender };
+    for (var i = a; i < z; i++) { s.guests = Math.max(s.guests, r.guests[i]); if (r.blocked[i]) s.blocked = r.blocked[i]; s.gens |= r.gens[i]; }
+    return s;
+  }
+  function rfWeeks(){ var f = rf; return ISO.test(f.from) && ISO.test(f.to) && f.to > f.from ? PROGS.filter(function(p){ return p.dates && overlaps(f.from, f.to, p.dates.start, p.dates.end); }) : []; }
+  function rfNightsText(){
+    var f = rf, man = f.mode === 'manual';
+    if (!ISO.test(f.from) || !ISO.test(f.to)) return '<span>Choose the dates.</span>';
+    var n = nightsOf(f.from, f.to), wks = rfWeeks();
+    if (n < 1) return '<span class="refund">' + (man ? 'Check-out' : '"Until"') + ' must be after the first night.</span>';
+    return '<b>' + esc(plural(n, 'night')) + '</b> · ' + esc(dayLong(f.from)) + ' to ' + esc(dayLong(f.to)) + (wks.length ? '<br>During ' + esc(wks.map(function(p){ return wkName(p.id); }).join(' and ')) : '');
+  }
+  function rfErr(k){ var v = rf.errs[k] || ''; return '<span class="err" data-err="' + esc(k) + '">' + esc(v) + '</span>'; }
+  function rfPicker(){
+    var f = rf, rooms = rfRooms(), areasL = [], unknown = false;
+    if (!rooms.length) return '<p class="muted">Loading the rooms…</p>';
+    rooms.forEach(function(r){ if (areasL.indexOf(r.area) < 0) areasL.push(r.area); });
+    var html = '<div class="rpick" id="rfRooms"' + (f.errs.rooms ? ' aria-invalid="true"' : '') + '>' + areasL.map(function(a){
+      return '<fieldset><legend>' + esc(a) + '</legend><div class="rp">' + rooms.filter(function(r){ return r.area === a; }).map(function(r){
+        var i = rooms.indexOf(r), s = nameState(r.name, f.from, f.to), h = ['', ''];
+        if (!s) unknown = true;
+        else if (s.blocked) h = ['blocked', 'busy'];
+        else if (!s.guests) h = ['free', 'ok'];
+        else h = [s.guests >= s.cap ? 'full' : s.guests + ' of ' + s.cap, 'busy'];
+        return '<label><input type="checkbox" id="rfR' + i + '" data-room="' + esc(r.name) + '"' + (f.rooms.indexOf(r.name) >= 0 ? ' checked' : '') + '><span>' + esc(shortRoom(r)) + ' <small class="' + h[1] + '">' + esc([shortTypeName(r.room_name), h[0]].filter(Boolean).join(' · ')) + '</small></span></label>';
+      }).join('') + '</div></fieldset>';
+    }).join('') + '</div>';
+    if (unknown && ISO.test(f.from) && ISO.test(f.to) && f.to > f.from) html += '<p class="muted" style="font-size:.76rem;margin:6px 0 0">Free or booked shows for nights inside the calendar view. Every night is checked when you save.</p>';
+    return html;
+  }
+  function rfRoomSelect(g, i){
+    var f = rf, rooms = rfRooms(), free = [], busy = [], other = [], gk = gKey(g.gender), mine = gk === 'f' ? 1 : gk === 'm' ? 2 : 0;
+    rooms.forEach(function(r){
+      var s = nameState(r.name, f.from, f.to), mates = f.guests.filter(function(x, j){ return j !== i && x.room === r.name; });
+      var used = (s ? s.guests : 0) + mates.length, gens = s ? s.gens : 0;
+      mates.forEach(function(x){ var k = gKey(x.gender); gens |= k === 'f' ? 1 : k === 'm' ? 2 : 0; });
+      var bad = s && s.blocked ? 'blocked' : used >= r.capacity ? 'full' : r.same_gender && mine && gens && (gens | mine) === 3 ? (gens === 1 ? 'women\'s room' : gens === 2 ? 'men\'s room' : 'mixed') : '';
+      var label = shortRoom(r) + (shortRoom(r) !== r.name ? ' · ' + r.area : '') + ' · ' + shortTypeName(r.room_name) + (s || mates.length ? ' (' + (bad || (used ? used + ' of ' + r.capacity : 'free')) + ')' : '');
+      (bad ? busy : s ? free : other).push(opt(r.name, label, g.room));
+    });
+    var e = rf.errs['guests.' + i + '.room_name'];
+    return '<select id="rfG' + i + 'room" data-g="' + i + '" data-k="room"' + (e ? ' aria-invalid="true"' : '') + '><option value="">Choose a room…</option>' +
+      (free.length ? '<optgroup label="Free on these nights">' + free.join('') + '</optgroup>' : '') + (other.length ? '<optgroup label="' + (free.length || busy.length ? 'Other rooms' : 'Rooms') + '">' + other.join('') + '</optgroup>' : '') +
+      (busy.length ? '<optgroup label="Taken or blocked on some of these nights">' + busy.join('') + '</optgroup>' : '') + '</select>';
+  }
+  function rfGuestHtml(g, i){
+    var inp = function(k, label, type){
+      var e = rf.errs['guests.' + i + '.' + k];
+      return '<label class="f"><span>' + label + '</span><input type="' + (type || 'text') + '" id="rfG' + i + k + '" data-g="' + i + '" data-k="' + k + '" value="' + esc(g[k]) + '" autocomplete="off"' + (type === 'email' ? ' inputmode="email" autocapitalize="off" spellcheck="false"' : '') + (e ? ' aria-invalid="true"' : '') + '>' + rfErr('guests.' + i + '.' + k) + '</label>';
+    };
+    return '<fieldset class="gblock"><legend>' + (i === 0 ? 'Lead guest' : 'Guest ' + (i + 1)) + ' <small>(email optional)</small></legend><div class="fgrid">' +
+      inp('first', 'First name') + inp('last', 'Last name') + inp('email', 'Email', 'email') +
+      '<label class="f"><span>Gender</span><select id="rfG' + i + 'gender" data-g="' + i + '" data-k="gender"' + (rf.errs['guests.' + i + '.gender'] ? ' aria-invalid="true"' : '') + '><option value="">Choose…</option>' + GENDERS.map(function(x){ return opt(x, x, g.gender); }).join('') + '</select>' + rfErr('guests.' + i + '.gender') + '</label>' +
+      '<label class="f" style="grid-column:1/-1"><span>Room</span>' + rfRoomSelect(g, i) + rfErr('guests.' + i + '.room_name') + '</label></div></fieldset>';
+  }
+  function rfDyn(){
+    var f = rf, wks = rfWeeks();
+    if (f.mode !== 'manual') {
+      return '<div class="fsec"><h3>Rooms <span style="text-transform:none;letter-spacing:0;font-weight:400" id="rfRoomCt">· ' + esc(plural(f.rooms.length, 'room')) + ' chosen</span></h3>' + rfPicker() + rfErr('rooms') + '</div>' +
+        '<div class="fgrid" style="margin-top:14px"><label class="f"><span>Reason</span><select id="rfReason">' + REASONS.map(function(r){ return opt(r[0], r[1], f.reason); }).join('') + '</select>' + rfErr('reason') + '</label>' +
+        '<label class="f" style="grid-column:1/-1"><span>Comment <small>(optional, for the team)</small></span><textarea id="rfComment" maxlength="480" rows="2" placeholder="e.g. Roof repair, the owner\'s family">' + esc(f.comment) + '</textarea>' + rfErr('comment') + '</label></div>';
+    }
+    return '<div class="fsec"><h3>Guests</h3><div class="stepper" style="margin-bottom:12px"><button type="button" id="rfMinus" aria-label="One guest fewer"' + (f.guests.length <= 1 ? ' disabled' : '') + '>−</button><output id="rfCount" aria-live="polite">' + esc(plural(f.guests.length, 'guest')) + '</output><button type="button" id="rfPlus" aria-label="One more guest"' + (f.guests.length >= 12 ? ' disabled' : '') + '>+</button></div>' +
+      f.guests.map(rfGuestHtml).join('') + rfErr('guests') + '</div>' +
+      '<div class="fsec"><div class="fgrid"><label class="f"><span>Lead guest\'s WhatsApp <small>(optional)</small></span><input type="tel" id="rfWa" inputmode="tel" autocomplete="off" placeholder="+44 7700 900123" value="' + esc(f.whatsapp) + '"' + (f.errs.whatsapp ? ' aria-invalid="true"' : '') + '>' + rfErr('whatsapp') + '</label>' +
+        '<label class="f"><span>Agreed price in € <small>(optional, the whole stay)</small></span><input type="text" id="rfPrice" inputmode="decimal" autocomplete="off" placeholder="0" value="' + esc(f.price) + '"' + (f.errs.total_cents ? ' aria-invalid="true"' : '') + '>' + rfErr('total_cents') + '</label></div>' +
+        (wks.length ? '<label class="tick" style="margin-top:14px"><input type="checkbox" id="rfProg"' + (f.programme ? ' checked' : '') + '> Attends the BreathCamp programme (' + esc(wks.map(function(p){ return wkName(p.id); }).join(' and ')) + ')</label><p class="muted" style="font-size:.76rem;margin:4px 0 0 26px">Ticked, these guests take programme places of that week. Untick for a stay only (a partner, a staff member).</p>' + rfErr('programme') : '') +
+        '<label class="f" style="margin-top:14px"><span>Comment <small>(optional, for the team)</small></span><textarea id="rfComment" maxlength="480" rows="2" placeholder="e.g. Friend of ASHA, pays by bank transfer">' + esc(f.comment) + '</textarea>' + rfErr('comment') + '</label></div>';
+  }
+  function rfMsg(){
+    var f = rf, man = f.mode === 'manual', h = '';
+    if (f.conflicts) h += '<div class="rfconf" role="alert"><b>' + (man ? 'This booking clashes with:' : 'This block clashes with:') + '</b><ul>' + f.conflicts.map(function(c){ return '<li>' + esc(typeof c === 'string' ? c : (c && (c.message || c.text)) || JSON.stringify(c)) + '</li>'; }).join('') + '</ul>' +
+      '<button type="button" class="btn btn-danger btn-sm" id="rfForce">Save anyway</button><button type="button" class="btn btn-ghost btn-sm" id="rfBack">Change the details</button><p style="margin:10px 0 0;font-size:.78rem">Save anyway only after checking the rooms with ASHA: it ' + (man ? 'books these rooms over what is already there' : 'blocks the rooms although guests are booked in them') + '.</p></div>';
+    if (f.err) h += '<p class="merr" role="alert">' + esc(f.err) + '</p>';
+    return h;
+  }
+  function rfHtml(){
+    var f = rf, man = f.mode === 'manual';
+    return '<div class="seg rf-mode" role="group" aria-label="What to add"><button type="button" data-mode="block" aria-pressed="' + (!man) + '">Block</button><button type="button" data-mode="manual" aria-pressed="' + man + '">Manual booking</button></div>' +
+      '<p class="muted" style="margin:8px 0 14px;font-size:.86rem">' + (man ? 'A stay booked outside the website: by WhatsApp, phone or email. Its guests take their rooms on these nights. Record what they pay in the booking\'s panel.' : 'Takes rooms off sale on these nights (repairs, staff, the owner\'s guests). Online booking leaves a blocked room out of any BreathCamp week the block touches.') + '</p>' +
+      '<form id="rfForm" novalidate><div class="fgrid" style="align-items:start">' +
+        '<label class="f"><span>' + (man ? 'Check-in' : 'From') + ' <small>(first night)</small></span><input type="date" id="rfFrom" min="2026-01-01" max="2030-12-30" value="' + esc(f.from) + '"' + (f.errs.from ? ' aria-invalid="true"' : '') + '>' + rfErr('from') + '</label>' +
+        '<label class="f"><span>' + (man ? 'Check-out' : 'Until') + ' <small>(morning after the last night)</small></span><input type="date" id="rfTo" min="2026-01-02" max="2030-12-31" value="' + esc(f.to) + '"' + (f.errs.to ? ' aria-invalid="true"' : '') + '>' + rfErr('to') + '</label>' +
+        '<p class="rfn" id="rfNights" aria-live="polite">' + rfNightsText() + '</p></div>' +
+        '<div id="rfDyn">' + rfDyn() + '</div><div id="rfMsg">' + rfMsg() + '</div>' +
+        '<div class="mact"><button type="button" class="btn btn-ghost" data-close>Cancel</button><button type="submit" class="btn" id="rfGo">' + (man ? 'Save manual booking' : 'Save block') + '</button></div></form>';
+  }
+  // redraw part of the form, keeping focus on the same field
+  function rfRedraw(part){
+    var a = document.activeElement, id = a && a.id, box = $(part === 'all' ? 'rfBody' : part);
+    if (!box || !rf) return;
+    box.innerHTML = part === 'all' ? rfHtml() : part === 'rfDyn' ? rfDyn() : rfMsg();
+    if (part === 'all') rfBind();
+    if (part !== 'rfMsg' && $('rfNights')) $('rfNights').innerHTML = rfNightsText();
+    var n = id && $(id); if (n && n !== a) n.focus();
+  }
+  function openRec(mode, pre){
+    pre = pre || {};
+    rfMode = mode === 'manual' || mode === 'block' ? mode : rfMode;
+    rf = { mode: rfMode, rooms: pre.room ? [pre.room] : [], from: pre.from || '', to: pre.to || '', reason: 'maintenance', comment: '',
+      guests: [{ first: '', last: '', email: '', gender: '', room: pre.room || '' }], whatsapp: '', programme: true, price: '', conflicts: null, errs: {}, err: '' };
+    openModal('<h2 id="mTitle">Block or manual booking</h2><div id="rfBody">' + rfHtml() + '</div>', { wide: true, sticky: true, ret: pre.ret, focus: pre.from ? '[data-mode][aria-pressed="true"]' : '#rfFrom' });
+    rfBind();
+    // free / booked hints need the calendar (and the room list) for these nights
+    if (!calModel() || !rfRooms().length) loadCal().then(function(){ if (rf && $('rfDyn')) rfRedraw('rfDyn'); }, function(){});
+  }
+  function rfBind(){
+    var box = $('rfBody'), form = $('rfForm'); if (!box || !form) return;
+    each(box.querySelectorAll('[data-close]'), function(b){ b.onclick = function(){ closeModal(); }; });
+    each(box.querySelectorAll('[data-mode]'), function(b){
+      b.onclick = function(){
+        var md = b.getAttribute('data-mode'); if (rf.mode === md) return;
+        rf.mode = rfMode = md; rf.conflicts = null; rf.errs = {}; rf.err = '';
+        if (md === 'manual' && rf.rooms.length && !rf.guests[0].room) rf.guests[0].room = rf.rooms[0];
+        if (md === 'block' && !rf.rooms.length && rf.guests[0].room) rf.rooms = [rf.guests[0].room];
+        rfRedraw('all'); var p = box.querySelector('[data-mode="' + md + '"]'); if (p) p.focus();
+      };
+    });
+    var dropConflicts = function(){ if (rf.conflicts || rf.err) { rf.conflicts = null; rf.err = ''; rfRedraw('rfMsg'); } };
+    form.addEventListener('input', function(e){
+      var t = e.target, gi = t.getAttribute('data-g');
+      if (gi != null && t.tagName === 'INPUT') rf.guests[+gi][t.getAttribute('data-k')] = t.value;
+      else if (t.id === 'rfComment') rf.comment = t.value;
+      else if (t.id === 'rfWa') rf.whatsapp = t.value;
+      else if (t.id === 'rfPrice') rf.price = t.value;
+      else return;
+      if (t.getAttribute('aria-invalid')) { t.removeAttribute('aria-invalid'); var s = t.parentNode.querySelector('.err'); if (s) s.textContent = ''; }
+      dropConflicts();
+    });
+    form.addEventListener('change', function(e){
+      var t = e.target, gi = t.getAttribute('data-g');
+      if (t.id === 'rfFrom' || t.id === 'rfTo') {
+        var was = rf.from, len = ISO.test(rf.from) && ISO.test(rf.to) ? nightsOf(rf.from, rf.to) : 1;
+        rf[t.id === 'rfFrom' ? 'from' : 'to'] = t.value;
+        // a new first night keeps the length of the stay (one night by default)
+        if (t.id === 'rfFrom' && ISO.test(t.value) && (!ISO.test(rf.to) || rf.to <= t.value || was !== t.value)) { rf.to = addDays(t.value, Math.max(1, Math.min(120, len))); $('rfTo').value = rf.to; }
+        delete rf.errs.from; delete rf.errs.to; t.removeAttribute('aria-invalid');
+        rf.conflicts = null; rf.err = '';
+        rfRedraw('rfDyn'); rfRedraw('rfMsg');
+        return;
+      }
+      if (gi != null && t.tagName === 'SELECT') { rf.guests[+gi][t.getAttribute('data-k')] = t.value; delete rf.errs['guests.' + gi + '.' + (t.getAttribute('data-k') === 'room' ? 'room_name' : t.getAttribute('data-k'))]; rf.conflicts = null; rf.err = ''; rfRedraw('rfDyn'); rfRedraw('rfMsg'); return; }
+      if (t.hasAttribute('data-room')) {
+        var n = t.getAttribute('data-room'), at = rf.rooms.indexOf(n);
+        if (t.checked && at < 0) rf.rooms.push(n); else if (!t.checked && at >= 0) rf.rooms.splice(at, 1);
+        $('rfRoomCt').textContent = '· ' + plural(rf.rooms.length, 'room') + ' chosen';
+        if (rf.errs.rooms) { delete rf.errs.rooms; var es = box.querySelector('[data-err="rooms"]'); if (es) es.textContent = ''; }
+        dropConflicts();
+        return;
+      }
+      if (t.id === 'rfReason') rf.reason = t.value;
+      else if (t.id === 'rfProg') rf.programme = t.checked;
+      else return;
+      dropConflicts();
+    });
+    form.addEventListener('click', function(e){
+      var t = e.target.closest && e.target.closest('button'); if (!t) return;
+      if (t.id === 'rfMinus' && rf.guests.length > 1) { rf.guests.pop(); rfRedraw('rfDyn'); $('rfMinus').focus(); }
+      else if (t.id === 'rfPlus' && rf.guests.length < 12) { var l = rf.guests[rf.guests.length - 1]; rf.guests.push({ first: '', last: l.last, email: '', gender: '', room: l.room }); rfRedraw('rfDyn'); $('rfPlus').focus(); }
+      else if (t.id === 'rfForce') rfSubmit(true);
+      else if (t.id === 'rfBack') { rf.conflicts = null; rfRedraw('rfMsg'); $('rfFrom').focus(); }
+    });
+    form.onsubmit = function(e){ e.preventDefault(); rfSubmit(false); };
+  }
+  function rfCheck(){
+    var f = rf, man = f.mode === 'manual', e = {}, n = ISO.test(f.from) && ISO.test(f.to) ? nightsOf(f.from, f.to) : 0;
+    if (!ISO.test(f.from)) e.from = 'Choose the first night.';
+    else if (f.from < '2026-01-01' || f.from > '2030-12-30') e.from = 'Choose a date in 2026 to 2030.';
+    if (!ISO.test(f.to)) e.to = man ? 'Choose the check-out day.' : 'Choose the day after the last night.';
+    else if (ISO.test(f.from) && n < 1) e.to = 'Must be after the first night.';
+    else if (n > 120) e.to = 'At most 120 nights at a time.';
+    else if (f.to > '2030-12-31') e.to = 'Choose a date in 2026 to 2030.';
+    if (!man) {
+      if (!f.rooms.length) e.rooms = 'Choose at least one room.';
+      else if (f.rooms.length > 20) e.rooms = 'At most 20 rooms in one block.';
+      return e;
+    }
+    f.guests.forEach(function(g, i){
+      if (!g.first.trim()) e['guests.' + i + '.first'] = 'Add a first name.';
+      if (!g.last.trim()) e['guests.' + i + '.last'] = 'Add a last name.';
+      if (g.email.trim() && !EMAIL.test(g.email.trim())) e['guests.' + i + '.email'] = 'Add a valid email address, or leave it empty.';
+      if (!g.gender) e['guests.' + i + '.gender'] = 'Choose an option.';
+      if (!g.room) e['guests.' + i + '.room_name'] = 'Choose a room.';
+    });
+    if (f.price.trim() && !(parseEuro(f.price) >= 0)) e.total_cents = 'Enter an amount in euros, e.g. 450 or 450.50.';
+    return e;
+  }
+  function rfShowErrors(){
+    rfRedraw('rfDyn'); rfRedraw('rfMsg');
+    ['from', 'to'].forEach(function(k){ var s = $('rfBody').querySelector('[data-err="' + k + '"]'), c = $(k === 'from' ? 'rfFrom' : 'rfTo'); if (s) s.textContent = rf.errs[k] || ''; if (c) { if (rf.errs[k]) c.setAttribute('aria-invalid', 'true'); else c.removeAttribute('aria-invalid'); } });
+    var first = $('rfBody').querySelector('[aria-invalid="true"]');
+    if (first) { if (first.id === 'rfRooms') { var cb = first.querySelector('input'); if (cb) cb.focus(); } else first.focus(); }
+    else { var m = $('rfMsg'); if (m && m.firstChild) m.scrollIntoView({ block: 'nearest' }); }
+  }
+  function rfSubmit(force){
+    var f = rf; if (!f) return;
+    var errs = rfCheck();
+    if (Object.keys(errs).length) { f.errs = errs; f.err = 'Please check the highlighted details.'; f.conflicts = null; rfShowErrors(); return; }
+    var man = f.mode === 'manual', wks = rfWeeks(), body;
+    if (man) {
+      body = { action: 'manual_create', from: f.from, to: f.to, programme: wks.length && f.programme ? 'yes' : 'no', total_cents: f.price.trim() ? parseEuro(f.price) : 0, comment: f.comment.trim(),
+        guests: f.guests.map(function(g){ return { first: g.first.trim(), last: g.last.trim(), email: g.email.trim(), gender: g.gender, room_name: g.room }; }) };
+      if (f.whatsapp.trim()) body.whatsapp = f.whatsapp.trim();
+    } else body = { action: 'block_create', rooms: f.rooms.slice(), from: f.from, to: f.to, reason: f.reason, comment: f.comment.trim() };
+    if (force) body.force = true;
+    f.errs = {}; f.err = '';
+    var btn = force ? $('rfForce') : $('rfGo'), done = busyBtn(btn, 'Saving…');
+    post(body).then(function(d){ done(); rfSaved(body, d || {}, force); }, function(e){
+      done();
+      if (authFail(e) || !rf) return;
+      var dd = e.data || {};
+      if (e.status === 409 && !force && (e.code === 'conflict' || Array.isArray(dd.conflicts))) {
+        f.conflicts = Array.isArray(dd.conflicts) && dd.conflicts.length ? dd.conflicts : [e.message];
+        rfRedraw('rfMsg'); var fb = $('rfForce'); if (fb) fb.focus();
+        return;
+      }
+      var fl = dd.fields;
+      if (fl && Object.keys(fl).length) {
+        Object.keys(fl).forEach(function(k){ var kk = k.replace(/^guests\.(\d+)\.room$/, 'guests.$1.room_name').replace(/^rooms\.\d+$/, 'rooms').replace(/^amount_cents$/, 'total_cents'); f.errs[kk] = fl[k]; });
+        f.err = e.message && !/^Please/.test(e.message) ? e.message : 'Please check the highlighted details.';
+        var shown = Object.keys(f.errs).filter(function(k){ return /^(from|to|rooms|reason|comment|whatsapp|total_cents|programme|guests(\.\d+\.(first|last|email|gender|room_name))?)$/.test(k); });
+        if (shown.length < Object.keys(f.errs).length) f.err += ' ' + Object.keys(f.errs).filter(function(k){ return shown.indexOf(k) < 0; }).map(function(k){ return f.errs[k]; }).join(' ');
+        rfShowErrors();
+        return;
+      }
+      f.err = why(e); rfRedraw('rfMsg');
+      if (btn && document.body.contains(btn)) btn.focus();
+    });
+  }
+  // weeks touched by a change: their places, rooming and totals are stale
+  function staleWeeks(from, to){
+    PROGS.forEach(function(p){ if (cache[p.id] && (!ISO.test(from || '') || (p.dates && overlaps(from, to, p.dates.start, p.dates.end)))) cache[p.id].at = 0; });
+    if (cache[STAY]) cache[STAY].at = 0;
+    Object.keys(calc).forEach(function(k){ calc[k].at = 0; });
+    if (ovw) ovw.at = 0;
+  }
+  function rfSaved(body, d, forced){
+    var ret = modal && modal.ret, man = body.action === 'manual_create';
+    if (!man) {
+      var src = d.block && typeof d.block === 'object' ? d.block : {};
+      var bl = { id: src.id || d.id || ('BL-' + Date.now().toString(36).toUpperCase()), rooms: Array.isArray(src.rooms) && src.rooms.length ? src.rooms : body.rooms, from: src.from || body.from, to: src.to || body.to,
+        reason: src.reason || body.reason, comment: src.comment != null ? src.comment : body.comment, created_at: src.created_at || new Date().toISOString() };
+      recOv.blocks[bl.id] = { v: bl, at: Date.now() }; delete recOv.gone[bl.id]; regBlock(bl);
+      staleWeeks(bl.from, bl.to);
+      rf = null; closeModal();
+      keepFocus(function(){ VIEWS[route.tab].update(); }); updateBadges();
+      toast('Blocked ' + esc(roomsText(bl.rooms)) + ' for ' + esc(stayLabel(bl.from, bl.to)) + ' (' + esc(plural(nightsOf(bl.from, bl.to), 'night')) + ').' + (forced ? ' Saved over a clash: check those rooms.' : ''), forced ? 'warn' : 'ok');
+      setTimeout(function(){ if (token) ensure(route.tab, true); }, 1500);
+      return;
+    }
+    var sb = d.booking && typeof d.booking === 'object' ? JSON.parse(JSON.stringify(d.booking)) : {}, ref = sb.ref || d.ref;
+    if (!ref) { rf = null; closeModal(); toast('Saved. The booking appears in the calendar within a minute.', 'warn'); staleWeeks(body.from, body.to); setTimeout(function(){ if (token) ensure(route.tab, true); }, 1500); return; }
+    var b = sb; b.ref = ref; b.source = 'manual';
+    if (!Array.isArray(b.guests) || !b.guests.length) b.guests = body.guests.map(function(g){ return { name: g.first + ' ' + g.last, email: g.email, gender: g.gender, room_name: g.room_name }; });
+    b.manual = b.manual && typeof b.manual === 'object' ? b.manual : {};
+    ['from', 'to', 'programme', 'comment'].forEach(function(k){ if (b.manual[k] == null || b.manual[k] === '') b.manual[k] = body[k]; });
+    if (b.total_cents == null) b.total_cents = body.total_cents;
+    if (!b.lead) b.lead = { name: b.guests[0].name, email: body.guests[0].email, whatsapp: body.whatsapp || '' };
+    if (!b.created) b.created = Math.floor(Date.now() / 1000);
+    b.status = b.status || 'active';
+    normBooking(b);
+    recOv.manual[ref] = { v: b, at: Date.now(), isNew: true };
+    staleWeeks(body.from, body.to);
+    rf = null; closeModal(true);
+    if (ret && document.body.contains(ret)) ret.focus();
+    keepFocus(function(){ VIEWS[route.tab].update(); }); updateBadges();
+    toast('Manual booking ' + esc(ref) + ' saved: ' + esc(plural(b.guests.length, 'guest')) + ', ' + esc(stayLabel(b.manual.from, b.manual.to)) + '.' + (forced ? ' Saved over a clash: check those rooms.' : ''), forced ? 'warn' : 'ok');
+    openBooking(ref, '');
+    setTimeout(function(){ if (token) ensure(route.tab, true); }, 1500);
+  }
+
+  /* ---------------------------------------------------------------- a block's details */
+  function openBlock(id, ret){
+    var bl = blkReg[id] || (recOv.blocks[id] && recOv.blocks[id].v);
+    if (!bl) { toast('That block isn\'t loaded any more. Press Refresh and try again.', 'err'); return; }
+    var n = ISO.test(bl.from || '') && ISO.test(bl.to || '') ? nightsOf(bl.from, bl.to) : 0;
+    var wks = n ? PROGS.filter(function(p){ return p.dates && overlaps(bl.from, bl.to, p.dates.start, p.dates.end); }) : [];
+    var made = bl.created_at ? new Date(bl.created_at) : bl.created ? new Date(bl.created * 1000) : null;
+    openModal('<h2 id="mTitle">Blocked · ' + esc(reasonLabel(bl.reason)) + '</h2>' +
+      '<dl class="kv" style="margin-top:10px"><dt>' + (bl.rooms.length === 1 ? 'Room' : 'Rooms') + '</dt><dd class="l">' + bl.rooms.map(esc).join('<br>') + '</dd>' +
+        '<dt>Nights</dt><dd class="l">' + esc(stayLabel(bl.from, bl.to)) + ' · ' + esc(plural(n, 'night')) + '<span class="sub">from the night of ' + esc(dayLong(bl.from)) + ' to the morning of ' + esc(dayLong(bl.to)) + '</span></dd>' +
+        (wks.length ? '<dt>Weeks</dt><dd class="l">' + esc(wks.map(function(p){ return wkName(p.id); }).join(', ')) + '<span class="sub">the room is off sale for the whole week online</span></dd>' : '') +
+        '<dt>Comment</dt><dd class="l">' + (bl.comment ? esc(bl.comment) : '<span class="muted">–</span>') + '</dd>' +
+        (made && !isNaN(made.getTime()) ? '<dt>Made</dt><dd class="l">' + esc(made.toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })) + '</dd>' : '') +
+        '<dt>Reference</dt><dd class="l"><code>' + esc(bl.id) + '</code></dd></dl>' +
+      '<div class="mact"><button type="button" class="btn btn-ghost" data-close>Close</button><button type="button" class="btn btn-danger" id="blkDel">Delete block</button></div>', { ret: ret });
+    $('blkDel').onclick = function(){
+      confirmBox({ title: 'Delete this block?', danger: true, ok: 'Delete block', cancel: 'Keep it',
+        html: '<p>' + esc(roomsText(bl.rooms)) + (bl.rooms.length === 1 ? ' is' : ' are') + ' bookable again for ' + esc(stayLabel(bl.from, bl.to)) + '.</p>' })
+        .then(function(yes){
+          if (!yes) { openBlock(id, ret); return; }
+          post({ action: 'block_delete', id: bl.id }).then(function(){
+            recOv.gone[bl.id] = Date.now(); delete recOv.blocks[bl.id];
+            staleWeeks(bl.from, bl.to);
+            var a = document.activeElement, cell = bl.rooms[0] + '|' + (calModel() && bl.from < calWin().from ? calWin().from : bl.from);
+            VIEWS[route.tab].update(); updateBadges();
+            if (!a || a === document.body || !document.body.contains(a)) { if (!focusCell(cell)) { var h = $('rmSum') || $('calRange'); if (h) { h.setAttribute('tabindex', '-1'); h.focus(); } } }
+            toast('Block deleted: ' + esc(roomsText(bl.rooms)) + ' can be booked again for ' + esc(stayLabel(bl.from, bl.to)) + '.', 'ok');
+            setTimeout(function(){ if (token) ensure(route.tab, true); }, 1500);
+          }, function(e){ if (authFail(e)) return; toast('Could not delete the block: ' + esc(why(e)), 'err'); });
+        });
+    };
   }
 
   /* ================================================================ sessions */
@@ -1661,6 +2664,22 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
   }
 
   /* ================================================================ payments */
+  function offlineRows(list){
+    var out = [];
+    (list || []).forEach(function(b){ offlinePays(b).forEach(function(x){ out.push({ b: b, x: x }); }); });
+    return out.sort(function(a, b){ return String(b.x.received || '').localeCompare(String(a.x.received || '')) || num(b.x.created) - num(a.x.created); });
+  }
+  function offlineCsv(rows){
+    downloadCsv(fileWeek() + '-payments-by-hand.csv', ['week', 'reference', 'source', 'booking_status', 'lead_name', 'method', 'received', 'amount_eur', 'comment', 'recorded_at', 'stripe_invoice'],
+      rows.map(function(r){ var b = r.b, x = r.x; return [wkName(b._w), b.ref, b.source || 'online', b.status, b.lead.name || '', methodLabel(x.method), x.received || '', eurNum(x.amount_cents), x.comment || '', x.created ? new Date(x.created * 1000).toISOString() : '', /^in_/.test(x.invoice_id || x.id || '') ? (x.invoice_id || x.id) : '']; }));
+  }
+  // "Record payment" from a list: the booking's panel, with the form open
+  function openRecordFor(ref, w){
+    var b = anyBooking(ref);
+    payf = { ref: ref, amount: b && num(b.balance_cents) > 0 ? eurNum(b.balance_cents) : '', method: 'bank_transfer', received: todayIso(), comment: '', errs: {}, err: '' };
+    openBooking(ref, w);
+    setTimeout(function(){ var a = $('pfAmt'); if (a && drawerRef === ref) { a.focus(); a.select(); } }, 60);
+  }
   VIEWS.payments = {
     mount: function(el){ el.innerHTML = '<div id="pBody"></div>'; },
     update: function(){
@@ -1672,13 +2691,15 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
       var pend = list.filter(function(b){ return active(b) && b.pending; });
       var refunds = list.filter(function(b){ return num(b.refunded_cents) > 0 || num(b.paid_after_cancel_cents) > 0; });
       var ses = []; act.forEach(function(b){ ses = ses.concat(liveSessions(b)); });
-      navList = uniq(due.concat(plans, pend, refunds).map(function(b){ return b.ref; }));
+      var off = offlineRows(list);
+      navList = uniq(due.concat(plans, pend, refunds, off.map(function(r){ return r.b; })).map(function(b){ return b.ref; }));
       var wkCol = function(b){ return all ? '<td data-l="Week">' + esc(wkName(b._w)) + '</td>' : ''; }, wkTh = all ? '<th>Week</th>' : '';
       var html = (anyDemo() ? demoNote() : '') + errorNote(scopeErrors()) +
         '<section class="kpis">' + kpi('Paid so far', eur(sum(act, function(b){ return b.paid_cents; })), plural(act.length, 'active booking')) +
           kpi('Still to receive', eur(sum(act, function(b){ return b.balance_cents; })), plural(due.length, 'balance') + ' due (' + eur(sum(due, function(b){ return b.balance_cents; })) + ')') +
           kpi('Refunded', eur(sum(list, function(b){ return b.refunded_cents; }))) + kpi('Sessions sold', ses.length, eur(sum(ses, sessCents))) +
-          kpi('Payment plans', plans.filter(active).length, plans.filter(planIssue).length ? plural(plans.filter(planIssue).length, 'needs', 'need') + ' attention' : 'all running') + '</section>';
+          kpi('Payment plans', plans.filter(active).length, plans.filter(planIssue).length ? plural(plans.filter(planIssue).length, 'needs', 'need') + ' attention' : 'all running') +
+          kpi('Recorded by hand', eur(sum(off, function(r){ return r.x.amount_cents; })), plural(off.length, 'payment') + ' · bank transfer, cash') + '</section>';
       html += '<section class="panel"><div class="ph"><h2>Balances due <small>' + esc(plural(due.length, 'balance')) + ' due · ' + eur(sum(due, function(b){ return b.balance_cents; })) + '</small></h2></div>' + (due.length ?
         '<div class="tw"><table class="tbl stack"><thead><tr><th>Booking</th>' + wkTh + '<th>Lead guest</th><th class="num">Balance</th><th>Arrives</th><th>Last payment</th><th></th></tr></thead><tbody>' + due.map(function(b){
           var lp = lastPayment(b), dd = daysUntil(arrival(b)), wa = digits(b.lead.whatsapp);
@@ -1687,8 +2708,17 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
             '<td data-l="Balance" class="num"><b>' + money(b.balance_cents) + '</b>' + (num(b.refunded_cents) ? '<span class="sub refund">' + eur(b.refunded_cents) + ' refunded</span>' : '') + '</td>' +
             '<td data-l="Arrives">' + esc(isoLabel(arrival(b))) + '<span class="sub">' + esc(inDays(dd)) + '</span></td>' +
             '<td data-l="Last payment">' + (lp ? esc(fmtWhen(lp.created, { day: 'numeric', month: 'short', year: 'numeric' })) + '<span class="sub">' + eur(lp.amount_cents) + '</span>' : '–') + '</td>' +
-            '<td class="ed"><button type="button" class="btn btn-sm" data-bal="' + esc(b.ref) + '">Balance link</button> ' + (wa ? '<a class="btn btn-ghost btn-sm" href="https://wa.me/' + wa + '" target="_blank" rel="noopener">WhatsApp</a>' : '') + '</td></tr>';
+            '<td class="ed">' + (isManual(b) ? '' : '<button type="button" class="btn btn-sm" data-bal="' + esc(b.ref) + '">Balance link</button> ') +
+              '<button type="button" class="btn btn-sm' + (isManual(b) ? '' : ' btn-ghost') + '" data-pay="' + esc(b.ref) + '" data-w="' + esc(b._w) + '" title="Record a bank transfer or cash that arrived">Record payment</button> ' + (wa ? '<a class="btn btn-ghost btn-sm" href="https://wa.me/' + wa + '" target="_blank" rel="noopener">WhatsApp</a>' : '') + '</td></tr>';
         }).join('') + '</tbody></table></div>' : '<p class="muted">No balances due right now.</p>') + '</section>';
+      html += '<section class="panel" id="offPanel"><div class="ph"><h2>Recorded by hand <small>' + esc(plural(off.length, 'payment')) + ' · ' + eur(sum(off, function(r){ return r.x.amount_cents; })) + '</small></h2>' + (off.length ? '<button type="button" class="btn btn-ghost btn-sm" id="pOffCsv">Export CSV</button>' : '') + '</div>' + (off.length ?
+        '<div class="tw"><table class="tbl stack"><thead><tr><th>Booking</th>' + wkTh + '<th>Lead guest</th><th>Method</th><th>Received</th><th class="num">Amount</th><th>Comment</th></tr></thead><tbody>' + off.map(function(r){
+          var b = r.b, x = r.x;
+          return '<tr class="rowlink' + (active(b) ? '' : ' cancelled') + '" data-open="' + esc(b.ref) + '" data-w="' + esc(b._w) + '"><td class="main">' + openBtn(b) + srcPill(b) + '</td>' + wkCol(b) +
+            '<td data-l="Lead guest">' + esc(b.lead.name || '–') + '</td><td data-l="Method"><span class="pm">' + esc(methodLabel(x.method)) + '</span></td>' +
+            '<td data-l="Received">' + esc(isoLabel(x.received, { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }) || fmtWhen(x.created)) + (x.created ? '<span class="sub">recorded ' + esc(fmtWhen(x.created, { day: 'numeric', month: 'short' })) + '</span>' : '') + '</td>' +
+            '<td data-l="Amount" class="num">' + money(x.amount_cents) + '</td><td data-l="Comment">' + (x.comment ? esc(x.comment) : '<span class="muted">–</span>') + '</td></tr>';
+        }).join('') + '</tbody></table></div>' : '<p class="muted">No payments recorded by hand. Record a bank transfer or cash in the booking\'s panel.</p>') + '</section>';
       html += '<section class="panel"><div class="ph"><h2>Payment plans <small>' + esc(plural(plans.length, 'plan')) + '</small></h2></div>' + (plans.length ?
         '<div class="tw"><table class="tbl stack"><thead><tr><th>Booking</th>' + wkTh + '<th>Lead guest</th><th>Paid</th><th>Next payment</th><th>Status</th><th class="num">Left to pay</th></tr></thead><tbody>' + plans.map(function(b){
           var p = b.plan, issue = p.status === 'past_due' ? 'Payment failed: Stripe is retrying' : p.ended && num(b.balance_cents) ? 'Ended short: send a balance link' : p.end_check === 'missing' || p.end_check === 'movable' ? 'End date needs repair (Setup)' : p.end_check === 'short' ? 'Last payment cut short' : '';
@@ -1709,6 +2739,8 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
         }).join('') + '</tbody></table></div>' : '<p class="muted">No refunds.</p>') + '</section>';
       box.innerHTML = html;
       each(box.querySelectorAll('[data-bal]'), function(btn){ btn.onclick = function(e){ e.stopPropagation(); var b = bookingByRef(btn.getAttribute('data-bal')); if (b) balanceLink(b, btn); }; });
+      each(box.querySelectorAll('[data-pay]'), function(btn){ btn.onclick = function(e){ e.stopPropagation(); openRecordFor(btn.getAttribute('data-pay'), btn.getAttribute('data-w')); }; });
+      if ($('pOffCsv')) $('pOffCsv').onclick = function(){ offlineCsv(off); };
     }
   };
 
@@ -1913,16 +2945,18 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
   function openDrawerFor(ref){
     drawerRef = ref;
     $('scrim').hidden = false; $('drawer').hidden = false; document.body.classList.add('noscroll');
-    var b = bookingByRef(ref);
+    var b = anyBooking(ref);
     if (b) { renderDrawer(); focusDrawer(); return; }
     $('drawer').innerHTML = '<div class="dr-body"><div class="dr-h"><div class="dr-top"><h2 id="drRef" tabindex="-1">' + esc(ref) + '</h2><div class="dr-nav"><button type="button" class="ibtn" id="drClose" aria-label="Close">' + IC.x + '</button></div></div></div><div class="dr-sec"><span class="sk"></span><span class="sk"></span><span class="sk"></span></div></div>';
     $('drClose').onclick = closeDrawer; focusDrawer();
     var w = hint[ref], ids = w && PBY[w] ? [w] : PROGS.map(function(p){ return p.id; });
-    Promise.all(ids.map(function(id){ return loadWeek(id).then(null, function(){ return null; }); })).then(function(){
+    var loads = ids.map(function(id){ return loadWeek(id).then(null, function(){ return null; }); });
+    if (/^MB\d{4}-/.test(ref)) loads.push(loadCal().then(null, function(){ return null; }));   // a manual booking outside the weeks
+    Promise.all(loads).then(function(){
       if (drawerRef !== ref) return;
-      if (bookingByRef(ref)) { renderDrawer(); focusDrawer(); return; }
+      if (anyBooking(ref)) { renderDrawer(); focusDrawer(); return; }
       $('drawer').querySelector('.dr-sec').innerHTML = '<p class="note err">Booking ' + esc(ref) + ' wasn\'t found' + (w ? ' in ' + esc(wkName(w)) : '') + '. New bookings can take a minute to appear. <button type="button" class="lnk" id="drRetry">Try again</button></p>';
-      $('drRetry').onclick = function(){ Promise.all(ids.map(function(id){ return loadWeek(id, true).then(null, function(){ return null; }); })).then(function(){ if (drawerRef === ref) { if (bookingByRef(ref)) renderDrawer(); } }); };
+      $('drRetry').onclick = function(){ Promise.all(ids.map(function(id){ return loadWeek(id, true).then(null, function(){ return null; }); }).concat(/^MB\d{4}-/.test(ref) ? [loadCal(true).then(null, function(){ return null; })] : [])).then(function(){ if (drawerRef === ref) { if (anyBooking(ref)) renderDrawer(); } }); };
     });
   }
   function focusDrawer(){ var h = $('drRef'); if (h) h.focus(); }
@@ -1970,7 +3004,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     if (b.plan && active(b) && b.plan.status === 'past_due') out.push(['err', 'The last plan payment failed. Stripe is retrying it automatically.']);
     if (b.plan && b.plan.ended && num(b.balance_cents) && active(b)) out.push(['err', 'The payment plan has ended with ' + eur(b.balance_cents) + ' unpaid: send a balance link.']);
     if (unverified(b)) out.push(['err', 'Room only: no earlier programme fee payment from this email was found in Stripe. Match it to their GHL or RetreatGuru payment.']);
-    if (rm && active(b)) rm.order.forEach(function(n){ var x = rm.byName[n]; if (x.conflict && x.guests.some(function(g){ return g.ref === b.ref; })) out.push(['err', n + ': ' + (x.conflict === 'mixed' ? 'women and men in a same-gender room.' : x.guests.length + ' guests for ' + plural(x.beds, 'bed') + '.')]); });
+    if (rm && active(b)) rm.order.forEach(function(n){ var x = rm.byName[n]; if (x.conflict && x.guests.some(function(g){ return g.ref === b.ref; })) out.push(['err', n + ': ' + (x.conflict === 'blocked' ? 'this room is blocked (' + reasonLabel(x.blocked.reason).toLowerCase() + ', ' + stayLabel(x.blocked.from, x.blocked.to) + '). Move the guest, or delete the block.' : x.conflict === 'mixed' ? 'women and men in a same-gender room.' : x.guests.length + ' guests for ' + plural(x.beds, 'bed') + '.')]); });
     return out;
   }
   function drawerHtml(b){
@@ -2010,13 +3044,8 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
       '<dt class="tot">Balance</dt><dd class="tot">' + (num(b.balance_cents) ? money(b.balance_cents) + '<span class="sub">' + (p && !p.ended ? 'taken by the plan' : 'due before arrival (' + esc(isoLabel(arrival(b))) + ')') + '</span>' : 'Nothing to pay') + '</dd>' +
       (p ? '<dt>Payment plan</dt><dd>' + esc(p.paid_count + ' of ' + p.installments + ' paid') + (p.next_payment && active(b) ? '<span class="sub">next ' + eur(p.installment_cents) + ' on ' + esc(fmtWhen(p.next_payment, { day: 'numeric', month: 'short', year: 'numeric' })) + '</span>' : '') + (p.status === 'past_due' ? '<span class="sub refund">payment failed, Stripe is retrying</span>' : p.ended ? '<span class="sub">ended</span>' : '') + '</dd>' : '') +
       '</dl></section>';
-    // payments timeline
-    var pays = (b.payments || []).slice().sort(function(x, y){ return num(x.created) - num(y.created); });
-    var kind = function(k){ return k === 'booking' ? (p ? 'Plan payments' : 'Booking') : k === 'balance' ? 'Balance' : k === 'addon' ? 'Sessions' : (k || 'Payment'); };
-    html += '<section class="dr-sec"><h3>Payments <small>' + pays.length + '</small></h3>' + (pays.length ? '<ol class="tl">' + pays.map(function(x){
-      return '<li><span class="d">' + esc(fmtWhen(x.created)) + '</span><span>' + esc(kind(x.kind)) + ' <a href="' + esc(stripeUrl(x.id, mode)) + '" target="_blank" rel="noopener" title="Open in Stripe">' + IC.ext + '<span class="vh">Open in Stripe</span></a></span><span class="a">' + money(x.amount_cents) + '</span>' +
-        ((num(x.refunded_cents) || x.pending) ? '<span class="x">' + (x.pending ? 'Processing' : '') + (num(x.refunded_cents) ? (x.pending ? ' · ' : '') + '<span class="refund">' + eur(x.refunded_cents) + ' refunded</span>' : '') + '</span>' : '') + '</li>';
-    }).join('') + '</ol>' : '<p class="muted">No payments listed.</p>') + '</section>';
+    // payments timeline (with payments recorded by hand), and recording one
+    html += payTimeline(b) + recordSec(b);
     // sessions
     html += '<section class="dr-sec" id="drSvc"><h3>Wellbeing sessions <small>' + (b.addons || []).length + '</small></h3>' + ((b.addons || []).length ? '<ul class="svl">' + b.addons.map(function(a){
       var label = (a.title || 'session') + ' for ' + guestName(b, a);
@@ -2040,11 +3069,13 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     return html;
   }
   function renderDrawer(){
-    var b = bookingByRef(drawerRef); if (!b) return;
+    var b = anyBooking(drawerRef); if (!b) return;
     var body = $('drBody'), top = body ? body.scrollTop : 0, hadFocus = $('drawer').contains(document.activeElement), focusId = hadFocus && document.activeElement.id;
-    $('drawer').innerHTML = drawerHtml(b);
+    if (payf && payf.ref !== b.ref) payf = null;
+    if (priceEdit && priceEdit.ref !== b.ref) priceEdit = null;
+    $('drawer').innerHTML = isManual(b) ? manualDrawerHtml(b) : drawerHtml(b);
     if ($('drBody')) $('drBody').scrollTop = top;
-    bindDrawer(b);
+    if (isManual(b)) bindManual(b); else bindDrawer(b);
     if (hadFocus) { var f = focusId && $(focusId); (f || $('drRef')).focus(); }
   }
   function bindDrawer(b){
@@ -2058,6 +3089,8 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     note.onkeydown = function(e){ if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); if (!save.disabled) save.click(); } };
     save.onclick = function(){ saveNote(b, note, save); };
     if ($('drBal')) $('drBal').onclick = function(){ balanceLink(b, $('drBal')); };
+    each(dr.querySelectorAll('[data-void]'), function(x){ x.onclick = function(){ voidPayment(b, x.getAttribute('data-void'), x); }; });
+    bindRecord(b);
     $('drCopy').onclick = function(){ copyAndTell(summaryText(b), 'Summary'); };
     if ($('drCancel')) $('drCancel').onclick = function(){ cancelBooking(b); };
     if ($('drRestore')) $('drRestore').onclick = function(){ restoreBooking(b, false); };
@@ -2184,6 +3217,290 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
         return;
       }
       toast('Could not create the balance link: ' + esc(why(e)), 'err');
+    });
+  }
+
+  /* ================================================================ money recorded by hand (bank transfer, cash)
+     Online and manual bookings. Stripe keeps each one as an invoice paid outside Stripe; "Undo" marks it
+     undone (never deleted). Both show at once and are laid over fresh data until the search catches up. */
+  var payf = null, priceEdit = null;
+  function payTimeline(b){
+    var mode = stripeMode(b), p = b.plan, pays = (b.payments || []).slice().sort(function(x, y){ return num(x.created) - num(y.created); });
+    var kind = function(k){ return k === 'booking' ? (p ? 'Plan payments' : 'Booking') : k === 'balance' ? 'Balance' : k === 'addon' ? 'Sessions' : (k || 'Payment'); };
+    return '<section class="dr-sec" id="drPays"><h3>Payments <small>' + pays.length + '</small></h3>' + (pays.length ? '<ol class="tl">' + pays.map(function(x){
+      if (x.kind === 'offline') {
+        var id = x.invoice_id || x.id || '', when = ISO.test(x.received || '') ? isoLabel(x.received, { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }) : fmtWhen(x.created);
+        return '<li class="off"><span class="d">' + esc(when) + '</span><span class="k"><span class="pm">' + esc(methodLabel(x.method)) + '</span>' +
+          (/^in_/.test(id) ? '<a href="' + esc(stripeUrl(id, mode)) + '" target="_blank" rel="noopener" title="Open the invoice in Stripe">' + IC.ext + '<span class="vh">Open in Stripe</span></a>' : '') +
+          (id && !/^local-/.test(id) ? '<button type="button" class="lnk undo" data-void="' + esc(id) + '" aria-label="Undo the ' + esc(methodLabel(x.method).toLowerCase() + ' of ' + eur(x.amount_cents)) + '">Undo</button>' : '') + '</span>' +
+          '<span class="a">' + money(x.amount_cents) + '</span>' +
+          '<span class="x">' + esc([x.comment || '', x.created ? 'recorded ' + fmtWhen(x.created) : ''].filter(Boolean).join(' · ')) + '</span></li>';
+      }
+      return '<li><span class="d">' + esc(fmtWhen(x.created)) + '</span><span>' + esc(kind(x.kind)) + ' <a href="' + esc(stripeUrl(x.id, mode)) + '" target="_blank" rel="noopener" title="Open in Stripe">' + IC.ext + '<span class="vh">Open in Stripe</span></a></span><span class="a">' + money(x.amount_cents) + '</span>' +
+        ((num(x.refunded_cents) || x.pending) ? '<span class="x">' + (x.pending ? 'Processing' : '') + (num(x.refunded_cents) ? (x.pending ? ' · ' : '') + '<span class="refund">' + eur(x.refunded_cents) + ' refunded</span>' : '') + '</span>' : '') + '</li>';
+    }).join('') + '</ol>' : '<p class="muted">No payments yet.</p>') + '</section>';
+  }
+  function recordSec(b){
+    if (!active(b)) return '';
+    var f = payf && payf.ref === b.ref ? payf : null;
+    if (!f) return '<section class="dr-sec" id="drRec"><h3>Record a payment</h3><p class="muted" style="margin:0 0 10px;font-size:.84rem">Money that arrived outside the online checkout: a bank transfer, cash. It counts towards Paid and the balance.</p><button type="button" class="btn btn-ghost btn-sm" id="pfOpen">Record a payment</button></section>';
+    var amt = parseEuro(f.amount), e = function(k){ return '<span class="err" data-perr="' + k + '">' + esc(f.errs[k] || '') + '</span>'; };
+    return '<section class="dr-sec" id="drRec"><h3>Record a payment</h3><form class="payf" id="pfForm" novalidate><div class="fgrid">' +
+      '<label class="f"><span>Amount in € <small>(balance ' + esc(eur(b.balance_cents)) + ')</small></span><input type="text" id="pfAmt" inputmode="decimal" autocomplete="off" value="' + esc(f.amount) + '"' + (f.errs.amount ? ' aria-invalid="true"' : '') + '>' + e('amount') + '</label>' +
+      '<label class="f"><span>Date received</span><input type="date" id="pfDate" min="2025-01-01" max="' + todayIso() + '" value="' + esc(f.received) + '"' + (f.errs.received ? ' aria-invalid="true"' : '') + '>' + e('received') + '</label>' +
+      '<fieldset class="f" style="grid-column:1/-1"><legend class="lbl">Method</legend><div class="radios">' + METHODS.map(function(m){ return '<label class="radio"><input type="radio" name="pfMethod" value="' + m[0] + '"' + (f.method === m[0] ? ' checked' : '') + '> ' + esc(m[1]) + '</label>'; }).join('') + '</div>' + e('method') + '</fieldset>' +
+      '<label class="f" style="grid-column:1/-1"><span>Comment <small id="pfComHint">' + (f.method === 'other' ? '(required: say how it was paid)' : '(optional)') + '</small></span><textarea id="pfCom" maxlength="480" rows="2" placeholder="e.g. Transfer from Anna\'s partner, bank reference 4471"' + (f.errs.comment ? ' aria-invalid="true"' : '') + '>' + esc(f.comment) + '</textarea>' + e('comment') + '</label></div>' +
+      (f.err ? '<p class="merr" role="alert">' + esc(f.err) + '</p>' : '') +
+      '<div class="mact"><button type="button" class="btn btn-ghost btn-sm" id="pfCancel">Cancel</button><button type="submit" class="btn btn-sm" id="pfGo">' + (amt > 0 ? 'Record ' + esc(eur(amt)) : 'Record payment') + '</button></div></form></section>';
+  }
+  function bindRecord(b){
+    var open = $('pfOpen');
+    if (open) open.onclick = function(){
+      payf = { ref: b.ref, amount: num(b.balance_cents) > 0 ? eurNum(b.balance_cents) : '', method: 'bank_transfer', received: todayIso(), comment: '', errs: {}, err: '' };
+      renderDrawer(); var a = $('pfAmt'); if (a) { a.focus(); a.select(); }
+    };
+    var form = $('pfForm'); if (!form || !payf) return;
+    form.addEventListener('input', function(e){
+      var t = e.target;
+      if (t.id === 'pfAmt') { payf.amount = t.value; var v = parseEuro(t.value); $('pfGo').textContent = v > 0 ? 'Record ' + eur(v) : 'Record payment'; }
+      else if (t.id === 'pfCom') payf.comment = t.value;
+      else if (t.id === 'pfDate') payf.received = t.value;
+      if (t.getAttribute('aria-invalid')) { t.removeAttribute('aria-invalid'); var s = t.parentNode.querySelector('.err'); if (s) s.textContent = ''; }
+    });
+    form.addEventListener('change', function(e){
+      var t = e.target;
+      if (t.name === 'pfMethod') { payf.method = t.value; $('pfComHint').textContent = t.value === 'other' ? '(required: say how it was paid)' : '(optional)'; }
+      else if (t.id === 'pfDate') payf.received = t.value;
+    });
+    $('pfCancel').onclick = function(){ payf = null; renderDrawer(); drawerRefocus($('pfOpen')); };
+    form.onsubmit = function(e){ e.preventDefault(); recordPayment(b, false); };
+  }
+  function payFocusFirst(){ var dr = $('drawer'), x = dr && dr.querySelector('#pfForm [aria-invalid="true"]'); if (x) x.focus(); else if ($('pfGo')) $('pfGo').focus(); }
+  function recordPayment(b, force){
+    var f = payf; if (!f || f.ref !== b.ref) return;
+    var amt = parseEuro(f.amount), errs = {};
+    if (!(amt >= 1)) errs.amount = 'Enter the amount received, e.g. 450 or 1125.60.';
+    else if (amt > 100000000) errs.amount = 'That is more than €1,000,000.';
+    if (!ISO.test(f.received || '')) errs.received = 'Choose the day the money arrived.';
+    else if (f.received > todayIso()) errs.received = 'That day hasn\'t come yet.';
+    if (f.method === 'other' && !f.comment.trim()) errs.comment = 'Say how it was paid.';
+    f.errs = errs; f.err = '';
+    if (Object.keys(errs).length) { renderDrawer(); payFocusFirst(); return; }
+    var body = { action: 'offline_payment', ref: b.ref, amount_cents: amt, method: f.method, received: f.received, comment: f.comment.trim() };
+    if (force) body.force = true;
+    var btn = $('pfGo'), done = busyBtn(btn, 'Recording…');
+    post(body).then(function(d){
+      done(); d = d || {};
+      var pay = d.payment || {}, id = pay.invoice_id || pay.id || ('local-' + Date.now());
+      var x = { id: id, invoice_id: id, kind: 'offline', amount_cents: num(pay.amount_cents) || amt, method: pay.method || f.method, received: pay.received || f.received, comment: pay.comment != null ? pay.comment : body.comment, created: Math.floor(Date.now() / 1000) };
+      if (payIndex(b, id) < 0) {
+        b.payments.push(x);
+        if (d.booking && typeof d.booking.paid_cents === 'number') { b.paid_cents = d.booking.paid_cents; if (typeof d.booking.balance_cents === 'number') b.balance_cents = d.booking.balance_cents; else rebalance(b); }
+        else { b.paid_cents = num(b.paid_cents) + x.amount_cents; rebalance(b); }
+      }
+      remember(b.ref, 'pay:add:' + id, x);
+      payf = null;
+      afterMoney(b, 'pfOpen');
+      toast(esc(eur(x.amount_cents)) + ' recorded for ' + esc(b.ref) + ' (' + esc(methodLabel(x.method).toLowerCase()) + ', received ' + esc(isoLabel(x.received)) + ').' + (force ? ' The booking is now overpaid.' : '') +
+        (num(d.balance_links_closed) ? ' ' + esc(plural(num(d.balance_links_closed), 'open balance link')) + ' closed: ' + (num(d.balance_links_closed) === 1 ? 'it asked' : 'they asked') + ' for the old amount. Send a new one for what is left.' : ''), force || num(d.balance_links_closed) ? 'warn' : 'ok');
+    }, function(e){
+      done();
+      if (authFail(e)) return;
+      if (!force && e.status === 409 && e.code === 'overpay') {
+        var bal = typeof (e.data || {}).balance_cents === 'number' ? e.data.balance_cents : num(b.balance_cents);
+        confirmBox({ title: 'More than the balance', ok: 'Record ' + eur(amt) + ' anyway', cancel: 'Go back', ret: $('pfGo'),
+          html: '<p>' + esc(e.message || ('The balance of ' + b.ref + ' is ' + eur(bal) + '.')) + '</p><p>Recording ' + esc(eur(amt)) + ' leaves the booking overpaid by ' + esc(eur(Math.max(0, amt - bal))) + '. Go ahead only if that is what arrived (refund or credit the difference separately).</p>' })
+          .then(function(yes){ if (yes) recordPayment(b, true); else { var a = $('pfAmt'); if (a) a.focus(); } });
+        return;
+      }
+      var fl = (e.data || {}).fields;
+      if (fl && Object.keys(fl).length) Object.keys(fl).forEach(function(k){ var kk = k === 'amount_cents' ? 'amount' : k; if (/^(amount|received|method|comment)$/.test(kk)) f.errs[kk] = fl[k]; else f.err = (f.err ? f.err + ' ' : '') + fl[k]; });
+      else f.err = why(e);
+      renderDrawer(); payFocusFirst();
+    });
+  }
+  function voidPayment(b, id, btn){
+    var x = findBy(b.payments, function(y){ return (y.invoice_id || y.id) === id; }); if (!x) return;
+    var when = ISO.test(x.received || '') ? isoLabel(x.received, { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }) : fmtWhen(x.created);
+    openModal('<h2 id="mTitle">Undo this payment?</h2><p class="mtext">' + esc(methodLabel(x.method)) + ' · ' + esc(when) + ' · <b>' + money(x.amount_cents) + '</b> on ' + esc(b.ref) + (x.comment ? '<br><span class="muted">' + esc(x.comment) + '</span>' : '') + '</p>' +
+      '<label class="f" style="margin-top:12px"><span>Reason <small>(kept with the invoice in Stripe)</small></span><textarea id="vReason" maxlength="200" rows="2" placeholder="e.g. Recorded twice, the transfer was returned"></textarea><span class="err" id="vErr"></span></label>' +
+      '<p class="muted" style="font-size:.8rem;margin:10px 0 0">It stops counting as paid. The invoice stays in Stripe, marked as undone: add a credit note there if the books must show the reversal.</p>' +
+      '<div class="mact"><button type="button" class="btn btn-ghost" data-close>Keep it</button><button type="button" class="btn btn-danger" id="vGo">Undo payment</button></div>', { focus: '#vReason', ret: btn, sticky: true });
+    $('vReason').oninput = function(){ $('vErr').textContent = ''; $('vReason').removeAttribute('aria-invalid'); };
+    $('vGo').onclick = function(){
+      var r = $('vReason').value.trim();
+      if (!r) { $('vErr').textContent = 'Add a short reason.'; $('vReason').setAttribute('aria-invalid', 'true'); $('vReason').focus(); return; }
+      var go = $('vGo'), done = busyBtn(go, 'Undoing…');
+      post({ action: 'offline_void', invoice_id: id, ref: b.ref, reason: r }).then(function(d){
+        done(); closeModal(true);
+        var at = payIndex(b, id);
+        if (at >= 0) { b.paid_cents = num(b.paid_cents) - num(b.payments[at].amount_cents); b.payments.splice(at, 1); rebalance(b); }
+        if (ov[b.ref]) delete ov[b.ref]['pay:add:' + id];
+        remember(b.ref, 'pay:void:' + id, true);
+        afterMoney(b, 'pfOpen');
+        toast(d && d.already ? 'That payment was already undone.' : 'Payment of ' + esc(eur(x.amount_cents)) + ' undone on ' + esc(b.ref) + '. ' + esc((d && (d.message || d.note)) || 'Add a credit note in Stripe if the books must show the reversal.'), 'ok');
+      }, function(e){ done(); if (authFail(e)) return; $('vErr').textContent = why(e); });
+    };
+  }
+  // after a change to what a booking has paid: redraw what shows it, fresh totals later
+  function afterMoney(b, focusId){
+    if (drawerRef === b.ref) { renderDrawer(); drawerRefocus($(focusId) || $('drRef')); }
+    keepFocus(function(){ VIEWS[route.tab].update(); });
+    updateBadges();
+    if (ovw) ovw.at = 0;
+    if (b._w && cache[b._w]) cache[b._w].at = Date.now() - FRESH + 20000;
+    // the calendar's paid / unpaid marks: fetch them again shortly
+    Object.keys(calc).forEach(function(k){ calc[k].at = 0; });
+    if (route.tab === 'rooming' && calOn()) setTimeout(function(){ if (token) ensure(route.tab); }, 1500);
+  }
+
+  /* ================================================================ manual booking drawer */
+  function manualFromOv(ref){
+    var o = recOv.manual[ref]; if (!o) return null;
+    var b = normBooking(JSON.parse(JSON.stringify(o.v))); b._w = ''; b._new = !!o.isNew; applyOv(b);
+    return b;
+  }
+  // a manual booking outside the weeks' data: from the calendar (its stays, or a full record when the API sends one)
+  function manualFromCal(ref){
+    if (!/^MB\d{4}-/.test(ref || '')) return null;
+    var ds = calData(), b = null, o = recOv.manual[ref];
+    for (var i = 0; i < ds.length && !b; i++) {
+      var d = ds[i], list = Array.isArray(d.manual) ? d.manual : Array.isArray(d.manual_bookings) ? d.manual_bookings : [];
+      var full = findBy(list, function(x){ return x && x.ref === ref; });
+      if (full) { b = JSON.parse(JSON.stringify(full)); break; }
+      var st = (d.stays || []).filter(function(s){ return s && s.kind === 'manual' && s.ref === ref; });
+      if (!st.length) continue;
+      var s0 = st[0];
+      b = { ref: ref, source: 'manual', status: s0.status || 'active', created: s0.created || (s0.created_at ? Math.floor(Date.parse(s0.created_at) / 1000) : 0),
+        guests: st.map(function(s){ return { name: s.name, gender: s.gender, email: s.email || '', room_name: s.room_name }; }),
+        lead: { name: s0.lead_name || '', email: s0.lead_email || '', whatsapp: s0.whatsapp || '' },
+        manual: { from: s0.from, to: s0.to, programme: s0.programme, comment: s0.comment || '' },
+        total_cents: s0.total_cents, paid_cents: s0.paid_cents, balance_cents: s0.balance_cents, payments: Array.isArray(s0.payments) ? s0.payments : undefined };
+    }
+    if (!b) return manualFromOv(ref);
+    // what the calendar leaves out, from the copy this tab keeps
+    if (o) ['total_cents', 'paid_cents', 'payments', 'created'].forEach(function(k){ if (b[k] == null) b[k] = JSON.parse(JSON.stringify(o.v[k] == null ? null : o.v[k])); });
+    if (o && o.v.lead && !b.lead.email && !b.lead.whatsapp) b.lead = JSON.parse(JSON.stringify(o.v.lead));
+    if (b.total_cents === null) delete b.total_cents;
+    if (b.paid_cents === null) delete b.paid_cents;
+    normBooking(b); b._w = b._w || ''; applyOv(b);
+    return b;
+  }
+  function anyBooking(ref){ return bookingByRef(ref) || manualFromCal(ref) || manualFromOv(ref); }
+  function manualSummary(b){
+    var m = b.manual || {}, l = b.lead || {}, lines = [b.ref + ' · manual booking · ' + stayLabel(m.from, m.to) + ' (' + plural(nightsOf(m.from, m.to), 'night') + ')',
+      'Status: ' + (active(b) ? 'Active' : 'Cancelled') + (m.programme === 'yes' ? ' · attends the programme' : ' · stay only'),
+      'Lead: ' + [l.name, l.email, l.whatsapp].filter(Boolean).join(' · '), 'Guests:'];
+    b.guests.forEach(function(g, i){ lines.push((i + 1) + '. ' + g.name + ' (' + (g.gender || '?') + ')' + (g.room_name ? ' · ' + g.room_name : '')); });
+    lines.push('Agreed price ' + money(b.total_cents) + ' · Paid ' + money(b.paid_cents) + ' · Balance ' + money(b.balance_cents));
+    offlinePays(b).forEach(function(x){ lines.push('- ' + methodLabel(x.method) + ' ' + (x.received || '') + ' ' + money(x.amount_cents) + (x.comment ? ' (' + x.comment + ')' : '')); });
+    if (m.comment) lines.push('Comment: ' + m.comment);
+    return lines.join('\n');
+  }
+  function manualDrawerHtml(b){
+    var m = b.manual || {}, l = b.lead || {}, can = !active(b), i = navList.indexOf(b.ref), wa = digits(l.whatsapp);
+    var n = ISO.test(m.from || '') && ISO.test(m.to || '') ? nightsOf(m.from, m.to) : 0;
+    var wks = n ? PROGS.filter(function(p){ return p.dates && overlaps(m.from, m.to, p.dates.start, p.dates.end); }) : [];
+    var html = '<div class="dr-body" id="drBody"><div class="dr-h"><div class="dr-top"><div><p class="eyebrow">Manual booking' + (n ? ' · ' + esc(stayLabel(m.from, m.to)) : '') + '</p><h2 id="drRef" tabindex="-1">' + esc(b.ref) + '</h2>' +
+      '<div>' + statusPill(b.status) + (active(b) ? payPill2(b) : '') + '<span class="pill man">Manual</span>' + (m.programme === 'yes' ? '<span class="pill ok">Attends the programme</span>' : '') + '</div>' +
+      (b.created ? '<p class="meta">Recorded ' + esc(fmtWhen(b.created, { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })) + '</p>' : '') + '</div>' +
+      '<div class="dr-nav"><button type="button" class="ibtn" data-nav="-1" title="Previous booking (K)" aria-label="Previous booking"' + (i > 0 ? '' : ' disabled') + '>' + IC.prev + '</button>' +
+      '<button type="button" class="ibtn" data-nav="1" title="Next booking (J)" aria-label="Next booking"' + (i >= 0 && i < navList.length - 1 ? '' : ' disabled') + '>' + IC.next + '</button>' +
+      '<button type="button" class="ibtn" id="drClose" title="Close (Esc)" aria-label="Close">' + IC.x + '</button></div></div></div>';
+    if (b._new) html += '<div class="dr-alerts"><p class="note">Just saved. Stripe can take a minute to list it in every view.</p></div>';
+    html += '<section class="dr-sec"><h3>Guests <small>' + b.guests.length + '</small></h3><table class="mini"><thead><tr><th>Guest</th><th>Room</th></tr></thead><tbody>' + b.guests.map(function(g, gi){
+      var nm = g.room_name || b.assign[gi] || '', cr = nm ? calRoom(nm) : null, tn = cr && cr.room_name || (findBy(weekRooms(), function(r){ return r.name === nm; }) || {}).room_name || '';
+      return '<tr><td><b>' + esc(g.name) + '</b> ' + gBadge(g.gender) + (g.email ? '<span class="sub">' + esc(g.email) + '</span>' : '') + '</td><td>' + (nm ? esc(nm) + (tn ? '<span class="sub">' + esc(tn) + '</span>' : '') : '<span class="muted">–</span>') + '</td></tr>';
+    }).join('') + '</tbody></table>' +
+      (l.email || l.whatsapp ? '<div class="contact" style="margin-top:10px">' + (l.email ? '<div class="crow"><a href="mailto:' + esc(l.email) + '">' + esc(l.email) + '</a><button type="button" class="cbtn" data-copy="' + esc(l.email) + '" data-what="Email">Copy</button></div>' : '') +
+        (l.whatsapp ? '<div class="crow">' + (wa ? '<a href="https://wa.me/' + wa + '" target="_blank" rel="noopener">WhatsApp ' + esc(l.whatsapp) + '</a>' : esc(l.whatsapp)) + '<button type="button" class="cbtn" data-copy="' + esc(l.whatsapp) + '" data-what="Phone number">Copy</button></div>' : '') + '</div>' : '') + '</section>';
+    html += '<section class="dr-sec"><h3>Stay</h3><dl class="kv"><dt>Nights</dt><dd>' + (n ? esc(stayLabel(m.from, m.to)) + ' · ' + esc(plural(n, 'night')) + '<span class="sub">check-in ' + esc(dayLong(m.from)) + ', check-out ' + esc(dayLong(m.to)) + '</span>' : '–') + '</dd>' +
+      '<dt>Programme</dt><dd>' + (m.programme === 'yes' ? 'Attends ' + esc(wks.map(function(p){ return wkName(p.id); }).join(' and ') || 'the programme') : wks.length ? 'Stay only' + '<span class="sub">doesn\'t take places of ' + esc(wks.map(function(p){ return wkName(p.id); }).join(' or ')) + '</span>' : 'Stay only') + '</dd></dl></section>';
+    var pe = priceEdit && priceEdit.ref === b.ref;
+    html += '<section class="dr-sec"><h3>Money</h3><dl class="kv"><dt>Agreed price</dt><dd>' + (pe
+        ? '<form class="mprice" id="drPriceForm" novalidate><label class="vh" for="drPrice">Agreed price in euros</label><input type="text" id="drPrice" inputmode="decimal" autocomplete="off" value="' + esc(priceEdit.v) + '"' + (priceEdit.err ? ' aria-invalid="true"' : '') + '><button type="submit" class="btn btn-sm" id="drPriceSave">Save</button><button type="button" class="lnk" id="drPriceCancel">Cancel</button></form>' + (priceEdit.err ? '<span class="sub refund">' + esc(priceEdit.err) + '</span>' : '')
+        : '<div class="mprice"><span>' + money(b.total_cents) + '</span>' + (can ? '' : '<button type="button" class="lnk" id="drPriceEdit" aria-label="Change the agreed price">Change</button>') + '</div>') + '</dd>' +
+      '<dt>Paid</dt><dd>' + money(b.paid_cents) + '</dd>' +
+      '<dt class="tot">Balance</dt><dd class="tot">' + (num(b.balance_cents) ? money(b.balance_cents) : num(b.total_cents) ? 'Nothing to pay' : '<span class="muted">No price set</span>') + '</dd>' +
+      (num(b.paid_cents) > num(b.total_cents) && num(b.total_cents) ? '<dt>Overpaid</dt><dd class="refund">' + money(num(b.paid_cents) - num(b.total_cents)) + '</dd>' : '') + '</dl></section>';
+    html += payTimeline(b) + recordSec(b);
+    html += '<section class="dr-sec notebox"><h3><label for="drNote">Comment</label> <small>for the team</small></h3><textarea id="drNote" maxlength="480" rows="3" placeholder="How they booked, how they pay, anything the team should know" data-saved="' + esc(m.comment || '') + '">' + esc(m.comment || '') + '</textarea>' +
+      '<div class="note-f"><span id="drNoteCt">' + String(m.comment || '').length + '/480</span><span class="sp" id="drNoteSt" aria-live="polite"></span><button type="button" class="btn btn-sm" id="drNoteSave" disabled>Save comment</button></div></section>';
+    html += '</div><div class="dr-f"><button type="button" class="btn btn-ghost btn-sm" id="drCopy">Copy summary</button>' +
+      (/^cus_/.test(m.customer || '') ? '<a class="btn btn-ghost btn-sm" href="' + esc(stripeUrl(m.customer, stripeMode(b))) + '" target="_blank" rel="noopener">Open in Stripe ' + IC.ext + '</a>' : '') + '<span class="sp"></span>' +
+      (can ? '<button type="button" class="btn btn-ghost btn-sm" id="drRestore">Restore booking</button>' : '<button type="button" class="btn btn-ghost btn-sm" id="drCancel">Cancel booking</button>') + '</div>';
+    return html;
+  }
+  function bindManual(b){
+    var dr = $('drawer');
+    $('drClose').onclick = closeDrawer;
+    each(dr.querySelectorAll('[data-nav]'), function(x){ x.onclick = function(){ navDrawer(+x.getAttribute('data-nav')); }; });
+    each(dr.querySelectorAll('[data-copy]'), function(x){ x.onclick = function(){ copyAndTell(x.getAttribute('data-copy'), x.getAttribute('data-what') || 'Text'); }; });
+    each(dr.querySelectorAll('[data-void]'), function(x){ x.onclick = function(){ voidPayment(b, x.getAttribute('data-void'), x); }; });
+    bindRecord(b);
+    var note = $('drNote'), save = $('drNoteSave');
+    note.oninput = function(){ $('drNoteCt').textContent = note.value.length + '/480'; save.disabled = note.value === note.getAttribute('data-saved'); $('drNoteSt').textContent = ''; };
+    note.onkeydown = function(e){ if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); if (!save.disabled) save.click(); } };
+    save.onclick = function(){
+      var v = note.value.replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, ' ').slice(0, 480), done = busyBtn(save, 'Saving…');
+      post({ action: 'manual_update', ref: b.ref, comment: v }).then(function(d){
+        var c = d && d.booking && typeof d.booking.comment === 'string' ? d.booking.comment : d && typeof d.comment === 'string' ? d.comment : v;
+        done(); b.manual.comment = c; remember(b.ref, 'mcomment', c);
+        note.setAttribute('data-saved', c); if (note.value !== c) note.value = c;
+        save.disabled = true; $('drNoteSt').textContent = 'Saved'; toast('Comment saved for ' + esc(b.ref) + '.', 'ok');
+        keepFocus(function(){ VIEWS[route.tab].update(); });
+        drawerRefocus(note, save);
+      }, function(e){ done(); if (authFail(e)) return; $('drNoteSt').textContent = 'Not saved'; toast('Could not save the comment: ' + esc(why(e)), 'err'); drawerRefocus(save); });
+    };
+    if ($('drPriceEdit')) $('drPriceEdit').onclick = function(){ priceEdit = { ref: b.ref, v: num(b.total_cents) ? eurNum(b.total_cents) : '', err: '' }; renderDrawer(); var p = $('drPrice'); if (p) { p.focus(); p.select(); } };
+    if ($('drPriceCancel')) $('drPriceCancel').onclick = function(){ priceEdit = null; renderDrawer(); drawerRefocus($('drPriceEdit')); };
+    if ($('drPrice')) $('drPrice').oninput = function(){ priceEdit.v = $('drPrice').value; };
+    if ($('drPriceForm')) $('drPriceForm').onsubmit = function(e){
+      e.preventDefault();
+      var v = String(priceEdit.v).trim(), c = v ? parseEuro(v) : 0;
+      if (!(c >= 0) || c > 100000000) { priceEdit.err = 'Enter an amount in euros, e.g. 450 or 450.50.'; renderDrawer(); $('drPrice').focus(); return; }
+      if (c === num(b.total_cents)) { priceEdit = null; renderDrawer(); drawerRefocus($('drPriceEdit')); return; }
+      var btn = $('drPriceSave'), done = busyBtn(btn, 'Saving…');
+      post({ action: 'manual_update', ref: b.ref, total_cents: c }).then(function(d){
+        done(); priceEdit = null;
+        b.total_cents = d && d.booking && typeof d.booking.total_cents === 'number' ? d.booking.total_cents : c; rebalance(b);
+        remember(b.ref, 'total_cents', b.total_cents);
+        afterMoney(b, 'drPriceEdit');
+        toast('Agreed price for ' + esc(b.ref) + ' is now ' + esc(eur(b.total_cents)) + '.', 'ok');
+      }, function(e){ done(); if (authFail(e)) return; priceEdit.err = why(e); renderDrawer(); if ($('drPrice')) $('drPrice').focus(); });
+    };
+    $('drCopy').onclick = function(){ copyAndTell(manualSummary(b), 'Summary'); };
+    if ($('drCancel')) $('drCancel').onclick = function(){
+      var m = b.manual || {};
+      confirmBox({ title: 'Cancel manual booking ' + b.ref + '?', danger: true, ok: 'Cancel booking', cancel: 'Keep booking',
+        html: '<p>Its rooms are free again for ' + esc(stayLabel(m.from, m.to)) + (m.programme === 'yes' ? ', and its programme places go back on sale' : '') + '.</p>' + (num(b.paid_cents) ? '<p>The ' + esc(eur(b.paid_cents)) + ' recorded on it stays recorded: undo those payments separately if the money went back.</p>' : '') })
+        .then(function(yes){ if (yes) manualStatus(b, true, false); });
+    };
+    if ($('drRestore')) $('drRestore').onclick = function(){ manualStatus(b, false, false); };
+  }
+  function manualStatus(b, cancel, force){
+    var btn = $(cancel ? 'drCancel' : 'drRestore'), done = busyBtn(btn, cancel ? 'Cancelling…' : 'Restoring…'), body = { action: cancel ? 'manual_cancel' : 'manual_restore', ref: b.ref };
+    if (force) body.force = true;
+    post(body).then(function(){
+      done();
+      // keep a copy: the calendar stops listing a cancelled booking, and a restored one takes a moment to come back
+      var snap = JSON.parse(JSON.stringify(b)); snap.status = cancel ? 'cancelled' : 'active';
+      recOv.manual[b.ref] = { v: snap, at: Date.now() };
+      staleWeeks(b.manual.from, b.manual.to);
+      setStatus(b, cancel ? 'cancelled' : 'active');
+      toast('Manual booking ' + esc(b.ref) + (cancel ? ' cancelled: its rooms are free again.' : ' restored.') + (force ? ' Check the rooms: it was restored over a clash.' : ''), force ? 'warn' : 'ok');
+    }, function(e){
+      done();
+      if (authFail(e)) return;
+      if (!cancel && !force && e.status === 409) {
+        var cs = Array.isArray((e.data || {}).conflicts) ? e.data.conflicts : [];
+        confirmBox({ title: 'Restore anyway?', danger: true, ok: 'Restore anyway', cancel: 'Don\'t restore', ret: btn,
+          html: '<p>' + esc(e.message) + '</p>' + (cs.length ? '<ul>' + cs.map(function(c){ return '<li>' + esc(typeof c === 'string' ? c : c.message || '') + '</li>'; }).join('') + '</ul>' : '') + '<p>Only go ahead if you have checked the rooms with ASHA.</p>' })
+          .then(function(yes){ if (yes) manualStatus(b, false, true); });
+        return;
+      }
+      drawerRefocus(btn);
+      toast('Could not ' + (cancel ? 'cancel ' : 'restore ') + esc(b.ref) + ': ' + esc(why(e)), 'err');
     });
   }
 

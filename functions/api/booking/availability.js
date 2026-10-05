@@ -2,6 +2,7 @@
 // what the page needs to set up payment (embedded Stripe key, Turnstile key, deposit and plan options,
 // whether the reminder email is on). exclude: the asking visitor's own open checkouts (at most two),
 // so their own hold doesn't show as "in checkout" to them; checkout re-checks everything anyway.
+// The team's room blocks and manual bookings count too (one memoised records search for every week).
 import {
   json, preflight, getProgram, isClosed, availability, buildOccupancy, planInfo, depositInfo, publishableKey, turnstileSiteKey,
   remindEnabled, liveAvailability, lastSnapshot, logError, CS_ID,
@@ -30,7 +31,7 @@ export async function onRequestGet({ request, env }) {
     // Stripe unreachable: the last good answer from this isolate, marked stale. Never static capacity.
     const snap = lastSnapshot(program.id);
     if (snap) {
-      const avail = availability(program, buildOccupancy(program, snap.pays, snap.open, exclude));
+      const avail = availability(program, buildOccupancy(program, snap.pays, snap.open, exclude, snap.records));
       return send({ ...info, ...avail, degraded: true, stale_seconds: Math.max(0, Math.round((Date.now() - snap.at) / 1000)) });
     }
     return send({ error: 'Live availability is busy for a moment. Please try again.', code: 'busy', retry_after: 5 }, 503);

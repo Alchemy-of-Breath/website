@@ -1,13 +1,23 @@
 // /api/booking/admin — bookings dashboard data and actions. Requires Authorization: Bearer <ADMIN_TOKEN>.
-// GET ?program=ID   one week: bookings (with sessions, note, room assignment, source, discount), the week's
-//                   rooms and sessions (program_detail), the rooming map, availability and the setup panel.
-// GET ?overview=1   every week at a glance: totals, places, alerts, the 15 newest bookings.
+// GET ?program=ID   one week: bookings (online ones with sessions, note, room assignment, source, discount and
+//                   payments incl. offline ones; manual bookings overlapping the week with source 'manual'), the
+//                   week's rooms and sessions (program_detail), the rooming map (blocked rooms, manual guests),
+//                   availability (after the team's records), the blocks overlapping the week, the setup panel.
+// GET ?overview=1   every week at a glance: totals (manual bookings and offline payments included), places, alerts,
+//                   the 15 newest bookings; manual stays outside every week under `stay`.
+// GET ?stays=1      the manual bookings outside every week (program 'stay'), with their offline payments.
+// GET ?calendar=1&from=YYYY-MM-DD&to=YYYY-MM-DD   the rooming calendar (up to 120 nights): every physical room by
+//                   area, every guest's stay (online and manual), the blocks, guests not placed in a room yet.
 // GET reads only. POST actions: cancel (also closes any open balance link), restore (refuses to
 // overbook unless force), balance_link (asks before charging a booking that has a refund), repair_plans
 // (plan-end safety net), register_domains (Apple Pay / Google Pay / Link for embedded checkout),
 // note / assign / svc_status (the team's notes, kept on the booking's own PaymentIntent / subscription; an
 // ended plan's on its first invoice's PaymentIntent, see saveAdminMeta in core.js),
-// create_link (a 24-hour booking link made by the team, optionally with a discount).
+// create_link (a 24-hour booking link made by the team, optionally with a discount),
+// block_create / block_delete (rooms out of use for some nights), manual_create / manual_cancel /
+// manual_restore / manual_update (bookings made by hand for any dates; a clash with what is booked → 409
+// code 'conflict' with the list, unless force), offline_payment (a bank transfer, cash… recorded on a booking;
+// more than the balance → 409 code 'overpay' unless force) / offline_void (undo one).
 import {
   json, preflight, guardPost, readBody, adminAuthorized, getProgram, listPrograms, programSummary, programDetail, programPayments, groupBookings,
   openBookingSessions, openSessionsRaw, recentRaw, recentProgramPayments, mergePayments, buildOccupancy, occupancy, availability, checkAvailability, validRef, findBooking, forgetBooking, stripe,
@@ -15,7 +25,9 @@ import {
   planEndCheck, planEndCheckRecord, keyMode, publishableStatus, turnstileSiteKey, turnstileStatus, remindEnabled, listDomains, ensurePaymentMethodDomain,
   clearAvailabilityMemo, quote, publicQuote, bookingMetadata, bookingCheckoutParams, safeCreateSession, newRef, cleanNote, str, parseAssign,
   assignToString, parseSvc, svcToString, SVC_STATUS, saveAdminMeta, currentBookingMeta, logError, eur, nowSec, PROD_HOSTS,
-  liveMode,
+  liveMode, listRecords, listOffline, calendarRooms, weekConflicts, nameConflicts, manualBooking, blockOut, blockInput, manualInput,
+  manualUpdateInput, offlineInput, createOfflinePayment, recordsChanged, rememberWrite, parseRecord, isManualRef, isBlockId, homeProgram,
+  overlaps, weekRange, validDay, addDays, nightsBetween, todayIso, rangeLabel, OFFLINE_METHODS, REC_MAX_NIGHTS,
 } from '../../../booking-lib/core.js';
 import { seedDemo, clearDemo, placeDemo } from '../../../booking-lib/demo.js';
 
@@ -31,18 +43,24 @@ const META_MAX = 490;
 
 /* ------------------------------------------------------------------ overview */
 const ZERO_TOTALS = () => ({ bookings: 0, guests: 0, paid_cents: 0, balance_cents: 0, refunded_cents: 0, sessions_count: 0, sessions_cents: 0 });
-/* A booking whose balance has to be asked for (not one a running plan collects by itself). */
-const balanceDue = b => b.balance_cents > 0 && !b.pending && (!b.plan || b.plan.ended);
-const planIssue = b => !!b.plan && b.plan.status !== 'canceled' && (b.plan.status === 'past_due' || b.plan.status === 'unpaid'
-  || b.plan.end_check === 'missing' || b.plan.end_check === 'movable' || b.plan.end_check === 'short' || (b.plan.ended && b.balance_cents > 0));
-function weekSummary(program, bookings, avail) {
+/* Totals over bookings (online and manual): the active ones, refunds of all. */
+function totalsOf(bookings) {
   const active = bookings.filter(b => b.status !== 'cancelled');
-  const totals = {
+  return {
     bookings: active.length, guests: active.reduce((s, b) => s + b.guests.length, 0),
     paid_cents: active.reduce((s, b) => s + b.paid_cents, 0), balance_cents: active.reduce((s, b) => s + b.balance_cents, 0),
     refunded_cents: bookings.reduce((s, b) => s + (b.refunded_cents || 0), 0),
     sessions_count: active.reduce((s, b) => s + b.sessions_count, 0), sessions_cents: active.reduce((s, b) => s + b.sessions_cents, 0),
   };
+}
+/* A booking whose balance has to be asked for (not one a running plan collects by itself). */
+const balanceDue = b => b.balance_cents > 0 && !b.pending && (!b.plan || b.plan.ended);
+const planIssue = b => !!b.plan && b.plan.status !== 'canceled' && (b.plan.status === 'past_due' || b.plan.status === 'unpaid'
+  || b.plan.end_check === 'missing' || b.plan.end_check === 'movable' || b.plan.end_check === 'short' || (b.plan.ended && b.balance_cents > 0));
+/* bookings: the week's online bookings and the manual ones that belong to it (homeProgram). */
+function weekSummary(program, bookings, avail) {
+  const active = bookings.filter(b => b.status !== 'cancelled');
+  const totals = totalsOf(bookings);
   return {
     program: programSummary(program), totals,
     places: { left: avail.program_left, spaces: program.program_spaces },
@@ -53,14 +71,15 @@ function weekSummary(program, bookings, avail) {
     },
   };
 }
-function overviewOf(weeks, recentBookings) {
+/* stay: manual bookings outside every week ({ totals }); counted in the overall totals too. */
+function overviewOf(weeks, recentBookings, stay = { totals: ZERO_TOTALS() }) {
   const totals = ZERO_TOTALS();
-  weeks.forEach(w => Object.keys(totals).forEach(k => { totals[k] += w.totals[k]; }));
+  [...weeks, stay].forEach(w => Object.keys(totals).forEach(k => { totals[k] += w.totals[k]; }));
   const recent = recentBookings.sort((a, b) => b.b.created - a.b.created).slice(0, 15).map(({ p, b }) => ({
-    ref: b.ref, program: p.id, edition: p.edition || p.title, created: b.created, lead_name: b.lead.name || '', guests: b.guests.length,
-    total_cents: b.total_cents, paid_cents: b.paid_cents, status: b.status,
+    ref: b.ref, program: p ? p.id : 'stay', edition: p ? p.edition || p.title : 'Stay', created: b.created, lead_name: b.lead.name || '', guests: b.guests.length,
+    total_cents: b.total_cents, paid_cents: b.paid_cents, status: b.status, source: b.source || 'online',
   }));
-  return { overview: true, weeks, recent, totals };
+  return { overview: true, weeks, stay, recent, totals };
 }
 
 export async function onRequestGet({ request, env }) {
@@ -68,6 +87,21 @@ export async function onRequestGet({ request, env }) {
   if (!adminAuthorized(request, env)) return send({ error: 'Not authorised.' }, 401);
   const params = new URL(request.url).searchParams;
   const programs = listPrograms().map(programSummary);
+  if (params.get('calendar')) {
+    try { return await calendar(env, params, send); }
+    catch (e) { logError('admin.calendar', e); return send({ error: 'Could not load the calendar from Stripe: ' + e.message }, 502); }
+  }
+
+  // the manual bookings outside every week (a one-night stay, a stay between the weeks): the weeks' data leaves them out
+  if (params.get('stays')) {
+    const program = { id: 'stay', edition: 'Outside the weeks', title: 'Stay', dates: {} };
+    if (!env.STRIPE_SECRET_KEY) return send({ stays: true, demo: true, programs, program, bookings: [] });
+    try {
+      const [recs, offline] = await Promise.all([listRecords(env, { recent: true }), listOffline(env, { recent: true })]);
+      const bookings = recs.filter(r => r.type === 'booking').map(r => manualBooking(r, offline)).filter(b => b.program === 'stay').sort((a, b) => b.created - a.created);
+      return send({ stays: true, live: true, programs, program, bookings, totals: totalsOf(bookings) });
+    } catch (e) { logError('admin.stays', e); return send({ error: 'Could not load bookings from Stripe: ' + e.message }, 502); }
+  }
 
   if (params.get('overview')) {
     const progs = listPrograms();
@@ -76,14 +110,17 @@ export async function onRequestGet({ request, env }) {
       return send({ ...overviewOf(weeks, []), demo: true, programs });
     }
     try {
-      // the real-time lists are the same for every week: read them once
-      const [recent, rows] = await Promise.all([recentRaw(env), openSessionsRaw(env)]);
+      // the real-time lists, the team's records and the offline payments are the same for every week: read them once
+      const [recent, rows, recs, offline] = await Promise.all([recentRaw(env), openSessionsRaw(env), listRecords(env, { recent: true }), listOffline(env, { recent: true })]);
+      // a manual booking counts in the first week it overlaps (or under `stay`), never twice
+      const manual = recs.filter(r => r.type === 'booking').map(r => manualBooking(r, offline));
       const all = await Promise.all(progs.map(async p => {
-        const [pays, open] = await Promise.all([programPayments(env, p, { amounts: true, recent }), openBookingSessions(env, p, rows)]);
-        return { p, bookings: groupBookings(p, pays), avail: availability(p, buildOccupancy(p, pays, open)) };
+        const [pays, open] = await Promise.all([programPayments(env, p, { amounts: true, recent, offline }), openBookingSessions(env, p, rows)]);
+        return { p, bookings: [...groupBookings(p, pays), ...manual.filter(b => b.program === p.id)], avail: availability(p, buildOccupancy(p, pays, open, [], recs)) };
       }));
       const weeks = all.map(x => weekSummary(x.p, x.bookings, x.avail));
-      return send({ ...overviewOf(weeks, all.flatMap(x => x.bookings.map(b => ({ p: x.p, b })))), live: true, programs });
+      const stayB = manual.filter(b => b.program === 'stay');
+      return send({ ...overviewOf(weeks, [...all.flatMap(x => x.bookings.map(b => ({ p: x.p, b }))), ...stayB.map(b => ({ p: null, b }))], { totals: totalsOf(stayB) }), live: true, programs });
     } catch (e) { logError('admin.overview', e); return send({ error: 'Could not load bookings from Stripe: ' + e.message }, 502); }
   }
 
@@ -91,37 +128,257 @@ export async function onRequestGet({ request, env }) {
   const detail = programDetail(program);
   if (!env.STRIPE_SECRET_KEY) {
     return send({ demo: true, programs, program: programSummary(program), program_detail: detail, bookings: [], rooms: roomsOf(program),
-      availability: availability(program), ...roomingMap(program, []), setup: { ...setupBase(env), domains: [] } });
+      availability: availability(program), ...roomingMap(program, []), blocks: [], setup: { ...setupBase(env), domains: [] } });
   }
   try {
-    const [pays, open, domains] = await Promise.all([
+    const [pays, open, domains, recs, offline] = await Promise.all([
       programPayments(env, program, { amounts: true }),
       openBookingSessions(env, program),
       listDomains(env).catch(e => { logError('admin.domains', e); return null; }),
+      listRecords(env, { recent: true }),
+      listOffline(env, { recent: true }), // every offline payment (a few): the week's bookings', and the manual bookings'
     ]);
-    const bookings = groupBookings(program, pays);
-    const occ = buildOccupancy(program, pays, open);
-    const active = bookings.filter(b => b.status !== 'cancelled');
+    const online = groupBookings(program, [...pays, ...offline.filter(o => o.md.aob_program === program.id)]);
+    const manual = recs.filter(r => r.type === 'booking' && overlaps(r, weekRange(program))).map(r => manualBooking(r, offline));
+    const bookings = [...online, ...manual].sort((a, b) => b.created - a.created);
+    const occ = buildOccupancy(program, pays, open, [], recs);
     const checks = planRecords(pays).map(p => ({ p, state: planEndCheckRecord(p).state }));
     return send({
       live: true, programs, program: programSummary(program), program_detail: detail, bookings,
       rooms: roomsOf(program),
       availability: availability(program, occ), holds: occ.holds,
-      ...roomingMap(program, bookings),
+      ...roomingMap(program, online, recs),
+      blocks: occ.records.filter(r => r.type === 'block').map(blockOut),
       setup: { ...setupBase(env), domains },
       // plans whose end date is missing or wrong (Repair payment plans fixes them) …
       plans_without_end: checks.filter(c => c.state === 'missing' || c.state === 'movable').length,
       // … and plans whose last period was already cut short (invoice the difference by hand)
       plans_short: checks.filter(c => c.state === 'short').map(c => ({ ref: c.p.md.aob_ref, subscription: c.p.id })),
-      totals: {
-        bookings: active.length, guests: active.reduce((s, b) => s + b.guests.length, 0),
-        paid_cents: active.reduce((s, b) => s + b.paid_cents, 0), balance_cents: active.reduce((s, b) => s + b.balance_cents, 0),
-        refunded_cents: bookings.reduce((s, b) => s + (b.refunded_cents || 0), 0),
-        paid_after_cancel_cents: bookings.reduce((s, b) => s + (b.paid_after_cancel_cents || 0), 0),
-        sessions_count: active.reduce((s, b) => s + b.sessions_count, 0), sessions_cents: active.reduce((s, b) => s + b.sessions_cents, 0),
-      },
+      totals: { ...totalsOf(bookings), paid_after_cancel_cents: bookings.reduce((s, b) => s + (b.paid_after_cancel_cents || 0), 0) },
     });
   } catch (e) { logError('admin.get', e); return send({ error: 'Could not load bookings from Stripe: ' + e.message }, 502); }
+}
+
+/* ---------------------------------------------------------------- calendar */
+/* from / to (YYYY-MM-DD, `to` = the day after the last night shown). Both given: checked (at most
+   REC_MAX_NIGHTS nights). Otherwise from = the earliest week's start − 7 days, to = the latest week's
+   end + 7 days, cut to REC_MAX_NIGHTS nights. */
+function calendarRange(params, progs) {
+  const qf = params.get('from') || '', qt = params.get('to') || '';
+  if ((qf && !validDay(qf)) || (qt && !validDay(qt))) return { error: 'Dates must look like 2027-07-18.' };
+  if (qf && qt) {
+    if (qf >= qt) return { error: 'The end date must be after the start date.' };
+    if (nightsBetween(qf, qt) > REC_MAX_NIGHTS) return { error: `The calendar shows at most ${REC_MAX_NIGHTS} nights at a time.` };
+    return { from: qf, to: qt };
+  }
+  const starts = progs.map(p => p.dates.start).sort(), ends = progs.map(p => p.dates.end).sort();
+  const dFrom = starts.length ? addDays(starts[0], -7) : todayIso(), dTo = ends.length ? addDays(ends[ends.length - 1], 7) : addDays(dFrom, 28);
+  let from = qf || dFrom, to = qt || dTo;
+  if (qt && !qf && from >= to) from = addDays(to, -28);
+  if (qf && !qt && to <= from) to = addDays(from, 28);
+  if (nightsBetween(from, to) > REC_MAX_NIGHTS) { if (qt && !qf) from = addDays(to, -REC_MAX_NIGHTS); else to = addDays(from, REC_MAX_NIGHTS); }
+  return { from, to };
+}
+const payState = b => b.pending ? 'processing' : b.plan ? 'plan' : b.balance_cents > 0 ? 'deposit' : 'paid';
+const calendarRoomOut = r => ({ name: r.name, room_id: r.room_id, room_name: r.room_name, area: r.area, capacity: r.capacity, same_gender: r.same_gender, unit: r.unit, sleeps: r.sleeps });
+async function calendar(env, params, send) {
+  const progs = listPrograms(), range = calendarRange(params, progs);
+  if (range.error) return send({ error: range.error }, 400);
+  const { rooms, areas } = calendarRooms(progs);
+  const base = {
+    calendar: true, from: range.from, to: range.to, nights: nightsBetween(range.from, range.to), today: todayIso(),
+    rooms: rooms.map(calendarRoomOut), areas,
+    programs: progs.map(p => ({ id: p.id, edition: p.edition || p.title, title: p.title, dates: p.dates })),
+  };
+  if (!env.STRIPE_SECRET_KEY) return send({ ...base, demo: true, stays: [], blocks: [], unplaced: [], manual: [] });
+  const weeksIn = progs.filter(p => overlaps(weekRange(p), range));
+  const [recs, offline, recent] = await Promise.all([listRecords(env, { recent: true }), listOffline(env, { recent: true }), weeksIn.length ? recentRaw(env) : null]);
+  const weeks = await Promise.all(weeksIn.map(async p => ({ p, bookings: groupBookings(p, await programPayments(env, p, { recent, offline })) })));
+  const stays = [], unplaced = [];
+  for (const { p, bookings } of weeks) {
+    const per = {};
+    for (const b of bookings) {
+      if (b.status === 'cancelled') continue;
+      const pay_state = payState(b);
+      b.guests.forEach((g, i) => {
+        const name = (b.assign || {})[i] || null;
+        stays.push({ kind: 'online', ref: b.ref, program: p.id, index: i, name: g.name, gender: g.gender, room_id: g.room, room_name: name,
+          from: p.dates.start, to: p.dates.end, demo: !!b.demo, status: b.status, pay_state });
+        if (name) return;
+        const c = per[g.room] || (per[g.room] = { program: p.id, room_id: g.room, count: 0, female: 0, male: 0,
+          placeable: !!((p.rooms.find(x => x.id === g.room) || {}).names || []).length });
+        c.count++; if (String(g.gender).toLowerCase() === 'male') c.male++; else c.female++;
+      });
+    }
+    unplaced.push(...Object.values(per));
+  }
+  const inRange = recs.filter(r => overlaps(r, range));
+  const manual = inRange.filter(r => r.type === 'booking').map(r => manualBooking(r, offline, rooms));
+  for (const b of manual) {
+    if (b.status === 'cancelled') continue;
+    b.guests.forEach((g, i) => stays.push({ kind: 'manual', ref: b.ref, program: b.program, index: i, name: g.name, gender: g.gender, room_id: g.room, room_name: g.room_name,
+      from: b.manual.from, to: b.manual.to, programme: b.manual.programme, comment: b.manual.comment, status: b.status,
+      pay_state: !b.total_cents ? 'none' : !b.balance_cents ? 'paid' : b.paid_cents ? 'deposit' : 'unpaid' }));
+  }
+  return send({ ...base, live: true, stays, blocks: inRange.filter(r => r.type === 'block' && r.status === 'active').map(blockOut), unplaced, manual });
+}
+
+/* ---------------------------------------------- records: conflicts, find, GHL */
+/* What a record (a new block or manual booking, or a manual booking being restored) would clash with:
+   the rooms on the same nights (other records, online guests placed there), and every week it
+   overlaps (its bookings and open checkouts must still fit, programme places included). → [text] */
+async function conflictsFor(env, cand) {
+  const progs = listPrograms().filter(p => overlaps(cand, weekRange(p)));
+  const [recs, recent, rows] = await Promise.all([listRecords(env, { recent: true }), progs.length ? recentRaw(env) : null, progs.length ? openSessionsRaw(env) : []]);
+  const others = recs.filter(r => r.customer !== cand.customer && r.status === 'active');
+  const weeks = await Promise.all(progs.map(async p => {
+    const [pays, open] = await Promise.all([programPayments(env, p, { recent }), openBookingSessions(env, p, rows)]);
+    return { program: p, bookings: groupBookings(p, pays), occ: buildOccupancy(p, pays, open, [], others) };
+  }));
+  return [...nameConflicts(cand, others, weeks), ...weeks.flatMap(w => weekConflicts(w.program, w.occ, cand))];
+}
+const CONFLICT = conflicts => ({ error: 'This clashes with what is already booked. Check the list, or save it anyway.', code: 'conflict', conflicts });
+const fieldsError = (send, errors) => send({ error: 'Please check the highlighted details.', fields: errors }, 422);
+/* A record customer read fresh from Stripe (search lags; a write starts from the current metadata). */
+async function readRecord(env, customerId) {
+  try { return parseRecord(await stripe(env, 'GET', `/customers/${customerId}`)); }
+  catch (e) { if (e.status === 404) return null; throw e; }
+}
+async function findManual(env, ref) {
+  const rec = (await listRecords(env, { recent: true })).find(r => r.type === 'booking' && r.ref === ref);
+  const fresh = rec ? await readRecord(env, rec.customer) : null;
+  return fresh && fresh.type === 'booking' ? fresh : null;
+}
+/* Fire-and-forget to GHL (never holds up or fails the admin action). */
+function notifyGhl(env, context, payload) {
+  if (!env.GHL_WEBHOOK_URL) return null;
+  const p = fetch(env.GHL_WEBHOOK_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload), signal: AbortSignal.timeout(5000) })
+    .then(r => { if (!r.ok) logError('admin.ghl', { status: r.status, type: 'ghl_error' }); }, () => logError('admin.ghl', { status: 0, type: 'network_error' }));
+  if (context && typeof context.waitUntil === 'function') { try { context.waitUntil(p); } catch {} }
+  return p;
+}
+const money = c => ((c || 0) / 100).toFixed(2);
+
+async function blockCreate(env, body, send) {
+  const v = blockInput(body);
+  if (Object.keys(v.errors).length) return fieldsError(send, v.errors);
+  if (body.force !== true) {
+    const conflicts = await conflictsFor(env, v.rec);
+    if (conflicts.length) return send(CONFLICT(conflicts), 409);
+  }
+  const c = await stripe(env, 'POST', '/customers', { name: v.name, description: v.description, metadata: v.metadata });
+  recordsChanged(c);
+  return send({ ok: true, block: blockOut(parseRecord(c)), forced: body.force === true });
+}
+async function blockDelete(env, body, send) {
+  const id = str(body.id, 80);
+  let rec = null;
+  if (/^cus_[A-Za-z0-9]{6,}$/.test(id)) rec = await readRecord(env, id);
+  else if (isBlockId(id)) {
+    const found = (await listRecords(env, { recent: true })).find(r => r.type === 'block' && r.id === id);
+    rec = found ? await readRecord(env, found.customer) : null;
+  }
+  if (!rec || rec.type !== 'block') return send({ error: 'Block not found (it may have been removed already).' }, 404);
+  await stripe(env, 'DELETE', `/customers/${rec.customer}`);
+  recordsChanged({ id: rec.customer }, true);
+  return send({ ok: true, id: rec.id, customer: rec.customer });
+}
+async function manualCreate(env, body, send) {
+  const v = manualInput(body);
+  if (Object.keys(v.errors).length) return fieldsError(send, v.errors);
+  if (body.force !== true) {
+    const conflicts = await conflictsFor(env, v.rec);
+    if (conflicts.length) return send(CONFLICT(conflicts), 409);
+  }
+  const c = await stripe(env, 'POST', '/customers', { name: v.name, description: v.description, metadata: v.metadata });
+  recordsChanged(c);
+  return send({ ok: true, booking: manualBooking(parseRecord(c), []), forced: body.force === true });
+}
+/* manual_cancel / manual_restore / manual_update (and note, as the comment) / offline_payment on a manual booking */
+async function manualAction(context, env, body, ref, send) {
+  const rec = await findManual(env, ref);
+  if (!rec) return send({ error: 'Manual booking not found (a new one can take a minute to appear).' }, 404);
+  if (body.action === 'offline_payment') return offlinePayment(context, env, body, { manual: rec }, send);
+  let fields;
+  if (body.action === 'manual_cancel') {
+    if (rec.status === 'cancelled') return send({ ok: true, ref, status: 'cancelled', booking: manualBooking(rec, await listOffline(env, { ref, recent: true })) });
+    fields = { aob_status: 'cancelled', aob_status_at: String(nowSec()) };
+  } else if (body.action === 'manual_restore') {
+    if (rec.status === 'active') return send({ ok: true, ref, status: 'active', booking: manualBooking(rec, await listOffline(env, { ref, recent: true })) });
+    if (body.force !== true) {
+      const conflicts = await conflictsFor(env, { ...rec, status: 'active' });
+      if (conflicts.length) return send({ ...CONFLICT(conflicts), error: `Restoring ${ref} clashes with what has been booked since. Check the list, or restore it anyway.` }, 409);
+    }
+    fields = { aob_status: 'active', aob_status_at: '' };
+  } else if (body.action === 'manual_update' || body.action === 'note') {
+    const v = manualUpdateInput(body.action === 'note' ? { comment: body.note } : body);
+    if (Object.keys(v.errors).length) return fieldsError(send, v.errors);
+    fields = v.fields;
+  } else return send({ error: 'This is a manual booking: it can be cancelled, restored, edited (comment, price) or paid offline.' }, 400);
+  const [c, offline] = await Promise.all([stripe(env, 'POST', `/customers/${rec.customer}`, { metadata: fields }), listOffline(env, { ref, recent: true })]);
+  recordsChanged(c);
+  const booking = manualBooking(parseRecord(c), offline);
+  return send({ ok: true, ref, status: booking.status, booking });
+}
+
+/* A payment received outside Stripe Checkout (bank transfer, cash, other), recorded as an invoice paid
+   out of band (see createOfflinePayment). target: { program, booking } (online) | { manual: record }. */
+async function offlinePayment(context, env, body, target, send) {
+  const v = offlineInput(body);
+  if (Object.keys(v.errors).length) return fieldsError(send, v.errors);
+  const pay = v.payment;
+  let ref, programId, label, customer, lead, total, paid, refunded, guard, currency = 'eur';
+  if (target.manual) {
+    const rec = target.manual, b = manualBooking(rec, await listOffline(env, { ref: rec.ref, recent: true })), home = homeProgram(rec);
+    ref = rec.ref; programId = b.program; label = home ? home.edition || home.title : 'Stay'; customer = rec.customer; lead = b.lead;
+    total = b.total_cents; paid = b.paid_cents; refunded = 0; guard = total > 0; // no agreed price yet: nothing to overpay
+    if (home) currency = home.currency.toLowerCase();
+  } else {
+    const { program, booking } = target;
+    ref = booking.ref; programId = program.id; label = program.edition || program.title; lead = booking.lead; currency = program.currency.toLowerCase();
+    customer = booking.customer || ((booking.payments || []).find(x => x.kind === 'offline' && x.customer) || {}).customer || null;
+    total = booking.total_cents; paid = booking.paid_cents; refunded = booking.refunded_cents || 0; guard = true;
+  }
+  const balance = Math.max(0, total - paid - refunded);
+  if (guard && pay.amount_cents > balance && body.force !== true) {
+    return send({ error: `${eur(pay.amount_cents)} is more than the ${eur(balance)} still to pay on ${ref}. Record it anyway?`, code: 'overpay', balance_cents: balance, amount_cents: pay.amount_cents }, 409);
+  }
+  const inv = await createOfflinePayment(env, { customer, name: lead.name, ref, program: programId, label, currency, payment: pay });
+  rememberWrite(inv);
+  forgetBooking(ref);
+  const paidNow = paid + pay.amount_cents, balanceNow = Math.max(0, total - paidNow - refunded);
+  // a balance link already sent asks for the old amount: close it (a new one asks for what is left)
+  let closed = 0;
+  if (!target.manual) {
+    try { const links = await openBalanceSessions(env, ref); closed = (await Promise.all(links.map(s => expireSession(env, s.id)))).filter(Boolean).length; }
+    catch (e) { logError('admin.offline_links', e, { ref }); }
+  }
+  const [first, ...rest] = String(lead.name || '').split(' ');
+  notifyGhl(env, context, {
+    event: 'offline_payment_recorded', ref, program: programId, program_title: label, source: target.manual ? 'manual' : 'online',
+    first_name: first || '', last_name: rest.join(' '), email: lead.email || '', phone: lead.whatsapp || '',
+    amount: money(pay.amount_cents), amount_cents: pay.amount_cents, currency: currency.toUpperCase(), method: pay.method, method_label: OFFLINE_METHODS[pay.method],
+    received: pay.received, comment: pay.comment, invoice_id: inv.id, paid_total: money(paidNow), balance: money(balanceNow), tag: `${programId}-offline-paid`,
+  });
+  return send({ ok: true, ref, payment: { invoice_id: inv.id, amount_cents: pay.amount_cents, method: pay.method, received: pay.received, comment: pay.comment },
+    booking: { total_cents: total, paid_cents: paidNow, balance_cents: balanceNow }, balance_links_closed: closed, forced: body.force === true && pay.amount_cents > balance });
+}
+async function offlineVoid(env, body, send) {
+  const id = str(body.invoice_id, 80);
+  if (!/^in_[A-Za-z0-9]{6,}$/.test(id)) return send({ error: 'Invalid invoice.' }, 400);
+  const reason = cleanNote(body.reason, 200);
+  if (!reason) return fieldsError(send, { reason: 'Add a short reason.' });
+  let inv;
+  try { inv = await stripe(env, 'GET', `/invoices/${id}`); }
+  catch (e) { if (e.status === 404) return send({ error: 'Payment not found.' }, 404); throw e; }
+  const md = inv.metadata || {};
+  if (md.aob_kind === 'offline_void') return send({ ok: true, invoice_id: id, ref: md.aob_ref || null, already: true });
+  if (md.aob_kind !== 'offline') return send({ error: 'That invoice is not an offline payment recorded here.' }, 409);
+  const u = await stripe(env, 'POST', `/invoices/${id}`, { metadata: { aob_kind: 'offline_void', aob_void_reason: reason, aob_void_at: new Date().toISOString() } });
+  rememberWrite(u);
+  if (md.aob_ref) forgetBooking(md.aob_ref);
+  return send({ ok: true, invoice_id: id, ref: md.aob_ref || null, amount_cents: inv.amount_paid || inv.total || 0,
+    message: 'Undone: it no longer counts as paid. If your books must show the reversal, add a credit note to this invoice in Stripe.' });
 }
 
 /* -------------------------------------------------------------- team notes */
@@ -132,15 +389,17 @@ export async function onRequestGet({ request, env }) {
 const currentMeta = currentBookingMeta;
 const saveOnBooking = saveAdminMeta;
 
-/* Warnings for the rooms this booking's guests are in, after its new assignment. */
-function assignWarnings(program, bookings, booking) {
-  const { rooming } = roomingMap(program, bookings);
+/* Warnings for the rooms this booking's guests are in, after its new assignment (records: the team's
+   blocks and manual bookings, which count too). */
+function assignWarnings(program, bookings, booking, records = []) {
+  const { rooming } = roomingMap(program, bookings, records);
   const mine = new Set(Object.values(booking.assign || {}));
   const out = [];
   for (const name of mine) {
     const slot = rooming[name];
     if (!slot) continue;
-    if (slot.conflict === 'mixed') out.push(`${name}: women and men are in the same room.`);
+    if (slot.conflict === 'blocked') out.push(`${name} is blocked ${rangeLabel(slot.blocked.from, slot.blocked.to)} (${slot.blocked.reason}).`);
+    else if (slot.conflict === 'mixed') out.push(`${name}: women and men are in the same room.`);
     else if (slot.conflict === 'over') out.push(`${name}: ${slot.guests.length} guests for ${slot.capacity} ${slot.capacity === 1 ? 'place' : 'beds'}.`);
   }
   return out;
@@ -179,13 +438,13 @@ async function createLink(env, body, send) {
   const params = bookingCheckoutParams(program, q, ref, md, returnUrl, { hours: 23.9, consent: true });
   if (!env.STRIPE_SECRET_KEY) return send({ ok: true, demo: true, url: null, ref, expires_at: params.expires_at, quote: publicQuote(q), ...termsInfo(program, params), stripe_params: params });
 
-  const [payments, open] = await Promise.all([programPayments(env, program), openBookingSessions(env, program)]);
+  const [payments, open, records] = await Promise.all([programPayments(env, program), openBookingSessions(env, program), listRecords(env, { recent: true })]);
   // an earlier link for the same guest is replaced (one hold per person): left out of the check,
   // given up only once the new link exists (and only if it can be: see below)
   const lead = q.guests[0].email;
   const mineS = open.filter(s => s.metadata.aob_source === 'admin' && s.metadata.aob_lead_email === lead);
   const mine = mineS.map(s => s.id), mineRefs = new Set(mineS.map(s => s.metadata.aob_ref).filter(Boolean));
-  const avail = availability(program, buildOccupancy(program, payments, open, mine));
+  const avail = availability(program, buildOccupancy(program, payments, open, mine, records));
   const full = checkAvailability(program, q, avail);
   if (full) return send({ error: full, code: 'unavailable', availability: avail }, 409);
   const { session, dropped } = await safeCreateSession(env, params);
@@ -197,7 +456,7 @@ async function createLink(env, body, send) {
     const created = session.created || nowSec();
     const earlier = fresh.filter(s => s.id !== session.id && !mine.includes(s.id) && s.created <= created);
     const pays = mergePayments(payments, recent).filter(p => !mineRefs.has(p.md.aob_ref));
-    const clash = checkAvailability(program, q, availability(program, buildOccupancy(program, pays, earlier)));
+    const clash = checkAvailability(program, q, availability(program, buildOccupancy(program, pays, earlier, [], records)));
     if (clash) return await drop(409, { error: clash, code: 'unavailable' });
   } catch (e) { logError('admin.link_race', e, { ref }); }
   // Only now give up the earlier link(s). One that was paid (or is paying) meanwhile is the booking:
@@ -221,7 +480,8 @@ async function createLink(env, body, send) {
     replaced: results.filter(r => r.state === 'expired').length, ...termsInfo(program, params, dropped), quote: publicQuote(q) });
 }
 
-export async function onRequestPost({ request, env }) {
+export async function onRequestPost(context) {
+  const { request, env } = context;
   const send = (d, s = 200) => json(request, d, s, env);
   const bad = guardPost(request, env);
   if (bad) return bad;
@@ -272,12 +532,20 @@ export async function onRequestPost({ request, env }) {
       }
       return send({ ok: failed.length === 0, repaired, failed, short });
     }
+    // the team's records: room blocks and manual bookings; offline payments
+    if (body.action === 'block_create') return await blockCreate(env, body, send);
+    if (body.action === 'block_delete') return await blockDelete(env, body, send);
+    if (body.action === 'manual_create') return await manualCreate(env, body, send);
+    if (body.action === 'offline_void') return await offlineVoid(env, body, send);
 
-    const ref = String(body.ref || '').toUpperCase();
+    const ref = String(body.ref || '').trim().toUpperCase();
     if (!validRef(ref)) return send({ error: 'Invalid reference.' }, 400);
+    if (isManualRef(ref)) return await manualAction(context, env, body, ref, send);
+    if (/^manual_/.test(String(body.action || ''))) return send({ error: 'That is not a manual booking.' }, 400);
     const found = await findBooking(env, ref);
     if (!found) return send({ error: 'Booking not found (new bookings can take a minute to appear).' }, 404);
     const { program, booking } = found;
+    if (body.action === 'offline_payment') return await offlinePayment(context, env, body, found, send);
 
     if (body.action === 'note') {
       const note = cleanNote(body.note);
@@ -307,8 +575,9 @@ export async function onRequestPost({ request, env }) {
       // warnings over the whole week (other bookings' guests may share the room)
       let warnings = [];
       try {
-        const others = groupBookings(program, await programPayments(env, program)).filter(b => b.ref !== ref);
-        warnings = assignWarnings(program, [...others, { ...booking, assign }], { assign });
+        const [pays, recs] = await Promise.all([programPayments(env, program), listRecords(env, { recent: true })]);
+        const others = groupBookings(program, pays).filter(b => b.ref !== ref);
+        warnings = assignWarnings(program, [...others, { ...booking, assign }], { assign }, recs);
       } catch (e) { logError('admin.assign_warnings', e, { ref }); warnings = assignWarnings(program, [{ ...booking, assign }], { assign }); }
       return send({ ok: true, ref, assign, warnings });
     }

@@ -13,6 +13,9 @@
    - Team notes on a booking (note, room assignment, session status) live in the metadata of the
      booking's own PaymentIntent / subscription (aob_note, aob_assign, aob_svc); for a plan whose
      subscription has ended, on its first invoice's PaymentIntent (see saveAdminMeta).
+   - The team's calendar records (room blocks, manual bookings for any dates) are Stripe Customers
+     with aob_rec metadata (see listRecords); money received outside Checkout (bank transfer, cash)
+     is a Stripe Invoice paid out of band with aob_kind=offline (see listOffline).
 
    Environment (Cloudflare Pages → Settings → Variables and secrets)
    - STRIPE_SECRET_KEY       required for live/test payments (sk_test_… first). Without it every
@@ -516,13 +519,15 @@ function sharedState(r, taken) {
   const b = r.sleeps, units = [];
   (r.occupied || []).slice(0, r.units).forEach(o => units.push({ g: o.gender ? gkey(o.gender) : 'blocked', free: Math.max(0, b - (o.beds || 0)) }));
   while (units.length < r.units) units.push({ g: null, free: b });
+  let unplaced = 0; // people who don't fit any more (a room taken out of use after they booked)
   const place = (g, n) => {
     for (const u of units) if (n > 0 && u.g === g && u.free > 0) { const t = Math.min(n, u.free); u.free -= t; n -= t; }
     for (const u of units) if (n > 0 && u.g === null) { u.g = g; const t = Math.min(n, u.free); u.free -= t; n -= t; }
+    unplaced += n;
   };
   place('female', taken.female || 0); place('male', taken.male || 0); place('other', taken.other || 0);
   const partial = g => units.filter(u => u.g === g).reduce((s, u) => s + u.free, 0);
-  return { beds: b, empty_units: units.filter(u => u.g === null).length, partial: { female: partial('female'), male: partial('male') } };
+  return { beds: b, empty_units: units.filter(u => u.g === null).length, partial: { female: partial('female'), male: partial('male') }, unplaced };
 }
 
 /* Can `f` women and `m` men all be placed in this room type right now? (left_any is in places, so
@@ -535,9 +540,12 @@ export function fits(a, f, m) {
   return Math.ceil(needF / a.beds) + Math.ceil(needM / a.beds) <= a.empty_units;
 }
 
-/* occ = { booked, holds, release } from occupancy(); per room: { female, male, other, units }.
-   Adds per room `held` (places in open checkouts) and `next_release_at` (earliest hold expiry). */
+/* occ = { booked, holds, release, records } from occupancy(); per room: { female, male, other, units }.
+   Adds per room `held` (places in open checkouts) and `next_release_at` (earliest hold expiry).
+   records: the team's blocks and manual bookings overlapping the week, applied to a copy of the
+   program first (programWithRecords): fewer rooms, beds already taken, fewer programme places. */
 export function availability(program, occ) {
+  if (occ && occ.records && occ.records.length) return availability(programWithRecords(program, occ.records), { ...occ, records: null });
   const booked = (occ && occ.booked) || {}, holds = (occ && occ.holds) || {}, release = (occ && occ.release) || {};
   const sum = id => {
     const a = booked[id] || {}, h = holds[id] || {};
@@ -1009,9 +1017,14 @@ async function collectPayments(env, match, query, { amounts = false, cap = 2000,
    plus the real-time lists of PaymentIntents and subscriptions created in the last 40 minutes
    (Checkout creates the PaymentIntent when the guest pays), because search can lag. amounts: also
    total what each plan has paid so far (one call per plan). recent: recentRaw() already read (the
-   overview reads it once for every week). */
-export function programPayments(env, program, { amounts = false, recent } = {}) {
-  return collectPayments(env, md => md.aob_program === program.id, `metadata['aob_program']:'${program.id}'`, { amounts, recent });
+   overview reads it once for every week). offline: also the payments the team recorded by hand
+   (bank transfers…, see listOffline): true = one more search for this week, or the rows already
+   read (the admin reads every offline payment once). Availability never needs them. */
+export async function programPayments(env, program, { amounts = false, recent, offline } = {}) {
+  const pays = collectPayments(env, md => md.aob_program === program.id, `metadata['aob_program']:'${program.id}'`, { amounts, recent });
+  if (!offline) return pays;
+  const [p, off] = await Promise.all([pays, Array.isArray(offline) ? offline : listOffline(env, { program: program.id, recent: true })]);
+  return [...p, ...off.filter(o => o.md.aob_program === program.id)];
 }
 /* Only the real-time part (for the post-create race check). */
 export async function recentProgramPayments(env, program) {
@@ -1099,8 +1112,9 @@ function addGuests(into, md, program) {
   return per;
 }
 /* booked (paid, not cancelled) + holds (open checkouts, minus `exclude`d session ids) + per-room
-   earliest hold expiry. Pure: payments and sessions come from programPayments/openBookingSessions. */
-export function buildOccupancy(program, payments, sessions, exclude = []) {
+   earliest hold expiry + the team's records (blocks, manual bookings) that overlap the week. Pure:
+   payments, sessions and records come from programPayments / openBookingSessions / listRecords. */
+export function buildOccupancy(program, payments, sessions, exclude = [], records = []) {
   const booked = {}, holds = {}, release = {}, skip = new Set(exclude);
   for (const p of payments || []) {
     const md = p.md || {};
@@ -1111,36 +1125,39 @@ export function buildOccupancy(program, payments, sessions, exclude = []) {
     const per = addGuests(holds, s.metadata || {}, program);
     for (const room of Object.keys(per)) if (s.expires_at && (!release[room] || s.expires_at < release[room])) release[room] = s.expires_at;
   }
-  return { booked, holds, release, open };
+  return { booked, holds, release, open, records: recordsFor(program, records) };
 }
-export async function occupancy(env, program, payments, { exclude = [], open } = {}) {
-  const [pays, sessions] = await Promise.all([payments || programPayments(env, program), open || openBookingSessions(env, program)]);
-  return buildOccupancy(program, pays, sessions, exclude);
+export async function occupancy(env, program, payments, { exclude = [], open, records } = {}) {
+  const [pays, sessions, recs] = await Promise.all([payments || programPayments(env, program), open || openBookingSessions(env, program),
+    records || listRecords(env, { recent: true })]);
+  return buildOccupancy(program, pays, sessions, exclude, recs);
 }
 
 /* Availability memo per program (module scope = per isolate): 15 s TTL + single flight, so a burst
-   of page polls costs one round of Stripe calls. It keeps the raw payments and open checkouts (not
-   the computed answer), so each request can leave out the asking visitor's own checkout (exclude).
+   of page polls costs one round of Stripe calls. It keeps the raw payments, open checkouts and the
+   team's records (not the computed answer), so each request can leave out the asking visitor's own
+   checkout (exclude). The records come from their own 15 s memo (one search for every week).
    Checkout clears it and always reads fresh. The last good read is also kept as a snapshot for when
    Stripe can't be reached. */
 const MEMO_TTL_MS = 15000, SNAPSHOT_MAX_MS = 3600 * 1000;
 const memo = new Map(), snapshots = new Map();
 let memoGen = 0;
+/* No programId: every week, and the records memo too. */
 export function clearAvailabilityMemo(programId, { snapshot = false } = {}) {
   memoGen++;
   if (programId) { memo.delete(programId); if (snapshot) snapshots.delete(programId); }
-  else { memo.clear(); if (snapshot) snapshots.clear(); }
+  else { memo.clear(); clearRecordsMemo(); if (snapshot) snapshots.clear(); }
 }
-/* { pays, open, at, cached } */
+/* { pays, open, records, at, cached } */
 export function liveOccupancy(env, program) {
   const m = memo.get(program.id);
   if (m && m.raw && Date.now() - m.at < MEMO_TTL_MS) return Promise.resolve({ ...m.raw, at: m.at, cached: true });
   if (m && m.inflight) return m.inflight;
   const gen = memoGen, entry = { inflight: null };
-  entry.inflight = Promise.all([programPayments(env, program), openBookingSessions(env, program)]).then(([pays, open]) => {
-    const v = { pays, open, at: Date.now() };
+  entry.inflight = Promise.all([programPayments(env, program), openBookingSessions(env, program), listRecords(env, { cached: true })]).then(([pays, open, records]) => {
+    const v = { pays, open, records, at: Date.now() };
     snapshots.set(program.id, v);
-    if (memoGen === gen && memo.get(program.id) === entry) memo.set(program.id, { raw: { pays, open }, at: v.at });
+    if (memoGen === gen && memo.get(program.id) === entry) memo.set(program.id, { raw: { pays, open, records }, at: v.at });
     return v;
   }, e => { if (memo.get(program.id) === entry) memo.delete(program.id); throw e; });
   memo.set(program.id, entry);
@@ -1148,9 +1165,9 @@ export function liveOccupancy(env, program) {
 }
 /* { avail, at, cached }: availability without the `exclude`d checkouts (the asking visitor's own). */
 export function liveAvailability(env, program, exclude = []) {
-  return liveOccupancy(env, program).then(v => ({ avail: availability(program, buildOccupancy(program, v.pays, v.open, exclude)), at: v.at, cached: !!v.cached }));
+  return liveOccupancy(env, program).then(v => ({ avail: availability(program, buildOccupancy(program, v.pays, v.open, exclude, v.records)), at: v.at, cached: !!v.cached }));
 }
-/* The last good read ({ pays, open, at }), up to an hour old. */
+/* The last good read ({ pays, open, records, at }), up to an hour old. */
 export function lastSnapshot(programId) {
   const s = snapshots.get(programId);
   return s && Date.now() - s.at < SNAPSHOT_MAX_MS ? s : null;
@@ -1168,13 +1185,17 @@ export function lastSnapshot(programId) {
    addons: every session, booking-time first (key b<n>, n = its place in aob_addons), then extras
    (key x<last 8 of the payment id>-<n>), with the team's status/when from aob_svc. The sessions of
    an extras payment refunded in full are refunded: true and cancelled; sessions_cents counts what
-   the extras payments kept (received minus refunds). */
+   the extras payments kept (received minus refunds).
+   Offline payments (aob_kind offline: a bank transfer, cash… the team recorded, see listOffline) count
+   as paid like a balance payment, and show in payments[] with method, comment, received (the day the
+   money came in) and invoice_id. */
 export function groupBookings(program, payments, now = nowSec()) {
   const byRef = new Map();
   for (const p of payments) {
     const ref = p.md.aob_ref; if (!ref) continue;
     const b = byRef.get(ref) || { ref, payments: [], paid_cents: 0, refunded_cents: 0, refunded_booking_cents: 0, extra_pays: [] };
-    b.payments.push({ id: p.id, kind: p.md.aob_kind, amount_cents: p.amount, refunded_cents: p.refunded || 0, pending: !!p.pending, created: p.created });
+    b.payments.push({ id: p.id, kind: p.md.aob_kind, amount_cents: p.amount, refunded_cents: p.refunded || 0, pending: !!p.pending, created: p.created,
+      ...(p.md.aob_kind === 'offline' ? offlineFields(p) : {}) });
     b.paid_cents += p.amount || 0;
     b.refunded_cents += p.refunded || 0;
     if (p.md.aob_kind !== 'addon') b.refunded_booking_cents += p.refunded || 0;
@@ -1220,13 +1241,17 @@ export function groupBookings(program, payments, now = nowSec()) {
    conflict: 'mixed'|'over'|null } }, unassigned: [{ ref, index, name, gender, room }] }.
    A name holds `sleeps` people in shared and per-cottage rooms, one in rooms sold by the place.
    'mixed': women and men in a same-gender room; 'over': more people than it holds. Names a booking
-   still carries but the program no longer lists show up with unknown: true. */
+   still carries but the program no longer lists show up with unknown: true.
+   records (the team's, see listRecords): a block overlapping the week marks its rooms blocked: { id,
+   reason, comment, from, to } (anyone placed in a blocked room → conflict 'blocked'); the guests of a
+   manual booking overlapping the week are in their rooms with manual: true (they count for the
+   beds and the one-gender rule like everyone else). bookings: the online ones only. */
 export const nameCapacity = r => r && (r.same_gender || byUnit(r)) ? (r.sleeps || 1) : 1;
-export function roomingMap(program, bookings) {
+export function roomingMap(program, bookings, records = []) {
   const rooming = {}, unassigned = [];
   for (const r of program.rooms) for (const name of r.names || []) rooming[name] = { room_id: r.id, gender: null, capacity: nameCapacity(r), guests: [], conflict: null };
   for (const b of bookings || []) {
-    if (b.status === 'cancelled') continue;
+    if (b.status === 'cancelled' || b.source === 'manual') continue;
     b.guests.forEach((g, i) => {
       const name = (b.assign || {})[i], who = { ref: b.ref, index: i, name: g.name, gender: g.gender };
       if (!name) { unassigned.push({ ...who, room: g.room }); return; }
@@ -1234,23 +1259,34 @@ export function roomingMap(program, bookings) {
       slot.guests.push(who);
     });
   }
+  for (const rec of recordsFor(program, records)) {
+    if (rec.type === 'block') {
+      for (const name of rec.rooms) if (rooming[name] && !rooming[name].blocked) rooming[name].blocked = { id: rec.id, reason: rec.reason, comment: rec.comment, from: rec.from, to: rec.to };
+    } else {
+      rec.guests.forEach((g, i) => { if (rooming[g.room_name]) rooming[g.room_name].guests.push({ ref: rec.ref, index: i, name: g.name, gender: g.gender, manual: true, from: rec.from, to: rec.to }); });
+    }
+  }
   for (const slot of Object.values(rooming)) {
     const r = program.rooms.find(x => x.id === slot.room_id), kinds = new Set(slot.guests.map(g => gkey(g.gender)));
     slot.gender = kinds.size === 1 ? slot.guests[0].gender : null;
-    slot.conflict = kinds.size > 1 && r && r.same_gender ? 'mixed' : slot.guests.length > slot.capacity ? 'over' : null;
+    slot.conflict = slot.blocked && slot.guests.length ? 'blocked' : kinds.size > 1 && r && r.same_gender ? 'mixed' : slot.guests.length > slot.capacity ? 'over' : null;
   }
   return { rooming, unassigned };
 }
 
-/* One booking (and its balance payments) by reference. cached: answer from a 30 s per-isolate memo
-   when there is one (lookups only; anything that takes money reads fresh). Unknown references are
-   refused before any Stripe call. */
+/* One booking (and its balance and offline payments) by reference. cached: answer from a 30 s
+   per-isolate memo when there is one (lookups only; anything that takes money reads fresh). Unknown
+   references are refused before any Stripe call. */
 const bookingMemo = new Map(), BOOKING_MEMO_MS = 30000;
 export const forgetBooking = ref => { bookingMemo.delete(ref); };
 export async function findBooking(env, ref, { cached = false } = {}) {
   if (!knownRef(ref)) return null;
   if (cached) { const m = bookingMemo.get(ref); if (m && Date.now() - m.at < BOOKING_MEMO_MS) return m.v; }
-  const pays = await collectPayments(env, md => md.aob_ref === ref, `metadata['aob_ref']:'${ref}'`, { amounts: true, cap: 200 });
+  const [found, offline] = await Promise.all([
+    collectPayments(env, md => md.aob_ref === ref, `metadata['aob_ref']:'${ref}'`, { amounts: true, cap: 200 }),
+    listOffline(env, { ref, recent: true }),
+  ]);
+  const pays = [...found, ...offline];
   const first = pays.find(p => p.md.aob_kind === 'booking');
   const program = first && getProgram(first.md.aob_program);
   const [booking] = program ? groupBookings(program, pays) : [];
@@ -1258,6 +1294,470 @@ export async function findBooking(env, ref, { cached = false } = {}) {
   bookingMemo.delete(ref); bookingMemo.set(ref, { v, at: Date.now() });
   while (bookingMemo.size > 500) bookingMemo.delete(bookingMemo.keys().next().value);
   return v;
+}
+
+/* ------------------------------------------------------------ nights
+   A stay [from, to) uses the nights from `from` (the check-in day) up to the night before `to` (the
+   check-out day): one night is to = from + 1 day. A BreathCamp week is [dates.start, dates.end). */
+const ISO_DAY = /^\d{4}-\d{2}-\d{2}$/;
+export const validDay = s => { if (typeof s !== 'string' || !ISO_DAY.test(s)) return false; const d = new Date(s + 'T00:00:00Z'); return !Number.isNaN(d.getTime()) && d.toISOString().slice(0, 10) === s; };
+export const addDays = (s, n) => { const d = new Date(s + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
+export const nightsBetween = (from, to) => Math.round((Date.parse(to + 'T00:00:00Z') - Date.parse(from + 'T00:00:00Z')) / 86400000);
+export const overlaps = (a, b) => a.from < b.to && a.to > b.from;
+export const weekRange = p => ({ from: p.dates.start, to: p.dates.end });
+export { todayIso };
+const MON = MONTHS.map(m => m.slice(0, 3)), WDAY = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+/* '2027-07-18', '2027-07-20' → '18–20 Jul 2027' (check-in to check-out day, like dates.short) */
+export function rangeLabel(from, to) {
+  const a = new Date(from + 'T00:00:00Z'), b = new Date(to + 'T00:00:00Z');
+  const d = x => x.getUTCDate(), m = x => MON[x.getUTCMonth()], y = x => x.getUTCFullYear();
+  if (y(a) !== y(b)) return `${d(a)} ${m(a)} ${y(a)} – ${d(b)} ${m(b)} ${y(b)}`;
+  return m(a) !== m(b) ? `${d(a)} ${m(a)} – ${d(b)} ${m(b)} ${y(b)}` : `${d(a)}–${d(b)} ${m(b)} ${y(b)}`;
+}
+/* '2027-07-19' → 'Mon 19 Jul' */
+export const nightLabel = s => { const x = new Date(s + 'T00:00:00Z'); return `${WDAY[x.getUTCDay()]} ${x.getUTCDate()} ${MON[x.getUTCMonth()]}`; };
+
+/* ------------------------------------------------------- physical rooms (calendar)
+   The rooms' `names` are the same ASHA rooms in every week. The calendar lists the union over all
+   compiled programs (the first program that lists a name gives its room type), grouped by area:
+   the text after " · " ("2A · Temple Cottage" → Temple Cottage; a trailing "(combined)" dropped),
+   else the name without its number ("Campervan Spot 2" → Campervan Spot), else the room type's name.
+   Tent pitches have no names and are not in it. */
+export function areaOf(name, r) {
+  const i = name.indexOf(' · ');
+  if (i >= 0) return name.slice(i + 3).replace(/\s*\([^)]*\)\s*$/, '').trim() || (r && r.name) || name;
+  const m = name.match(/^(.*?\D)\s*\d+[A-Za-z]?$/);
+  return m ? m[1].trim() : (r && r.name) || name;
+}
+export function calendarRooms(programs = listPrograms()) {
+  const seen = new Map();
+  for (const p of programs) for (const r of p.rooms) for (const name of r.names || []) {
+    if (!seen.has(name)) seen.set(name, { name, room_id: r.id, room_name: r.name, area: areaOf(name, r), capacity: nameCapacity(r), same_gender: !!r.same_gender,
+      unit: r.unit || 'person', sleeps: r.sleeps || 1, by_unit: byUnit(r) });
+  }
+  const rooms = [...seen.values()], areas = [];
+  rooms.forEach(x => { if (!areas.includes(x.area)) areas.push(x.area); });
+  rooms.sort((a, b) => (areas.indexOf(a.area) - areas.indexOf(b.area)) || a.name.localeCompare(b.name, 'en', { numeric: true }));
+  return { rooms, areas };
+}
+
+/* ----------------------------------------- the team's records: blocks and manual bookings
+   Blocks (rooms out of use: maintenance, staff, the owner) and manual bookings (guests booked by hand,
+   any dates, paid offline) are Stripe Customers, never with an email (so Stripe never writes to
+   them), whose metadata is the record: aob_rec 'block' | 'booking', and aob_rec_any '1' on both, so
+   ONE search finds them all. Common keys: aob_id (BL-XXXXXX, or the manual booking's reference
+   MBYYMM-XXXXXX, YYMM from aob_from), aob_from / aob_to (YYYY-MM-DD nights, see above), aob_comment,
+   aob_status ('active' | 'cancelled', + aob_status_at), aob_created_at. Blocks: aob_rooms (physical
+   room names joined by |), aob_reason. Manual bookings: aob_g1..aob_g12 ('First Last | email | gender
+   | physical room'), aob_lead_name, aob_lead_email, aob_whatsapp, aob_total (agreed price, cents),
+   aob_programme ('yes': the guests attend the BreathCamp of an overlapping week and take programme
+   places there; 'no': just staying), aob_source 'manual'. A block is removed by deleting its
+   customer; a manual booking is cancelled / restored (it may have offline payments).
+   Everywhere availability is computed they are applied to a copy of the week (programWithRecords). */
+export const REC_REASONS = ['maintenance', 'staff', 'owner', 'other'];
+export const REC_MAX_NIGHTS = 120, REC_FIRST_DAY = '2026-01-01', REC_LAST_DAY = '2030-12-31';
+const REC_QUERY = "metadata['aob_rec_any']:'1'";
+const REC_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+const randomCode = (n = 6) => { const b = new Uint8Array(n); crypto.getRandomValues(b); return Array.from(b, x => REC_ALPHABET[x % REC_ALPHABET.length]).join(''); };
+export const newBlockId = () => `BL-${randomCode()}`;
+export const newManualRef = from => `MB${from.slice(2, 4)}${from.slice(5, 7)}-${randomCode()}`;
+export const isManualRef = r => typeof r === 'string' && /^MB\d{4}-[A-Z0-9]{6}$/.test(r);
+export const isBlockId = s => typeof s === 'string' && /^BL-[A-Z0-9]{6}$/.test(s);
+const isRecordCustomer = c => !!c && !c.deleted && (c.metadata || {}).aob_rec_any === '1';
+
+/* A record customer, read back (null when it isn't one, or is unreadable). */
+export function parseRecord(c) {
+  if (!isRecordCustomer(c)) return null;
+  const md = c.metadata, type = md.aob_rec;
+  if ((type !== 'block' && type !== 'booking') || !validDay(md.aob_from) || !validDay(md.aob_to) || md.aob_from >= md.aob_to) return null;
+  const base = {
+    type, id: md.aob_id || c.id, customer: c.id, from: md.aob_from, to: md.aob_to, nights: nightsBetween(md.aob_from, md.aob_to),
+    comment: md.aob_comment || '', status: md.aob_status === 'cancelled' ? 'cancelled' : 'active', status_at: parseInt(md.aob_status_at || '0', 10) || null,
+    created_at: md.aob_created_at || new Date((c.created || 0) * 1000).toISOString(), created: c.created || 0,
+  };
+  if (type === 'block') return { ...base, rooms: String(md.aob_rooms || '').split('|').filter(Boolean), reason: REC_REASONS.includes(md.aob_reason) ? md.aob_reason : 'other' };
+  const guests = [];
+  for (let i = 1; i <= 12; i++) {
+    const v = md[`aob_g${i}`]; if (!v) continue;
+    const [name, email, gender, room_name] = v.split(' | ');
+    guests.push({ name: name || '', email: email || '', gender: gender || '', room_name: room_name || '' });
+  }
+  return { ...base, ref: base.id, source: 'manual', guests, programme: md.aob_programme === 'yes' ? 'yes' : 'no',
+    total_cents: parseInt(md.aob_total || '0', 10) || 0, lead: { name: md.aob_lead_name || (guests[0] && guests[0].name) || '', email: md.aob_lead_email || '', whatsapp: md.aob_whatsapp || '' } };
+}
+/* The active records overlapping a week. */
+export const recordsFor = (program, records) => (records || []).filter(r => r && r.status === 'active' && overlaps(r, weekRange(program)));
+
+/* What this isolate wrote a moment ago (records, offline payments): search can lag a minute behind a
+   write, so for three minutes reads here use our own copy (a deleted record stays gone). */
+const writes = new Map(), WRITE_TTL_MS = 3 * 60 * 1000;
+export function rememberWrite(obj, deleted = false) {
+  if (!obj || !obj.id) return;
+  writes.delete(obj.id); writes.set(obj.id, { obj, deleted, at: Date.now() });
+  while (writes.size > 300) writes.delete(writes.keys().next().value);
+}
+export const forgetWrites = () => writes.clear(); // a fresh start (tests)
+function withWrites(rows) {
+  const now = Date.now(), byId = new Map(rows.map(r => [r.id, r]));
+  for (const [id, w] of writes) {
+    if (now - w.at > WRITE_TTL_MS) { writes.delete(id); continue; }
+    if (w.deleted) byId.delete(id); else byId.set(id, w.obj);
+  }
+  return [...byId.values()];
+}
+const RECENT_WRITE_SEC = 10 * 60; // real-time lists of what was created lately (search lags)
+/* rows of a search plus a real-time list of what was created in the last 10 minutes (list wins) */
+async function searchWithRecent(env, object, query, listPath, recent) {
+  const [found, fresh] = await Promise.all([
+    searchAll(env, query, 2000, object),
+    recent ? listAll(env, listPath, { 'created[gte]': nowSec() - RECENT_WRITE_SEC }) : [],
+  ]);
+  const byId = new Map();
+  for (const x of [...found, ...fresh]) byId.set(x.id, x);
+  return withWrites([...byId.values()]);
+}
+
+/* Every record (blocks and manual bookings, cancelled ones too), oldest first. One customers search
+   (paginated). cached: from a 15 s memo with single flight (the public availability: one search for
+   every week and every poll). recent: also the real-time list of customers created in the last 10
+   minutes (one more call: checkout and the admin read this way, so a record just made counts at once). */
+const recMemo = { v: null, at: 0, inflight: null, gen: 0 };
+export function clearRecordsMemo() { recMemo.v = null; recMemo.inflight = null; recMemo.gen++; }
+export async function listRecords(env, { cached = false, recent = false } = {}) {
+  let raw;
+  if (cached && !recent) {
+    if (recMemo.v && Date.now() - recMemo.at < MEMO_TTL_MS) raw = recMemo.v;
+    else if (recMemo.inflight) raw = await recMemo.inflight;
+    else {
+      const gen = recMemo.gen;
+      const p = searchAll(env, REC_QUERY, 2000, 'customers').then(v => {
+        if (recMemo.gen === gen) { recMemo.v = v; recMemo.at = Date.now(); recMemo.inflight = null; }
+        return v;
+      }, e => { if (recMemo.inflight === p) recMemo.inflight = null; throw e; });
+      recMemo.inflight = p;
+      raw = await p;
+    }
+    raw = withWrites(raw);
+  } else raw = await searchWithRecent(env, 'customers', REC_QUERY, '/customers', recent);
+  return raw.filter(isRecordCustomer).map(parseRecord).filter(Boolean)
+    .sort((a, b) => (a.from < b.from ? -1 : a.from > b.from ? 1 : 0) || (a.created - b.created) || (a.customer < b.customer ? -1 : 1));
+}
+/* After any record write: this isolate's availability and records memos start over. */
+export function recordsChanged(customer, deleted = false) {
+  rememberWrite(customer, deleted);
+  clearAvailabilityMemo();
+}
+
+/* A copy of the program with the team's records that overlap its week applied:
+   - a block on a physical room of type r: shared rooms one unit less, other rooms one place (or, for
+     rooms sold by the unit, one unit) less; never below zero;
+   - a manual booking's guests in a physical room: in a shared room its beds are taken by their
+     gender (women and men in one room: the whole room is out), in a simple room one place per
+     guest, in a room sold by the unit the whole unit;
+   - manual bookings that attend the programme (aob_programme 'yes') take programme places.
+   A room both blocked and booked by hand counts once (blocked). */
+export function programWithRecords(program, records) {
+  const recs = recordsFor(program, records);
+  if (!recs.length) return program;
+  const rooms = program.rooms.map(r => ({ ...r, occupied: Array.isArray(r.occupied) ? r.occupied.slice() : r.occupied }));
+  const at = new Map();
+  rooms.forEach(r => (r.names || []).forEach(n => { if (!at.has(n)) at.set(n, r); }));
+  const blocked = new Set(), guestsIn = new Map();
+  let programme = 0;
+  for (const rec of recs) {
+    if (rec.type === 'block') { rec.rooms.forEach(n => { if (at.has(n)) blocked.add(n); }); continue; }
+    rec.guests.forEach(g => { if (at.has(g.room_name)) { if (!guestsIn.has(g.room_name)) guestsIn.set(g.room_name, []); guestsIn.get(g.room_name).push(g); } });
+    if (rec.programme === 'yes') programme += rec.guests.length;
+  }
+  const less = (r, n = 1) => { if (isShared(r)) r.units = Math.max(0, r.units - n); else r.capacity = Math.max(0, (r.capacity || 0) - n); };
+  for (const n of blocked) less(at.get(n));
+  for (const [n, gs] of guestsIn) {
+    if (blocked.has(n)) continue;
+    const r = at.get(n);
+    if (isShared(r)) {
+      const kinds = new Set(gs.map(g => gkey(g.gender)));
+      if (kinds.size > 1) less(r); // women and men in one room: nobody else can join it
+      else (r.occupied = r.occupied || []).push({ gender: gs[0].gender || null, beds: Math.min(gs.length, r.sleeps || 1) });
+    } else less(r, byUnit(r) ? 1 : gs.length);
+  }
+  return { ...program, rooms, program_spaces: Math.max(0, program.program_spaces - programme) };
+}
+
+/* What a week's bookings and open checkouts need that its rooms (after the records) no longer have:
+   { rooms: { room id: people (units for rooms sold by the unit) that don't fit }, programme: people over
+   the programme places }. */
+export function overbooked(program, occ) {
+  const p = programWithRecords(program, (occ && occ.records) || []);
+  const booked = (occ && occ.booked) || {}, holds = (occ && occ.holds) || {}, rooms = {};
+  let used = 0;
+  for (const r of p.rooms) {
+    const a = booked[r.id] || {}, h = holds[r.id] || {};
+    const x = { female: (a.female || 0) + (h.female || 0), male: (a.male || 0) + (h.male || 0), other: (a.other || 0) + (h.other || 0), units: (a.units || 0) + (h.units || 0) };
+    const n = x.female + x.male + x.other;
+    used += n;
+    if (!n) continue;
+    const over = isShared(r) ? sharedState(r, x).unplaced : byUnit(r) ? Math.max(0, x.units - (r.capacity || 0)) : Math.max(0, n - (r.capacity || 0));
+    if (over > 0) rooms[r.id] = over;
+  }
+  return { rooms, programme: Math.max(0, used - p.program_spaces) };
+}
+/* A new or restored record would oversell a week: [human text] for what gets worse than it is now.
+   occ: buildOccupancy() of the week with the OTHER records; cand: the record as it would be (active). */
+export function weekConflicts(program, occ, cand) {
+  if (!overlaps(cand, weekRange(program))) return [];
+  const before = overbooked(program, occ), after = overbooked(program, { ...occ, records: [...(occ.records || []), cand] });
+  const label = program.edition || program.title, out = [];
+  for (const r of program.rooms) {
+    const a = after.rooms[r.id] || 0;
+    if (a <= (before.rooms[r.id] || 0)) continue;
+    const what = byUnit(r) ? (a === 1 ? 'unit' : 'units') : (a === 1 ? 'place' : 'places');
+    out.push(`${label}: ${r.name} would be overbooked. Its bookings and open checkouts need ${a} more ${what} than it would have.`);
+  }
+  if (after.programme > before.programme) {
+    out.push(`${label}: the programme would have ${after.programme} more ${after.programme === 1 ? 'guest' : 'guests'} than its ${program.program_spaces} places.`);
+  }
+  return out;
+}
+/* Clashes in the physical rooms on the same nights: a block with anyone in its rooms (manual guests,
+   online guests placed there in an overlapping week); a manual booking with a block, or with other
+   people in a room (more than it holds, women and men in a one-gender room, a room sold by the unit
+   used by another booking). Two blocks on one room don't clash.
+   others: the other active records; weeks: [{ program, bookings }] (groupBookings) of the weeks the
+   candidate overlaps. → [human text] */
+export function nameConflicts(cand, others, weeks, rooms = calendarRooms().rooms) {
+  const info = new Map(rooms.map(r => [r.name, r])), out = [], seen = new Set();
+  const say = (key, text) => { if (!seen.has(key)) { seen.add(key); out.push(text); } };
+  const people = new Map(), blocks = new Map();
+  const push = (m, k, v) => { if (!m.has(k)) m.set(k, []); m.get(k).push(v); };
+  for (const r of others) {
+    if (r.status !== 'active' || !overlaps(r, cand)) continue;
+    if (r.type === 'block') r.rooms.forEach(n => push(blocks, n, r));
+    else r.guests.forEach(g => push(people, g.room_name, { from: r.from, to: r.to, gender: g.gender, ref: r.ref, who: `manual booking ${r.ref} (${g.name})` }));
+  }
+  for (const { program: p, bookings } of weeks || []) {
+    const wk = weekRange(p);
+    if (!overlaps(wk, cand)) continue;
+    for (const b of bookings || []) {
+      if (b.status === 'cancelled' || b.source === 'manual') continue;
+      b.guests.forEach((g, i) => { const n = (b.assign || {})[i]; if (n) push(people, n, { ...wk, gender: g.gender, ref: b.ref, who: `${g.name} (${b.ref}, ${p.edition || p.title})` }); });
+    }
+  }
+  if (cand.type === 'block') {
+    for (const n of cand.rooms) for (const o of people.get(n) || []) {
+      if (!overlaps(o, cand)) continue;
+      say(`${n}|${o.who}`, `${n}: ${o.who} is there ${rangeLabel(o.from > cand.from ? o.from : cand.from, o.to < cand.to ? o.to : cand.to)}.`);
+    }
+    return out;
+  }
+  const mine = new Map();
+  cand.guests.forEach(g => push(mine, g.room_name, g));
+  for (const [n, gs] of mine) {
+    for (const b of blocks.get(n) || []) say(`b|${n}|${b.id}`, `${n} is blocked ${rangeLabel(b.from, b.to)} (${b.reason}${b.comment ? `: ${cut(b.comment, 80)}` : ''}).`);
+    const r = info.get(n), list = (people.get(n) || []).filter(o => overlaps(o, cand));
+    if (!r || !list.length) continue;
+    for (let d = cand.from; d < cand.to; d = addDays(d, 1)) {
+      const here = list.filter(o => o.from <= d && d < o.to);
+      if (!here.length) continue;
+      const who = [...new Set(here.map(o => o.who))].join(', ');
+      const total = gs.length + here.length, kinds = new Set([...gs, ...here].map(x => gkey(x.gender)));
+      if (r.by_unit) say(`u|${n}|${who}`, `${n} is taken by ${who} on ${nightLabel(d)}.`);
+      else if (r.same_gender && kinds.size > 1) say(`g|${n}|${who}`, `${n}: women and men in one room on ${nightLabel(d)} (${who}).`);
+      else if (total > r.capacity) say(`c|${n}|${who}`, `${n}: ${total} guests for ${r.capacity} ${r.capacity === 1 ? 'place' : 'beds'} on ${nightLabel(d)} (${who}).`);
+    }
+  }
+  return out;
+}
+
+/* The week a manual booking belongs to (the first BreathCamp it overlaps), else null (a stay). */
+export const homeProgram = (rec, programs = listPrograms()) => programs.slice().sort((a, b) => (a.dates.start < b.dates.start ? -1 : 1)).find(p => overlaps(rec, weekRange(p))) || null;
+/* A block as the admin shows it. */
+export const blockOut = rec => ({ id: rec.id, customer: rec.customer, rooms: rec.rooms.slice(), from: rec.from, to: rec.to, nights: rec.nights,
+  reason: rec.reason, comment: rec.comment, status: rec.status, created_at: rec.created_at });
+/* A manual booking in the shape of an online one (source 'manual'): total = the agreed price, paid =
+   its offline payments; manual: { from, to, nights, programme, comment, customer }. offline: rows
+   from listOffline (any; this booking's are picked by reference). */
+export function manualBooking(rec, offline = [], rooms = calendarRooms().rooms) {
+  const info = new Map(rooms.map(r => [r.name, r]));
+  const pays = (offline || []).filter(o => o.md.aob_ref === rec.ref).sort((a, b) => a.created - b.created);
+  const paid = pays.reduce((s, p) => s + (p.amount || 0), 0);
+  const guests = rec.guests.map(g => { const r = info.get(g.room_name); return { name: g.name, email: g.email, gender: g.gender, room: r ? r.room_id : '', room_name: g.room_name }; });
+  const counts = {};
+  guests.forEach(g => { if (g.room) counts[g.room] = (counts[g.room] || 0) + 1; });
+  const home = homeProgram(rec);
+  return {
+    ref: rec.ref, source: 'manual', program: home ? home.id : 'stay', status: rec.status, status_at: rec.status_at, created: rec.created, created_at: rec.created_at,
+    payment: 'manual', plan: null, pending: false, demo: false,
+    lead: { name: rec.lead.name, email: rec.lead.email, whatsapp: rec.lead.whatsapp, roommate: '' },
+    guests, assign: Object.fromEntries(guests.map((g, i) => [String(i), g.room_name])), rooms: counts,
+    room_names: guests.map(g => g.room_name).filter((n, i, a) => n && a.indexOf(n) === i).join(', '),
+    total_cents: rec.total_cents, paid_cents: paid, balance_cents: Math.max(0, rec.total_cents - paid),
+    refunded_cents: 0, refunded_booking_cents: 0, paid_after_cancel_cents: 0,
+    payments: pays.map(p => ({ id: p.id, kind: 'offline', amount_cents: p.amount, refunded_cents: 0, pending: false, created: p.created, ...offlineFields(p) })),
+    programme: 'none', programme_cents: 0, programme_verified: '', programme_payments: [],
+    addons: [], addons_cents: 0, extras_cents: 0, sessions_count: 0, sessions_cents: 0, discount: null,
+    note: rec.comment, diet: '', ui: '', utm: {}, page: '', remind: false, attempt: '', terms_at: '',
+    manual: { from: rec.from, to: rec.to, nights: rec.nights, programme: rec.programme, comment: rec.comment, customer: rec.customer },
+  };
+}
+
+/* Record metadata. Values are cut to Stripe's 500 characters (the checks below refuse what wouldn't fit). */
+const recordBase = (type, id, from, to, comment, now) => ({ aob_rec: type, aob_rec_any: '1', aob_id: id, aob_from: from, aob_to: to,
+  aob_comment: cleanNote(comment), aob_status: 'active', aob_created_at: (now || new Date()).toISOString() });
+const datesError = (from, to, errors) => {
+  if (!validDay(from)) errors.from = 'Choose the first night (YYYY-MM-DD).';
+  if (!validDay(to)) errors.to = 'Choose the day they leave (YYYY-MM-DD).';
+  if (errors.from || errors.to) return;
+  if (from < REC_FIRST_DAY || to > REC_LAST_DAY) errors.from = `Dates must be between ${REC_FIRST_DAY} and ${REC_LAST_DAY}.`;
+  else if (from >= to) errors.to = 'The last day must be after the first night.';
+  else if (nightsBetween(from, to) > REC_MAX_NIGHTS) errors.to = `At most ${REC_MAX_NIGHTS} nights at a time.`;
+};
+/* Block request → { errors, rec, metadata, name, description } (rec as listRecords would read it). */
+export function blockInput(body, { now = new Date(), rooms = calendarRooms().rooms } = {}) {
+  const errors = {}, known = new Set(rooms.map(r => r.name));
+  const from = str(body.from, 10), to = str(body.to, 10);
+  datesError(from, to, errors);
+  const list = Array.isArray(body.rooms) ? [...new Set(body.rooms.map(n => str(n, 120)).filter(Boolean))] : [];
+  if (!list.length || list.length > 20) errors.rooms = 'Choose 1 to 20 rooms.';
+  else if (list.some(n => !known.has(n))) errors.rooms = `Unknown room: ${list.find(n => !known.has(n))}.`;
+  else if (list.join('|').length > 490) errors.rooms = 'That is more room names than one block can hold. Split it into two blocks.';
+  const reason = body.reason == null || body.reason === '' ? 'other' : body.reason;
+  if (!REC_REASONS.includes(reason)) errors.reason = `One of ${REC_REASONS.join(', ')}.`;
+  if (Object.keys(errors).length) return { errors };
+  const id = newBlockId(), comment = cleanNote(body.comment);
+  const metadata = { ...recordBase('block', id, from, to, comment, now), aob_rooms: list.join('|'), aob_reason: reason };
+  if (!metadata.aob_comment) delete metadata.aob_comment;
+  const name = cut(`Block · ${list[0]}${list.length > 1 ? ` + ${list.length - 1} more` : ''}`, 200);
+  const description = cut(`Blocked ${rangeLabel(from, to)} (${reason})${comment ? `: ${comment}` : ''}`, 350);
+  return { errors, metadata, name, description, rec: parseRecord({ id: 'new', created: Math.floor(now.getTime() / 1000), metadata }) };
+}
+/* Manual booking request → { errors, rec, metadata, name, description }. Guests: 1–12 with first,
+   last, optional email, gender Female/Male and a physical room; a one-gender room holds one gender,
+   no room more people than it holds. */
+export function manualInput(body, { now = new Date(), rooms = calendarRooms().rooms, programs = listPrograms() } = {}) {
+  const errors = {}, info = new Map(rooms.map(r => [r.name, r]));
+  const from = str(body.from, 10), to = str(body.to, 10);
+  datesError(from, to, errors);
+  const raw = Array.isArray(body.guests) ? body.guests.slice(0, 13) : [];
+  if (raw.length < 1 || raw.length > 12) errors.guests = 'Add 1 to 12 guests.';
+  const guests = raw.slice(0, 12).map((g, i) => {
+    g = g && typeof g === 'object' ? g : {};
+    const o = { first: str(g.first, 60), last: str(g.last, 60), email: str(g.email, 120).toLowerCase(), gender: str(g.gender, 10), room_name: str(g.room_name, 120) };
+    for (const k of ['first', 'last']) {
+      if (!o[k]) errors[`guests.${i}.${k}`] = k === 'first' ? 'Please add a first name.' : 'Please add a last name.';
+      else if (nameError(o[k])) errors[`guests.${i}.${k}`] = nameError(o[k]);
+    }
+    if (o.email && !validEmail(o.email)) errors[`guests.${i}.email`] = 'Please add a valid email address (or leave it empty).';
+    const gl = o.gender.toLowerCase();
+    if (gl === 'female' || gl === 'male') o.gender = gl === 'female' ? 'Female' : 'Male'; else errors[`guests.${i}.gender`] = 'Female or Male.';
+    if (!info.has(o.room_name)) errors[`guests.${i}.room_name`] = o.room_name ? `Unknown room: ${o.room_name}.` : 'Choose a room.';
+    return o;
+  });
+  // within this booking: one gender per one-gender room, never more people than a room holds
+  const per = new Map();
+  guests.forEach((g, i) => { if (info.has(g.room_name)) { if (!per.has(g.room_name)) per.set(g.room_name, []); per.get(g.room_name).push(i); } });
+  for (const [n, idx] of per) {
+    const r = info.get(n), kinds = new Set(idx.map(i => guests[i].gender));
+    if (r.same_gender && kinds.size > 1) errors[`guests.${idx[idx.length - 1]}.room_name`] = `${n} is for women or men only, not both.`;
+    else if (idx.length > r.capacity) errors[`guests.${idx[idx.length - 1]}.room_name`] = `${n} holds ${r.capacity} ${r.capacity === 1 ? 'person' : 'people'}.`;
+  }
+  let whatsapp = '';
+  if (body.whatsapp != null && String(body.whatsapp).trim()) { whatsapp = normalizePhone(body.whatsapp); const pe = phoneError(whatsapp); if (pe) errors.whatsapp = pe; }
+  const programme = body.programme === 'yes' || body.programme === true ? 'yes' : 'no';
+  if (programme === 'yes' && !errors.from && !errors.to && !programs.some(p => overlaps({ from, to }, weekRange(p)))) errors.programme = 'These dates don\'t overlap a BreathCamp week.';
+  const tc = body.total_cents == null || body.total_cents === '' ? 0 : typeof body.total_cents === 'number' ? body.total_cents : /^\d{1,9}$/.test(String(body.total_cents).trim()) ? parseInt(body.total_cents, 10) : NaN;
+  if (!Number.isInteger(tc) || tc < 0 || tc > 100000000) errors.total_cents = 'Enter the agreed price in cents (0 or more).';
+  if (Object.keys(errors).length) return { errors };
+  const ref = newManualRef(from), comment = cleanNote(body.comment), lead = guests[0];
+  const metadata = { ...recordBase('booking', ref, from, to, comment, now), aob_source: 'manual', aob_programme: programme, aob_total: String(tc),
+    aob_lead_name: cut(`${lead.first} ${lead.last}`, 120) };
+  if (lead.email) metadata.aob_lead_email = lead.email;
+  if (whatsapp) metadata.aob_whatsapp = whatsapp;
+  if (!metadata.aob_comment) delete metadata.aob_comment;
+  guests.forEach((g, i) => { metadata[`aob_g${i + 1}`] = cut([noPipe(`${g.first} ${g.last}`), g.email, g.gender, g.room_name].join(' | '), 490); });
+  const name = cut(`${lead.first} ${lead.last}`, 200);
+  const description = cut(`Manual booking ${ref} · ${rangeLabel(from, to)} · ${guests.length} ${guests.length === 1 ? 'guest' : 'guests'}`, 350);
+  return { errors, metadata, name, description, rec: parseRecord({ id: 'new', created: Math.floor(now.getTime() / 1000), metadata }) };
+}
+/* manual_update: { comment?, total_cents? } → { errors, fields (metadata to write) } */
+export function manualUpdateInput(body) {
+  const errors = {}, fields = {};
+  if (body.comment !== undefined) fields.aob_comment = cleanNote(body.comment); // '' removes it
+  if (body.total_cents !== undefined) {
+    const tc = typeof body.total_cents === 'number' ? body.total_cents : /^\d{1,9}$/.test(String(body.total_cents).trim()) ? parseInt(body.total_cents, 10) : NaN;
+    if (!Number.isInteger(tc) || tc < 0 || tc > 100000000) errors.total_cents = 'Enter the agreed price in cents (0 or more).'; else fields.aob_total = String(tc);
+  }
+  if (!Object.keys(fields).length && !Object.keys(errors).length) errors.comment = 'Nothing to change.';
+  return { errors, fields };
+}
+
+/* ---------------------------------------------------------- offline payments
+   Money the team received outside Stripe Checkout (a bank transfer, cash…) is recorded as a Stripe
+   Invoice marked paid out of band: never emailed (auto_advance off), on the booking's own Stripe
+   customer (a manual booking's record customer; a booking without one gets a customer with only a
+   name and aob_ref). Metadata: aob_kind 'offline', aob_program (the booking's week, or 'stay' for a
+   manual booking outside every week), aob_ref, aob_method, aob_received (YYYY-MM-DD), aob_comment,
+   aob_recorded_at. Undo sets aob_kind 'offline_void' (+ aob_void_reason, aob_void_at): it drops out
+   of every search. Invoices are never deleted (a credit note in Stripe shows a reversal). */
+export const OFFLINE_METHODS = { bank_transfer: 'Bank transfer', cash: 'Cash', other: 'Other payment' };
+const OFFLINE_QUERY = "metadata['aob_kind']:'offline'";
+const isOfflineInvoice = inv => !!inv && (inv.metadata || {}).aob_kind === 'offline' && inv.status === 'paid';
+export function offlineRecord(inv) {
+  const md = inv.metadata || {};
+  return { id: inv.id, kind: 'offline', amount: inv.amount_paid || inv.total || 0, refunded: 0, pending: false, created: inv.created, customer: idOf(inv.customer), md,
+    method: OFFLINE_METHODS[md.aob_method] ? md.aob_method : 'other', comment: md.aob_comment || '', received: md.aob_received || '', invoice_id: inv.id };
+}
+const offlineFields = p => ({ method: p.method, comment: p.comment, received: p.received, invoice_id: p.invoice_id, customer: p.customer || null });
+/* Offline payments (paid, not undone), oldest first: of one booking (ref), one week (program), or all.
+   recent: also the real-time list of invoices created in the last 10 minutes (search lags). */
+export async function listOffline(env, { ref, program, recent = false } = {}) {
+  if (ref && !validRef(ref)) return [];
+  const q = [OFFLINE_QUERY];
+  if (ref) q.push(`metadata['aob_ref']:'${ref}'`);
+  if (program) q.push(`metadata['aob_program']:'${String(program).replace(/[^a-z0-9-]/g, '')}'`);
+  const rows = await searchWithRecent(env, 'invoices', q.join(' AND '), '/invoices', recent);
+  return rows.filter(inv => isOfflineInvoice(inv) && (!ref || inv.metadata.aob_ref === ref) && (!program || inv.metadata.aob_program === program))
+    .map(offlineRecord).sort((a, b) => (a.created - b.created) || (a.id < b.id ? -1 : 1));
+}
+/* Validate { amount_cents, method, received, comment } → { errors, payment } */
+export function offlineInput(body, now = new Date()) {
+  const errors = {};
+  const raw = typeof body.amount_cents === 'string' && /^\d{1,9}$/.test(body.amount_cents.trim()) ? parseInt(body.amount_cents, 10) : body.amount_cents;
+  if (!Number.isInteger(raw) || raw < 1 || raw > 100000000) errors.amount_cents = 'Enter the amount received in cents (1 or more).';
+  const method = body.method == null || body.method === '' ? 'bank_transfer' : body.method;
+  if (!OFFLINE_METHODS[method]) errors.method = 'Bank transfer, cash or other.';
+  const received = body.received == null || body.received === '' ? todayIso(now) : str(body.received, 10);
+  if (!validDay(received)) errors.received = 'Enter the day the money came in (YYYY-MM-DD).';
+  else if (received > addDays(todayIso(now), 1)) errors.received = 'That date is in the future.';
+  else if (received < '2020-01-01') errors.received = 'Enter the day the money came in (2020 or later).';
+  const comment = cleanNote(body.comment);
+  if (method === 'other' && !comment) errors.comment = 'Say how the money was paid.';
+  return { errors, payment: { amount_cents: raw, method, received, comment } };
+}
+/* Record it: invoice (draft, nothing pending pulled in) → its line → finalize (not sent) → paid out of
+   band. A step that fails leaves no payable invoice behind (the draft is deleted, an open one voided).
+   customer: the Stripe customer id, or null to create one (name + aob_ref only). → the paid invoice */
+export async function createOfflinePayment(env, { customer, name, ref, program, label, currency = 'eur', payment, now = new Date() }) {
+  const cus = customer || (await stripe(env, 'POST', '/customers', { name: cut(name || ref, 200), description: `Offline payments for booking ${ref}`, metadata: { aob_ref: ref } })).id;
+  const what = OFFLINE_METHODS[payment.method];
+  const metadata = { aob_kind: 'offline', aob_program: program, aob_ref: ref, aob_method: payment.method, aob_received: payment.received,
+    aob_recorded_at: now.toISOString() };
+  if (payment.comment) metadata.aob_comment = payment.comment;
+  const description = cut(`${what} · ${label} · ${ref}`, 250);
+  const inv = await stripe(env, 'POST', '/invoices', { customer: cus, currency, collection_method: 'send_invoice', days_until_due: 1, auto_advance: false,
+    pending_invoice_items_behavior: 'exclude', description: cut(`${what} received ${payment.received} for booking ${ref}.`, 500), metadata });
+  try {
+    await stripe(env, 'POST', '/invoiceitems', { customer: cus, invoice: inv.id, amount: payment.amount_cents, currency, description });
+    await stripe(env, 'POST', `/invoices/${inv.id}/finalize`, { auto_advance: false });
+    return await stripe(env, 'POST', `/invoices/${inv.id}/pay`, { paid_out_of_band: true });
+  } catch (e) {
+    try {
+      const cur = await stripe(env, 'GET', `/invoices/${inv.id}`);
+      if (cur.status === 'draft') await stripe(env, 'DELETE', `/invoices/${inv.id}`);
+      else if (cur.status === 'open') await stripe(env, 'POST', `/invoices/${inv.id}/void`);
+      else if (cur.status === 'paid') return cur; // it went through after all
+    } catch (e2) { logError('offline.cleanup', e2); }
+    throw e;
+  }
 }
 
 /* Wellbeing sessions after booking: can this booking still add some? Until the last day of its

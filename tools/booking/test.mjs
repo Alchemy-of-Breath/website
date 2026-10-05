@@ -16,6 +16,7 @@ import {
   verifyStripeSignature, clearAvailabilityMemo, stripeConfig, getProgram, listPrograms, bookingPageUrl, balancePageUrl, addMonths, ipKey, planEndAt,
   quote, groupBookings, roomingMap, parseBooking, parseAddons, parseSvc, parseAssign, bookingCheckoutParams, bookingMetadata,
   formEncode, str, cleanNote, saveAdminMeta, findBooking, forgetBooking,
+  availability, programWithRecords, calendarRooms, areaOf, blockInput, parseRecord, rangeLabel, overbooked, addDays, forgetWrites,
 } from '../../booking-lib/core.js';
 
 stripeConfig.retryBaseMs = 1; // keep retries fast
@@ -67,14 +68,15 @@ const store = {
   ghl: [], ghlAttempts: 0, ghlStatus: 200, turnstile: [], turnstileDown: false,
   idem: new Map(), calls: [], faults: [], disabledPM: new Set(), rejectParams: new Set(), badEmails: new Set(),
   onCreate: null, onList: null, onGet: null, waits: [], seq: 0, latency: 0, turnstileReply: null, canceledSubPosts: 0,
+  invoiceItems: [], lagCustomers: false, lagInvoices: false,
 };
 function reset(at = '2026-07-01T09:00:00Z') {
   store.sessions.clear(); store.pis.clear(); store.subs.clear(); store.invoices.length = 0; store.customers.length = 0; store.domains.clear();
   store.ghl.length = 0; store.ghlAttempts = 0; store.ghlStatus = 200; store.turnstile.length = 0; store.turnstileDown = false;
   store.faults.length = 0; store.disabledPM.clear(); store.rejectParams.clear(); store.badEmails.clear(); store.onCreate = null; store.onList = null; store.onGet = null;
-  store.latency = 0; store.turnstileReply = null; store.noTosUrl = false;
+  store.latency = 0; store.turnstileReply = null; store.noTosUrl = false; store.lagCustomers = false; store.lagInvoices = false; store.invoiceItems.length = 0;
   fakeNow = RealDate.parse(at);
-  clearAvailabilityMemo(undefined, { snapshot: true });
+  clearAvailabilityMemo(undefined, { snapshot: true }); forgetWrites();
 }
 const pad = n => String(n).padStart(6, '0');
 function parseForm(body) {
@@ -214,6 +216,9 @@ async function stripeMock(method, path, u, init) {
       return J(sub);
     }
   }
+  if (method === 'GET' && path === '/invoices' && !u.searchParams.get('subscription')) { // every invoice (offline payments' real-time list)
+    return J(page(store.invoices.filter(i => i.id && i.created != null), u));
+  }
   if (method === 'GET' && path === '/invoices') {
     const sid = u.searchParams.get('subscription'), st = u.searchParams.get('status');
     const expandPi = u.searchParams.getAll('expand[]').includes('data.payment_intent');
@@ -221,14 +226,96 @@ async function stripeMock(method, path, u, init) {
       .map(i => expandPi && i.payment_intent ? { ...i, payment_intent: store.pis.get(i.payment_intent) || i.payment_intent } : i);
     return J({ data: rows, has_more: false });
   }
+  /* offline payments: invoice (draft) → its line → finalize → paid out of band; metadata search */
+  if (method === 'GET' && path === '/invoices/search') {
+    const conds = metaConds(u.searchParams.get('query'));
+    return J({ data: store.invoices.filter(i => i.metadata && !i._lagging && conds.every(([k, v]) => i.metadata[k] === v)), has_more: false, next_page: null });
+  }
+  if (method === 'POST' && path === '/invoices') {
+    const md = metaMerge({}, b.metadata || {}), err = metaError(md);
+    store.metaChecks++;
+    if (err) return E(400, 'invalid_request_error', err, 'metadata');
+    if (!store.customers.some(c => c.id === b.customer && !c.deleted) && !/^cus_mock/.test(b.customer || '')) return E(400, 'invalid_request_error', 'No such customer', 'customer', 'resource_missing');
+    if (b.collection_method === 'send_invoice' && !b.days_until_due) return E(400, 'invalid_request_error', 'days_until_due is required for send_invoice', 'days_until_due');
+    const inv = { id: 'in_off' + pad(++store.seq), object: 'invoice', customer: b.customer, status: 'draft', collection_method: b.collection_method, days_until_due: +b.days_until_due || null,
+      auto_advance: String(b.auto_advance) === 'true', currency: b.currency || 'eur', description: b.description, metadata: md, created: nowS(), total: 0, amount_due: 0, amount_paid: 0,
+      lines: [], paid_out_of_band: false, _params: b, _lagging: store.lagInvoices };
+    if (b.pending_invoice_items_behavior !== 'exclude') {
+      for (const ii of store.invoiceItems.filter(x => x.customer === b.customer && !x.invoice)) { ii.invoice = inv.id; inv.lines.push(ii); inv.total += ii.amount; }
+    }
+    store.invoices.push(inv); return J(inv);
+  }
+  if (method === 'POST' && path === '/invoiceitems') {
+    const ii = { id: 'ii_' + pad(++store.seq), object: 'invoiceitem', customer: b.customer, amount: +b.amount, currency: b.currency, description: b.description, invoice: b.invoice || null };
+    if (!Number.isInteger(ii.amount) || ii.amount < 1) return E(400, 'invalid_request_error', 'amount must be a positive integer', 'amount');
+    if (ii.invoice) {
+      const inv = store.invoices.find(i => i.id === ii.invoice);
+      if (!inv || inv.status !== 'draft') return E(400, 'invalid_request_error', 'You can only add invoice items to draft invoices.', 'invoice');
+      if (inv.customer !== ii.customer) return E(400, 'invalid_request_error', 'The invoice belongs to another customer.', 'invoice');
+      if (inv.currency !== ii.currency) return E(400, 'invalid_request_error', 'Currency mismatch.', 'currency');
+      inv.lines.push(ii); inv.total += ii.amount;
+    }
+    store.invoiceItems.push(ii); return J(ii);
+  }
+  if ((m = path.match(/^\/invoices\/(in_\w+)\/(finalize|pay)$/)) && method === 'POST') {
+    const inv = store.invoices.find(i => i.id === m[1]);
+    if (!inv) return E(404, 'invalid_request_error', 'No such invoice', 'invoice', 'resource_missing');
+    if (m[2] === 'finalize') {
+      if (inv.status !== 'draft') return E(400, 'invalid_request_error', 'This invoice is already finalized.');
+      if (b.auto_advance !== undefined) inv.auto_advance = String(b.auto_advance) === 'true';
+      if (inv.auto_advance) store.emailed = (store.emailed || 0) + 1; // Stripe would send it
+      inv.status = 'open'; inv.amount_due = inv.total; inv.number = 'MOCK-' + pad(store.seq); return J(inv);
+    }
+    if (inv.status !== 'open') return E(400, 'invalid_request_error', 'Invoice is not open.');
+    if (String(b.paid_out_of_band) !== 'true') return E(400, 'invalid_request_error', 'mock: only paid_out_of_band');
+    inv.status = 'paid'; inv.paid_out_of_band = true; inv.amount_paid = 0; // like Stripe for out-of-band payments: read `total`
+    return J(inv);
+  }
+  if ((m = path.match(/^\/invoices\/(in_\w+)$/))) {
+    const inv = store.invoices.find(i => i.id === m[1]);
+    if (!inv) return E(404, 'invalid_request_error', 'No such invoice', 'invoice', 'resource_missing');
+    if (method === 'GET') return J(inv);
+    if (method === 'DELETE') { if (inv.status !== 'draft') return E(400, 'invalid_request_error', 'Only draft invoices can be deleted.'); store.invoices.splice(store.invoices.indexOf(inv), 1); return J({ id: inv.id, object: 'invoice', deleted: true }); }
+    if (method === 'POST') {
+      const next = metaMerge(inv.metadata, b.metadata), err = metaError(next);
+      store.metaChecks++;
+      if (err) return E(400, 'invalid_request_error', err, 'metadata');
+      inv.metadata = next; return J(inv);
+    }
+  }
   if (method === 'POST' && (m = path.match(/^\/invoices\/(in_\w+)\/void$/))) {
     const inv = store.invoices.find(i => i.id === m[1]);
     if (!inv || inv.status !== 'open') return E(400, 'invalid_request_error', 'You can only void open invoices.');
     inv.status = 'void'; return J(inv);
   }
   if (method === 'GET' && path === '/customers/search') {
-    const email = (u.searchParams.get('query').match(/^email:'(.*)'$/) || [])[1];
-    return J({ data: store.customers.filter(c => c.email === email), has_more: false });
+    const q = u.searchParams.get('query'), conds = metaConds(q);
+    if (conds.length) return J({ data: store.customers.filter(c => !c.deleted && !c._lagging && c.metadata && conds.every(([k, v]) => c.metadata[k] === v)), has_more: false, next_page: null });
+    const email = (q.match(/^email:'(.*)'$/) || [])[1];
+    return J({ data: store.customers.filter(c => !c.deleted && c.email === email), has_more: false });
+  }
+  /* the team's records (and customers for offline payments): create, read, update, delete, list */
+  if (method === 'POST' && path === '/customers') {
+    const md = metaMerge({}, b.metadata || {}), err = metaError(md);
+    store.metaChecks++;
+    if (err) return E(400, 'invalid_request_error', err, 'metadata');
+    if (b.name && b.name.length > 256) return E(400, 'invalid_request_error', 'name too long', 'name');
+    const c = { id: 'cus_rec' + pad(++store.seq), object: 'customer', name: b.name || null, email: b.email || null, description: b.description || null, metadata: md, created: nowS(), _lagging: store.lagCustomers };
+    store.customers.push(c); return J(c);
+  }
+  if (method === 'GET' && path === '/customers') return J(page(store.customers.filter(c => !c.deleted && c.created != null), u));
+  if ((m = path.match(/^\/customers\/(cus_\w+)$/))) {
+    const c = store.customers.find(x => x.id === m[1]);
+    if (!c) return E(404, 'invalid_request_error', 'No such customer', 'id', 'resource_missing');
+    if (method === 'GET') return J(c.deleted ? { id: c.id, object: 'customer', deleted: true } : c);
+    if (c.deleted) return E(404, 'invalid_request_error', 'No such customer (deleted)', 'id', 'resource_missing');
+    if (method === 'DELETE') { c.deleted = true; return J({ id: c.id, object: 'customer', deleted: true }); }
+    if (method === 'POST') {
+      const next = metaMerge(c.metadata, b.metadata), err = metaError(next);
+      store.metaChecks++;
+      if (err) return E(400, 'invalid_request_error', err, 'metadata');
+      c.metadata = next; if (b.name) c.name = b.name; return J(c);
+    }
   }
   if (path === '/payment_method_domains') {
     if (method === 'GET') { const dn = u.searchParams.get('domain_name'); return J(page([...store.domains.values()].filter(d => !dn || d.domain_name === dn), u)); }
@@ -2077,6 +2164,524 @@ reset();
   ok(r.data.ok && r.data.removed === demo.length, 'clear_demo removes every demo payment');
   r = await call(avail, 'GET', `/api/booking/availability?program=${J1}`, null, LIVE);
   ok(r.data.program_left === JP.program_spaces, 'after removing them the week is empty again');
+}
+
+/* ================================================================== round 4: blocks, manual bookings, offline payments, calendar */
+const RN = { a2: '2A · Temple Cottage', b2: '2B · Temple Cottage', c2: '2C · Temple Cottage', d2: '2D · Temple Cottage', b1: '1B · Peace Cottage', a1: '1A · Peace Cottage',
+  solitude: '3 · Solitude Cottage', cottage2: '4C + 4D · Alchemy Cottage (combined)', gs: n => `Glamping Single ${n}`, gt: n => `Glamping Twin ${n}`, cv: n => `Campervan Spot ${n}`, ark: x => `5${x} · The Ark` };
+const recCustomers = () => store.customers.filter(c => c.metadata && c.metadata.aob_rec_any === '1' && !c.deleted);
+const callsOf = async fn => { const c0 = store.calls.length; const res = await fn(); return { res, calls: store.calls.slice(c0) }; };
+const lng = (x, n) => x.repeat(Math.ceil(n / x.length)).slice(0, n);
+const mg = (first, gender, room_name, extra = {}) => ({ first, last: 'Manual', gender, room_name, ...extra });
+
+/* storage, availability per room type, cancel / restore / update / delete */
+reset();
+{
+  r = await call(admin, 'POST', '/api/booking/admin', { action: 'block_create', rooms: [RN.a2], from: '2027-07-20', to: '2027-07-21' }, ADMIN_ONLY, AUTH);
+  ok(r.status === 503, 'records need Stripe (demo: 503)');
+  for (const [body, k, re, msg] of [
+    [{ rooms: ['Nowhere 9'], from: '2027-07-20', to: '2027-07-21' }, 'rooms', /Unknown room: Nowhere 9/, 'an unknown room'],
+    [{ rooms: [], from: '2027-07-20', to: '2027-07-21' }, 'rooms', /1 to 20/, 'no room'],
+    [{ rooms: calendarRooms().rooms.slice(0, 21).map(x => x.name), from: '2027-07-20', to: '2027-07-21' }, 'rooms', /1 to 20/, 'more than 20 rooms'],
+    [{ rooms: [RN.a2], from: '2027-07-21', to: '2027-07-21' }, 'to', /after the first night/, 'no nights'],
+    [{ rooms: [RN.a2], from: '2027-01-01', to: '2027-06-01' }, 'to', /120 nights/, 'more than 120 nights'],
+    [{ rooms: [RN.a2], from: '2025-12-30', to: '2026-01-02' }, 'from', /2026-01-01/, 'before 2026'],
+    [{ rooms: [RN.a2], from: '2027-02-30', to: '2027-03-02' }, 'from', /./, 'a date that doesn\'t exist'],
+    [{ rooms: [RN.a2], from: '2027-07-20', to: '2027-07-21', reason: 'party' }, 'reason', /maintenance/, 'a reason not on the list'],
+  ]) {
+    r = await adm({ action: 'block_create', ...body });
+    ok(r.status === 422 && re.test(r.data.fields[k] || ''), `block_create refused: ${msg}`);
+  }
+  ok(recCustomers().length === 0, 'nothing stored for refused blocks');
+  ok(blockInput({ rooms: ['x'.repeat(100), 'y'.repeat(100), 'z'.repeat(100), 'w'.repeat(100), 'v'.repeat(100)], from: '2027-07-20', to: '2027-07-21' },
+    { rooms: ['x', 'y', 'z', 'w', 'v'].map(c => ({ name: c.repeat(100) })) }).errors.rooms === 'That is more room names than one block can hold. Split it into two blocks.', 'block: room names that wouldn\'t fit in 500 characters are refused (never cut)');
+
+  r = await availJ(); const base1 = r.data; r = await availJ(LIVE, J2); const base2 = r.data;
+  // a one-night block inside week 1 takes the room out for that whole week
+  r = await adm({ action: 'block_create', rooms: [RN.a2], from: '2027-07-20', to: '2027-07-21', reason: 'maintenance', comment: '  Shower repair\u0007 ' });
+  const blk = r.data.block, cusB = store.customers.find(c => c.id === blk.customer);
+  ok(r.status === 200 && r.data.ok && /^BL-[A-Z0-9]{6}$/.test(blk.id) && blk.rooms.join() === RN.a2 && blk.from === '2027-07-20' && blk.to === '2027-07-21' && blk.nights === 1 && blk.reason === 'maintenance' && blk.comment === 'Shower repair' && blk.status === 'active', 'block_create: the block (comment cleaned)');
+  ok(cusB && cusB.email === null && cusB.name === 'Block · 2A · Temple Cottage' && /^Blocked 20–21 Jul 2027 \(maintenance\): Shower repair$/.test(cusB.description) && cusB.metadata.aob_rec === 'block' && cusB.metadata.aob_rec_any === '1' && cusB.metadata.aob_id === blk.id && cusB.metadata.aob_rooms === RN.a2 && cusB.metadata.aob_reason === 'maintenance' && cusB.metadata.aob_status === 'active' && cusB.metadata.aob_from === '2027-07-20' && cusB.metadata.aob_to === '2027-07-21' && !Number.isNaN(Date.parse(cusB.metadata.aob_created_at)), 'a block is a Stripe customer without an email, its record in aob_* metadata');
+  r = await availJ();
+  ok(base1.rooms['twin-ensuite'].empty_units === 5 && r.data.rooms['twin-ensuite'].empty_units === 4 && r.data.rooms['twin-ensuite'].left.female === 8 && r.data.rooms['twin-ensuite'].capacity === 8 && r.data.program_left === 49, 'one blocked night in week 1: that twin room is out of the week (shared: one unit less); programme places unchanged');
+  r = await availJ(LIVE, J2);
+  ok(r.data.rooms['twin-ensuite'].empty_units === 5 && JSON.stringify(r.data.rooms) === JSON.stringify(base2.rooms), 'week 2 is untouched');
+  r = await adm({ action: 'block_create', rooms: [RN.b1, RN.gs(1), RN.solitude], from: '2027-07-24', to: '2027-07-25', reason: 'staff' });
+  ok(r.status === 200 && r.data.block.rooms.length === 3 && store.customers.find(c => c.id === r.data.block.customer).name === 'Block · 1B · Peace Cottage + 2 more', 'a block of three rooms for the night between the weeks');
+  r = await availJ(); const x1 = r.data; r = await availJ(LIVE, J2); const x2 = r.data;
+  ok(x1.rooms['twin-ensuite'].empty_units === 4 && x1.rooms['glamping-single'].left_any === 5 && x1.rooms['cottage-one'].left_any === 1 && JSON.stringify(x2.rooms) === JSON.stringify(base2.rooms), 'a block outside every week changes nothing');
+  r = await adm({ action: 'block_create', rooms: [RN.gs(2), RN.cottage2, RN.ark('A')], from: '2027-07-23', to: '2027-07-26', reason: 'owner' });
+  r = await availJ(); const y1 = r.data; r = await availJ(LIVE, J2); const y2 = r.data;
+  ok(y1.rooms['glamping-single'].left_any === 4 && y1.rooms['single-ensuite'].left_any === 2 && y1.rooms['cottage-two'].units_left === 0 && y1.rooms['cottage-two'].sold_out && y1.rooms['cottage-two'].capacity_units === 0, 'block: one place less in rooms sold by the place, the cottage for two (sold by the unit) sold out');
+  ok(y2.rooms['glamping-single'].left_any === 4 && y2.rooms['cottage-two'].sold_out && y2.rooms['single-ensuite'].left_any === 2, '… in both weeks it overlaps');
+
+  // manual bookings
+  r = await adm({ action: 'manual_create', from: '2027-07-19', to: '2027-07-22', guests: [mg('Ines', 'Female', RN.b1)], comment: 'Friend of the owner' });
+  const mA = r.data.booking, cusA = store.customers.find(c => c.id === mA.manual.customer);
+  ok(r.status === 200 && /^MB2707-[A-Z0-9]{6}$/.test(mA.ref) && mA.source === 'manual' && mA.program === J1 && mA.status === 'active' && mA.manual.from === '2027-07-19' && mA.manual.to === '2027-07-22' && mA.manual.nights === 3 && mA.manual.programme === 'no' && mA.manual.comment === 'Friend of the owner' && mA.total_cents === 0 && mA.paid_cents === 0 && mA.guests[0].room === 'twin-ensuite' && mA.guests[0].room_name === RN.b1 && mA.assign['0'] === RN.b1, 'manual_create: an MB reference, its dates, guests and rooms');
+  ok(cusA.email === null && cusA.name === 'Ines Manual' && cusA.metadata.aob_rec === 'booking' && cusA.metadata.aob_rec_any === '1' && cusA.metadata.aob_id === mA.ref && cusA.metadata.aob_g1 === `Ines Manual |  | Female | ${RN.b1}` && cusA.metadata.aob_source === 'manual' && cusA.metadata.aob_programme === 'no' && cusA.metadata.aob_total === '0' && !cusA.metadata.aob_lead_email, 'a manual booking is a Stripe customer without an email, its guests in aob_g1…');
+  r = await availJ();
+  ok(r.data.rooms['twin-ensuite'].left.female === 7 && r.data.rooms['twin-ensuite'].left.male === 6 && r.data.rooms['twin-ensuite'].empty_units === 3 && r.data.program_left === 49, 'a manual guest takes her bed (the other bed is for a woman only); just staying: no programme place');
+  r = await adm({ action: 'manual_create', from: '2027-07-18', to: '2027-07-24', programme: 'yes', total_cents: 150000, whatsapp: '0039 353 452 7348',
+    guests: [mg('Paolo', 'Male', RN.cv(1), { email: 'Paolo@Example.com' }), mg('Gina', 'Female', RN.cv(2))] });
+  const mB = r.data.booking;
+  ok(r.status === 200 && mB.manual.programme === 'yes' && mB.total_cents === 150000 && mB.balance_cents === 150000 && mB.lead.whatsapp === '+393534527348' && mB.lead.email === 'paolo@example.com' && mB.guests[0].email === 'paolo@example.com' && mB.guests[1].email === '', 'manual booking attending the programme, with an agreed price');
+  r = await availJ();
+  ok(r.data.rooms.camper.left_any === 6 && r.data.program_left === 47 && r.data.rooms['twin-ensuite'].left.female === 7, 'its guests take 2 camper places and 2 programme places in week 1');
+  r = await availJ(LIVE, J2);
+  ok(r.data.program_left === 49 && r.data.rooms.camper.left_any === 8, '… not in week 2');
+  r = await adm({ action: 'manual_create', from: '2027-07-20', to: '2027-07-21', guests: [mg('Al', 'Female', RN.c2), mg('Cy', 'Male', RN.c2)] });
+  ok(r.status === 422 && /women or men only/.test(r.data.fields['guests.1.room_name']), 'manual: a woman and a man in one shared room are refused');
+  r = await adm({ action: 'manual_create', from: '2027-07-20', to: '2027-07-21', guests: [mg('Al', 'Female', RN.gs(3)), mg('Bea', 'Female', RN.gs(3))] });
+  ok(r.status === 422 && /holds 1 person/.test(r.data.fields['guests.1.room_name']), 'manual: no more guests in a room than it holds');
+  r = await adm({ action: 'manual_create', from: '2027-07-20', to: '2027-07-21', programme: 'maybe', total_cents: '12x', whatsapp: '07700 900123',
+    guests: [{ first: '=SUM(A1)', last: '', email: 'nope', gender: 'Other', room_name: 'Nowhere' }] });
+  ok(r.status === 422 && r.data.fields['guests.0.first'] && r.data.fields['guests.0.last'] && r.data.fields['guests.0.email'] && r.data.fields['guests.0.gender'] && r.data.fields['guests.0.room_name'] && /country code/.test(r.data.fields.whatsapp) && r.data.fields.total_cents, 'manual: guests validated like a checkout (names, email, gender, room, WhatsApp, price)');
+  r = await adm({ action: 'manual_create', from: '2027-08-10', to: '2027-08-12', programme: 'yes', guests: [mg('Al', 'Female', RN.gs(3))] });
+  ok(r.status === 422 && /don't overlap a BreathCamp week/.test(r.data.fields.programme), 'manual: attending the programme needs dates in a week');
+  r = await adm({ action: 'manual_create', from: '2027-07-20', to: '2027-07-21', guests: Array.from({ length: 13 }, (_, i) => mg('G' + 'abcdefghijklm'[i], 'Female', RN.cv(1))) });
+  ok(r.status === 422 && /1 to 12/.test(r.data.fields.guests), 'manual: at most 12 guests');
+  // women and men in one room, from two bookings (saved anyway): the whole room is out
+  r = await adm({ action: 'manual_create', from: '2027-07-20', to: '2027-07-22', guests: [mg('Ana', 'Female', RN.c2)] });
+  ok(r.status === 200, 'a woman in 2C');
+  r = await adm({ action: 'manual_create', from: '2027-07-21', to: '2027-07-23', guests: [mg('Ben', 'Male', RN.c2)] });
+  ok(r.status === 409 && r.data.code === 'conflict' && r.data.conflicts.length === 1 && /^2C · Temple Cottage: women and men in one room on Wed 21 Jul \(manual booking MB2707-[A-Z0-9]{6} \(Ana Manual\)\)\.$/.test(r.data.conflicts[0]), 'a man in her room on a night she is there → 409 conflict, named night and booking');
+  const nRec = recCustomers().length;
+  r = await adm({ action: 'manual_create', from: '2027-07-21', to: '2027-07-23', guests: [mg('Ben', 'Male', RN.c2)], force: true });
+  ok(r.status === 200 && r.data.forced === true && recCustomers().length === nRec + 1, 'force: saved anyway');
+  r = await availJ();
+  ok(r.data.rooms['twin-ensuite'].empty_units === 2 && r.data.rooms['twin-ensuite'].left.female === 5 && r.data.rooms['twin-ensuite'].left.male === 4, 'women and men in one room: nobody else can join it (that room is out)');
+  r = await adm({ action: 'manual_create', from: '2027-07-21', to: '2027-07-22', guests: [mg('Cleo', 'Female', RN.cv(1))] });
+  ok(r.status === 409 && /Campervan Spot 1: 2 guests for 1 place on Wed 21 Jul/.test(r.data.conflicts[0]), 'a room sold by the place taken that night → conflict');
+  r = await adm({ action: 'manual_create', from: '2027-07-24', to: '2027-07-26', guests: [mg('Cleo', 'Female', RN.cv(1))] });
+  ok(r.status === 200, '… and free from the day the other guests leave');
+
+  // cancel, restore, update
+  r = await adm({ action: 'manual_cancel', ref: mB.ref.toLowerCase() });
+  ok(r.data.ok && r.data.status === 'cancelled' && r.data.booking.status === 'cancelled' && store.customers.find(c => c.id === mB.manual.customer).metadata.aob_status === 'cancelled', 'manual_cancel');
+  r = await availJ();
+  ok(r.data.rooms.camper.left_any === 8 && r.data.program_left === 49, 'a cancelled manual booking gives back its rooms and programme places');
+  r = await adm({ action: 'manual_cancel', ref: mB.ref });
+  ok(r.data.ok && r.data.status === 'cancelled', 'cancelling twice is harmless');
+  r = await adm({ action: 'manual_restore', ref: mB.ref });
+  ok(r.data.ok && r.data.status === 'active' && !store.customers.find(c => c.id === mB.manual.customer).metadata.aob_status_at, 'manual_restore (nothing in the way)');
+  r = await adm({ action: 'manual_update', ref: mB.ref, comment: 'Pays by bank transfer', total_cents: 160000 });
+  ok(r.data.ok && r.data.booking.total_cents === 160000 && r.data.booking.manual.comment === 'Pays by bank transfer' && r.data.booking.balance_cents === 160000, 'manual_update: comment and agreed price');
+  r = await adm({ action: 'note', ref: mB.ref, note: 'Arrives by train' });
+  ok(r.data.ok && r.data.booking.manual.comment === 'Arrives by train' && r.data.booking.total_cents === 160000, 'note on a manual booking = its comment');
+  r = await adm({ action: 'manual_update', ref: mB.ref, total_cents: -5 });
+  ok(r.status === 422 && r.data.fields.total_cents, 'manual_update: a negative price refused');
+  r = await adm({ action: 'manual_update', ref: mB.ref });
+  ok(r.status === 422, 'manual_update: nothing to change');
+  r = await adm({ action: 'assign', ref: mB.ref, assign: { 0: RN.cv(3) } });
+  ok(r.status === 400, 'a manual booking\'s rooms are not moved with assign');
+  r = await adm({ action: 'manual_cancel', ref: 'MB2707-ZZZZZZ' });
+  ok(r.status === 404, 'unknown manual booking → 404');
+
+  // delete a block
+  r = await adm({ action: 'block_delete', id: mA.manual.customer });
+  ok(r.status === 404 && !store.customers.find(c => c.id === mA.manual.customer).deleted, 'block_delete never deletes a manual booking');
+  r = await adm({ action: 'block_delete', id: blk.id });
+  ok(r.data.ok && r.data.id === blk.id && store.customers.find(c => c.id === blk.customer).deleted === true, 'block_delete removes the block\'s customer');
+  r = await availJ();
+  ok(r.data.rooms['twin-ensuite'].empty_units === 3 && r.data.rooms['twin-ensuite'].left.female === 7, 'the room is back');
+  r = await adm({ action: 'block_delete', id: blk.id });
+  ok(r.status === 404, 'deleting it twice → 404');
+  r = await adm({ action: 'block_delete', id: 'nonsense' });
+  ok(r.status === 404, 'block_delete: unknown id → 404');
+  ok(store.metaChecks > 0 && recCustomers().every(c => Object.keys(c.metadata).length < 50 && Object.values(c.metadata).every(v => String(v).length <= 500)), 'records within Stripe\'s metadata limits');
+}
+
+/* checkout and the public availability with records: search lag, memo, Stripe calls per request */
+reset();
+{
+  store.lagCustomers = true; // Stripe's search hasn't indexed new customers yet
+  r = await adm({ action: 'block_create', rooms: [RN.solitude], from: '2027-07-22', to: '2027-07-23', reason: 'owner' });
+  ok(r.status === 200, 'the only cottage for one is blocked for one night of week 1');
+  r = await call(admin, 'GET', `/api/booking/admin?program=${J1}`, null, LIVE, AUTH);
+  ok(r.data.blocks.length === 1 && r.data.rooming[RN.solitude].blocked.reason === 'owner' && r.data.availability.rooms['cottage-one'].sold_out, 'admin sees it at once (search lagging)');
+  tick(4 * 60); // past this isolate's own copy of the write; search still lagging
+  r = await call(checkout, 'POST', '/api/booking/checkout', jBooking([guest(1, 'cottage-one')]), LIVE);
+  ok(r.status === 409 && r.data.code === 'unavailable' && /sold out/.test(r.data.error), 'checkout refused: the block took the last room (found in the real-time list of new records)');
+  store.customers.forEach(c => { c._lagging = false; });
+  r = await availJ();
+  ok(r.data.rooms['cottage-one'].sold_out && r.data.rooms['cottage-one'].left_any === 0, 'public availability: sold out');
+  store.lagCustomers = false;
+  // Stripe calls per request
+  clearAvailabilityMemo();
+  let k = await callsOf(() => call(avail, 'GET', `/api/booking/availability?program=${J1}`, null, LIVE));
+  const fresh1 = k.calls.length, recSearch = k.calls.filter(c => c.path === '/customers/search').length;
+  ok(k.res.status === 200 && fresh1 === 6 && recSearch === 1 && !k.calls.some(c => c.path === '/customers'), `public availability: ${fresh1} Stripe calls on a fresh poll (the 5 of before + 1 records search)`);
+  k = await callsOf(() => call(avail, 'GET', `/api/booking/availability?program=${J2}`, null, LIVE));
+  ok(k.res.status === 200 && k.calls.length === 5 && !k.calls.some(c => /^\/customers/.test(c.path)), 'the other week within 15 s: the records come from their memo (no extra call)');
+  k = await callsOf(() => call(avail, 'GET', `/api/booking/availability?program=${J1}`, null, LIVE));
+  ok(k.calls.length === 0, 'a second poll within 15 s: no Stripe call at all');
+  tick(16);
+  k = await callsOf(() => call(avail, 'GET', `/api/booking/availability?program=${J1}`, null, LIVE));
+  ok(k.calls.length === 6, 'after 15 s: one fresh round (records included)');
+  r = await adm({ action: 'block_create', rooms: [RN.gs(1)], from: '2027-07-18', to: '2027-07-19', reason: 'staff' });
+  k = await callsOf(() => call(avail, 'GET', `/api/booking/availability?program=${J1}`, null, LIVE));
+  ok(k.calls.length === 6 && k.res.data.rooms['glamping-single'].left_any === 4, 'a record write clears the memo: the next poll is fresh and counts it');
+  k = await callsOf(() => call(checkout, 'POST', '/api/booking/checkout', jBooking([guest(2, 'twin-ensuite')]), LIVE));
+  const ckCalls = k.calls.length, ckCus = k.calls.filter(c => /^\/customers/.test(c.path)).length;
+  ok(k.res.status === 200 && ckCus === 2 && ckCalls <= 15, `checkout: ${ckCalls} Stripe calls (records: one search + one real-time list), far below Cloudflare's 50`);
+  // snapshot with records: Stripe down → the last good read still has the block
+  tick(16);
+  fault('GET', /^\/checkout\/sessions$/, { status: 500, times: 3 });
+  r = await call(avail, 'GET', `/api/booking/availability?program=${J1}`, null, LIVE);
+  ok(r.status === 200 && r.data.degraded && r.data.rooms['cottage-one'].sold_out && r.data.rooms['glamping-single'].left_any === 4, 'Stripe down: the last good snapshot keeps the records');
+  // a records search failure is a Stripe failure like the others
+  clearAvailabilityMemo(undefined, { snapshot: true });
+  fault('GET', /^\/customers\/search$/, { status: 500, times: 3 });
+  r = await call(avail, 'GET', `/api/booking/availability?program=${J1}`, null, LIVE);
+  ok(r.status === 503 && r.data.code === 'busy', 'records unreadable and no snapshot → 503 busy (never availability without the blocks)');
+  fault('GET', /^\/customers\/search$/, { status: 500, times: 3 });
+  r = await call(checkout, 'POST', '/api/booking/checkout', jBooking([guest(3, 'twin-ensuite')]), LIVE);
+  ok(r.status === 503 && r.data.code === 'busy', 'checkout: records unreadable → 503 busy');
+}
+
+/* conflicts with online bookings; oversell; programme places; restore */
+reset();
+{
+  r = await call(checkout, 'POST', '/api/booking/checkout', jBooking([guest(1, 'twin-ensuite'), guest(2, 'twin-ensuite')]), LIVE);
+  const oRef = r.data.ref; complete(r.data.session_id);
+  r = await adm({ action: 'assign', ref: oRef, assign: { 0: RN.a2, 1: RN.a2 } });
+  r = await adm({ action: 'block_create', rooms: [RN.a2, RN.b2], from: '2027-07-23', to: '2027-07-26', reason: 'maintenance' });
+  ok(r.status === 409 && r.data.code === 'conflict' && r.data.conflicts.length === 2 && r.data.conflicts[0] === `2A · Temple Cottage: Test1 Guest (${oRef}, BreathCamp 1) is there 23–24 Jul 2027.` && recCustomers().length === 0, 'block over guests placed in the room → 409 conflict naming them; nothing saved');
+  r = await adm({ action: 'block_create', rooms: [RN.a2, RN.b2], from: '2027-07-23', to: '2027-07-26', reason: 'maintenance', force: true });
+  ok(r.status === 200 && r.data.forced === true, 'force: saved anyway');
+  const bId = r.data.block.id;
+  r = await call(admin, 'GET', `/api/booking/admin?program=${J1}`, null, LIVE, AUTH);
+  const rm = r.data.rooming;
+  ok(rm[RN.a2].blocked && rm[RN.a2].blocked.id === bId && rm[RN.a2].blocked.reason === 'maintenance' && rm[RN.a2].blocked.from === '2027-07-23' && rm[RN.a2].conflict === 'blocked' && rm[RN.b2].blocked && rm[RN.b2].conflict === null && r.data.blocks.length === 1 && r.data.blocks[0].rooms.length === 2, 'rooming: blocked rooms carry the block; guests in one → conflict blocked');
+  r = await call(admin, 'GET', `/api/booking/admin?program=${J2}`, null, LIVE, AUTH);
+  ok(r.data.rooming[RN.a2].blocked && r.data.blocks.length === 1 && r.data.availability.rooms['twin-ensuite'].empty_units === 3, 'the block shows in week 2 too (it overlaps both)');
+  r = await call(checkout, 'POST', '/api/booking/checkout', jBooking([guest(3, 'twin-ensuite', { gender: 'Male' }), guest(4, 'twin-ensuite', { gender: 'Male' })]), LIVE);
+  const oRef2 = r.data.ref; complete(r.data.session_id);
+  r = await adm({ action: 'assign', ref: oRef2, assign: { 0: RN.b2 } });
+  ok(r.data.ok && r.data.warnings.length === 1 && r.data.warnings[0] === '2B · Temple Cottage is blocked 23–26 Jul 2027 (maintenance).', 'assign into a blocked room: saved, with a warning');
+  r = await adm({ action: 'assign', ref: oRef2, assign: { 0: RN.c2, 1: RN.c2 } });
+  ok(r.data.ok && r.data.warnings.length === 0, 'assign elsewhere: no warning');
+  r = await adm({ action: 'manual_create', from: '2027-07-18', to: '2027-07-20', guests: [mg('Dee', 'Female', RN.d2)] });
+  ok(r.status === 200, 'a manual guest in 2D for two nights of week 1');
+  r = await adm({ action: 'assign', ref: oRef, assign: { 0: RN.d2, 1: RN.d2 } });
+  ok(r.data.ok && r.data.warnings.length === 1 && r.data.warnings[0] === '2D · Temple Cottage: 3 guests for 2 beds.', 'assign beside a manual guest: more people than beds → warning');
+  r = await adm({ action: 'assign', ref: oRef, assign: { 0: RN.a2, 1: RN.a2 } });
+
+  // oversell: every single room sold, then one blocked
+  const singles = [];
+  for (const n of [5, 6, 7]) { r = await call(checkout, 'POST', '/api/booking/checkout', jBooking([guest(n, 'single-ensuite')], 'full'), LIVE); singles.push(r.data.ref); complete(r.data.session_id); }
+  r = await adm({ action: 'block_create', rooms: [RN.ark('B')], from: '2027-07-18', to: '2027-07-19', reason: 'staff' });
+  ok(r.status === 409 && r.data.conflicts.length === 1 && r.data.conflicts[0] === 'BreathCamp 1: Private Single Room Ensuite would be overbooked. Its bookings and open checkouts need 1 more place than it would have.', 'block on a sold-out room type → conflict (oversell), even with nobody placed in that room');
+  r = await adm({ action: 'block_create', rooms: [RN.ark('B')], from: '2027-07-25', to: '2027-07-26', reason: 'staff' });
+  ok(r.status === 200, '… the same room in week 2 is fine');
+  // an open checkout counts too (its guest may pay any moment)
+  r = await call(checkout, 'POST', '/api/booking/checkout', jBooking([guest(8, 'cottage-one')]), LIVE);
+  r = await adm({ action: 'block_create', rooms: [RN.solitude], from: '2027-07-19', to: '2027-07-20', reason: 'owner' });
+  ok(r.status === 409 && /Private Cottage for One would be overbooked/.test(r.data.conflicts[0]), 'a room in someone\'s open checkout counts as taken');
+  // a cottage for two booked online: blocking it oversells, and a manual booking can't take it
+  r = await call(checkout, 'POST', '/api/booking/checkout', jBooking([guest(9, 'cottage-two'), guest(6, 'cottage-two', { gender: 'Male' })]), LIVE);
+  complete(r.data.session_id);
+  r = await adm({ action: 'manual_create', from: '2027-07-22', to: '2027-07-23', guests: [mg('Ola', 'Female', RN.cottage2)] });
+  ok(r.status === 409 && r.data.conflicts.some(c => /Private Cottage for Two would be overbooked/.test(c)), 'manual booking in a room type that is sold out that week → conflict');
+  // manual guests beside online guests placed in a room
+  r = await adm({ action: 'manual_create', from: '2027-07-19', to: '2027-07-20', guests: [mg('Pia', 'Female', RN.c2)] });
+  ok(r.status === 409 && r.data.conflicts.length === 1 && r.data.conflicts[0].startsWith(`2C · Temple Cottage: women and men in one room on Mon 19 Jul (Test3 Guest (${oRef2}, BreathCamp 1), Test4 Guest`), 'a woman in a twin where two men are placed that week → conflict');
+  // the block vs manual guests (and the reverse)
+  r = await adm({ action: 'manual_create', from: '2027-08-02', to: '2027-08-05', guests: [mg('Quin', 'Female', RN.ark('A'))], total_cents: 40000 });
+  const mStay = r.data.booking;
+  ok(r.status === 200 && mStay.program === 'stay', 'a manual stay outside every week');
+  r = await adm({ action: 'block_create', rooms: [RN.ark('A')], from: '2027-08-04', to: '2027-08-06', reason: 'maintenance' });
+  ok(r.status === 409 && r.data.conflicts[0] === `5A · The Ark: manual booking ${mStay.ref} (Quin Manual) is there 4–5 Aug 2027.`, 'a block over a manual guest → conflict');
+  r = await adm({ action: 'manual_create', from: '2027-07-25', to: '2027-07-27', guests: [mg('Rae', 'Female', RN.a2)] });
+  ok(r.status === 409 && r.data.conflicts[0] === '2A · Temple Cottage is blocked 23–26 Jul 2027 (maintenance).', 'a manual booking in a blocked room → conflict');
+  r = await adm({ action: 'manual_create', from: '2027-07-26', to: '2027-07-27', guests: [mg('Rae', 'Female', RN.a2)] });
+  ok(r.status === 200, '… from the day the block ends it is fine');
+  // restore: something took the room meanwhile
+  r = await adm({ action: 'manual_cancel', ref: mStay.ref });
+  r = await adm({ action: 'block_create', rooms: [RN.ark('A')], from: '2027-08-03', to: '2027-08-04', reason: 'owner' });
+  ok(r.status === 200, 'the room is blocked while the stay is cancelled');
+  r = await adm({ action: 'manual_restore', ref: mStay.ref });
+  ok(r.status === 409 && r.data.code === 'conflict' && /^Restoring MB/.test(r.data.error) && /5A · The Ark is blocked 3–4 Aug 2027 \(owner\)/.test(r.data.conflicts[0]) && store.customers.find(c => c.id === mStay.manual.customer).metadata.aob_status === 'cancelled', 'manual_restore re-checks: 409 conflict, still cancelled');
+  r = await adm({ action: 'manual_restore', ref: mStay.ref, force: true });
+  ok(r.data.ok && r.data.status === 'active', 'manual_restore with force');
+  // an online booking restored into a week where a block took its place
+  r = await adm({ action: 'cancel', ref: singles[0] });
+  r = await adm({ action: 'block_create', rooms: [RN.ark('C')], from: '2027-07-20', to: '2027-07-21', reason: 'staff' });
+  ok(r.status === 200, 'a single room blocked after a cancellation');
+  r = await adm({ action: 'restore', ref: singles[0] });
+  ok(r.status === 409 && r.data.code === 'conflict' && /sold out/.test(r.data.error), 'restoring an online booking counts the blocks (409 conflict)');
+  // programme places
+  const keepSpaces = JP.program_spaces;
+  r = await availJ();
+  const usedNow = keepSpaces - r.data.program_left;
+  JP.program_spaces = usedNow + 3; // three programme places left
+  const four = [mg('Sam', 'Male', RN.gt(4)), mg('Tom', 'Male', RN.gt(4)), mg('Uma', 'Female', RN.gt(3)), mg('Una', 'Female', RN.gt(3))];
+  r = await adm({ action: 'manual_create', from: '2027-07-20', to: '2027-07-22', programme: 'yes', guests: four });
+  ok(r.status === 409 && r.data.conflicts.length === 1 && r.data.conflicts[0] === `BreathCamp 1: the programme would have 1 more guest than its ${usedNow + 3} places.`, 'manual booking attending a full programme → conflict');
+  r = await adm({ action: 'manual_create', from: '2027-07-20', to: '2027-07-22', programme: 'no', guests: four });
+  ok(r.status === 200, '… just staying is fine');
+  r = await adm({ action: 'manual_create', from: '2027-07-20', to: '2027-07-22', programme: 'yes', guests: [mg('Vic', 'Female', RN.gt(2)), mg('Wyn', 'Female', RN.gt(2)), mg('Xia', 'Female', RN.gt(1))] });
+  const mYes = r.data.booking;
+  ok(r.status === 200 && mYes.manual.programme === 'yes', 'three attending guests fit the last three places');
+  r = await call(checkout, 'POST', '/api/booking/checkout', jBooking([guest(4, 'own-tent')]), LIVE);
+  ok(r.status === 409 && /fully booked/.test(r.data.error), 'checkout: the programme places taken by hand count');
+  JP.program_spaces = keepSpaces;
+}
+
+/* offline payments: math, overpay, void, balance page, search lag, customers */
+reset();
+{
+  r = await call(checkout, 'POST', '/api/booking/checkout', jBooking([guest(1, 'twin-ensuite')]), LIVE);
+  const oRef = r.data.ref, total = r.data.quote.total_cents, due = r.data.quote.due_now_cents; complete(r.data.session_id);
+  ok(total === 229500 && due === 116940, 'an online deposit booking (€2,295, €1,169.40 paid)');
+  r = await adm({ action: 'balance_link', ref: oRef });
+  const linkId = lastSession().id;
+  for (const [body, k, msg] of [[{ amount_cents: 0 }, 'amount_cents', 'zero'], [{ amount_cents: 12.5 }, 'amount_cents', 'not whole cents'], [{ amount_cents: 100, method: 'cheque' }, 'method', 'unknown method'],
+    [{ amount_cents: 100, method: 'other' }, 'comment', '"other" without a comment'], [{ amount_cents: 100, received: '2026-07-09' }, 'received', 'a future date'], [{ amount_cents: 100, received: '9 July' }, 'received', 'not a date']]) {
+    r = await adm({ action: 'offline_payment', ref: oRef, ...body });
+    ok(r.status === 422 && r.data.fields[k], `offline_payment refused: ${msg}`);
+  }
+  ok(!store.invoices.some(i => i.metadata && i.metadata.aob_kind), 'nothing recorded for refused payments');
+  let k = await callsOf(() => adm({ action: 'offline_payment', ref: oRef, amount_cents: 50000, method: 'bank_transfer', received: '2026-06-30', comment: 'Revolut transfer, ref 1234' }));
+  r = k.res;
+  const inv1 = store.invoices.find(i => i.id === r.data.payment.invoice_id);
+  ok(r.status === 200 && r.data.ok && r.data.booking.paid_cents === 166940 && r.data.booking.balance_cents === 62560 && r.data.payment.amount_cents === 50000 && r.data.payment.method === 'bank_transfer' && r.data.payment.received === '2026-06-30' && r.data.payment.comment === 'Revolut transfer, ref 1234', 'offline_payment: paid up, balance down');
+  ok(inv1 && inv1.status === 'paid' && inv1.paid_out_of_band && inv1.collection_method === 'send_invoice' && inv1.days_until_due === 1 && inv1.auto_advance === false && inv1.customer === 'cus_mock1' && inv1.total === 50000 && inv1.lines.length === 1 && inv1.lines[0].description === `Bank transfer · BreathCamp 1 · ${oRef}` && inv1._params.pending_invoice_items_behavior === 'exclude' && !store.emailed, 'an invoice paid out of band on the booking\'s own customer, one line, never emailed');
+  ok(inv1.metadata.aob_kind === 'offline' && inv1.metadata.aob_program === J1 && inv1.metadata.aob_ref === oRef && inv1.metadata.aob_method === 'bank_transfer' && inv1.metadata.aob_received === '2026-06-30' && inv1.metadata.aob_comment === 'Revolut transfer, ref 1234' && !Number.isNaN(Date.parse(inv1.metadata.aob_recorded_at)), 'offline payment metadata');
+  ok(store.sessions.get(linkId).status === 'expired' && r.data.balance_links_closed === 1, 'the open balance link (asking for the old amount) is closed');
+  ok(k.calls.length <= 20, `offline_payment: ${k.calls.length} Stripe calls`);
+  await Promise.all(store.waits.splice(0));
+  const g = store.ghl.at(-1);
+  ok(g.event === 'offline_payment_recorded' && g.ref === oRef && g.amount === '500.00' && g.amount_cents === 50000 && g.method === 'bank_transfer' && g.comment === 'Revolut transfer, ref 1234' && g.balance === '625.60' && g.email === 't1@example.com' && g.tag === `${J1}-offline-paid`, 'GHL hears about it (offline_payment_recorded)');
+  r = await call(admin, 'GET', `/api/booking/admin?program=${J1}`, null, LIVE, AUTH);
+  let bk = r.data.bookings.find(b => b.ref === oRef), op = bk.payments.find(p => p.kind === 'offline');
+  ok(bk.paid_cents === 166940 && bk.balance_cents === 62560 && op && op.amount_cents === 50000 && op.method === 'bank_transfer' && op.comment === 'Revolut transfer, ref 1234' && op.received === '2026-06-30' && op.invoice_id === inv1.id && r.data.totals.paid_cents === 166940, 'admin: the offline payment is in the booking\'s payments and totals');
+  r = await call(balance, 'POST', '/api/booking/balance', { action: 'lookup', ref: oRef, email: 't1@example.com' }, LIVE);
+  ok(r.status === 200 && r.data.paid_cents === 166940 && r.data.balance_cents === 62560, 'the guest\'s balance page counts it');
+  r = await call(balance, 'POST', '/api/booking/balance', { action: 'pay', ref: oRef, email: 't1@example.com' }, LIVE);
+  ok(r.status === 200 && store.sessions.get(lastSession().id).amount_total === 62560, '… and asks for what is left');
+  r = await adm({ action: 'offline_payment', ref: oRef, amount_cents: 70000, method: 'cash' });
+  ok(r.status === 409 && r.data.code === 'overpay' && r.data.balance_cents === 62560 && r.data.amount_cents === 70000 && /€700 is more than the €625.60 still to pay/.test(r.data.error), 'more than the balance → 409 overpay');
+  r = await adm({ action: 'offline_payment', ref: oRef, amount_cents: 70000, method: 'cash', force: true });
+  const inv2 = r.data.payment.invoice_id;
+  ok(r.status === 200 && r.data.booking.paid_cents === 236940 && r.data.booking.balance_cents === 0 && r.data.forced === true, 'force: recorded, nothing left to pay (never negative)');
+  r = await call(balance, 'POST', '/api/booking/balance', { ref: oRef, email: 't1@example.com' }, LIVE);
+  ok(r.data.paid_in_full === true, 'balance page: paid in full');
+  // undo
+  r = await adm({ action: 'offline_void', invoice_id: inv1.id });
+  ok(r.status === 422 && r.data.fields.reason, 'offline_void needs a reason');
+  r = await adm({ action: 'offline_void', invoice_id: 'in_nosuch12345', reason: 'x' });
+  ok(r.status === 404, 'offline_void: unknown invoice → 404');
+  r = await adm({ action: 'offline_void', invoice_id: inv1.id, reason: 'Recorded on the wrong booking' });
+  ok(r.data.ok && r.data.ref === oRef && /credit note/.test(r.data.message) && inv1.metadata.aob_kind === 'offline_void' && inv1.metadata.aob_void_reason === 'Recorded on the wrong booking' && inv1.metadata.aob_void_at && inv1.status === 'paid' && store.invoices.includes(inv1), 'offline_void: marked void (never deleted); the team is told about a credit note');
+  r = await call(admin, 'GET', `/api/booking/admin?program=${J1}`, null, LIVE, AUTH);
+  bk = r.data.bookings.find(b => b.ref === oRef);
+  ok(bk.paid_cents === 186940 && bk.balance_cents === 42560 && bk.payments.filter(p => p.kind === 'offline').length === 1 && bk.payments.find(p => p.kind === 'offline').invoice_id === inv2, 'after undo: it no longer counts');
+  r = await adm({ action: 'offline_void', invoice_id: inv1.id, reason: 'again' });
+  ok(r.data.ok && r.data.already === true, 'undoing twice is harmless');
+  r = await adm({ action: 'offline_void', invoice_id: 'in_1abc' , reason: 'x' });
+  ok(r.status === 400, 'offline_void: an invoice id is checked before any Stripe call');
+  // search lag: recorded a moment ago in another isolate (not in this one's copy, not yet searchable)
+  store.lagInvoices = true;
+  r = await adm({ action: 'offline_payment', ref: oRef, amount_cents: 10000, method: 'bank_transfer' });
+  ok(r.status === 200 && r.data.payment.received === '2026-07-01' && r.data.booking.balance_cents === 32560, 'the received date defaults to today');
+  tick(4 * 60); forgetBooking(oRef);
+  r = await call(balance, 'POST', '/api/booking/balance', { action: 'lookup', ref: oRef, email: 't1@example.com' }, LIVE);
+  ok(r.data.balance_cents === 32560, 'search lagging: the real-time list of new invoices still counts it');
+  store.invoices.forEach(i => { i._lagging = false; }); store.lagInvoices = false;
+  // the webhook ignores our out-of-band invoices
+  const n0 = store.ghl.length;
+  wr = await hook({ type: 'invoice.paid', data: { object: { ...inv1, billing_reason: 'manual' } } });
+  ok(wr.status === 200 && store.ghl.length === n0, 'webhook: invoice.paid of an offline payment is ignored');
+  // a booking without a Stripe customer (e.g. a demo payment): a customer with only a name is made, then reused
+  const qx = quote(JP, { payment: 'deposit', programme: 'included', whatsapp: '+447700900123', terms: true, guests: [guest(7, 'glamping-single')] });
+  const refX = 'BC2707-NOCUS2', mdX = bookingMetadata(JP, qx, refX, { ui: 'hosted' });
+  store.pis.set('pi_nocus', { id: 'pi_nocus', object: 'payment_intent', status: 'succeeded', amount: qx.due_now_cents, amount_received: qx.due_now_cents, currency: 'eur', created: nowS(), customer: null, metadata: mdX, _refunded: 0 });
+  const c0 = store.customers.length;
+  r = await adm({ action: 'offline_payment', ref: refX, amount_cents: 20000 });
+  const cx = store.customers[store.customers.length - 1];
+  ok(r.status === 200 && store.customers.length === c0 + 1 && cx.name === 'Test7 Guest' && cx.email === null && cx.metadata.aob_ref === refX && !cx.metadata.aob_rec_any && store.invoices.find(i => i.id === r.data.payment.invoice_id).customer === cx.id, 'no Stripe customer on the booking: one is made (name and reference only, no email)');
+  r = await adm({ action: 'offline_payment', ref: refX, amount_cents: 1000 });
+  ok(r.status === 200 && store.customers.length === c0 + 1 && store.invoices.find(i => i.id === r.data.payment.invoice_id).customer === cx.id, '… and reused for the next offline payment');
+  // a step that fails leaves no payable invoice behind
+  fault('POST', /^\/invoices\/in_\w+\/finalize$/, { status: 400 });
+  const drafts = store.invoices.length;
+  r = await adm({ action: 'offline_payment', ref: refX, amount_cents: 1000 });
+  ok(r.status === 502 && store.invoices.length === drafts, 'Stripe refuses a step: the draft invoice is deleted, nothing counts');
+  // a running plan: offline payments count towards its total
+  r = await call(checkout, 'POST', '/api/booking/checkout', jBooking([guest(5, 'camper')], 'plan'), LIVE);
+  const pRef = r.data.ref; complete(r.data.session_id);
+  r = await adm({ action: 'offline_payment', ref: pRef, amount_cents: 30000, comment: 'Paid the rest by transfer' });
+  r = await call(admin, 'GET', `/api/booking/admin?program=${J1}`, null, LIVE, AUTH);
+  const pb = r.data.bookings.find(b => b.ref === pRef);
+  ok(pb.plan && pb.paid_cents === [...store.sessions.values()].find(x => x.metadata.aob_ref === pRef).amount_total + 30000 && pb.payments.some(p => p.kind === 'offline' && p.comment === 'Paid the rest by transfer'), 'plans: an offline payment counts towards the total');
+  // GHL down: the payment is still recorded
+  store.ghlStatus = 500;
+  r = await adm({ action: 'offline_payment', ref: refX, amount_cents: 500 });
+  await Promise.all(store.waits.splice(0));
+  ok(r.status === 200 && r.data.ok, 'GHL failing never stops the admin action');
+  store.ghlStatus = 200;
+  ok(store.invoices.filter(i => i.metadata && i.metadata.aob_kind).every(i => Object.keys(i.metadata).length < 50 && Object.values(i.metadata).every(v => String(v).length <= 500)), 'offline payments within Stripe\'s metadata limits');
+}
+
+/* manual bookings with offline payments in the admin, the overview and the calendar */
+reset();
+{
+  r = await call(checkout, 'POST', '/api/booking/checkout', jBooking([guest(1, 'twin-ensuite')]), LIVE);
+  const oRef = r.data.ref; complete(r.data.session_id);
+  r = await adm({ action: 'assign', ref: oRef, assign: { 0: RN.d2 } });
+  r = await call(checkout, 'POST', '/api/booking/checkout', jBooking([guest(2, 'camper', { gender: 'Male' })], 'full'), LIVE);
+  const oRef2 = r.data.ref; complete(r.data.session_id);
+  r = await call(checkout, 'POST', '/api/booking/checkout', jBooking([guest(3, 'own-tent')]), LIVE);
+  const oRef3 = r.data.ref; complete(r.data.session_id, { pi: 'processing' });
+  r = await adm({ action: 'manual_create', from: '2027-07-18', to: '2027-07-24', programme: 'yes', total_cents: 150000, comment: 'Scholarship family',
+    guests: [mg('Lia', 'Female', RN.b1), mg('Mia', 'Female', RN.b1)] });
+  const mW = r.data.booking;
+  r = await adm({ action: 'offline_payment', ref: mW.ref, amount_cents: 100000, method: 'bank_transfer', received: '2026-06-29' });
+  const invW = store.invoices.find(i => i.id === r.data.payment.invoice_id);
+  ok(r.status === 200 && r.data.booking.paid_cents === 100000 && r.data.booking.balance_cents === 50000 && invW.customer === mW.manual.customer && invW.metadata.aob_program === J1 && invW.lines[0].description === `Bank transfer · BreathCamp 1 · ${mW.ref}`, 'offline payment on a manual booking: on its record customer, its week');
+  r = await adm({ action: 'offline_payment', ref: mW.ref, amount_cents: 60000 });
+  ok(r.status === 409 && r.data.code === 'overpay' && r.data.balance_cents === 50000, 'a manual booking with a price: overpay guard');
+  r = await adm({ action: 'manual_create', from: '2027-08-02', to: '2027-08-05', total_cents: 40000, guests: [mg('Nia', 'Female', RN.gs(2))] });
+  const mS = r.data.booking;
+  r = await adm({ action: 'offline_payment', ref: mS.ref, amount_cents: 40000, method: 'cash', received: '2026-07-01' });
+  ok(r.status === 200 && store.invoices.find(i => i.id === r.data.payment.invoice_id).metadata.aob_program === 'stay' && store.invoices.find(i => i.id === r.data.payment.invoice_id).lines[0].description === `Cash · Stay · ${mS.ref}`, 'a stay outside every week: aob_program stay');
+  r = await adm({ action: 'manual_create', from: '2027-09-01', to: '2027-09-03', guests: [mg('Ora', 'Female', RN.gs(2))] });
+  const mF = r.data.booking;
+  r = await adm({ action: 'offline_payment', ref: mF.ref, amount_cents: 5000, method: 'other', comment: 'Voucher' });
+  ok(r.status === 200 && r.data.booking.paid_cents === 5000 && r.data.booking.balance_cents === 0, 'no agreed price yet: no overpay guard');
+
+  r = await call(admin, 'GET', `/api/booking/admin?program=${J1}`, null, LIVE, AUTH);
+  const mb = r.data.bookings.find(b => b.ref === mW.ref);
+  ok(mb && mb.source === 'manual' && mb.total_cents === 150000 && mb.paid_cents === 100000 && mb.balance_cents === 50000 && mb.payments.length === 1 && mb.payments[0].kind === 'offline' && mb.payments[0].received === '2026-06-29' && mb.payments[0].invoice_id === invW.id && mb.manual.from === '2027-07-18' && mb.manual.programme === 'yes' && mb.manual.comment === 'Scholarship family' && mb.guests.length === 2 && mb.lead.name === 'Lia Manual', 'admin GET: the manual booking overlapping the week, with its offline payment');
+  ok(!r.data.bookings.some(b => b.ref === mS.ref) && r.data.totals.bookings === 4 && r.data.totals.guests === 5 && r.data.totals.paid_cents === r.data.bookings.filter(b => b.status !== 'cancelled').reduce((s, b) => s + b.paid_cents, 0), 'admin totals include the manual booking (not the stay outside the week)');
+  ok(r.data.rooming[RN.b1].guests.length === 2 && r.data.rooming[RN.b1].guests.every(x => x.manual === true && x.ref === mW.ref) && r.data.rooming[RN.b1].gender === 'Female' && r.data.rooming[RN.b1].conflict === null && r.data.rooming[RN.d2].guests[0].ref === oRef && r.data.availability.program_left === 49 - 3 - 2, 'rooming: manual guests in their room (manual: true); programme places count them');
+  r = await call(admin, 'GET', '/api/booking/admin?overview=1', null, LIVE, AUTH);
+  const w1 = r.data.weeks.find(w => w.program.id === J1);
+  ok(w1.totals.bookings === 4 && w1.totals.paid_cents >= 100000 && w1.places.left === 44 && r.data.stay.totals.bookings === 2 && r.data.stay.totals.paid_cents === 45000 && r.data.stay.totals.balance_cents === 0, 'overview: the manual booking in its week; stays outside every week under stay');
+  ok(r.data.totals.paid_cents === r.data.weeks.reduce((s, w) => s + w.totals.paid_cents, 0) + 45000 && r.data.totals.bookings === r.data.weeks.reduce((s, w) => s + w.totals.bookings, 0) + 2, 'overview totals = weeks + stays');
+  ok(r.data.recent.some(x => x.ref === mS.ref && x.program === 'stay' && x.edition === 'Stay' && x.source === 'manual') && r.data.recent.some(x => x.ref === oRef && x.source === 'online'), 'overview: recent bookings include manual ones');
+  r = await call(admin, 'GET', '/api/booking/admin?overview=1', null, ADMIN_ONLY, AUTH);
+  ok(r.data.demo && r.data.stay.totals.bookings === 0, 'overview (demo): stay totals too');
+
+  // the calendar
+  let k = await callsOf(() => call(admin, 'GET', '/api/booking/admin?calendar=1&from=2027-07-11&to=2027-08-08', null, LIVE, AUTH));
+  r = k.res;
+  const cal = r.data;
+  ok(r.status === 200 && cal.calendar === true && cal.from === '2027-07-11' && cal.to === '2027-08-08' && cal.nights === 28 && cal.today === '2026-07-01' && k.calls.length <= 20, `calendar: range and the day (${k.calls.length} Stripe calls)`);
+  ok(cal.rooms.length === 31 && cal.areas.join('|') === 'Peace Cottage|Temple Cottage|Alchemy Cottage|Glamping Single|Glamping Twin|Campervan Spot|The Ark|Solitude Cottage', 'calendar: 31 physical rooms in 8 areas, in order (tents have no rooms)');
+  ok(cal.rooms.slice(0, 3).map(x => x.name).join('|') === '1A · Peace Cottage|1B · Peace Cottage|1C · Peace Cottage' && cal.rooms.find(x => x.name === RN.cottage2).area === 'Alchemy Cottage' && cal.rooms.find(x => x.name === RN.gs(3)).area === 'Glamping Single' && cal.rooms.find(x => x.name === RN.cv(2)).area === 'Campervan Spot', 'calendar: rooms grouped by area and sorted (1A, 1B, 1C…); "(combined)" stays with its cottage');
+  const r1b = cal.rooms.find(x => x.name === RN.b1), rc2 = cal.rooms.find(x => x.name === RN.cottage2), rgs = cal.rooms.find(x => x.name === RN.gs(1));
+  ok(r1b.room_id === 'twin-ensuite' && r1b.room_name === 'Twin Room Ensuite' && r1b.capacity === 2 && r1b.same_gender === true && rc2.capacity === 2 && rc2.same_gender === false && rc2.unit === 'cottage' && rgs.capacity === 1, 'calendar room: type, beds, one-gender rule');
+  ok(cal.programs.some(p => p.id === J1 && p.edition === 'BreathCamp 1' && p.dates.start === '2027-07-18') && cal.programs.some(p => p.id === J2), 'calendar: every week for the "jump to" chips');
+  const sOn = cal.stays.find(x => x.ref === oRef), sOn2 = cal.stays.find(x => x.ref === oRef2), sOn3 = cal.stays.find(x => x.ref === oRef3);
+  ok(sOn && sOn.kind === 'online' && sOn.program === J1 && sOn.room_name === RN.d2 && sOn.room_id === 'twin-ensuite' && sOn.from === '2027-07-18' && sOn.to === '2027-07-24' && sOn.pay_state === 'deposit' && sOn.demo === false && sOn.status === 'active' && sOn.index === 0 && sOn.name === 'Test1 Guest' && sOn.gender === 'Female', 'calendar: an online guest placed in a room, for the week');
+  ok(sOn2 && sOn2.room_name === null && sOn2.pay_state === 'paid' && sOn3.pay_state === 'processing', 'calendar: unplaced guests have no room; pay states paid / processing');
+  const sM = cal.stays.filter(x => x.ref === mW.ref), sS = cal.stays.find(x => x.ref === mS.ref);
+  ok(sM.length === 2 && sM.every(x => x.kind === 'manual' && x.room_name === RN.b1 && x.from === '2027-07-18' && x.programme === 'yes' && x.comment === 'Scholarship family' && x.pay_state === 'deposit') && sS && sS.from === '2027-08-02' && sS.to === '2027-08-05' && sS.program === 'stay' && sS.pay_state === 'paid', 'calendar: manual stays with their own dates');
+  ok(!cal.stays.some(x => x.ref === mF.ref), 'calendar: only stays in the range');
+  ok(cal.unplaced.some(u => u.program === J1 && u.room_id === 'camper' && u.count === 1 && u.male === 1 && u.placeable) && cal.unplaced.some(u => u.room_id === 'own-tent' && !u.placeable), 'calendar: guests not placed yet per week and room type (tents can\'t be placed)');
+  ok(cal.manual.length === 2 && cal.manual.every(b => b.source === 'manual' && b.manual) && cal.blocks.length === 0, 'calendar: the manual bookings in the range in full (for the drawer)');
+  r = await adm({ action: 'block_create', rooms: [RN.d2, RN.cv(8)], from: '2027-08-01', to: '2027-08-03', reason: 'maintenance', comment: 'Paint' });
+  r = await call(admin, 'GET', '/api/booking/admin?calendar=1&from=2027-07-11&to=2027-08-08', null, LIVE, AUTH);
+  ok(r.data.blocks.length === 1 && r.data.blocks[0].rooms.join() === `${RN.d2},${RN.cv(8)}` && r.data.blocks[0].from === '2027-08-01' && r.data.blocks[0].reason === 'maintenance' && r.data.blocks[0].comment === 'Paint' && r.data.blocks[0].created_at, 'calendar: blocks in the range');
+  r = await call(admin, 'GET', '/api/booking/admin?calendar=1', null, LIVE, AUTH);
+  ok(r.status === 200 && r.data.from === addDays(listPrograms().map(p => p.dates.start).sort()[0], -7) && r.data.nights <= 120, `calendar default: from the earliest week − 7 days, at most 120 nights (${r.data.from} → ${r.data.to})`);
+  for (const [q, msg] of [['from=2027-07-20&to=2027-07-20', 'no nights'], ['from=2027-01-01&to=2027-06-01', 'over 120 nights'], ['from=2027-02-30&to=2027-03-03', 'a date that doesn\'t exist'], ['from=tomorrow', 'not a date']]) {
+    r = await call(admin, 'GET', `/api/booking/admin?calendar=1&${q}`, null, LIVE, AUTH);
+    ok(r.status === 400 && r.data.error, `calendar refused: ${msg}`);
+  }
+  r = await call(admin, 'GET', '/api/booking/admin?calendar=1&from=2027-07-11&to=2027-08-08', null, LIVE);
+  ok(r.status === 401, 'calendar needs the token');
+  r = await call(admin, 'GET', '/api/booking/admin?calendar=1&from=2027-07-11&to=2027-08-08', null, ADMIN_ONLY, AUTH);
+  ok(r.status === 200 && r.data.demo === true && r.data.rooms.length === 31 && r.data.areas.length === 8 && r.data.stays.length === 0 && r.data.blocks.length === 0 && r.data.unplaced.length === 0 && r.data.programs.length === listPrograms().length, 'calendar (demo): the rooms, no stays');
+  ok(areaOf('Glamping Single 12', { name: 'x' }) === 'Glamping Single' && areaOf('Hut', { name: 'Garden huts' }) === 'Garden huts' && areaOf('7 · ', { name: 'Seven' }) === 'Seven', 'areas: after " · ", else without the number, else the room type');
+  ok(rangeLabel('2027-07-30', '2027-08-02') === '30 Jul – 2 Aug 2027' && rangeLabel('2027-12-30', '2028-01-02') === '30 Dec 2027 – 2 Jan 2028', 'date ranges across months and years');
+
+  // Stripe calls of the heaviest admin requests
+  const heavy = [
+    ['admin GET (week)', () => call(admin, 'GET', `/api/booking/admin?program=${J1}`, null, LIVE, AUTH)],
+    ['overview', () => call(admin, 'GET', '/api/booking/admin?overview=1', null, LIVE, AUTH)],
+    ['calendar (default range)', () => call(admin, 'GET', '/api/booking/admin?calendar=1', null, LIVE, AUTH)],
+    ['manual_create over both weeks', () => adm({ action: 'manual_create', from: '2027-07-20', to: '2027-07-28', guests: [mg('Wil', 'Male', RN.gt(1)), mg('Xan', 'Male', RN.gt(1))], programme: 'yes' })],
+    ['block_create over both weeks', () => adm({ action: 'block_create', rooms: [RN.gt(2), RN.gt(3), RN.gs(4)], from: '2027-07-20', to: '2027-07-28' })],
+    ['manual_restore', async () => { await adm({ action: 'manual_cancel', ref: mW.ref }); return adm({ action: 'manual_restore', ref: mW.ref }); }],
+    ['offline_payment (manual)', () => adm({ action: 'offline_payment', ref: mW.ref, amount_cents: 100 })],
+    ['offline_payment (online)', () => adm({ action: 'offline_payment', ref: oRef, amount_cents: 100 })],
+  ];
+  const counts = [];
+  for (const [name, fn] of heavy) { const x = await callsOf(fn); counts.push(`${name} ${x.calls.length}`); ok(x.res.status === 200 && x.calls.length < 30, `${name}: ${x.calls.length} Stripe calls (Cloudflare allows ~50)`); }
+}
+
+/* demo bookings respect the records; the rooming map with records */
+reset();
+{
+  const blocked = [RN.b1, RN.a2, RN.b2, RN.c2, RN.gs(1), RN.gs(2), RN.gs(3), RN.solitude];
+  r = await adm({ action: 'block_create', rooms: blocked, from: '2027-07-19', to: '2027-07-20', reason: 'maintenance' });
+  r = await adm({ action: 'manual_create', from: '2027-07-18', to: '2027-07-24', guests: [mg('Yan', 'Male', RN.gt(1)), mg('Zoe', 'Female', RN.cv(1)), mg('Ama', 'Female', RN.cv(2))] });
+  r = await call(admin, 'POST', '/api/booking/admin', { action: 'seed_demo', program: J1, percent: 70 }, LIVE, AUTH);
+  ok(r.status === 200 && r.data.created > 0, 'seed_demo with blocks and a manual booking in the week');
+  r = await call(admin, 'GET', `/api/booking/admin?program=${J1}`, null, LIVE, AUTH);
+  const demoB = r.data.bookings.filter(b => b.demo), placed = demoB.flatMap(b => Object.values(b.assign || {}));
+  ok(placed.length > 0 && !placed.some(n => blocked.includes(n)), 'demo guests are never placed in a blocked room');
+  ok(!placed.includes(RN.cv(1)) && !placed.includes(RN.cv(2)) && demoB.every(b => b.guests.every((g, i) => b.assign[i] !== RN.gt(1) || g.gender === 'Male')), '… nor beside manual guests against the room\'s rules');
+  ok(Object.values(r.data.rooming).every(x => !x.conflict), 'no conflicts in the rooming after seeding');
+  ok(r.data.availability.rooms['twin-ensuite'].empty_units >= 0 && demoB.filter(b => b.guests.some(g => g.room === 'twin-ensuite')).reduce((s, b) => s + b.guests.filter(g => g.room === 'twin-ensuite').length, 0) <= 2, 'availability counted the blocks: at most one twin room (2 beds) was sold');
+  // roomingMap / programWithRecords directly
+  const recs = [
+    { type: 'block', id: 'BL-AAAAAA', status: 'active', from: '2027-07-21', to: '2027-07-22', rooms: [RN.d2], reason: 'staff', comment: '' },
+    { type: 'block', id: 'BL-BBBBBB', status: 'cancelled', from: '2027-07-21', to: '2027-07-22', rooms: [RN.c2], reason: 'staff', comment: '' },
+    { type: 'booking', id: 'MB2707-AAAAAA', ref: 'MB2707-AAAAAA', status: 'active', from: '2027-07-10', to: '2027-07-19', programme: 'yes', guests: [{ name: 'Old Stay', gender: 'Male', room_name: RN.c2 }] },
+    { type: 'booking', id: 'MB2707-BBBBBB', ref: 'MB2707-BBBBBB', status: 'active', from: '2027-08-10', to: '2027-08-19', programme: 'yes', guests: [{ name: 'Later', gender: 'Male', room_name: RN.b2 }] },
+  ];
+  const map = roomingMap(JP, [{ ref: 'R1', status: 'active', guests: [{ name: 'A', gender: 'Female', room: 'twin-ensuite' }], assign: { 0: RN.d2 } }], recs).rooming;
+  ok(map[RN.d2].blocked.id === 'BL-AAAAAA' && map[RN.d2].conflict === 'blocked' && !map[RN.c2].blocked && map[RN.c2].guests[0].manual === true && map[RN.c2].guests[0].name === 'Old Stay' && !map[RN.b2].guests.length, 'roomingMap: active blocks only; manual guests overlapping the week (one night is enough), not later stays');
+  const pw = programWithRecords(JP, recs);
+  ok(pw !== JP && pw.rooms.find(x => x.id === 'twin-ensuite').units === 4 && pw.rooms.find(x => x.id === 'twin-ensuite').occupied.length === 1 && pw.program_spaces === 48 && JP.rooms.find(x => x.id === 'twin-ensuite').units === 5 && JP.program_spaces === 49 && JP.rooms.find(x => x.id === 'twin-ensuite').occupied.length === 0, 'programWithRecords works on a copy (the program itself is untouched)');
+  ok(programWithRecords(JP, [{ ...recs[0], from: '2027-07-24', to: '2027-07-25' }]) === JP && availability(JP, { records: [] }).program_left === 49, 'no records overlapping the week: the program as it is');
+  const o1 = overbooked(JP, { booked: { 'twin-ensuite': { female: 3, male: 3, other: 0, units: 0 } }, records: [{ ...recs[0] }] });
+  ok(!o1.rooms['twin-ensuite'] && o1.programme === 0, 'overbooked: 3 women and 3 men fit the 4 twin rooms left');
+  const o2 = overbooked(JP, { booked: { 'twin-ensuite': { female: 3, male: 3, other: 0, units: 0 } }, records: [{ ...recs[0], rooms: [RN.d2, RN.c2, RN.b2] }] });
+  ok(o2.rooms['twin-ensuite'] === 3, 'overbooked: 3 women and 3 men need 4 twin rooms; with 2 left the 3 men don\'t fit');
+}
+
+/* metadata limits of the fullest records */
+reset();
+{
+  const simple = [...[1, 2, 3, 4, 5].map(RN.gs), ...[1, 2, 3, 4, 5, 6, 7].map(RN.cv)];
+  const big = simple.map((room_name, i) => ({ first: lng('Mariabella', 60), last: lng('Esperanza', 60), email: `${lng('guestname', 60)}${'abcdefghijkl'[i]}@${lng('example', 50)}.com`, gender: 'Female', room_name }));
+  r = await adm({ action: 'manual_create', from: '2027-09-01', to: '2027-12-30', whatsapp: '+447700900123', programme: 'no', total_cents: 99999999, comment: lng('Long comment. ', 700), guests: big });
+  const mBig = r.data.booking, cBig = store.customers.find(c => c.id === mBig.manual.customer);
+  ok(r.status === 200 && mBig.guests.length === 12 && mBig.manual.comment.length === 480 && cBig.metadata.aob_g12, '12 guests with the longest names and emails, a full comment, 120 nights');
+  r = await adm({ action: 'manual_cancel', ref: mBig.ref });
+  r = await adm({ action: 'manual_update', ref: mBig.ref, comment: lng('Again. ', 900), total_cents: 100000000 });
+  ok(r.status === 200 && Object.keys(cBig.metadata).length < 50 && Object.values(cBig.metadata).every(v => String(v).length <= 500), `the fullest manual booking stays within Stripe's metadata limits (${Object.keys(cBig.metadata).length} keys)`);
+  r = await adm({ action: 'offline_payment', ref: mBig.ref, amount_cents: 100000000, method: 'other', comment: lng('Paid through the agency. ', 900) });
+  const invBig = store.invoices.find(i => i.id === r.data.payment.invoice_id);
+  r = await adm({ action: 'offline_void', invoice_id: invBig.id, reason: lng('Wrong. ', 400) });
+  ok(r.status === 200 && Object.keys(invBig.metadata).length < 50 && Object.values(invBig.metadata).every(v => String(v).length <= 500), `the fullest offline payment, undone, stays within the limits (${Object.keys(invBig.metadata).length} keys)`);
+  const all20 = calendarRooms().rooms.map(x => x.name).sort((a, b) => b.length - a.length).slice(0, 20);
+  r = await adm({ action: 'block_create', rooms: all20, from: '2027-10-01', to: '2027-10-02', reason: 'owner', comment: lng('c', 600) });
+  ok(r.status === 200 && r.data.block.rooms.length === 20 && Object.values(store.customers.find(c => c.id === r.data.block.customer).metadata).every(v => String(v).length <= 500), 'a block of 20 rooms (the longest names) fits');
+  ok(parseRecord({ id: 'cus_x', metadata: { aob_rec_any: '1', aob_rec: 'block', aob_from: '2027-07-02', aob_to: '2027-07-01' } }) === null && parseRecord({ id: 'cus_y', metadata: { aob_rec: 'block', aob_from: '2027-07-01', aob_to: '2027-07-02' } }) === null, 'unreadable records are ignored');
+}
+
+/* ?stays=1: the manual bookings outside every week, for the All weeks lists */
+reset();
+{
+  r = await call(admin, 'GET', '/api/booking/admin?stays=1', null, ADMIN_ONLY, AUTH);
+  ok(r.status === 200 && r.data.stays && r.data.demo && r.data.bookings.length === 0 && r.data.program.id === 'stay', 'stays: demo mode answers an empty list');
+  r = await call(admin, 'GET', '/api/booking/admin?stays=1', null, LIVE);
+  ok(r.status === 401, 'stays: needs the admin token');
+  const one = (await adm({ action: 'manual_create', from: '2027-07-12', to: '2027-07-13', total_cents: 9500, comment: 'One night', guests: [mg('Una', 'Female', RN.a1)] })).data.booking;
+  const inWeek = (await adm({ action: 'manual_create', from: '2027-07-19', to: '2027-07-20', guests: [mg('Vera', 'Female', RN.d2)] })).data.booking;
+  r = await adm({ action: 'offline_payment', ref: one.ref, amount_cents: 9500, method: 'bank_transfer', comment: 'SEPA, ref 4471' });
+  ok(r.status === 200, 'stays: a bank transfer on the one-night stay');
+  r = await call(admin, 'GET', '/api/booking/admin?stays=1', null, LIVE, AUTH);
+  const s = r.data.bookings.find(b => b.ref === one.ref);
+  ok(r.status === 200 && r.data.live && s && s.program === 'stay' && s.paid_cents === 9500 && s.balance_cents === 0 && s.payments.some(p => p.kind === 'offline' && p.comment === 'SEPA, ref 4471') && !r.data.bookings.some(b => b.ref === inWeek.ref) && r.data.totals.paid_cents === 9500,
+    'stays: lists the one-night stay with its bank transfer, not the stay inside a week');
 }
 
 /* nothing personal in the logs */
