@@ -281,6 +281,19 @@ h2[tabindex="-1"]:focus,h2[tabindex="-1"]:focus-visible{outline:none}
 .grow.bad{border-color:var(--err-line);box-shadow:0 0 0 3px rgba(201,80,42,.12)}
 .grow.bad .err{display:block}
 @media(max-width:480px){.grow .pills{width:100%}.grow .pills label{flex:1}.grow .pills span{min-width:0;width:100%;text-align:center}}
+/* step 1: a guest's name and email can be added right on their row (optional here, checked in step 3) */
+.gwho{display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-width:0}
+.gx{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:6px;max-width:100%;font-size:.84rem;color:var(--gold-text);text-decoration:underline;text-underline-offset:3px;padding:6px 0;min-height:32px;box-sizing:border-box}
+.gx svg{flex:none;width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;transition:transform .2s}
+.gx[aria-expanded="true"] svg{transform:rotate(180deg)}
+.gx .gx-t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gx.filled{color:var(--ink);text-decoration:none}
+.gx.filled .gx-t b{font-weight:500}
+.gx.filled .gx-e{color:var(--slate)}
+.gd{width:100%;padding:4px 0 2px}
+.gd[hidden]{display:none}
+.gd .grid2{margin-top:4px}
+.gd .gd-n{margin:6px 0 0;font-size:.78rem;color:var(--slate)}
 .ghint{margin:10px 2px 24px;font-size:.82rem;color:var(--slate);line-height:1.55}
 .progbox{display:flex;gap:16px;align-items:flex-start;padding:16px 20px;border:1px solid var(--line);border-radius:16px;background:#fff;margin:0 0 18px}
 .progbox .pic{flex:none;display:grid;place-items:center;width:44px;height:44px;border-radius:50%;background:var(--gold-wash)}
@@ -777,7 +790,7 @@ footer a{color:var(--slate);display:inline-block;padding:6px 0}
 @media(max-width:640px){.hero.slim{padding-top:14px;gap:6px}.hero.slim .eyebrow{display:inline-flex;font-size:.68rem;margin-bottom:6px}.hero.slim h1{font-size:1.5rem}.hero.slim .chips{margin-top:10px}.hero.slim .chips li:nth-child(n+3){display:inline-flex}.hero.slim #closesChip{display:none}.about-link{border:0;background:none;padding:6px 0;min-height:0;font-size:.85rem;text-decoration:underline;text-underline-offset:3px}}
 
 /* focus rings for controls that reset their own styles (keep after those rules) */
-.back:focus-visible,.more:focus-visible,.suggest:focus-visible,.edit:focus-visible,.sum:focus-visible,.steps button:focus-visible,.sw:focus-visible,.sheet-x:focus-visible,.ppalt:focus-visible,.sv-about:focus-visible,.sv-rm:focus-visible{outline:2px solid var(--teal);outline-offset:3px;border-radius:4px}
+.back:focus-visible,.more:focus-visible,.suggest:focus-visible,.edit:focus-visible,.sum:focus-visible,.steps button:focus-visible,.sw:focus-visible,.sheet-x:focus-visible,.ppalt:focus-visible,.sv-about:focus-visible,.sv-rm:focus-visible,.gx:focus-visible{outline:2px solid var(--teal);outline-offset:3px;border-radius:4px}
 .svc-tab:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
 </style>
@@ -1397,17 +1410,55 @@ footer a{color:var(--slate);display:inline-block;padding:6px 0}
     if (sw) sw.onclick = function(){ state.progPaid = !state.progPaid; save(); render(); if ($('progSw')) $('progSw').focus(); };
   }
   var rowsFor = -1;
+  var CHEV = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>', gxOpen = {};   // which guests' name panels are open
+  function gxInner(p, i){
+    var nm = (String(p.first || '').trim() + ' ' + String(p.last || '').trim()).trim(), em = String(p.email || '').trim();
+    return nm || em
+      ? '<span class="gx-t"><b>' + esc(nm || (i ? 'Guest ' + (i + 1) : 'You')) + '</b>' + (em ? ' <span class="gx-e">· ' + esc(em) + '</span>' : '') + '</span><span class="vh"> (edit name and email)</span>' + CHEV
+      : '<span class="gx-t">Add name and email</span>' + CHEV;
+  }
+  function gxLabel(i){
+    var gx = $('gx' + i), p = people()[i]; if (!gx || !p) return;
+    gx.innerHTML = gxInner(p, i);
+    gx.classList.toggle('filled', !!(String(p.first || '').trim() || String(p.last || '').trim() || String(p.email || '').trim()));
+  }
+  // the same field exists in step 1 (s1g…) and step 3 (g…): typing in one updates the other
+  function twin(id, v){ var el = $(id); if (el && el !== document.activeElement && el.value !== v) el.value = v; }
   function renderGenderRows(force){
     if (!force && rowsFor === state.guests) return;   // only redraw when the number of guests changes
     rowsFor = state.guests;
     $('genderRows').innerHTML = people().map(function(p, i){
       var gid = 'g' + i + '-gender';
-      return '<div class="grow" id="f-' + gid + '"><p class="who" id="l-' + gid + '"><span class="n" aria-hidden="true">' + (i + 1) + '</span>' + (i ? 'Guest ' + (i + 1) : 'You') + '</p>' +
+      var sid = 's1g' + i, NAME = ' autocapitalize="words" spellcheck="false"', MAIL = ' autocapitalize="off" spellcheck="false"';
+      return '<div class="grow" id="f-' + gid + '"><div class="gwho"><p class="who" id="l-' + gid + '"><span class="n" aria-hidden="true">' + (i + 1) + '</span>' + (i ? 'Guest ' + (i + 1) : 'You') + '</p>' +
+        '<button type="button" class="gx" id="gx' + i + '" aria-expanded="false" aria-controls="gd' + i + '">' + gxInner(p, i) + '</button></div>' +
         '<div class="pills" role="radiogroup" aria-labelledby="l-' + gid + '" aria-describedby="e-' + gid + '">' +
         P.genders.map(function(g){ return '<label><input type="radio" name="' + gid + '" value="' + esc(g) + '"' + (p.gender === g ? ' checked' : '') + '><span>' + esc(g) + '</span></label>'; }).join('') +
-        '</div><span class="err" id="e-' + gid + '"></span></div>';
+        '</div><span class="err" id="e-' + gid + '"></span>' +
+        '<div class="gd" id="gd' + i + '" role="group" aria-labelledby="l-' + gid + '" hidden><div class="grid2">' +
+          field(sid + '-first', 'First name', { value:p.first, ac: i ? 'off' : 'given-name', extra:NAME, max:60 }) +
+          field(sid + '-last', 'Last name', { value:p.last, ac: i ? 'off' : 'family-name', extra:NAME, max:60 }) +
+          field(sid + '-email', i ? 'Email <small>(optional)</small>' : 'Email', { value:p.email, type:'email', ac: i ? 'off' : 'email', im:'email', extra:MAIL, ph:'name@example.com', suggest:true, full:true, max:120 }) +
+        '</div><p class="gd-n">' + (i ? 'Optional now. You can also add this in the last step.' : 'You can also add this in the last step, where we ask for your WhatsApp number too.') + '</p></div></div>';
     }).join('');
     people().forEach(function(p, i){
+      var gx = $('gx' + i), gd = $('gd' + i);
+      if (gxOpen[i]) { gd.hidden = false; gx.setAttribute('aria-expanded', 'true'); }
+      gx.onclick = function(){
+        var open = gd.hidden; gd.hidden = !open; gx.setAttribute('aria-expanded', open ? 'true' : 'false'); gxOpen[i] = open;
+        if (open) { var first = $('s1g' + i + '-first'); if (first) first.focus(); }
+      };
+      ['first','last','email'].forEach(function(k){
+        var el = $('s1g' + i + '-' + k); if (!el) return;
+        el.addEventListener('input', function(){
+          p[k] = el.value; clearErr('s1g' + i + '-' + k); twin('g' + i + '-' + k, el.value);
+          if (k === 'email') emailSuggest('s1g' + i + '-email');
+          gxLabel(i); save();
+          if (k === 'first') svcNamesChanged();
+        });
+        if (i === 0 && k === 'email') el.addEventListener('change', maybeSendLead);
+      });
+      gxLabel(i);
       document.querySelectorAll('input[name="g' + i + '-gender"]').forEach(function(r){
         r.addEventListener('change', function(){ p.gender = r.value; clearErr('g' + i + '-gender'); if (validateGroup(false)) showAlert(1, ''); tidyRooms(); save(); renderRooms(); renderFolio(); renderHelpLinks(); });
       });
@@ -1674,7 +1725,7 @@ footer a{color:var(--slate);display:inline-block;padding:6px 0}
       ['first','last','email','whatsapp'].forEach(function(k){
         var el = $(id + '-' + k); if (!el) return;
         el.addEventListener('input', function(){
-          if (k === 'whatsapp') { state.lead.whatsapp = el.value; waHint(); } else p[k] = el.value;
+          if (k === 'whatsapp') { state.lead.whatsapp = el.value; waHint(); } else { p[k] = el.value; twin('s1g' + i + '-' + k, el.value); gxLabel(i); }
           clearErr(id + '-' + k); if (k === 'email') emailSuggest(id + '-email'); save();
           if (k === 'first') svcNamesChanged();   // the sessions' "For" lists show first names
         });
