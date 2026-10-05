@@ -97,6 +97,12 @@ function aob_pages_proxy_serve() {
 		// so new weeks go live without a plugin update.
 		$upstream = $origin . '/' . $key . '/';
 		$is_html  = true;
+	} elseif ( preg_match( '#^thank-you-(ft|ij)-t(3[4-9]|[4-9][0-9])-(am|pm)$#', $key ) ) {
+		// Post-purchase thank-you pages from cohort T34 on (FT and IJ, AM and PM)
+		// live on Pages, so each new cohort's pages go live without a plugin update.
+		// T31 to T33 stay WordPress pages.
+		$upstream = $origin . '/' . $key . '/';
+		$is_html  = true;
 	} elseif ( 0 === strpos( $path, '/assets/' ) ) {
 		// Images/media the pages load from /assets/… — proxy those too.
 		$upstream = $origin . $path;
