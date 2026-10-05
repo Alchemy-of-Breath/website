@@ -61,6 +61,7 @@ const logs = [];
 console.error = (...a) => { logs.push(a.map(String).join(' ')); };
 
 /* ---------- Stripe mock ---------- */
+let demoSeq = 0;
 const store = {
   sessions: new Map(), pis: new Map(), subs: new Map(), invoices: [], customers: [], domains: new Map(),
   ghl: [], ghlAttempts: 0, ghlStatus: 200, turnstile: [], turnstileDown: false,
@@ -167,6 +168,16 @@ async function stripeMock(method, path, u, init) {
     const cus = u.searchParams.get('customer');
     const r = page([...store.pis.values()].filter(pi => !cus || pi.customer === cus), u);
     r.data = r.data.map(pi => charged(pi, u)); return J(r);
+  }
+  if (method === 'POST' && path === '/payment_intents') {   // demo bookings: created and confirmed server-side with the test card
+    const md = metaMerge({}, b.metadata || {}), err = metaError(md);
+    if (err) return E(400, 'invalid_request_error', err, 'metadata');
+    if (b.payment_method !== 'pm_card_visa' || String(b.confirm) !== 'true') return E(400, 'invalid_request_error', 'mock: only confirmed pm_card_visa payments');
+    const amount = +b.amount;
+    if (!Number.isInteger(amount) || amount < 50) return E(400, 'invalid_request_error', 'Amount must be at least €0.50', 'amount');
+    const id = 'pi_demo' + (++demoSeq);
+    const pi = { id, object: 'payment_intent', status: 'succeeded', amount, amount_received: amount, currency: b.currency, created: nowS(), customer: null, metadata: md, description: b.description, _refunded: 0 };
+    store.pis.set(id, pi); return J(pi);
   }
   if ((m = path.match(/^\/payment_intents\/(pi_\w+)$/))) {
     const pi = store.pis.get(m[1]);
@@ -2031,6 +2042,29 @@ reset();
   complete(r.data.session_id);
   r = await xa({ action: 'lookup', ref: refM, email: 't1@example.com', fresh: true });
   ok(r.data.addons.length === 2, 'extras lookup with fresh: true skips the memo');
+}
+
+/* demo bookings (Stripe test mode only) */
+reset();
+{
+  r = await call(admin, 'POST', '/api/booking/admin', { action: 'seed_demo', program: J1, percent: 40 }, { ...LIVE, STRIPE_SECRET_KEY: 'sk_live_mock' }, AUTH);
+  ok(r.status === 403 && store.pis.size === 0, 'demo bookings are refused with a live key');
+  r = await call(admin, 'POST', '/api/booking/admin', { action: 'seed_demo', program: J1, percent: 40 }, LIVE, AUTH);
+  const demo = [...store.pis.values()].filter(p => p.metadata.aob_demo === '1');
+  const bookingsD = demo.filter(p => p.metadata.aob_kind === 'booking');
+  const guestsD = bookingsD.reduce((n, p) => n + parseInt(p.metadata.aob_guests, 10), 0);
+  ok(r.status === 200 && r.data.ok && r.data.created === bookingsD.length && r.data.guests === guestsD && r.data.target === Math.round(JP.program_spaces * 0.4), 'seed_demo reports what it created');
+  ok(guestsD >= r.data.target - 2 && guestsD <= r.data.target, 'the week is filled to about 40% (' + guestsD + ' of ' + JP.program_spaces + ')');
+  ok(bookingsD.every(p => p.amount === parseInt(p.metadata.aob_due_now, 10) && p.metadata.aob_program === J1 && /\.demo@example\.com$/.test(p.metadata.aob_lead_email)), 'every demo booking is priced like a real one and clearly marked');
+  ok(demo.filter(p => p.metadata.aob_kind === 'balance').every(p => bookingsD.some(b => b.metadata.aob_ref === p.metadata.aob_ref)), 'demo balance payments belong to demo bookings');
+  r = await call(avail, 'GET', `/api/booking/availability?program=${J1}`, null, LIVE);
+  ok(r.data.program_left === JP.program_spaces - guestsD, 'public availability counts the demo bookings');
+  r = await call(admin, 'GET', `/api/booking/admin?program=${J1}`, null, LIVE, AUTH);
+  ok(r.data.bookings.length === bookingsD.length && r.data.bookings.every(b => b.demo === true), 'the dashboard lists them, marked as demo');
+  r = await call(admin, 'POST', '/api/booking/admin', { action: 'clear_demo', program: J1 }, LIVE, AUTH);
+  ok(r.data.ok && r.data.removed === demo.length, 'clear_demo removes every demo payment');
+  r = await call(avail, 'GET', `/api/booking/availability?program=${J1}`, null, LIVE);
+  ok(r.data.program_left === JP.program_spaces, 'after removing them the week is empty again');
 }
 
 /* nothing personal in the logs */

@@ -736,7 +736,7 @@ export function parseBooking(md = {}, program = getProgram(md.aob_program)) {
     guests, utm, page: md.aob_page || '', diet: md.aob_diet || '', ui: md.aob_ui || '', remind: md.aob_remind === '1',
     attempt: md.aob_attempt || '', terms_at: md.aob_terms_at || '',
     addons: parseAddons(md.aob_addons, program), addons_cents: parseInt(md.aob_addons_total || '0', 10) || 0,
-    source: md.aob_source === 'admin' ? 'admin' : 'online', discount: parseDiscount(md),
+    source: md.aob_source === 'admin' ? 'admin' : 'online', discount: parseDiscount(md), demo: md.aob_demo === '1',
     note: md.aob_note || '', assign: parseAssign(md.aob_assign), svc: parseSvc(md.aob_svc),
   };
 }
@@ -822,7 +822,7 @@ export async function listAll(env, path, params = {}, { maxPages = 10 } = {}) {
   }
   return rows;
 }
-async function searchAll(env, query, cap = 2000, object = 'payment_intents', extra = {}) {
+export async function searchAll(env, query, cap = 2000, object = 'payment_intents', extra = {}) {
   const rows = []; let page;
   do {
     const r = await stripe(env, 'GET', `/${object}/search?` + qs({ query, limit: 100, page, ...extra }));

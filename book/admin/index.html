@@ -241,7 +241,7 @@ details.panel[open]>summary{margin-bottom:14px}
 .g.m{background:var(--teal-wash);color:var(--teal-text);border:1px solid var(--teal-line)}
 .g.o{background:#eee;color:#555}
 .pill{display:inline-block;border-radius:999px;padding:2px 9px;font-size:.7rem;font-weight:500;white-space:nowrap;margin:0 4px 3px 0;border:1px solid transparent;line-height:1.5}
-.pill.full,.pill.ok{background:var(--teal-wash);color:#0B5157;border-color:var(--teal-line)}
+.pill.full,.pill.ok{background:var(--teal-wash);color:#0B5157;border-color:var(--teal-line)}.pill.demo{background:#E6EDF2;color:#2F4A5A;margin-right:4px}
 .pill.dep{background:var(--gold-wash);color:var(--gold-text)}
 .pill.plan{background:#fff;color:var(--gold-text);border-color:var(--gold-soft)}
 .pill.can{background:#eee;color:#555}
@@ -1123,6 +1123,9 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     return '<span class="pill plan">Plan ' + esc(p.paid_count) + '/' + esc(p.installments) + '</span>' + (p.status === 'past_due' ? '<span class="pill chk">Payment failed</span>' : '');
   }
   function payPill(b){
+    return (b.demo ? '<span class="pill demo" title="Demo booking, made in Stripe test mode. Remove it in Setup.">Demo</span>' : '') + payPill2(b);
+  }
+  function payPill2(b){
     if (!active(b)) return '<span class="pill can">Cancelled</span>';
     if (b.pending) return '<span class="pill proc" title="A bank payment is still clearing. Its places are held.">Processing</span>';
     if (b.plan) return planPill(b);
@@ -1837,13 +1840,40 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
       var roomOnly = '<section class="panel"><div class="ph"><h2>Room-only links</h2></div><p class="muted">For guests who already paid the programme fee' + (feeOf(PROGS[0] && PROGS[0].id) ? ' (' + eur(feeOf(PROGS[0].id) * 100) + ')' : '') +
         ' elsewhere. They choose and pay for their room only. Their booking shows as "Room only": "possible match" when Stripe has earlier programme payments from their email that cover every guest (check them), otherwise "check".</p>' +
         (week === 'all' ? PROGS : [PBY[week]]).filter(Boolean).map(function(p){ return copyRow(wkFull(p.id), 'room only', SITE + '/book/' + p.id + '/?programme=paid'); }).join('') + '</section>';
-      box.innerHTML = (d ? setupPanel(d) : '') + roomOnly + links + '<section><div class="ph" style="margin-top:6px"><h2 style="font-family:var(--serif);font-size:1.22rem">Week settings <small style="font-family:var(--sans);font-size:.78rem;color:var(--slate)">read only · from the program files</small></h2></div><div class="cfg">' + ids.map(configCard).join('') + '</div></section>';
+      var demoOn = !!(d && d.setup && d.setup.stripe === 'test');
+      var demo = demoOn ? '<section class="panel"><div class="ph"><h2>Demo bookings <small style="font-family:var(--sans);font-size:.78rem;color:var(--slate)">Stripe test mode only</small></h2></div>' +
+        '<p class="muted">Fills ' + (week === 'all' ? 'each week' : 'this week') + ' to about 40% with made-up bookings (deposits, paid in full, some wellbeing sessions and balances), paid with Stripe\'s test card. They show with a "Demo" label, count towards availability like real bookings, and can be removed at any time. New bookings can take a minute to appear here.</p>' +
+        '<div class="mact" style="justify-content:flex-start;margin-top:10px"><button type="button" class="btn" id="demoFill">Fill with demo bookings (about 40%)</button><button type="button" class="btn btn-ghost" id="demoClear">Remove demo bookings</button></div></section>' : '';
+      box.innerHTML = (d ? setupPanel(d) : '') + demo + roomOnly + links + '<section><div class="ph" style="margin-top:6px"><h2 style="font-family:var(--serif);font-size:1.22rem">Week settings <small style="font-family:var(--sans);font-size:.78rem;color:var(--slate)">read only · from the program files</small></h2></div><div class="cfg">' + ids.map(configCard).join('') + '</div></section>';
       var rb = $('regDomains'), pb = $('repairPlans');
       if (rb) rb.onclick = function(){ registerDomains(rb); };
       if (pb) pb.onclick = function(){ repairPlans(pb); };
+      var df = $('demoFill'), dc = $('demoClear');
+      if (df) df.onclick = function(){ demoRun(df, 'seed_demo'); };
+      if (dc) dc.onclick = function(){
+        confirmBox({ title: 'Remove demo bookings?', html: '<p>Every demo booking ' + (week === 'all' ? 'in every week' : 'in this week') + ' is taken out of the dashboard and its places are freed. Real bookings are not touched.</p>', ok: 'Remove demo bookings', danger: true, ret: dc })
+          .then(function(yes){ if (yes) demoRun(dc, 'clear_demo'); });
+      };
       Promise.all(ids.map(loadPub)).then(function(r){ if (r.some(Boolean) && route.tab === 'setup' && $('stBody') && !editingIn($('view'))) VIEWS.setup.update(); });
     }
   };
+  // demo bookings, one week per request (Cloudflare allows ~50 Stripe calls per request)
+  function demoRun(btn, action){
+    var ids = (week === 'all' ? PROGS.map(function(p){ return p.id; }) : [week]).filter(Boolean), out = [], done = busyBtn(btn, action === 'seed_demo' ? 'Adding demo bookings…' : 'Removing…');
+    var next = function(i){
+      if (i >= ids.length) {
+        done();
+        toast(action === 'seed_demo'
+          ? 'Demo bookings added: ' + out.map(function(r){ return esc(wkFull(r.program)) + ' ' + r.guests + ' guests in ' + r.created + ' bookings (' + (num(r.used_before) + num(r.guests)) + ' of ' + (num(r.used_before) + num(r.guests) + num(r.places_left)) + ' places taken)'; }).join('; ') + '. They appear here within a minute.'
+          : 'Demo bookings removed: ' + out.reduce(function(n, r){ return n + num(r.removed); }, 0) + ' payments.' + (out.some(function(r){ return r.more; }) ? ' Some are left: press Remove again.' : ''), 'ok');
+        setTimeout(function(){ ids.forEach(function(id){ ensure(route.tab, true); }); }, 1500);
+        return;
+      }
+      post({ action: action, program: ids[i], percent: 40 }).then(function(d){ out.push(d); next(i + 1); },
+        function(e){ done(); if (authFail(e)) return; toast((action === 'seed_demo' ? 'Could not add demo bookings: ' : 'Could not remove demo bookings: ') + esc(why(e)), 'err'); });
+    };
+    next(0);
+  }
   function registerDomains(btn){
     var done = busyBtn(btn, 'Registering…');
     post({ action: 'register_domains' }).then(function(d){
