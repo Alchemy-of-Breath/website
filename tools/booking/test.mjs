@@ -2061,6 +2061,18 @@ reset();
   ok(r.data.program_left === JP.program_spaces - guestsD, 'public availability counts the demo bookings');
   r = await call(admin, 'GET', `/api/booking/admin?program=${J1}`, null, LIVE, AUTH);
   ok(r.data.bookings.length === bookingsD.length && r.data.bookings.every(b => b.demo === true), 'the dashboard lists them, marked as demo');
+  const named = id => (JP.rooms.find(x => x.id === id).names || []).length > 0;
+  const placedAll = r.data.bookings.every(b => b.guests.every((g, i) => !named(g.room) || (b.assign && b.assign[i])));
+  const slots = Object.values(r.data.rooming || {});
+  ok(placedAll && (r.data.unassigned || []).every(u => !named(u.room)), 'every demo guest is placed in a physical room (tents have none)');
+  ok(slots.every(x => !x.conflict) && slots.some(x => x.guests.length), 'random placement keeps rooms single-gender and within their beds');
+  ok(r.data.bookings.every(b => b.guests.every((g, i) => !b.assign || !b.assign[i] || (JP.rooms.find(x => x.id === g.room).names || []).includes(b.assign[i]))), 'each guest is placed in a room of the type they booked');
+  // demo bookings made before placement existed: place_demo puts them in rooms
+  [...store.pis.values()].filter(p => p.metadata.aob_demo === '1' && p.metadata.aob_kind === 'booking').forEach(p => { delete p.metadata.aob_assign; });
+  r = await call(admin, 'POST', '/api/booking/admin', { action: 'place_demo', program: J1 }, LIVE, AUTH);
+  ok(r.status === 200 && r.data.ok && r.data.bookings > 0 && r.data.unplaced === 0, 'place_demo places demo guests who had no room ');
+  r = await call(admin, 'GET', `/api/booking/admin?program=${J1}`, null, LIVE, AUTH);
+  ok(Object.values(r.data.rooming || {}).every(x => !x.conflict) && (r.data.unassigned || []).every(u => !named(u.room)), 'after place_demo: everyone placed, no conflicts');
   r = await call(admin, 'POST', '/api/booking/admin', { action: 'clear_demo', program: J1 }, LIVE, AUTH);
   ok(r.data.ok && r.data.removed === demo.length, 'clear_demo removes every demo payment');
   r = await call(avail, 'GET', `/api/booking/availability?program=${J1}`, null, LIVE);

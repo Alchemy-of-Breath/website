@@ -17,7 +17,7 @@ import {
   assignToString, parseSvc, svcToString, SVC_STATUS, saveAdminMeta, currentBookingMeta, logError, eur, nowSec, PROD_HOSTS,
   liveMode,
 } from '../../../booking-lib/core.js';
-import { seedDemo, clearDemo } from '../../../booking-lib/demo.js';
+import { seedDemo, clearDemo, placeDemo } from '../../../booking-lib/demo.js';
 
 export const onRequestOptions = ({ request, env }) => preflight(request, env);
 
@@ -234,13 +234,13 @@ export async function onRequestPost({ request, env }) {
 
   try {
     if (body.action === 'create_link') return await createLink(env, body, send);
-    if (body.action === 'seed_demo' || body.action === 'clear_demo') {
+    if (body.action === 'seed_demo' || body.action === 'clear_demo' || body.action === 'place_demo') {
       // test mode only: fill a week with demo bookings (about `percent` % of its places), or remove them
       if (liveMode(env)) return send({ error: 'Demo bookings are only available in Stripe test mode.' }, 403);
       const program = getProgram(body.program);
       if (!program) return send({ error: 'Unknown week.' }, 404);
-      const r = body.action === 'seed_demo'
-        ? await seedDemo(env, program, { percent: Math.round(Number(body.percent) || 40) })
+      const r = body.action === 'seed_demo' ? await seedDemo(env, program, { percent: Math.round(Number(body.percent) || 40) })
+        : body.action === 'place_demo' ? await placeDemo(env, program)
         : await clearDemo(env, program);
       return send({ ok: true, ...r });
     }

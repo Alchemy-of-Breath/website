@@ -1842,14 +1842,15 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
         (week === 'all' ? PROGS : [PBY[week]]).filter(Boolean).map(function(p){ return copyRow(wkFull(p.id), 'room only', SITE + '/book/' + p.id + '/?programme=paid'); }).join('') + '</section>';
       var demoOn = !!(d && d.setup && d.setup.stripe === 'test');
       var demo = demoOn ? '<section class="panel"><div class="ph"><h2>Demo bookings <small style="font-family:var(--sans);font-size:.78rem;color:var(--slate)">Stripe test mode only</small></h2></div>' +
-        '<p class="muted">Fills ' + (week === 'all' ? 'each week' : 'this week') + ' to about 40% with made-up bookings (deposits, paid in full, some wellbeing sessions and balances), paid with Stripe\'s test card. They show with a "Demo" label, count towards availability like real bookings, and can be removed at any time. New bookings can take a minute to appear here.</p>' +
-        '<div class="mact" style="justify-content:flex-start;margin-top:10px"><button type="button" class="btn" id="demoFill">Fill with demo bookings (about 40%)</button><button type="button" class="btn btn-ghost" id="demoClear">Remove demo bookings</button></div></section>' : '';
+        '<p class="muted">Fills ' + (week === 'all' ? 'each week' : 'this week') + ' to about 40% with made-up bookings (deposits, paid in full, some wellbeing sessions and balances), paid with Stripe\'s test card, and places every guest in a physical room at random (one gender per shared room, never over its beds). They show with a "Demo" label, count towards availability like real bookings, and can be removed at any time. New bookings can take a minute to appear here.</p>' +
+        '<div class="mact" style="justify-content:flex-start;margin-top:10px"><button type="button" class="btn" id="demoFill">Fill with demo bookings (about 40%)</button><button type="button" class="btn btn-ghost" id="demoPlace">Place demo guests in rooms</button><button type="button" class="btn btn-ghost" id="demoClear">Remove demo bookings</button></div></section>' : '';
       box.innerHTML = (d ? setupPanel(d) : '') + demo + roomOnly + links + '<section><div class="ph" style="margin-top:6px"><h2 style="font-family:var(--serif);font-size:1.22rem">Week settings <small style="font-family:var(--sans);font-size:.78rem;color:var(--slate)">read only · from the program files</small></h2></div><div class="cfg">' + ids.map(configCard).join('') + '</div></section>';
       var rb = $('regDomains'), pb = $('repairPlans');
       if (rb) rb.onclick = function(){ registerDomains(rb); };
       if (pb) pb.onclick = function(){ repairPlans(pb); };
       var df = $('demoFill'), dc = $('demoClear');
       if (df) df.onclick = function(){ demoRun(df, 'seed_demo'); };
+      var dp = $('demoPlace'); if (dp) dp.onclick = function(){ demoRun(dp, 'place_demo'); };
       if (dc) dc.onclick = function(){
         confirmBox({ title: 'Remove demo bookings?', html: '<p>Every demo booking ' + (week === 'all' ? 'in every week' : 'in this week') + ' is taken out of the dashboard and its places are freed. Real bookings are not touched.</p>', ok: 'Remove demo bookings', danger: true, ret: dc })
           .then(function(yes){ if (yes) demoRun(dc, 'clear_demo'); });
@@ -1859,18 +1860,20 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
   };
   // demo bookings, one week per request (Cloudflare allows ~50 Stripe calls per request)
   function demoRun(btn, action){
-    var ids = (week === 'all' ? PROGS.map(function(p){ return p.id; }) : [week]).filter(Boolean), out = [], done = busyBtn(btn, action === 'seed_demo' ? 'Adding demo bookings…' : 'Removing…');
+    var ids = (week === 'all' ? PROGS.map(function(p){ return p.id; }) : [week]).filter(Boolean), out = [], done = busyBtn(btn, action === 'seed_demo' ? 'Adding demo bookings…' : action === 'place_demo' ? 'Placing guests…' : 'Removing…');
     var next = function(i){
       if (i >= ids.length) {
         done();
-        toast(action === 'seed_demo'
+        toast(action === 'place_demo'
+          ? 'Demo guests placed in rooms: ' + out.map(function(r){ return esc(wkFull(r.program)) + ' ' + num(r.guests) + ' guests' + (num(r.unplaced) ? ' (' + num(r.unplaced) + ' without a free room)' : ''); }).join('; ') + '. See the Rooming tab.'
+          : action === 'seed_demo'
           ? 'Demo bookings added: ' + out.map(function(r){ return esc(wkFull(r.program)) + ' ' + r.guests + ' guests in ' + r.created + ' bookings (' + (num(r.used_before) + num(r.guests)) + ' of ' + (num(r.used_before) + num(r.guests) + num(r.places_left)) + ' places taken)'; }).join('; ') + '. They appear here within a minute.'
           : 'Demo bookings removed: ' + out.reduce(function(n, r){ return n + num(r.removed); }, 0) + ' payments.' + (out.some(function(r){ return r.more; }) ? ' Some are left: press Remove again.' : ''), 'ok');
         setTimeout(function(){ ids.forEach(function(id){ ensure(route.tab, true); }); }, 1500);
         return;
       }
       post({ action: action, program: ids[i], percent: 40 }).then(function(d){ out.push(d); next(i + 1); },
-        function(e){ done(); if (authFail(e)) return; toast((action === 'seed_demo' ? 'Could not add demo bookings: ' : 'Could not remove demo bookings: ') + esc(why(e)), 'err'); });
+        function(e){ done(); if (authFail(e)) return; toast((action === 'seed_demo' ? 'Could not add demo bookings: ' : action === 'place_demo' ? 'Could not place demo guests: ' : 'Could not remove demo bookings: ') + esc(why(e)), 'err'); });
     };
     next(0);
   }
