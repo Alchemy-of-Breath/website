@@ -278,9 +278,9 @@ button{font:inherit;color:inherit}
     // GHL: Automation → Workflows → new workflow → trigger "Inbound Webhook" → copy its URL here.
     // Leave empty for demo mode: nothing is sent and the last screen shows the payload instead.
     webhookUrl: 'https://services.leadconnectorhq.com/hooks/5lz2Wm44CNDwLSZWgAPf/webhook-trigger/9ee817cd-6f28-49af-8b32-57e6f4cfd150',
-    // Step 2, the discovery-call booking page. Name, email and phone ride along as query params
-    // so the calendar form arrives prefilled and the booking lands on the same GHL contact.
-    calendarUrl: 'https://go.alchemyofbreath.com/book-842709',
+    // Step 2, the speak-with-a-graduate booking page. Name, email and phone ride along as query
+    // params so the calendar form arrives prefilled and the booking lands on the same GHL contact.
+    calendarUrl: 'https://go.alchemyofbreath.com/speak-with-graduate',
     prefillCalendar: true,
     freeSessionsUrl: 'https://alchemyofbreath.com/free-breathwork-sessions/',
     privacyUrl: 'https://alchemyofbreath.com/privacy-policy/',
@@ -693,7 +693,7 @@ button{font:inherit;color:inherit}
     var copy = {
       booking: {
         title: 'Thank you, ' + name + '.',
-        body: 'Your answers are with our team. Now choose a time to speak with a Success Advisor.',
+        body: 'Your answers are with our team. Now choose a time to speak with an Alchemy of Breath graduate.',
         cta: 'Choose your time', href: calendarLink(p)
       },
       cannot_commit: {
