@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<!-- AOB-UTM:start -->
+<script>
+/* AoB UTM keeper: remembers the campaign tags a visitor arrived with and hands
+   them to GoHighLevel on whatever page they later sign up on.
+   - Stores utm_*, fbclid, gclid, msclkid from the landing URL for 90 days
+     (latest campaign wins), in localStorage and an .alchemyofbreath.com cookie.
+   - Seeds GHL's own form_embed.js memory (sessionStorage "UPS"), so GHL forms
+     attribute the contact to the campaign even when the form page has no tags.
+   - Adds the tags to GHL form/booking iframes and to links into GHL funnels
+     (go. / breathcamp. / link.alchemyofbreath.com), so hidden fields with a
+     matching query key are filled too.
+   Source: tools/utm/aob-utm.js. Inlined into every page by tools/utm/inject.py. */
+(function(){
+  var KEYS=['utm_source','utm_medium','utm_campaign','utm_term','utm_content','utm_id','fbclid','gclid','msclkid'];
+  var STORE='aob_utm', DAYS=90, MS=DAYS*864e5;
+  var ls=function(k,v){ try{ if(v===undefined) return localStorage.getItem(k); localStorage.setItem(k,v); }catch(e){ return null; } };
+  var qs=new URLSearchParams(location.search), got={}, any=false;
+  KEYS.forEach(function(k){ var v=qs.get(k); if(v){ got[k]=v.slice(0,250); any=true; } });
+  var rec=null;
+  if(any){
+    rec={p:got,t:Date.now(),landing:location.origin+location.pathname};
+    ls(STORE,JSON.stringify(rec));
+    try{ document.cookie=STORE+'='+encodeURIComponent(JSON.stringify(got))+';path=/;max-age='+(DAYS*86400)+';SameSite=Lax'+
+      (/(^|\.)alchemyofbreath\.com$/.test(location.hostname)?';domain=.alchemyofbreath.com':''); }catch(e){}
+  } else {
+    try{ rec=JSON.parse(ls(STORE)||'null'); }catch(e){ rec=null; }
+    if(!rec || !rec.p || Date.now()-rec.t>MS) return;
+  }
+  var P=rec.p;
+
+  // GHL form_embed.js falls back to sessionStorage "UPS" when the page URL has no utm_ tags
+  try{
+    var ups=new URLSearchParams(sessionStorage.getItem('UPS')||''), changed=false;
+    for(var k in P){ if(k.indexOf('utm_')===0 && ups.get(k)!==P[k]){ ups.set(k,P[k]); changed=true; } }
+    if(changed) sessionStorage.setItem('UPS','?'+ups.toString());
+  }catch(e){}
+
+  var GHL=/^https:\/\/((link|api)\.(alchemyofbreath\.com|leadconnectorhq\.com)\/widget\/(form|survey|booking|quiz)\/|(go|breathcamp)\.alchemyofbreath\.com\/)/;
+  var withTags=function(url){
+    var u; try{ u=new URL(url,location.href); }catch(e){ return null; }
+    if(!GHL.test(u.href)) return null;
+    var ch=false;
+    for(var k in P){ if(!u.searchParams.has(k)){ u.searchParams.set(k,P[k]); ch=true; } }
+    return ch?u.href:null;
+  };
+  var fixFrame=function(f){
+    ['src','data-src'].forEach(function(a){ var v=f.getAttribute(a), n=v&&withTags(v); if(n) f.setAttribute(a,n); });
+  };
+  var scan=function(root){
+    if(root.tagName==='IFRAME'){ fixFrame(root); return; }
+    if(root.querySelectorAll) [].forEach.call(root.querySelectorAll('iframe'),fixFrame);
+  };
+  scan(document);
+  if('MutationObserver' in window){
+    new MutationObserver(function(ms){ ms.forEach(function(m){ [].forEach.call(m.addedNodes,function(n){ if(n.nodeType===1) scan(n); }); }); })
+      .observe(document.documentElement,{childList:true,subtree:true});
+  }
+  // links into GHL funnels: tag them at click time (covers links built by scripts too)
+  var tagLink=function(e){
+    var a=e.target && e.target.closest && e.target.closest('a[href]'); if(!a) return;
+    var n=withTags(a.getAttribute('href')); if(n) a.setAttribute('href',n);
+  };
+  document.addEventListener('mousedown',tagLink,true);
+  document.addEventListener('touchstart',tagLink,{capture:true,passive:true});
+  document.addEventListener('keydown',function(e){ if(e.key==='Enter') tagLink(e); },true);
+  document.addEventListener('click',tagLink,true);
+})();
+</script>
+<!-- AOB-UTM:end -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Welcome to the Inner Journey, IJ T34 AM | Alchemy of Breath</title>
+<meta name="description" content="Welcome to your Inner Journey, class IJ T34 AM. Sign in to I Am Alchemy to access your course. Orientation Class: Thursday 19 November 2026, 9:00 AM UK time.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="canonical" href="https://alchemyofbreath.com/thank-you-ij-t34-am/">
+<meta name="theme-color" content="#FBF7EF">
+<link rel="icon" type="image/png" href="https://alchemyofbreath.com/wp-content/uploads/AOB-Gold-Black-Transparant-symbol.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Roboto:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FFFFFF;--paper-2:#FBF7EF;--cream:#FDF6E9;
+  --gold:#E1B668;--gold-deep:#D6A652;--gold-soft:#EFDCB6;--gold-wash:#F7EBD2;
+  --teal:#00A5B2;--slate:#5B7889;--ink:#221F20;--foot:#191617;
+  --grad-gold:linear-gradient(135deg,#E1B668 0%,#D6A652 100%);
+  --shadow-soft:0 1px 2px rgba(34,31,32,.04),0 8px 24px rgba(34,31,32,.06),0 24px 64px rgba(34,31,32,.07);
+  --shadow-lift:0 2px 4px rgba(34,31,32,.05),0 14px 34px rgba(34,31,32,.10),0 34px 80px rgba(34,31,32,.10);
+  --serif:'Marcellus',Georgia,'Times New Roman',serif;
+  --sans:'Roboto',-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{overflow-x:clip;scroll-behavior:smooth}
+body{font-family:var(--sans);font-weight:300;font-size:17px;line-height:1.7;color:var(--ink);background:var(--paper);-webkit-font-smoothing:antialiased}
+::selection{background:var(--gold-wash);color:var(--ink)}
+img{max-width:100%;height:auto;display:block}
+a{color:var(--ink)}
+em{color:var(--gold-deep);font-style:italic}
+h1,h2,h3{font-family:var(--serif);font-weight:400;line-height:1.16;color:var(--ink);text-wrap:balance}
+h2{font-size:clamp(1.7rem,3.4vw,2.3rem)}
+h3{font-size:1.2rem}
+.wrap{max-width:1040px;margin:0 auto;padding:0 26px}
+.kicker{font-size:.72rem;font-weight:500;letter-spacing:.24em;text-transform:uppercase;color:var(--slate)}
+:focus-visible{outline:2px solid var(--teal);outline-offset:3px;border-radius:6px}
+
+/* nav */
+.nav{position:sticky;top:0;z-index:40;background:rgba(255,255,255,.86);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid rgba(225,182,104,.2)}
+.nav-in{max-width:1040px;margin:0 auto;padding:12px 26px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.nav-logo img{height:32px;width:auto}
+.nav-help{font-size:.84rem;color:var(--slate);text-decoration:none;white-space:nowrap}
+.nav-help b{font-weight:500;color:var(--ink)}
+.nav-help:hover b{text-decoration:underline}
+
+/* hero */
+.hero{position:relative;overflow:hidden;text-align:center;padding:52px 0 0;background:radial-gradient(120% 75% at 50% 0%,var(--cream) 0%,var(--paper) 70%)}
+.breath{position:absolute;left:50%;top:130px;width:0;height:0;pointer-events:none}
+.breath span{position:absolute;left:0;top:0;border-radius:50%;border:1px solid rgba(225,182,104,.45);transform:translate(-50%,-50%) scale(.86);animation:breathe 9s ease-in-out infinite}
+.breath span:nth-child(1){width:230px;height:230px;background:radial-gradient(circle,rgba(225,182,104,.18) 0%,rgba(225,182,104,0) 70%)}
+.breath span:nth-child(2){width:400px;height:400px;animation-delay:.5s;border-color:rgba(225,182,104,.28)}
+.breath span:nth-child(3){width:580px;height:580px;animation-delay:1s;border-color:rgba(0,165,178,.16)}
+@keyframes breathe{0%,100%{transform:translate(-50%,-50%) scale(.86);opacity:.55}50%{transform:translate(-50%,-50%) scale(1.04);opacity:1}}
+.hero-in{position:relative;z-index:1}
+.seal{width:68px;height:68px;margin:0 auto 22px;border-radius:50%;background:var(--grad-gold);display:grid;place-items:center;box-shadow:0 14px 34px rgba(214,166,82,.45),0 0 0 8px rgba(255,255,255,.7)}
+.seal svg{width:34px;height:34px;stroke:var(--ink);stroke-width:2.4;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.hero .kicker{display:inline-flex;align-items:center;gap:12px}
+.hero .kicker::before,.hero .kicker::after{content:"";width:26px;height:1px;background:var(--gold)}
+.hero h1{font-size:clamp(2.2rem,5.6vw,3.6rem);letter-spacing:-.01em;max-width:15em;margin:16px auto 0}
+.lede{font-size:1.08rem;max-width:34em;margin:18px auto 0;color:#3b3536}
+.hero-cta .btn{margin-top:26px}
+.hero-cta-note{font-size:.84rem;color:var(--slate);margin-top:12px}
+
+/* class pass */
+.pass{position:relative;z-index:1;display:grid;grid-template-columns:1.2fr 1fr;max-width:660px;margin:40px auto 0;background:#fff;border:1px solid rgba(225,182,104,.45);border-radius:20px;box-shadow:var(--shadow-lift);overflow:hidden;text-align:left}
+.pass-main,.pass-stub{padding:24px 28px;display:flex;flex-direction:column;gap:2px}
+.pass-stub{background:linear-gradient(160deg,#302A2B 0%,var(--ink) 70%);color:#FBF7EF;position:relative}
+.pass-stub::before{content:"";position:absolute;left:0;top:16px;bottom:16px;border-left:2px dashed rgba(225,182,104,.55)}
+.pass-label{font-size:.64rem;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--slate)}
+.pass-stub .pass-label{color:var(--gold)}
+.pass-code{font-family:var(--serif);font-size:2.3rem;line-height:1.1;margin-top:4px;letter-spacing:.01em}
+.pass-code b{font-weight:400;color:var(--gold-deep)}
+.pass-prog{font-size:.9rem;color:var(--slate)}
+.pass-date{font-family:var(--serif);font-size:1.45rem;line-height:1.2;margin-top:6px}
+.pass-time{font-size:.95rem;color:rgba(251,247,239,.82)}
+.pass-local{font-size:.8rem;color:var(--gold);margin-top:6px}
+.cal{position:relative;z-index:1;display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:18px auto 0}
+.cal a{display:inline-flex;align-items:center;gap:8px;font-size:.84rem;font-weight:400;color:var(--ink);text-decoration:none;background:#fff;border:1px solid rgba(225,182,104,.5);border-radius:999px;padding:9px 16px;transition:border-color .2s,box-shadow .2s}
+.cal a:hover{border-color:var(--gold-deep);box-shadow:var(--shadow-soft)}
+.cal svg{width:15px;height:15px;stroke:var(--gold-deep);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.hero-end{height:64px}
+
+/* step 1 */
+.first{padding:24px 0 72px}
+.s1{display:grid;grid-template-columns:auto 1fr;gap:30px;align-items:start;background:var(--paper-2);border:1px solid rgba(225,182,104,.4);border-radius:24px;padding:40px 44px;max-width:860px;margin:0 auto}
+.num{width:58px;height:58px;border-radius:50%;background:var(--grad-gold);display:grid;place-items:center;font-family:var(--serif);font-size:1.6rem;color:var(--ink);box-shadow:0 10px 24px rgba(214,166,82,.4)}
+.s1 h2{margin:8px 0 12px}
+.s1 p{max-width:36em}
+.btn{display:inline-flex;align-items:center;gap:12px;margin-top:24px;text-decoration:none;font-weight:500;font-size:1rem;letter-spacing:.03em;padding:18px 34px;border-radius:999px;background:var(--grad-gold);color:var(--ink);box-shadow:0 10px 28px rgba(214,166,82,.42);transition:transform .25s,box-shadow .25s,filter .25s}
+.btn:hover{filter:brightness(1.05);transform:translateY(-2px);box-shadow:0 16px 36px rgba(214,166,82,.5)}
+.btn .arr{transition:transform .25s}
+.btn:hover .arr{transform:translateX(4px)}
+.btn-sub{display:block;font-size:.8rem;color:var(--slate);margin-top:10px}
+.important{display:grid;grid-template-columns:auto 1fr;gap:12px;margin-top:26px;padding:16px 18px;background:#fff;border:1px solid rgba(225,182,104,.45);border-radius:14px;font-size:.93rem;line-height:1.6}
+.important svg{width:22px;height:22px;stroke:var(--gold-deep);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;margin-top:1px}
+.important strong{font-weight:500}
+
+/* next steps */
+.next{padding:80px 0;background:linear-gradient(180deg,var(--paper) 0%,var(--cream) 100%)}
+.sec-head{text-align:center;max-width:36em;margin:0 auto}
+.sec-head h2{margin-top:12px}
+.sec-head p{margin-top:12px;color:#3b3536}
+.steps{list-style:none;display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:44px;counter-reset:none}
+.steps li{background:#fff;border:1px solid rgba(225,182,104,.32);border-radius:18px;padding:26px 24px 24px;box-shadow:var(--shadow-soft);display:flex;flex-direction:column}
+.steps .n{width:40px;height:40px;border-radius:50%;border:1px solid var(--gold);display:grid;place-items:center;font-family:var(--serif);font-size:1.15rem;color:var(--gold-deep);margin-bottom:16px}
+.steps h3{margin-bottom:8px}
+.steps p{font-size:.93rem;color:var(--slate);line-height:1.6}
+.steps a{margin-top:auto;padding-top:16px;font-size:.92rem;font-weight:500;color:var(--ink);text-decoration:none}
+.steps a span{display:inline-block;transition:transform .2s;color:var(--gold-deep)}
+.steps a:hover{text-decoration:underline;text-decoration-color:var(--gold)}
+.steps a:hover span{transform:translateX(3px)}
+.steps-note{text-align:center;font-size:.84rem;color:var(--slate);margin-top:22px}
+
+/* good to know */
+.know{padding:76px 0}
+.know-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:900px;margin:0 auto}
+.know-item{padding:28px 30px;border-radius:18px;border:1px solid rgba(225,182,104,.32)}
+.know-item h3{margin:10px 0 10px}
+.know-item p{font-size:.95rem;color:#3b3536}
+.know-ico{width:42px;height:42px;border-radius:12px;background:var(--gold-wash);display:grid;place-items:center}
+.know-ico svg{width:22px;height:22px;stroke:var(--gold-deep);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+
+/* welcome */
+.welcome{padding:80px 0;background:var(--paper-2)}
+.welcome-grid{display:grid;grid-template-columns:.95fr 1fr;gap:52px;align-items:center;max-width:960px;margin:0 auto}
+.welcome figure{border-radius:22px;overflow:hidden;box-shadow:var(--shadow-lift);border:6px solid #fff}
+.welcome figure img{width:100%;aspect-ratio:3/2;object-fit:cover}
+.big-quote{font-family:var(--serif);font-size:clamp(1.7rem,3.4vw,2.35rem);line-height:1.25}
+.sig{margin-top:18px;font-weight:500;font-size:.95rem}
+.sig span{display:block;font-weight:300;font-size:.85rem;color:var(--slate)}
+.bio{margin-top:18px;font-size:.9rem;color:var(--slate);line-height:1.7}
+
+/* help */
+.help{padding:64px 0;text-align:center}
+.help h2{font-size:clamp(1.5rem,3vw,2rem)}
+.help p{margin:12px auto 0;max-width:34em;color:#3b3536}
+.help a{color:var(--ink);font-weight:500;text-decoration-color:var(--gold)}
+
+/* footer */
+.foot{background:var(--foot);color:rgba(255,255,255,.72);padding:44px 0;text-align:center;font-size:.85rem}
+.foot a{color:var(--gold);text-decoration:none}
+.foot a:hover{text-decoration:underline}
+.foot-links{margin-top:12px;display:flex;gap:18px;justify-content:center;flex-wrap:wrap;font-size:.8rem}
+
+/* gentle entrance; content is visible at rest without it */
+@media(prefers-reduced-motion:no-preference){
+  .rise{animation:rise .8s cubic-bezier(.22,.61,.36,1) both}
+  .rise.d1{animation-delay:.08s}.rise.d2{animation-delay:.16s}.rise.d3{animation-delay:.24s}.rise.d4{animation-delay:.32s}
+  @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+}
+@media(prefers-reduced-motion:reduce){.breath span{animation:none}.btn,.btn .arr,.steps a span{transition:none}}
+
+@media(max-width:860px){
+  .steps{grid-template-columns:1fr;max-width:520px;margin-left:auto;margin-right:auto}
+  .welcome-grid{grid-template-columns:1fr;gap:32px;max-width:560px}
+  .know-grid{grid-template-columns:1fr;max-width:560px}
+}
+@media(max-width:640px){
+  .wrap{padding:0 16px}
+  .nav-in{padding:10px 16px}
+  .nav-help span{display:none}
+  .hero{padding-top:44px}
+  .breath{top:120px}
+  .pass{grid-template-columns:1fr;margin-top:30px}
+  .pass-stub::before{left:16px;right:16px;top:0;bottom:auto;border-left:0;border-top:2px dashed rgba(225,182,104,.55)}
+  .pass-main,.pass-stub{padding:20px 22px}
+  .pass-code{font-size:2rem}
+  .hero-end{height:44px}
+  .first{padding:12px 0 56px}
+  .s1{grid-template-columns:1fr;gap:16px;padding:28px 22px;border-radius:20px}
+  .num{width:50px;height:50px;font-size:1.4rem}
+  .btn{width:100%;justify-content:center}
+  .btn-sub{text-align:center}
+  .next,.welcome{padding:60px 0}
+  .know{padding:56px 0}
+  .know-item{padding:24px 22px}
+}
+</style>
+<!-- Meta Pixel 713374525487066: PageView, like the earlier thank-you pages. Loads only on alchemyofbreath.com. -->
+<script>
+(function(){
+  if(!/(^|\.)alchemyofbreath\.com$/.test(location.hostname)) return;
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', '713374525487066');
+  fbq('track', 'PageView');
+})();
+</script>
+</head>
+<body>
+
+<header class="nav">
+  <div class="nav-in">
+    <a class="nav-logo" href="https://alchemyofbreath.com/" aria-label="Alchemy of Breath">
+      <img src="https://alchemyofbreath.com/wp-content/uploads/AOB-Gold-Black-Transparant.png" alt="Alchemy of Breath" width="150" height="32">
+    </a>
+    <a class="nav-help" href="mailto:support@alchemyofbreath.com"><span>Questions? </span><b>support@alchemyofbreath.com</b></a>
+  </div>
+</header>
+
+<main>
+
+<section class="hero">
+  <div class="breath" aria-hidden="true"><span></span><span></span><span></span></div>
+  <div class="wrap hero-in">
+    <div class="seal rise" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 12.5l5 5L20 6.5"/></svg></div>
+    <p class="kicker rise d1">Payment received &middot; You&rsquo;re in</p>
+    <h1 class="rise d2">Welcome to your <em>Inner Journey</em></h1>
+    <p class="lede rise d3">The journey begins with your Orientation Class. Here is everything you need to get ready. There is no hurry. Breathe and enjoy.</p>
+    <div class="hero-cta rise d3">
+      <a class="btn" href="https://iamalchemy.community/plans/1997549?bundle_token=3bd69980504386cb050f7dd5e3d96a65&amp;utm_source=manual" target="_blank" rel="noopener">Access your course <span class="arr" aria-hidden="true">&rarr;</span></a>
+      <p class="hero-cta-note">Step 1: sign in to I Am Alchemy with the same email you used at checkout.</p>
+    </div>
+
+    <div class="pass rise d4" role="group" aria-label="Your class and Orientation Class">
+      <div class="pass-main">
+        <span class="pass-label">Your class</span>
+        <span class="pass-code">IJ T34 <b>AM</b></span>
+        <span class="pass-prog">The Inner Journey</span>
+      </div>
+      <div class="pass-stub">
+        <span class="pass-label">Orientation Class</span>
+        <span class="pass-date">19 November 2026</span>
+        <span class="pass-time">Thursday, 9:00 AM UK time</span>
+        <span class="pass-local" id="localTime" hidden></span>
+      </div>
+    </div>
+    <div class="cal rise d4">
+      <a href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Orientation%20Class%3A%20The%20Inner%20Journey%20%28IJ%20T34%20AM%29&amp;dates=20261119T090000Z/20261119T100000Z&amp;details=Alchemy%20of%20Breath.%20Class%20IJ%20T34%20AM.%20Class%20times%20and%20Zoom%20links%20are%20inside%20I%20Am%20Alchemy%3A%20https%3A//iamalchemy.community/plans/1997549%3Fbundle_token%3D3bd69980504386cb050f7dd5e3d96a65%26utm_source%3Dmanual&amp;location=Online%20%28Zoom%20link%20in%20I%20Am%20Alchemy%29" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 9.5h17M8 3.5v3M16 3.5v3"/></svg>Add to Google Calendar</a>
+      <a href="data:text/calendar;charset=utf-8,BEGIN%3AVCALENDAR%0D%0AVERSION%3A2.0%0D%0APRODID%3A-//Alchemy%20of%20Breath//IJ%20T34%20AM//EN%0D%0ACALSCALE%3AGREGORIAN%0D%0ABEGIN%3AVEVENT%0D%0AUID%3Aij-t34-am-orientation-20261119%40alchemyofbreath.com%0D%0ADTSTAMP%3A20261005T000000Z%0D%0ADTSTART%3A20261119T090000Z%0D%0ADTEND%3A20261119T100000Z%0D%0ASUMMARY%3AOrientation%20Class%3A%20The%20Inner%20Journey%20%28IJ%20T34%20AM%29%0D%0ADESCRIPTION%3AAlchemy%20of%20Breath.%20Class%20IJ%20T34%20AM.%20Class%20times%20and%20Zoom%20links%20are%20inside%20I%20Am%20Alchemy%3A%20https%3A//iamalchemy.community/plans/1997549%3Fbundle_token%3D3bd69980504386cb050f7dd5e3d96a65%26utm_source%3Dmanual%0D%0ALOCATION%3AOnline%20%28Zoom%20link%20in%20I%20Am%20Alchemy%29%0D%0AEND%3AVEVENT%0D%0AEND%3AVCALENDAR%0D%0A" download="alchemy-of-breath-orientation-ij-t34-am.ics"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7.5 10.5L12 15l4.5-4.5M5 19.5h14"/></svg>Apple or Outlook (.ics)</a>
+    </div>
+  </div>
+  <div class="hero-end"></div>
+</section>
+
+<section class="first" id="start" aria-labelledby="s1-title">
+  <div class="wrap">
+    <div class="s1">
+      <div class="num" aria-hidden="true">1</div>
+      <div>
+        <p class="kicker">Do this first</p>
+        <h2 id="s1-title">Sign in to <em>I Am Alchemy</em></h2>
+        <p>Your course, onboarding and training resources live inside our community platform, I Am Alchemy. Please take a moment to create your free account, or log in to your existing one, using the button below. This step is essential for accessing your course.</p>
+        <a class="btn" href="https://iamalchemy.community/plans/1997549?bundle_token=3bd69980504386cb050f7dd5e3d96a65&amp;utm_source=manual" target="_blank" rel="noopener">Access your course <span class="arr" aria-hidden="true">&rarr;</span></a>
+        <span class="btn-sub">Opens I Am Alchemy in a new tab, so this page stays here for the next steps.</span>
+        <div class="important" role="note">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3.5 6.5l8.5 6.5 8.5-6.5"/></svg>
+          <p><strong>Important:</strong> If you already have an I Am Alchemy account, be sure you&rsquo;re using the same email address you used at checkout. This is essential for your course access to sync correctly.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="next" aria-labelledby="next-title">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="kicker">Then, at your own pace</p>
+      <h2 id="next-title">Get ready for <em>Orientation</em></h2>
+      <p>Move through these steps at a pace that works for you, and take time to integrate as you go.</p>
+    </div>
+    <ol class="steps">
+      <li>
+        <span class="n" aria-hidden="true">2</span>
+        <h3>Help us get to know you</h3>
+        <p>Within your Orientation section there are two student forms to complete. They help us understand your needs, intentions, and any support you may want along the way.</p>
+        <a href="https://iamalchemy.community/posts/t34-am-orientation-start-here-welcome-to-your-journey-with-alchemy-of-breath-106303182" target="_blank" rel="noopener">Complete your forms <span aria-hidden="true">&rarr;</span></a>
+      </li>
+      <li>
+        <span class="n" aria-hidden="true">3</span>
+        <h3>Get comfortable in your new space</h3>
+        <p>A quick platform tutorial that makes finding your way around simple and straightforward.</p>
+        <a href="https://iamalchemy.community/posts/t34-am-orientation-start-here-platform-tutorial-106303183" target="_blank" rel="noopener">Watch the platform tutorial <span aria-hidden="true">&rarr;</span></a>
+      </li>
+      <li>
+        <span class="n" aria-hidden="true">4</span>
+        <h3>Seeds of Alchemy</h3>
+        <p>Your foundational workshop, recorded by Amy and Anthony themselves. Start watching it as you step into the work.</p>
+        <a href="https://iamalchemy.community/posts/seeds-of-alchemy-lrftft-seeds-of-alchemy-overview" target="_blank" rel="noopener">Watch Seeds of Alchemy <span aria-hidden="true">&rarr;</span></a>
+      </li>
+    </ol>
+    <p class="steps-note">Steps 2 to 4 open inside I Am Alchemy, so sign in first.</p>
+  </div>
+</section>
+
+<section class="know" aria-label="Good to know">
+  <div class="wrap know-grid">
+    <div class="know-item">
+      <div class="know-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0"/></svg></div>
+      <h3>Not everything is visible yet</h3>
+      <p>As you enter the platform, you may notice that not everything is visible yet. That&rsquo;s intentional. New content will unlock gradually as the program unfolds, guiding you step by step through your training. Each module and resource will appear when it&rsquo;s time for you to receive it.</p>
+    </div>
+    <div class="know-item">
+      <div class="know-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 15.5a2 2 0 0 1-2 2H8l-4 3.5V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2z"/><path d="M8.5 9.5h7M8.5 12.5h4.5"/></svg></div>
+      <h3>Your Success Advisor will reach out</h3>
+      <p>In the coming days, your Success Advisor will reach out with guidance and helpful tips to support your first steps. Until then, feel free to explore at your own pace.</p>
+    </div>
+  </div>
+</section>
+
+<section class="welcome" aria-label="A welcome from the founders">
+  <div class="wrap welcome-grid">
+    <figure>
+      <img src="https://alchemyofbreath.com/wp-content/uploads/Anthony-Amy-900x600.jpg" alt="Anthony Abbagnano and Amy Rachelle" width="900" height="600" loading="lazy" decoding="async">
+    </figure>
+    <div>
+      <p class="big-quote">We&rsquo;re so glad you&rsquo;re here. <em>Welcome to the family.</em></p>
+      <p class="sig">Anthony Abbagnano &amp; Amy Rachelle, ND<span>Founders of Alchemy of Breath and ASHA</span></p>
+      <p class="bio">Anthony Abbagnano is the founder of Alchemy of Breath, an international online organization that promotes the union of Western medicine with all other modalities. He is also the founder of ASHA, Alchemy School of Healing Arts in central Tuscany, Italy, a center dedicated to community health and emerging consciousness. Amy Rachelle, ND is the co-founder of both Alchemy of Breath and ASHA.</p>
+    </div>
+  </div>
+</section>
+
+<section class="help" aria-labelledby="help-title">
+  <div class="wrap">
+    <h2 id="help-title">We&rsquo;re here for you</h2>
+    <p>Questions? Reply to your Success Advisor, or email our student support team at <a href="mailto:support@alchemyofbreath.com">support@alchemyofbreath.com</a>.</p>
+  </div>
+</section>
+
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <p>&copy; Alchemy of Breath</p>
+    <div class="foot-links">
+      <a href="https://alchemyofbreath.com/">Home</a>
+      <a href="https://alchemyofbreath.com/free-breathwork-sessions/">Free breathwork sessions</a>
+      <a href="https://alchemyofbreath.com/contact/">Contact</a>
+      <a href="https://alchemyofbreath.com/privacy-policy/">Privacy</a>
+      <a href="https://alchemyofbreath.com/terms-and-conditions/">Refund policy</a>
+      <a href="https://alchemyofbreath.com/waiver-and-release/">Disclaimer</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* Orientation Class: Thu 19 Nov 2026, 09:00 UK time (GMT, so 09:00 UTC). Show it in the visitor's own time zone too. */
+(function(){
+  var el=document.getElementById('localTime'); if(!el) return;
+  var tz=''; try{ tz=Intl.DateTimeFormat().resolvedOptions().timeZone||''; }catch(e){}
+  if(!tz || tz==='Europe/London') return;
+  try{
+    var t=new Intl.DateTimeFormat(undefined,{weekday:'short',day:'numeric',month:'short',hour:'numeric',minute:'2-digit',timeZoneName:'short'}).format(new Date('2026-11-19T09:00:00Z'));
+    el.textContent='Your time: '+t; el.hidden=false;
+  }catch(e){}
+})();
+</script>
+<script>(function(){if(window.self!==window.top){var st=document.createElement('style');st.textContent='.cv{content-visibility:visible !important}';document.head.appendChild(st);}function reportHeight(){var h=document.documentElement.scrollHeight;window.parent.postMessage({type:'aob-embed-resize',height:h},'*');}window.addEventListener('load',reportHeight);window.addEventListener('resize',reportHeight);var mo=new MutationObserver(reportHeight);mo.observe(document.body,{childList:true,subtree:true,attributes:true});setInterval(reportHeight,800);})();</script>
+</body>
+</html>
