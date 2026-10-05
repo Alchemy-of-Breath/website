@@ -1,4 +1,9 @@
-// /api/booking/admin — bookings dashboard data and actions. Requires Authorization: Bearer <ADMIN_TOKEN>.
+// /api/booking/admin — bookings dashboard data and actions.
+// Who: Authorization: Bearer <ADMIN_TOKEN> (the main admin, role 'owner'), or Bearer <session token> from
+// POST /api/booking/login (a team member, role 'team' or 'viewer'; see booking-lib/team.js). 401
+// { error: 'Not authorised.' }; a session that expired or was ended (user disabled, role / status / password
+// changed) → 401 { error, code: 'session_ended' }. Stripe unreachable while checking a session → 503 busy.
+// Every GET answer carries me: { id, name, role: 'owner'|'team'|'viewer', username (team members) }.
 // GET ?program=ID   one week: bookings (online ones with sessions, note, room assignment, source, discount and
 //                   payments incl. offline ones; manual bookings overlapping the week with source 'manual'), the
 //                   week's rooms and sessions (program_detail), the rooming map (blocked rooms, manual guests),
@@ -8,6 +13,15 @@
 // GET ?stays=1      the manual bookings outside every week (program 'stay'), with their offline payments.
 // GET ?calendar=1&from=YYYY-MM-DD&to=YYYY-MM-DD   the rooming calendar (up to 120 nights): every physical room by
 //                   area, every guest's stay (online and manual), the blocks, guests not placed in a room yet.
+// GET ?users=1      (owner) { users: [{ id, username, name, role, status, test, created_at, last_login_at }] oldest
+//                   first, live (Stripe live keys), password_min (5 with test keys, 10 with live keys) }.
+// GET ?activity=1[&limit=200][&user=<actor id>][&before=<unix ms>]   (owner) the activity log, newest first:
+//                   { entries: [{ id, t (unix ms), at (ISO), actor: { id: 'owner'|customer id|'-', name, role },
+//                   action, ref, program, summary }], has_more } (limit 1 to 1000, default 200; before = the
+//                   oldest t shown, for "Load older").
+// Others than the owner: GET ?users / ?activity and the owner-only actions → 403 { error: 'Only the main admin
+// can do this.', code: 'owner_only' }; any POST by a viewer → 403 { error: 'View-only access: you can look but
+// not change anything.', code: 'read_only' }.
 // GET reads only. POST actions: cancel (also closes any open balance link), restore (refuses to
 // overbook unless force), balance_link (asks before charging a booking that has a refund), repair_plans
 // (plan-end safety net), register_domains (Apple Pay / Google Pay / Link for embedded checkout),
@@ -18,8 +32,18 @@
 // manual_restore / manual_update (bookings made by hand for any dates; a clash with what is booked → 409
 // code 'conflict' with the list, unless force), offline_payment (a bank transfer, cash… recorded on a booking;
 // more than the balance → 409 code 'overpay' unless force) / offline_void (undo one).
+// Owner only: seed_demo / place_demo / clear_demo, register_domains, repair_plans and the team's users:
+//   user_create { username, name, role: 'team'|'viewer', password? } → { ok, user, password } (password: the
+//     one given, else a generated one like 'lotus-amber-river-42'; shown only in this answer). 422 { error,
+//     fields } for a bad username / name / role / password; 409 { error, fields: { username: 'Already taken.' } }.
+//   user_update { id, name?, role?, status?: 'active'|'disabled', reset_password?: true, password? } → { ok, user,
+//     password? } (nothing different: { ok, user, unchanged: true }); a new role, status or password signs the
+//     user out. 404 unknown id. There is no delete: disable instead.
+//   test_users_create {} (Stripe test keys only, else 403) → { ok, users: [{ user, password }] }: test1, test2
+//     (team) and test3 (view only) with fresh passwords; existing ones are reactivated, their passwords reset.
+// Every action that answers 2xx is written to the activity log with who did it (never failing the action).
 import {
-  json, preflight, guardPost, readBody, adminAuthorized, getProgram, listPrograms, programSummary, programDetail, programPayments, groupBookings,
+  json, preflight, guardPost, readBody, getProgram, listPrograms, programSummary, programDetail, programPayments, groupBookings,
   openBookingSessions, openSessionsRaw, recentRaw, recentProgramPayments, mergePayments, buildOccupancy, occupancy, availability, checkAvailability, validRef, findBooking, forgetBooking, stripe,
   balanceSession, openBalanceSessions, openAddonSessions, expireSession, expireOrCheck, sessionState, balancePageUrl, bookingPageUrl, roomCapacity, roomingMap, ensurePlanEnds, planEndAt,
   planEndCheck, planEndCheckRecord, keyMode, publishableStatus, turnstileSiteKey, turnstileStatus, remindEnabled, listDomains, ensurePaymentMethodDomain,
@@ -27,9 +51,13 @@ import {
   assignToString, parseSvc, svcToString, SVC_STATUS, saveAdminMeta, currentBookingMeta, logError, eur, nowSec, PROD_HOSTS,
   liveMode, listRecords, listOffline, calendarRooms, weekConflicts, nameConflicts, manualBooking, blockOut, blockInput, manualInput,
   manualUpdateInput, offlineInput, createOfflinePayment, recordsChanged, rememberWrite, parseRecord, isManualRef, isBlockId, homeProgram,
-  overlaps, weekRange, validDay, addDays, nightsBetween, todayIso, rangeLabel, OFFLINE_METHODS, REC_MAX_NIGHTS,
+  overlaps, weekRange, validDay, addDays, nightsBetween, todayIso, rangeLabel, OFFLINE_METHODS, REC_MAX_NIGHTS, BUSY, cut,
 } from '../../../booking-lib/core.js';
 import { seedDemo, clearDemo, placeDemo } from '../../../booking-lib/demo.js';
+import {
+  resolveAdmin, meOut, listUsers, readUser, userInput, userOut, createUser, updateUser, generatePassword, passwordMin,
+  listActivity, recordActivity, scrubText,
+} from '../../../booking-lib/team.js';
 
 export const onRequestOptions = ({ request, env }) => preflight(request, env);
 
@@ -82,11 +110,30 @@ function overviewOf(weeks, recentBookings, stay = { totals: ZERO_TOTALS() }) {
   return { overview: true, weeks, stay, recent, totals };
 }
 
+/* ------------------------------------------------------------------ who */
+const READ_ONLY = { error: 'View-only access: you can look but not change anything.', code: 'read_only' };
+const OWNER_ONLY = { error: 'Only the main admin can do this.', code: 'owner_only' };
+const OWNER_ACTIONS = new Set(['user_create', 'user_update', 'test_users_create', 'seed_demo', 'place_demo', 'clear_demo', 'register_domains', 'repair_plans']);
+/* → { me } or { res: the 401 / 503 answer } */
+async function whoIs(request, env) {
+  let who;
+  try { who = await resolveAdmin(request, env); }
+  catch (e) { logError('admin.auth', e); return { res: json(request, BUSY, 503, env) }; }
+  if (!who.me) return { res: json(request, { error: 'Not authorised.', ...(who.code ? { code: who.code } : {}) }, 401, env) };
+  return { me: who.me };
+}
+
 export async function onRequestGet({ request, env }) {
-  const send = (d, s = 200) => json(request, d, s, env);
-  if (!adminAuthorized(request, env)) return send({ error: 'Not authorised.' }, 401);
+  const who = await whoIs(request, env);
+  if (who.res) return who.res;
+  const me = meOut(who.me);
+  const send = (d, s = 200) => json(request, { ...d, me }, s, env);
   const params = new URL(request.url).searchParams;
   const programs = listPrograms().map(programSummary);
+  if (params.get('users') || params.get('activity')) {
+    if (me.role !== 'owner') return send(OWNER_ONLY, 403);
+    return params.get('users') ? usersGet(env, send) : activityGet(env, params, send);
+  }
   if (params.get('calendar')) {
     try { return await calendar(env, params, send); }
     catch (e) { logError('admin.calendar', e); return send({ error: 'Could not load the calendar from Stripe: ' + e.message }, 502); }
@@ -295,9 +342,10 @@ async function manualCreate(env, body, send) {
   return send({ ok: true, booking: manualBooking(parseRecord(c), []), forced: body.force === true });
 }
 /* manual_cancel / manual_restore / manual_update (and note, as the comment) / offline_payment on a manual booking */
-async function manualAction(context, env, body, ref, send) {
+async function manualAction(context, env, body, ref, send, hint = {}) {
   const rec = await findManual(env, ref);
   if (!rec) return send({ error: 'Manual booking not found (a new one can take a minute to appear).' }, 404);
+  hint.program = (homeProgram(rec) || { id: 'stay' }).id;
   if (body.action === 'offline_payment') return offlinePayment(context, env, body, { manual: rec }, send);
   let fields;
   if (body.action === 'manual_cancel') {
@@ -480,20 +528,184 @@ async function createLink(env, body, send) {
     replaced: results.filter(r => r.state === 'expired').length, ...termsInfo(program, params, dropped), quote: publicQuote(q) });
 }
 
+/* ------------------------------------------------------------ team users */
+async function usersGet(env, send) {
+  if (!env.STRIPE_SECRET_KEY) return send({ users: [], live: false, password_min: passwordMin(env), demo: true });
+  try {
+    const users = await listUsers(env);
+    return send({ users: users.map(userOut), live: liveMode(env), password_min: passwordMin(env) });
+  } catch (e) { logError('admin.users', e); return send({ error: 'Could not load the users from Stripe: ' + e.message }, 502); }
+}
+async function activityGet(env, params, send) {
+  const n = parseInt(params.get('limit') || '', 10);
+  const limit = Number.isInteger(n) && n > 0 ? Math.min(n, 1000) : 200;
+  const user = params.get('user') ? str(params.get('user'), 80) : null;
+  const b = params.get('before') || '';
+  const before = /^\d{1,16}$/.test(b) ? parseInt(b, 10) : null;
+  if (!env.STRIPE_SECRET_KEY) return send({ entries: [], has_more: false, demo: true });
+  try { return send(await listActivity(env, { limit, user, before })); }
+  catch (e) { logError('admin.activity', e); return send({ error: 'Could not load the activity log from Stripe: ' + e.message }, 502); }
+}
+async function userCreate(env, body, send, hint) {
+  const v = userInput(body, env, { create: true });
+  if (Object.keys(v.errors).length) return fieldsError(send, v.errors);
+  // read fresh (not the 30 s memo): two people must never get the same username
+  if ((await listUsers(env, { fresh: true })).some(u => u.username === v.values.username)) {
+    return send({ error: 'That username is already taken. Choose another.', fields: { username: 'Already taken.' } }, 409);
+  }
+  const password = v.values.password || generatePassword();
+  const user = await createUser(env, { ...v.values, password });
+  hint.user = user;
+  return send({ ok: true, user: userOut(user), password });
+}
+async function userUpdate(env, body, send, hint) {
+  const id = str(body.id, 80);
+  const cur = /^cus_[A-Za-z0-9]{1,250}$/.test(id) ? await readUser(env, id) : null;
+  if (!cur) return send({ error: 'User not found.' }, 404);
+  const v = userInput(body, env);
+  if (Object.keys(v.errors).length) return fieldsError(send, v.errors);
+  const { name, role, status } = v.values;
+  const password = v.values.password || (body.reset_password === true ? generatePassword() : null);
+  const changes = [];
+  if (name !== undefined && name !== cur.name) changes.push('name');
+  if (role !== undefined && role !== cur.role) changes.push('role');
+  if (status !== undefined && status !== cur.status) changes.push('status');
+  if (password) changes.push('password');
+  if (!changes.length) return send({ ok: true, user: userOut(cur), unchanged: true });
+  const user = await updateUser(env, cur, { name, role, status, password });
+  Object.assign(hint, { user, before: cur, changes, typed: !!v.values.password });
+  return send({ ok: true, user: userOut(user), ...(password ? { password } : {}) });
+}
+const TEST_USERS = [['test1', 'Test User 1', 'team'], ['test2', 'Test User 2', 'team'], ['test3', 'Test User 3', 'viewer']];
+async function testUsersCreate(env, send, hint) {
+  if (liveMode(env)) return send({ error: 'Test users can only be made while Stripe uses test keys.', code: 'live_mode' }, 403);
+  const have = await listUsers(env, { fresh: true });
+  const users = [];
+  let created = 0;
+  for (const [username, name, role] of TEST_USERS) {
+    const password = generatePassword(), old = have.find(u => u.username === username);
+    const cur = old ? await readUser(env, old.id) : null;
+    const user = cur ? await updateUser(env, cur, { name, role, status: 'active', password, test: true })
+      : await createUser(env, { username, name, role, password, test: true });
+    if (!cur) created++;
+    users.push({ user: userOut(user), password });
+  }
+  Object.assign(hint, { created, reset: users.length - created });
+  return send({ ok: true, users });
+}
+
+/* ------------------------------------------------------------ activity log */
+/* The log entry of an action that answered 2xx: { action, ref, program, summary }. d: the answer;
+   hint: what the action noted on the way (program, session title, user changes). No emails or phone
+   numbers: free text (comments, reasons) goes through scrubText. */
+const eur2 = c => '€' + ((c || 0) / 100).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const count = (n, one, many = one + 's') => `${n} ${n === 1 ? one : many}`;
+const ROLE_TEXT = { team: 'team', viewer: 'view only' };
+const quoted = (s, max = 80) => { const t = scrubText(s); return t ? ` · "${t.length > max ? cut(t, max - 1) + '…' : t}"` : ''; };
+const roomsText = names => names.length <= 3 ? names.join(', ') : `${names.slice(0, 2).join(', ')} + ${names.length - 2} more`;
+const editionOf = id => { const p = getProgram(id); return p ? p.edition || p.title : String(id || ''); };
+function userChangeText(h) {
+  const u = h.before.username, one = h.changes.length === 1;
+  const part = {
+    name: one ? `Renamed ${u} to "${h.user.name}"` : `renamed to "${h.user.name}"`,
+    role: one ? `Changed role of ${u} to ${ROLE_TEXT[h.user.role]}` : `role ${ROLE_TEXT[h.user.role]}`,
+    status: one ? `${h.user.status === 'disabled' ? 'Disabled' : 'Enabled'} ${u}` : h.user.status,
+    password: one ? (h.typed ? `Set a new password for ${u}` : `Reset password of ${u}`) : (h.typed ? 'new password' : 'password reset'),
+  };
+  return one ? part[h.changes[0]] : `Updated ${u}: ${h.changes.map(c => part[c]).join(', ')}`;
+}
+function activityOf(body, d, hint) {
+  const action = String(body.action || '');
+  const ref = hint.ref || (typeof d.ref === 'string' ? d.ref : null);
+  const entry = (summary, extra = {}) => ({ action, ref, program: hint.program || null, summary, ...extra });
+  const manual = d.booking && d.booking.source === 'manual' ? d.booking : null;
+  switch (action) {
+    case 'create_link': {
+      const q = d.quote || {};
+      return entry(`Booking link · ${editionOf(body.program)} · ${count(q.guests || 0, 'guest')} · ${eur2(q.total_cents)}${q.discount ? ` · discount ${eur(q.discount.cents)}` : ''}`,
+        { ref: d.ref || null, program: getProgram(body.program) ? body.program : null });
+    }
+    case 'note': return entry(`Note on ${ref}`);
+    case 'assign': {
+      const names = Object.keys(d.assign || {}).sort((a, b) => a - b).map(k => String(d.assign[k]).split(' · ')[0]).filter((n, i, a) => a.indexOf(n) === i);
+      return entry(`Rooms on ${ref}: ${names.length ? names.join(', ') : 'none'}`);
+    }
+    case 'svc_status': return entry(`Session "${hint.session || d.key}" on ${ref} → ${d.status}`);
+    case 'cancel': return entry(`Cancelled ${ref}`);
+    case 'restore': return entry(`Restored ${ref}`);
+    case 'balance_link': return entry(`Balance link for ${ref} · ${eur2(d.balance_cents)}`);
+    case 'block_create': {
+      const b = d.block;
+      return entry(`Blocked ${roomsText(b.rooms)} · ${rangeLabel(b.from, b.to)} (${count(b.nights, 'night')}) · ${b.reason}${d.forced ? ' · saved over a clash' : ''}`, { ref: b.id });
+    }
+    case 'block_delete': return entry(`Removed block ${d.id}`, { ref: d.id });
+    case 'manual_create': {
+      const b = d.booking;
+      return entry(`Manual booking ${b.ref} · ${count(b.guests.length, 'guest')} · ${rangeLabel(b.manual.from, b.manual.to)}${d.forced ? ' · saved over a clash' : ''}`, { ref: b.ref, program: b.program });
+    }
+    case 'manual_cancel': return entry(`Cancelled manual booking ${ref}`);
+    case 'manual_restore': return entry(`Restored manual booking ${ref}`);
+    case 'manual_update': {
+      const what = [];
+      if (body.comment !== undefined) what.push('comment');
+      if (body.total_cents !== undefined) what.push(`price ${eur2(manual ? manual.total_cents : 0)}`);
+      return entry(`Edited manual booking ${ref}${what.length ? ` (${what.join(', ')})` : ''}`);
+    }
+    case 'offline_payment': {
+      const p = d.payment || {};
+      return entry(`${eur2(p.amount_cents)} ${String(OFFLINE_METHODS[p.method] || 'payment').toLowerCase()} recorded on ${ref}${quoted(p.comment)}${d.forced ? ' · more than the balance' : ''}`);
+    }
+    case 'offline_void':
+      return d.already ? entry(`Undo of a payment on ${d.ref || d.invoice_id}: it was already undone`, { ref: d.ref || null })
+        : entry(`Undid ${eur2(d.amount_cents)} payment on ${d.ref || d.invoice_id}${quoted(body.reason)}`, { ref: d.ref || null });
+    case 'user_create': return entry(`Added user ${hint.user.username} (${ROLE_TEXT[hint.user.role]})`);
+    case 'user_update': return entry(userChangeText(hint));
+    case 'test_users_create':
+      return entry(!hint.reset ? `Created ${count(hint.created, 'test user')}` : !hint.created ? `Reset ${count(hint.reset, 'test user')} (new passwords)`
+        : `Created ${count(hint.created, 'test user')}, reset ${hint.reset}`);
+    case 'seed_demo': return entry(`Added demo bookings · ${editionOf(body.program)}`, { program: body.program });
+    case 'place_demo': return entry(`Placed demo guests in rooms · ${editionOf(body.program)}`, { program: body.program });
+    case 'clear_demo': return entry(`Removed demo bookings · ${editionOf(body.program)}`, { program: body.program });
+    case 'register_domains': return entry(d.ok ? 'Registered the payment domains' : 'Tried to register the payment domains (some failed)');
+    case 'repair_plans': return entry(`Repaired payment plans${(d.repaired || []).length || (d.failed || []).length ? ` · ${count((d.repaired || []).length, 'plan')} fixed${(d.failed || []).length ? `, ${(d.failed || []).length} failed` : ''}` : ''}`);
+    default: return entry(cut(`${action} ${ref || ''}`.trim(), 120) || 'action');
+  }
+}
+
 export async function onRequestPost(context) {
   const { request, env } = context;
-  const send = (d, s = 200) => json(request, d, s, env);
   const bad = guardPost(request, env);
   if (bad) return bad;
-  if (!adminAuthorized(request, env)) return send({ error: 'Not authorised.' }, 401);
+  const who = await whoIs(request, env);
+  if (who.res) return who.res;
+  const me = who.me;
   const body = await readBody(request);
-  if (!body) return send({ error: 'Invalid request.' }, 400);
+  if (!body) return json(request, { error: 'Invalid request.' }, 400, env);
+  if (me.role === 'viewer') return json(request, READ_ONLY, 403, env);
+  if (me.role !== 'owner' && OWNER_ACTIONS.has(body.action)) return json(request, OWNER_ONLY, 403, env);
+  let sent = null;
+  const send = (d, s = 200) => { sent = { d, s }; return json(request, d, s, env); };
+  const hint = {};
+  const res = await runAction(context, env, body, send, hint);
+  // the activity log: every action that answered 2xx (not a no-op), with who did it; never fails the action
+  if (res.status >= 200 && res.status < 300 && sent && sent.s === res.status && env.STRIPE_SECRET_KEY && !(sent.d && sent.d.unchanged)) {
+    let info = null;
+    try { info = activityOf(body, sent.d || {}, hint); } catch (e) { logError('admin.activity_entry', e, { action: String(body.action || '').slice(0, 30) }); }
+    if (info) await recordActivity(context, env, me, info);
+  }
+  return res;
+}
+
+async function runAction(context, env, body, send, hint) {
   // a booking link can be tried without Stripe (demo: the quote and the Checkout Session it would open)
   if (body.action === 'create_link' && !env.STRIPE_SECRET_KEY) return createLink(env, body, send);
   if (!env.STRIPE_SECRET_KEY) return send({ error: 'Stripe is not connected yet.' }, 503);
 
   try {
     if (body.action === 'create_link') return await createLink(env, body, send);
+    if (body.action === 'user_create') return await userCreate(env, body, send, hint);
+    if (body.action === 'user_update') return await userUpdate(env, body, send, hint);
+    if (body.action === 'test_users_create') return await testUsersCreate(env, send, hint);
     if (body.action === 'seed_demo' || body.action === 'clear_demo' || body.action === 'place_demo') {
       // test mode only: fill a week with demo bookings (about `percent` % of its places), or remove them
       if (liveMode(env)) return send({ error: 'Demo bookings are only available in Stripe test mode.' }, 403);
@@ -540,11 +752,12 @@ export async function onRequestPost(context) {
 
     const ref = String(body.ref || '').trim().toUpperCase();
     if (!validRef(ref)) return send({ error: 'Invalid reference.' }, 400);
-    if (isManualRef(ref)) return await manualAction(context, env, body, ref, send);
+    if (isManualRef(ref)) { hint.ref = ref; return await manualAction(context, env, body, ref, send, hint); }
     if (/^manual_/.test(String(body.action || ''))) return send({ error: 'That is not a manual booking.' }, 400);
     const found = await findBooking(env, ref);
     if (!found) return send({ error: 'Booking not found (new bookings can take a minute to appear).' }, 404);
     const { program, booking } = found;
+    hint.ref = ref; hint.program = program.id;
     if (body.action === 'offline_payment') return await offlinePayment(context, env, body, found, send);
 
     if (body.action === 'note') {
@@ -583,7 +796,9 @@ export async function onRequestPost(context) {
     }
     if (body.action === 'svc_status') {
       const key = String(body.key || '');
-      if (!booking.addons.some(a => a.key === key)) return send({ error: 'That session is not on this booking.' }, 404);
+      const addon = booking.addons.find(a => a.key === key);
+      if (!addon) return send({ error: 'That session is not on this booking.' }, 404);
+      hint.session = addon.minutes ? `${addon.title} ${addon.minutes} min` : addon.title;
       if (!SVC_STATUS.includes(body.status)) return send({ error: 'Choose a status.', fields: { status: `One of ${SVC_STATUS.join(', ')}.` } }, 422);
       const when = str(body.when, 40).replace(/;/g, ',');
       const map = parseSvc((await currentMeta(env, booking)).aob_svc);

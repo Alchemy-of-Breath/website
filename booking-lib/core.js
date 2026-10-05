@@ -137,6 +137,7 @@ export function rateLimited(key, max, windowMs) {
   while (hits.size > HITS_MAX) hits.delete(hits.keys().next().value);
   return limited;
 }
+export const forgetRateLimits = () => hits.clear(); // a fresh start (tests)
 
 /* The part of an address one visitor controls: an IPv4 address whole, an IPv6 address by its /64
    (first four groups), since home and server connections get a whole /64 to pick addresses from. */

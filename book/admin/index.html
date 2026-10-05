@@ -115,7 +115,9 @@ svg.i{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stro
 .top-in{max-width:1440px;margin:0 auto;padding:10px 24px 8px;display:flex;align-items:center;gap:10px 16px;flex-wrap:wrap}
 .brand{display:flex;align-items:center;gap:11px;text-decoration:none;color:var(--ink);margin-right:auto;min-width:0;order:0}
 .top-r{order:1}
-#logout{order:2}
+.acct{order:2;display:flex;align-items:center;gap:10px;min-width:0}
+.me{font-size:.76rem;color:var(--slate);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:320px;min-width:0}
+.me b{font-weight:500;color:var(--ink)}
 .brand img{width:32px;height:32px;flex:none}
 .brand small{display:block;font-size:.6rem;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--slate);line-height:1.3}
 .brand b{display:block;font-family:var(--serif);font-weight:400;font-size:1.3rem;line-height:1.1}
@@ -210,8 +212,10 @@ details.panel[open]>summary{margin-bottom:14px}
 .login{max-width:420px;margin:11vh auto;background:#fff;border:1px solid var(--line);border-radius:20px;padding:32px;box-shadow:var(--shadow-lift)}
 .login h2{font-family:var(--serif);font-size:1.6rem;margin:0 0 6px}
 .login p{color:var(--slate);margin:0 0 18px;line-height:1.5}
-.login input{width:100%;margin-bottom:12px;min-height:44px}
+.login .f{margin-bottom:12px}
+.login input{width:100%;min-height:44px}
 .login .btn{width:100%;min-height:44px}
+.login .hint{font-size:.78rem;margin:12px 0 0;text-align:center}
 
 /* ---------- tables */
 .tw{overflow-x:auto}
@@ -641,6 +645,42 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
 .names{font-size:.76rem;color:var(--slate);line-height:1.45}
 @media (max-width:640px){.copyrow .lb{flex-basis:100%}}
 
+/* ---------- view only, team users, activity log */
+.robar{margin:0 0 14px;padding:6px 12px;border-radius:10px;font-size:.8rem;line-height:1.45;background:var(--teal-wash);border:1px solid var(--teal-line);color:#0B5157}
+.robar b{font-weight:500}
+.ro .cc{cursor:default}
+.ro .cc:hover::after{content:none}
+.ronote{margin:0;white-space:pre-wrap;overflow-wrap:anywhere;font-size:.88rem;line-height:1.5}
+.tbtns{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.tm-intro{font-size:.82rem;color:var(--slate);margin:-4px 0 12px}
+.uact{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.tbl select.urole{min-height:32px;font-size:.8rem;padding:4px 30px 4px 10px;width:auto}
+.tbl tr.off td{color:var(--slate)}
+.tbl .uname{font-variant-numeric:tabular-nums;letter-spacing:.02em}
+.atbl td{overflow-wrap:anywhere}
+.atbl .when{white-space:nowrap}
+.atbl .who{white-space:nowrap}
+.atbl .who .pill{margin:0;vertical-align:1px}
+.atbl .who .nm+.pill{margin-left:6px}
+.more{display:flex;justify-content:center;padding:12px 0 2px}
+.pwl{width:100%;border-collapse:collapse;font-size:.86rem;margin:12px 0 4px}
+.pwl th{text-align:left;font-weight:500;font-size:.64rem;letter-spacing:.09em;text-transform:uppercase;color:var(--slate);padding:4px 8px 6px 0;border-bottom:1px solid var(--rule)}
+.pwl td{padding:9px 8px 9px 0;border-bottom:1px solid var(--rule);vertical-align:middle}
+.pwl tr:last-child td{border-bottom:0}
+.pwl td:last-child{text-align:right;padding-right:0}
+.pwl code{font-size:.9rem;padding:3px 8px;user-select:all;-webkit-user-select:all}
+.pwl .sub{margin-top:1px}
+.pwurl{font-size:.8rem;color:var(--slate);margin:6px 0 0;overflow-wrap:anywhere}
+@media (max-width:760px){.atb select{flex:1 1 130px;max-width:none;min-width:0}}
+@media (max-width:560px){
+  .pwl thead{display:none}
+  .pwl tr{display:grid;grid-template-columns:1fr auto;gap:4px 10px;padding:8px 0;border-bottom:1px solid var(--rule)}
+  .pwl tr:last-child{border-bottom:0}
+  .pwl td{padding:0;border:0}
+  .pwl td:first-child{grid-column:1/-1}
+  .pwl td:last-child{align-self:center}
+}
+
 /* ---------- footer */
 .foot{max-width:1440px;margin:0 auto;padding:0 24px 30px;font-size:.74rem;color:var(--slate)}
 .foot kbd{font:inherit;font-size:.7rem;border:1px solid var(--field);border-bottom-width:2px;border-radius:5px;padding:0 5px;background:#fff;color:var(--ink)}
@@ -649,7 +689,9 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
   .top{position:static}
   .top-in{padding:10px 16px 6px}
   .top-r{width:100%;order:3}
-  #logout{order:1;min-height:34px;padding:5px 12px;font-size:.78rem}
+  .acct{order:1;flex:1 1 100%;justify-content:space-between}
+  #logout{min-height:34px;padding:5px 12px;font-size:.78rem}
+  .me{max-width:none}
   .wsel{flex:1 1 100%}
   .wsel select{width:100%;min-width:0}
   .top-r .stamp{margin-right:auto}
@@ -672,7 +714,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
 @media print{
   @page{margin:14mm 12mm}
   html,body{background:#fff!important;color:#000!important;font-size:10.5pt;overflow:visible}
-  .top,.tabs,.toasts,.scrim,.drawer,.modal,.foot,.skip,.toolbar,.btn,.ibtn,.lnk{display:none!important}
+  .top,.tabs,.toasts,.scrim,.drawer,.modal,.foot,.skip,.toolbar,.btn,.ibtn,.lnk,.robar{display:none!important}
   main{padding:0;max-width:none}
   .panel,.kpi,.wkc,.rcard,.prac{box-shadow:none!important;border-color:#999!important}
   body.print-sheet>*:not(#printRoot){display:none!important}
@@ -704,7 +746,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
       <button class="ibtn" id="refresh" type="button" title="Refresh (R)" aria-label="Refresh"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg></button>
       <button class="btn" id="newLink" type="button" title="New booking link (N)">New booking link</button>
     </div>
-    <button class="btn btn-ghost" id="logout" type="button" hidden>Sign out</button>
+    <div class="acct" id="acct" hidden><span class="me" id="me"></span><button class="btn btn-ghost" id="logout" type="button">Sign out</button></div>
   </div>
   <nav class="tabs" id="tabs" aria-label="Sections" hidden>
     <a href="#overview" data-tab="overview">Overview <span class="k">1</span></a>
@@ -713,21 +755,25 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     <a href="#sessions" data-tab="sessions">Sessions <span class="ct" id="ct-sessions"></span><span class="k">4</span></a>
     <a href="#payments" data-tab="payments">Payments <span class="ct bad" id="ct-payments"></span><span class="k">5</span></a>
     <a href="#setup" data-tab="setup">Setup <span class="ct bad" id="ct-setup"></span><span class="k">6</span></a>
+    <a href="#team" data-tab="team" id="tabTeam" hidden>Team <span class="k">7</span></a>
   </nav>
 </header>
 <main id="app">
   <div class="login" id="login">
     <h2>Team sign-in</h2>
-    <p>Enter the admin token set in Cloudflare (ADMIN_TOKEN). It stays in this browser tab only.</p>
+    <p>Team members: your username and password. Main admin: leave the username empty and enter the admin token.</p>
     <form id="loginForm" novalidate>
-      <input id="token" type="password" autocomplete="off" placeholder="Admin token" aria-label="Admin token">
+      <label class="f"><span>Username <small>(optional)</small></span><input id="user" type="text" autocomplete="username" autocapitalize="off" spellcheck="false" maxlength="32"></label>
+      <label class="f"><span>Password or admin token</span><input id="token" type="password" autocomplete="current-password"></label>
       <button class="btn" id="signin" type="submit">Sign in</button>
     </form>
     <p class="note err" id="loginErr" role="alert" hidden style="margin-top:14px"></p>
+    <p class="hint">You stay signed in in this browser tab only.</p>
   </div>
+  <p class="robar" id="roBar" hidden><b>View only.</b> You can look at everything, but not change bookings, rooms or payments.</p>
   <div id="view" tabindex="-1" hidden></div>
 </main>
-<footer class="foot" id="foot" hidden>Keyboard: <kbd>1</kbd>–<kbd>6</kbd> sections · <kbd>/</kbd> search bookings · <kbd>R</kbd> refresh · <kbd>N</kbd> new booking link · <kbd>J</kbd>/<kbd>K</kbd> next/previous booking · <kbd>Esc</kbd> close</footer>
+<footer class="foot" id="foot" hidden>Keyboard: <kbd>1</kbd>–<kbd id="kLast">6</kbd> sections · <kbd>/</kbd> search bookings · <kbd>R</kbd> refresh<span id="kNew"> · <kbd>N</kbd> new booking link</span> · <kbd>J</kbd>/<kbd>K</kbd> next/previous booking · <kbd>Esc</kbd> close</footer>
 <div class="scrim" id="scrim" hidden></div>
 <aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="drRef" hidden></aside>
 <div class="modal" id="modal" hidden><div class="mbox" id="mbox" role="dialog" aria-modal="true" aria-labelledby="mTitle"></div></div>
@@ -742,7 +788,11 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
   var SITE = /^((www\.)?alchemyofbreath\.com|website-5h3\.pages\.dev)$/.test(location.hostname) ? location.origin : 'https://website-5h3.pages.dev';
   var PROD_DOMAINS = ['alchemyofbreath.com', 'www.alchemyofbreath.com', 'website-5h3.pages.dev'];
   var GENDERS = ['Female', 'Male'];
-  var TABS = ['overview', 'bookings', 'rooming', 'sessions', 'payments', 'setup'];
+  var TABS = ['overview', 'bookings', 'rooming', 'sessions', 'payments', 'setup', 'team'];
+  // who can do what: owner = the ADMIN_TOKEN holder; team members sign in with a username (team or view only)
+  var ROLES = { owner: 'Main admin', team: 'Team', viewer: 'View only' };
+  // the link team members open (in "Copy all" with new passwords)
+  var DASH_URL = location.protocol === 'https:' ? location.origin + location.pathname : SITE + '/book/admin/';
   var SVC = [['todo', 'To arrange'], ['scheduled', 'Scheduled'], ['done', 'Done'], ['cancelled', 'Cancelled']];
   var FRESH = 60000, OV_TTL = 5 * 60000;
   var $ = function(id){ return document.getElementById(id); };
@@ -812,7 +862,8 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     ext: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="width:13px;height:13px"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>',
     check: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
     left: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>',
-    right: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>'
+    right: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>',
+    refresh: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg>'
   };
   // dates as YYYY-MM-DD (UTC arithmetic: nights, not hours)
   function pad2(n){ return (n < 10 ? '0' : '') + n; }
@@ -840,11 +891,28 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
   var REASONS = [['maintenance', 'Maintenance'], ['staff', 'Staff'], ['owner', 'Owner'], ['other', 'Other']];
   function reasonLabel(r){ var o = findBy(REASONS, function(x){ return x[0] === r; }); return o ? o[1] : (r ? String(r) : 'Blocked'); }
 
-  /* ================================================================ API */
+  /* ================================================================ API
+     The Bearer is the main admin's ADMIN_TOKEN, or a team member's session token (aobu.…, from
+     /api/booking/login), kept the same way: in this browser tab only. Every GET answers with "me"
+     (who the server takes us for); until the first one arrives, an admin token is the main admin
+     and a session is the role it signed in with. */
   var token = store('s', 'aob_admin') || '';
+  var OWNER = { id: 'owner', name: 'Main admin', role: 'owner', username: '' };
+  var me = startMe();
+  // a team member's session (signed in with a username), not the admin token
+  function userSession(){ return !!token && (store('s', 'aob_admin_kind') === 'user' || /^aobu\./.test(token)); }
+  function startMe(){
+    if (!userSession()) return copyObj(OWNER);
+    var w = null;
+    try { w = JSON.parse(store('s', 'aob_admin_who') || 'null'); } catch (e) { w = null; }
+    // a session whose role isn't known yet sees the least until the server says more
+    return w && ROLES[w.role] && w.role !== 'owner' ? { id: String(w.id || ''), name: String(w.name || ''), role: w.role, username: String(w.username || '') } : { id: '', name: '', role: 'viewer', username: '' };
+  }
+  function isOwner(){ return me.role === 'owner'; }
+  function canWrite(){ return me.role === 'owner' || me.role === 'team'; }
   function failure(message, status, d){ var e = new Error(message); e.status = status; e.code = d && d.code; e.data = d || {}; return e; }
   function api(method, path, body){
-    var headers = { 'Authorization': 'Bearer ' + token };
+    var headers = { 'Authorization': 'Bearer ' + token }, sent = token;
     if (body) headers['Content-Type'] = 'application/json';
     return fetch(API + path, { method: method, headers: headers, body: body ? JSON.stringify(body) : undefined, cache: 'no-store' })
       .then(function(r){
@@ -853,16 +921,26 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
           try { d = t ? JSON.parse(t) : {}; } catch (x) { d = {}; }
           if (!d || typeof d !== 'object') d = {};
           if (r.status === 401) throw failure('auth', 401, d);
+          // every GET answer (an error too) says who the server takes us for
+          if (method === 'GET' && sent === token && d.me && typeof d.me === 'object') setMe(d.me);
           if (!r.ok) throw failure(d.error || ('Something went wrong (error ' + r.status + '). Please try again.'), r.status, d);
           return d;
         });
       });
   }
-  function post(body){ return api('POST', '/api/booking/admin', body); }
+  // every change is a line in the activity log: the log is out of date after one
+  function post(body){ return api('POST', '/api/booking/admin', body).then(function(d){ acts.stale = true; return d; }); }
   // network failures have no status: say so plainly instead of the browser's "Failed to fetch"
   function why(e){ return e && e.status ? e.message : 'Could not reach the booking system. Check your connection and try again.'; }
   function bare(t){ return String(t).replace(/[.\s]+$/, ''); }
-  function authFail(e){ if (e && e.message === 'auth') { signedOut('That token was not accepted.'); return true; } return false; }
+  // (503 code 'busy' while the server checks a session is not a sign-out: the views show it with "try again")
+  function authText(e){ return e && e.code === 'session_ended' ? 'Your session ended. Sign in again.' : userSession() ? 'Your session is no longer valid. Sign in again.' : 'That token was not accepted.'; }
+  // 401: signed out. 403 read_only / owner_only: this person may not do that, and the server says so.
+  function authFail(e){
+    if (e && e.message === 'auth') { signedOut(authText(e)); return true; }
+    if (e && e.status === 403 && (e.code === 'read_only' || e.code === 'owner_only')) { toast(esc(e.message), 'err'); return true; }
+    return false;
+  }
 
   /* ================================================================ data
      cache[weekId] = { d: GET response, at: ms, err }. Writes the team makes (note, rooms, session
@@ -1276,9 +1354,11 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
   function onRoute(){
     if (!token) return;
     route = parseHash();
+    // the Team tab is the main admin's only
+    if (route.tab === 'team' && !isOwner()) { route = { tab: 'overview', q: {} }; try { history.replaceState(null, '', '#overview'); } catch (e) {} }
     if (route.q.w && route.q.w !== week) setWeek(route.q.w, true);
     each(qsa('#tabs a'), function(a){ if (a.getAttribute('data-tab') === route.tab) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
-    $('weekWrap').hidden = route.tab === 'overview';
+    $('weekWrap').hidden = route.tab === 'overview' || route.tab === 'team';
     renderView();
     if (route.q.ref) { if (route.q.ref !== drawerRef) openDrawerFor(route.q.ref); }
     else if (drawerRef) closeDrawerUI();
@@ -1294,13 +1374,14 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     ensure(route.tab);
   }
   function ensure(tab, force){
-    var p = tab === 'overview' ? loadOverview(force) : loadScope(force), v0 = dataVer;
+    var p = tab === 'overview' ? loadOverview(force) : tab === 'team' ? loadTeam(force) : loadScope(force), v0 = dataVer;
     if (tab === 'rooming' && calOn()) p = Promise.all([p, loadCal(force).then(null, function(e){ return e && e.message === 'auth' ? Promise.reject(e) : null; })]);
     loadingN++; updateStamp();
     return p.then(function(){ return null; }, function(e){ return e; }).then(function(e){
       loadingN--;
-      var auth = (e && e.message === 'auth') || scopeIds().some(function(id){ return cache[id] && cache[id].err && cache[id].err.message === 'auth'; });
-      if (auth) { signedOut('That token was not accepted.'); return; }
+      var auth = e && e.message === 'auth' ? e : null;
+      if (!auth && tab !== 'team') scopeIds().forEach(function(id){ var x = cache[id] && cache[id].err; if (!auth && x && x.message === 'auth') auth = x; });
+      if (auth) { signedOut(authText(auth)); return; }
       if (!token) return;
       if (dataVer !== v0) {
         if (route.tab === tab) keepFocus(function(){ VIEWS[tab].update(); });
@@ -1312,7 +1393,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
   // re-rendering a view replaces its buttons and fields: put focus back on the same control
   function focusKey(el){
     if (!el || el === document.body) return null;
-    var attrs = ['data-open', 'data-sort', 'data-svc', 'data-when', 'data-qa', 'data-bal', 'data-week', 'data-copy', 'data-retry', 'data-cell', 'data-block', 'data-jump', 'data-cal', 'data-act', 'data-board', 'data-pay', 'data-void'];
+    var attrs = ['data-open', 'data-sort', 'data-svc', 'data-when', 'data-qa', 'data-bal', 'data-week', 'data-copy', 'data-retry', 'data-cell', 'data-block', 'data-jump', 'data-cal', 'data-act', 'data-board', 'data-pay', 'data-void', 'data-uact', 'data-urole'];
     for (var i = 0; i < attrs.length; i++) {
       var v = el.getAttribute(attrs[i]); if (v == null) continue;
       var q = function(x){ return '"' + String(x).replace(/["\\]/g, '\\$&') + '"'; }, r = el.getAttribute('data-ref');
@@ -1327,6 +1408,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
   }
   function dataAt(){
     if (route.tab === 'overview') return ovw && ovw.d ? ovw.at : 0;
+    if (route.tab === 'team') return users.d && acts.loaded ? Math.min(users.at, acts.at) : 0;
     var t = Infinity;
     scopeIds().forEach(function(id){ t = Math.min(t, (cache[id] && cache[id].d) ? cache[id].at : 0); });
     if (route.tab === 'rooming' && calOn()) { var c = calc[calKey(calWin())]; t = Math.min(t, c && c.d ? c.at : 0); }
@@ -1337,6 +1419,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     s.textContent = loadingN ? 'Updating…' : t ? 'Updated ' + clock(t) : '';
     s.className = 'stamp' + (loadingN ? ' busy' : '');
     $('refresh').classList.toggle('busy', !!loadingN);
+    if ($('tmActRefresh')) $('tmActRefresh').classList.toggle('busy', !!loadingN);
   }
   function updateBadges(){
     var list = scopeBookings(), sd = setupData();
@@ -1703,12 +1786,12 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
       el.innerHTML = '<div class="toolbar"><div class="seg" role="group" aria-label="View"><a href="#rooming" id="segRooms">Rooms</a><a href="#rooming?view=kitchen" id="segKitchen">Kitchen list</a><a href="#rooming?view=calendar" id="segCal">Calendar</a></div>' +
         '<span class="sumline" id="rmSum" aria-live="polite"></span><span class="sp"></span>' +
         '<label class="tick" id="kAllWrap" hidden><input type="checkbox" id="kAll"> Show every guest</label>' +
-        '<span id="rmBoardBtns"><button type="button" class="btn btn-ghost btn-sm" data-act="block">+ Block</button> <button type="button" class="btn btn-ghost btn-sm" data-act="manual">+ Manual booking</button></span>' +
+        (canWrite() ? '<span id="rmBoardBtns"><button type="button" class="btn btn-ghost btn-sm" data-act="block">+ Block</button> <button type="button" class="btn btn-ghost btn-sm" data-act="manual">+ Manual booking</button></span>' : '') +
         '<button type="button" class="btn btn-ghost btn-sm" id="rmPrint">Print</button><button type="button" class="btn btn-ghost btn-sm" id="rmCsv">Export CSV</button></div><div id="rmBody"></div>';
       $('rmPrint').onclick = function(){ var s = route.q.view === 'kitchen' ? kitchenPrint() : roomingPrint(); if (s) printSheet(s[0], s[1]); };
       $('rmCsv').onclick = function(){ if (route.q.view === 'kitchen') kitchenCsv(); else roomingCsv(); };
       $('kAll').onchange = function(){ var q = copyObj(route.q); if ($('kAll').checked) q.all = '1'; else delete q.all; replaceQ(q); VIEWS.rooming.update(); };
-      $('rmBoardBtns').addEventListener('click', function(e){
+      if ($('rmBoardBtns')) $('rmBoardBtns').addEventListener('click', function(e){
         var b = e.target.closest && e.target.closest('[data-act]'); if (!b) return;
         var dt = wk(week).dates || {};
         openRec(b.getAttribute('data-act'), { from: dt.start, to: dt.end, ret: b });
@@ -1730,7 +1813,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
       $('segRooms').setAttribute('aria-current', k || c ? 'false' : 'true'); $('segKitchen').setAttribute('aria-current', k ? 'true' : 'false'); $('segCal').setAttribute('aria-current', c ? 'true' : 'false');
       $('kAllWrap').hidden = !k; $('kAll').checked = route.q.all === '1';
       // the calendar has its own buttons and CSV
-      $('rmPrint').hidden = c; $('rmCsv').hidden = c; $('rmBoardBtns').hidden = c || k;
+      $('rmPrint').hidden = c; $('rmCsv').hidden = c; if ($('rmBoardBtns')) $('rmBoardBtns').hidden = c || k;
       if (c) $('rmSum').textContent = '';
     },
     update: function(){
@@ -1753,7 +1836,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
             var rt = roomType(id, g.room);
             return '<tr><td class="main"><span class="nm">' + esc(g.name) + '</span> ' + gBadge(g.gender) + (g.stale ? '<span class="sub refund">Was in ' + esc(g.stale) + ' (not a room this week)</span>' : '') + '</td>' +
               '<td data-l="Booking">' + openBtn({ ref: g.ref, _w: id }) + '</td><td data-l="Room type">' + esc(rt ? rt.name : g.room) + '</td>' +
-              '<td data-l="Place in" class="ed">' + roomSelect(id, rm, g.b, g.index, 'data-qa="' + esc(g.ref + '|' + g.index) + '"') + '</td></tr>';
+              '<td data-l="Place in" class="ed">' + (canWrite() ? roomSelect(id, rm, g.b, g.index, 'data-qa="' + esc(g.ref + '|' + g.index) + '"') : '<span class="muted">Not placed yet</span>') + '</td></tr>';
           }).join('') + '</tbody></table></div></section>';
       } else if (rm.order.length && guests) html += '<p class="note ok">Everyone with a room is placed.</p>';
       html += '<div class="areas">' + areas(rm).map(function(a){
@@ -2097,7 +2180,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
       '<button type="button" class="ibtn" data-cal="' + CAL_STEP + '" title="Next two weeks" aria-label="Next two weeks">' + IC.right + '</button>' +
       '<span class="cal-range" id="calRange" aria-live="polite"></span><button type="button" class="btn btn-ghost btn-sm" data-cal="today">Today</button></div>' +
       '<div class="chips" id="calChips" role="group" aria-label="Jump to week"></div><span class="sp"></span>' +
-      '<button type="button" class="btn btn-ghost btn-sm" data-act="block">+ Block</button><button type="button" class="btn btn-sm" data-act="manual">+ Manual booking</button>' +
+      (canWrite() ? '<button type="button" class="btn btn-ghost btn-sm" data-act="block">+ Block</button><button type="button" class="btn btn-sm" data-act="manual">+ Manual booking</button>' : '') +
       '<button type="button" class="btn btn-ghost btn-sm" data-act="csv">Export CSV</button></div><div id="calMain"></div>';
   }
   function calUpdate(){
@@ -2129,7 +2212,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
           var rs = m.rooms.filter(function(r){ return r.area === a; });
           return '<div class="cal-area"><span>' + esc(a) + '<small>' + esc(plural(rs.length, 'room') + ' · ' + plural(sum(rs, function(r){ return r.capacity; }), 'bed')) + '</small></span></div>' + rs.map(function(r){ return calRow(m, r, ri++); }).join('');
         }).join('') + '</div></div></div>' +
-      '<p class="calhint">Click an empty night to block a room or add a manual booking (keyboard: arrow keys, then Enter). Click a bar to open it. The week labels open that week\'s rooming board.</p>';
+      '<p class="calhint">' + (canWrite() ? 'Click an empty night to block a room or add a manual booking (keyboard: arrow keys, then Enter). ' : '') + 'Click a bar to open it. The week labels open that week\'s rooming board.</p>';
     main.innerHTML = html;
     // J / K in a booking's panel walk through the bookings in view, top to bottom
     var refs = []; each(main.querySelectorAll('.cal-row [data-open]'), function(x){ var v = x.getAttribute('data-open'); if (refs.indexOf(v) < 0) refs.push(v); }); navList = refs;
@@ -2169,6 +2252,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
         return;
       }
       if ((el = t.closest('.cc'))) {
+        if (!canWrite()) return;
         var c = (el.getAttribute('data-cell') || '').split('|');
         if (c.length === 2) { calFocus = el.getAttribute('data-cell'); openRec(null, { room: c[0], from: c[1], to: addDays(c[1], 1), ret: el }); }
         return;
@@ -2176,7 +2260,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
       if ((el = t.closest('[data-block]'))) { openBlock(el.getAttribute('data-block'), el); return; }
       if ((el = t.closest('[data-act]'))) {
         var act = el.getAttribute('data-act');
-        if (act === 'csv') calCsv(); else openRec(act, { ret: el });
+        if (act === 'csv') calCsv(); else if (canWrite()) openRec(act, { ret: el });
       }
     });
     root.addEventListener('focusin', function(e){
@@ -2509,8 +2593,8 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
         '<dt>Comment</dt><dd class="l">' + (bl.comment ? esc(bl.comment) : '<span class="muted">–</span>') + '</dd>' +
         (made && !isNaN(made.getTime()) ? '<dt>Made</dt><dd class="l">' + esc(made.toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })) + '</dd>' : '') +
         '<dt>Reference</dt><dd class="l"><code>' + esc(bl.id) + '</code></dd></dl>' +
-      '<div class="mact"><button type="button" class="btn btn-ghost" data-close>Close</button><button type="button" class="btn btn-danger" id="blkDel">Delete block</button></div>', { ret: ret });
-    $('blkDel').onclick = function(){
+      '<div class="mact"><button type="button" class="btn btn-ghost" data-close>Close</button>' + (canWrite() ? '<button type="button" class="btn btn-danger" id="blkDel">Delete block</button>' : '') + '</div>', { ret: ret });
+    if ($('blkDel')) $('blkDel').onclick = function(){
       confirmBox({ title: 'Delete this block?', danger: true, ok: 'Delete block', cancel: 'Keep it',
         html: '<p>' + esc(roomsText(bl.rooms)) + (bl.rooms.length === 1 ? ' is' : ' are') + ' bookable again for ' + esc(stayLabel(bl.from, bl.to)) + '.</p>' })
         .then(function(yes){
@@ -2551,12 +2635,12 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     return { n: live.length, c: sum(live, function(r){ return sessCents(r.a); }), dn: done.length, dc: sum(done, function(r){ return sessCents(r.a); }), todo: live.filter(function(r){ return (r.a.status || 'todo') === 'todo'; }).length };
   }
   function svcControls(b, a, label){
-    if (!a.key || !active(b)) return '<span class="muted">' + esc(svcLabel(a.status)) + (a.when ? ' · ' + esc(a.when) : '') + '</span>';
+    if (!a.key || !active(b) || !canWrite()) return '<span class="muted">' + esc(svcLabel(a.status)) + (a.when ? ' · ' + esc(a.when) : '') + '</span>';
     var k = esc(a.key), r = esc(b.ref);
     return '<select class="inl" data-svc="' + k + '" data-ref="' + r + '" aria-label="Status of ' + esc(label) + '">' + SVC.map(function(o){ return opt(o[0], o[1], a.status || 'todo'); }).join('') + '</select>';
   }
   function whenInput(b, a, label){
-    if (!a.key || !active(b)) return '';
+    if (!a.key || !active(b) || !canWrite()) return '';
     return '<input type="text" class="inl" data-when="' + esc(a.key) + '" data-ref="' + esc(b.ref) + '" value="' + esc(a.when || '') + '" maxlength="40" placeholder="e.g. Tue 20 Jul, 15:00" aria-label="When is ' + esc(label) + '">';
   }
   VIEWS.sessions = {
@@ -2656,8 +2740,8 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
       updateBadges(); sessionTotals();
       if (drawerRef === b.ref && !(st && $('drawer').contains(st))) renderDrawer();
     }, function(e){
-      if (authFail(e)) return;
       if (sel) sel.value = before.status; if (inp) inp.value = before.when;
+      if (authFail(e)) { mark(''); return; }
       mark('Not saved', 'err');
       toast('Could not save the session for ' + esc(b.ref) + ': ' + esc(why(e)), 'err');
     });
@@ -2708,8 +2792,8 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
             '<td data-l="Balance" class="num"><b>' + money(b.balance_cents) + '</b>' + (num(b.refunded_cents) ? '<span class="sub refund">' + eur(b.refunded_cents) + ' refunded</span>' : '') + '</td>' +
             '<td data-l="Arrives">' + esc(isoLabel(arrival(b))) + '<span class="sub">' + esc(inDays(dd)) + '</span></td>' +
             '<td data-l="Last payment">' + (lp ? esc(fmtWhen(lp.created, { day: 'numeric', month: 'short', year: 'numeric' })) + '<span class="sub">' + eur(lp.amount_cents) + '</span>' : '–') + '</td>' +
-            '<td class="ed">' + (isManual(b) ? '' : '<button type="button" class="btn btn-sm" data-bal="' + esc(b.ref) + '">Balance link</button> ') +
-              '<button type="button" class="btn btn-sm' + (isManual(b) ? '' : ' btn-ghost') + '" data-pay="' + esc(b.ref) + '" data-w="' + esc(b._w) + '" title="Record a bank transfer or cash that arrived">Record payment</button> ' + (wa ? '<a class="btn btn-ghost btn-sm" href="https://wa.me/' + wa + '" target="_blank" rel="noopener">WhatsApp</a>' : '') + '</td></tr>';
+            '<td class="ed">' + (isManual(b) || !canWrite() ? '' : '<button type="button" class="btn btn-sm" data-bal="' + esc(b.ref) + '">Balance link</button> ') +
+              (canWrite() ? '<button type="button" class="btn btn-sm' + (isManual(b) ? '' : ' btn-ghost') + '" data-pay="' + esc(b.ref) + '" data-w="' + esc(b._w) + '" title="Record a bank transfer or cash that arrived">Record payment</button> ' : '') + (wa ? '<a class="btn btn-ghost btn-sm" href="https://wa.me/' + wa + '" target="_blank" rel="noopener">WhatsApp</a>' : '') + '</td></tr>';
         }).join('') + '</tbody></table></div>' : '<p class="muted">No balances due right now.</p>') + '</section>';
       html += '<section class="panel" id="offPanel"><div class="ph"><h2>Recorded by hand <small>' + esc(plural(off.length, 'payment')) + ' · ' + eur(sum(off, function(r){ return r.x.amount_cents; })) + '</small></h2>' + (off.length ? '<button type="button" class="btn btn-ghost btn-sm" id="pOffCsv">Export CSV</button>' : '') + '</div>' + (off.length ?
         '<div class="tw"><table class="tbl stack"><thead><tr><th>Booking</th>' + wkTh + '<th>Lead guest</th><th>Method</th><th>Received</th><th class="num">Amount</th><th>Comment</th></tr></thead><tbody>' + off.map(function(r){
@@ -2718,7 +2802,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
             '<td data-l="Lead guest">' + esc(b.lead.name || '–') + '</td><td data-l="Method"><span class="pm">' + esc(methodLabel(x.method)) + '</span></td>' +
             '<td data-l="Received">' + esc(isoLabel(x.received, { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }) || fmtWhen(x.created)) + (x.created ? '<span class="sub">recorded ' + esc(fmtWhen(x.created, { day: 'numeric', month: 'short' })) + '</span>' : '') + '</td>' +
             '<td data-l="Amount" class="num">' + money(x.amount_cents) + '</td><td data-l="Comment">' + (x.comment ? esc(x.comment) : '<span class="muted">–</span>') + '</td></tr>';
-        }).join('') + '</tbody></table></div>' : '<p class="muted">No payments recorded by hand. Record a bank transfer or cash in the booking\'s panel.</p>') + '</section>';
+        }).join('') + '</tbody></table></div>' : '<p class="muted">No payments recorded by hand.' + (canWrite() ? ' Record a bank transfer or cash in the booking\'s panel.' : '') + '</p>') + '</section>';
       html += '<section class="panel"><div class="ph"><h2>Payment plans <small>' + esc(plural(plans.length, 'plan')) + '</small></h2></div>' + (plans.length ?
         '<div class="tw"><table class="tbl stack"><thead><tr><th>Booking</th>' + wkTh + '<th>Lead guest</th><th>Paid</th><th>Next payment</th><th>Status</th><th class="num">Left to pay</th></tr></thead><tbody>' + plans.map(function(b){
           var p = b.plan, issue = p.status === 'past_due' ? 'Payment failed: Stripe is retrying' : p.ended && num(b.balance_cents) ? 'Ended short: send a balance link' : p.end_check === 'missing' || p.end_check === 'movable' ? 'End date needs repair (Setup)' : p.end_check === 'short' ? 'Last payment cut short' : '';
@@ -2800,7 +2884,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     if (live && whKnown && !whOk) html += '<p class="note err">Add <code>STRIPE_WEBHOOK_SECRET</code> in Cloudflare (Stripe endpoint <code>/api/booking/webhook</code>). Paid bookings reach GoHighLevel and payment plans get their end date through the webhook.</p>';
     if (live && ts === 'misconfigured') html += '<p class="note err">Only one of <code>TURNSTILE_SITE_KEY</code> and <code>TURNSTILE_SECRET</code> is set, so the bot check is off. Set both (from the same Turnstile widget) or neither.</p>';
     else if (s.stripe === 'live' && ts !== 'on') html += '<p class="note err">The bot check is off. Add <code>TURNSTILE_SITE_KEY</code> and <code>TURNSTILE_SECRET</code> in Cloudflare before taking live bookings: without it, scripts can hold places and the reminder email stays off.</p>';
-    if (live && pc.noEnd) html += '<p class="note err">' + pc.noEnd + ' running payment plan' + (pc.noEnd === 1 ? ' has' : 's have') + ' no end date, or the wrong one, so ' + (pc.noEnd === 1 ? 'it' : 'they') + ' would charge the wrong amount at the end. Press <b>Repair payment plans</b>.</p>';
+    if (live && pc.noEnd) html += '<p class="note err">' + pc.noEnd + ' running payment plan' + (pc.noEnd === 1 ? ' has' : 's have') + ' no end date, or the wrong one, so ' + (pc.noEnd === 1 ? 'it' : 'they') + ' would charge the wrong amount at the end. ' + (isOwner() ? 'Press' : 'Ask the main admin to press') + ' <b>Repair payment plans</b>.</p>';
     if (live && pc.short.length) html += '<p class="note err">' + (pc.short.length === 1 ? 'This payment plan\'s' : 'These payment plans\'') + ' last instalment was cut short by an end date set inside the last month: ' +
       pc.short.map(function(x){ return '<b>' + esc(x.ref || x.subscription) + '</b>'; }).join(', ') + '. Once the plan has ended, send the guest a <b>Balance link</b> for what\'s left (or invoice the difference in Stripe).</p>';
     if (live) {
@@ -2814,9 +2898,9 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
               : '<td colspan="3" data-l="Status"><span class="pill can">Not registered</span>' + (x.error ? '<span class="sub">' + esc(x.error) + '</span>' : '') + '</td>') + '</tr>';
         }).join('') + '</tbody></table></div>';
       } else html += '<p class="muted">Stripe didn\'t return the payment domains just now. Press Refresh to try again.</p>';
-      html += '<p class="muted" style="margin-top:12px;font-size:.8rem">Apple Pay, Google Pay and Link only show in the payment form on registered domains.</p>' +
-        '<div class="tools"><button class="btn btn-sm' + (doms && !missing.length ? ' btn-ghost' : '') + '" id="regDomains" type="button">Register payment domains</button>' +
-        '<button class="btn btn-sm' + (pc.noEnd ? '' : ' btn-ghost') + '" id="repairPlans" type="button" title="Sets the end date on any running payment plan that is missing one">Repair payment plans</button></div>';
+      html += '<p class="muted" style="margin-top:12px;font-size:.8rem">Apple Pay, Google Pay and Link only show in the payment form on registered domains.' + (isOwner() ? '' : ' The main admin registers them and repairs payment plans.') + '</p>' +
+        (isOwner() ? '<div class="tools"><button class="btn btn-sm' + (doms && !missing.length ? ' btn-ghost' : '') + '" id="regDomains" type="button">Register payment domains</button>' +
+        '<button class="btn btn-sm' + (pc.noEnd ? '' : ' btn-ghost') + '" id="repairPlans" type="button" title="Sets the end date on any running payment plan that is missing one">Repair payment plans</button></div>' : '');
     }
     var sumTxt = problems.length ? 'Needs attention: ' + problems.join(' · ') : live ? (s.stripe === 'live' ? 'Live' : 'Test mode') + ' · payment form ready' + (doms ? ' · ' + (PROD_DOMAINS.length - missing.length) + ' of ' + PROD_DOMAINS.length + ' domains registered' : '') : d.demo ? 'Demo mode' : '';
     var open = setupOpenChoice == null ? problems.length > 0 : setupOpenChoice;
@@ -2872,7 +2956,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
       var roomOnly = '<section class="panel"><div class="ph"><h2>Room-only links</h2></div><p class="muted">For guests who already paid the programme fee' + (feeOf(PROGS[0] && PROGS[0].id) ? ' (' + eur(feeOf(PROGS[0].id) * 100) + ')' : '') +
         ' elsewhere. They choose and pay for their room only. Their booking shows as "Room only": "possible match" when Stripe has earlier programme payments from their email that cover every guest (check them), otherwise "check".</p>' +
         (week === 'all' ? PROGS : [PBY[week]]).filter(Boolean).map(function(p){ return copyRow(wkFull(p.id), 'room only', SITE + '/book/' + p.id + '/?programme=paid'); }).join('') + '</section>';
-      var demoOn = !!(d && d.setup && d.setup.stripe === 'test');
+      var demoOn = !!(d && d.setup && d.setup.stripe === 'test') && isOwner();   // demo bookings: the main admin's only
       var demo = demoOn ? '<section class="panel"><div class="ph"><h2>Demo bookings <small style="font-family:var(--sans);font-size:.78rem;color:var(--slate)">Stripe test mode only</small></h2></div>' +
         '<p class="muted">Fills ' + (week === 'all' ? 'each week' : 'this week') + ' to about 40% with made-up bookings (deposits, paid in full, some wellbeing sessions and balances), paid with Stripe\'s test card, and places every guest in a physical room at random (one gender per shared room, never over its beds). They show with a "Demo" label, count towards availability like real bookings, and can be removed at any time. New bookings can take a minute to appear here.</p>' +
         '<div class="mact" style="justify-content:flex-start;margin-top:10px"><button type="button" class="btn" id="demoFill">Fill with demo bookings (about 40%)</button><button type="button" class="btn btn-ghost" id="demoPlace">Place demo guests in rooms</button><button type="button" class="btn btn-ghost" id="demoClear">Remove demo bookings</button></div></section>' : '';
@@ -2931,6 +3015,470 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
       ensure(route.tab, true);
     }, function(e){ done(); if (authFail(e)) return; toast('Could not check the payment plans: ' + esc(why(e)), 'err'); });
   }
+
+  /* ================================================================ team: users + activity log (main admin only)
+     Team members are Stripe customers with a username, a role (team: every booking action; viewer: look
+     only) and a password the server keeps hashed. A new or reset password comes back once, in the answer
+     that set it: it is shown in a modal to copy, and is gone when that closes. Every change made in the
+     dashboard, and every sign-in, is a line in the activity log (newest first, 200 at a time). */
+  var users = { d: null, at: 0, err: null }, uov = {}, acts = freshActs(), ACT_LIMIT = 200;
+  var actors = {};   // everyone seen in the log so far (the person filter keeps them while it shows one)
+  function seeActors(list){ list.forEach(function(x){ if (x.actor.id && !actors[x.actor.id]) actors[x.actor.id] = x.actor.name || x.actor.id; }); }
+  function freshActs(){ return { list: [], has_more: false, user: '', at: 0, loaded: false, stale: false, err: null, errUser: null, api: true }; }
+  var ACTIONS = {
+    create_link: ['bookings', 'Created a booking link'], note: ['bookings', 'Saved a note'], cancel: ['bookings', 'Cancelled a booking'], restore: ['bookings', 'Restored a booking'],
+    balance_link: ['bookings', 'Created a balance link'], svc_status: ['bookings', 'Updated a session'], assign: ['bookings', 'Placed guests in rooms'],
+    block_create: ['rooms', 'Blocked rooms'], block_delete: ['rooms', 'Removed a block'], manual_create: ['rooms', 'Added a manual booking'],
+    manual_cancel: ['rooms', 'Cancelled a manual booking'], manual_restore: ['rooms', 'Restored a manual booking'], manual_update: ['rooms', 'Edited a manual booking'],
+    offline_payment: ['payments', 'Recorded a payment'], offline_void: ['payments', 'Undid a payment'],
+    login: ['users', 'Signed in'], login_failed: ['users', 'Failed sign-in'], user_create: ['users', 'Added a user'], user_update: ['users', 'Changed a user'], test_users_create: ['users', 'Created test users'],
+    seed_demo: ['setup', 'Added demo bookings'], place_demo: ['setup', 'Placed demo guests'], clear_demo: ['setup', 'Removed demo bookings'],
+    register_domains: ['setup', 'Registered payment domains'], repair_plans: ['setup', 'Repaired payment plans']
+  };
+  var ACT_GROUPS = [['bookings', 'Bookings'], ['rooms', 'Rooms & blocks'], ['payments', 'Payments'], ['users', 'Users & sign-ins'], ['setup', 'Setup']];
+  function actGroup(a){ var x = ACTIONS[a]; return x ? x[0] : /^manual_/.test(a) ? 'rooms' : /^user_/.test(a) ? 'users' : ''; }
+  function actLabel(a){ var x = ACTIONS[a]; if (x) return x[1]; var t = String(a || 'change').replace(/_/g, ' '); return t.charAt(0).toUpperCase() + t.slice(1); }
+  function rolePill(r){ return ROLES[r] ? '<span class="pill ' + (r === 'owner' ? 'adm' : r === 'team' ? 'ok' : 'can') + '">' + esc(ROLES[r]) + '</span>' : ''; }
+  function isBookingRef(r){ return /^[A-Z0-9]{2,8}-[A-Z0-9]{4,10}$/.test(r || '') && !/^BL-/.test(r); }
+
+  /* ---------------------------------------------------------------- loading */
+  function normUser(u){
+    u = u || {};
+    return { id: String(u.id || ''), username: String(u.username || ''), name: String(u.name || u.username || ''), role: u.role === 'viewer' ? 'viewer' : 'team',
+      status: u.status === 'disabled' ? 'disabled' : 'active', test: !!u.test, created_at: u.created_at || '', last_login_at: u.last_login_at || '' };
+  }
+  // a user just added or changed is laid over the list for a few minutes (Stripe's search catches up later)
+  function rememberUser(u){ if (u && u.id) uov[u.id] = { v: normUser(u), at: Date.now() }; }
+  function userList(){
+    var list = users.d && Array.isArray(users.d.users) ? users.d.users.map(normUser) : [];
+    Object.keys(uov).forEach(function(id){
+      var o = uov[id], x = findBy(list, function(u){ return u.id === id; });
+      if (Date.now() - o.at > OV_TTL) { delete uov[id]; return; }
+      if (!x) { list.push(copyObj(o.v)); return; }
+      if (x.role === o.v.role && x.status === o.v.status && x.name === o.v.name) { delete uov[id]; return; }
+      x.role = o.v.role; x.status = o.v.status; x.name = o.v.name;
+    });
+    return list;
+  }
+  function userById(id){ return findBy(userList(), function(u){ return u.id === id; }); }
+  function pwMin(){ var d = users.d || {}; return typeof d.password_min === 'number' && d.password_min > 0 ? d.password_min : d.live === false ? 5 : 10; }
+  function loadUsers(force){
+    if (!force && users.d && Date.now() - users.at < FRESH) return Promise.resolve(users.d);
+    if (inflight._users) return inflight._users;
+    var p = api('GET', '/api/booking/admin?users=1').then(function(d){
+      users = { d: d, at: Date.now(), err: null }; delete inflight._users; dataVer++;
+      return d;
+    }, function(e){
+      delete inflight._users; users = { d: users.d, at: users.at, err: e }; dataVer++;
+      throw e;
+    });
+    inflight._users = p;
+    return p;
+  }
+  function actWho(){ return route.q.who || ''; }
+  function actUrl(user, before){ return '/api/booking/admin?activity=1&limit=' + ACT_LIMIT + (user ? '&user=' + encodeURIComponent(user) : '') + (before ? '&before=' + before : ''); }
+  function normEntry(x){
+    x = x || {};
+    var a = x.actor && typeof x.actor === 'object' ? x.actor : {}, t = typeof x.t === 'number' ? x.t : Date.parse(x.at || '');
+    return { id: String(x.id || ''), t: isFinite(t) ? t : 0, actor: { id: String(a.id || ''), name: String(a.name || ''), role: String(a.role || '') },
+      action: String(x.action || ''), ref: x.ref ? String(x.ref) : '', program: x.program ? String(x.program) : '', summary: String(x.summary || '') };
+  }
+  // the newest page (for one person, or everyone); older pages loaded before stay below it
+  function loadActivity(force){
+    var u = actWho(), k = 'act:' + u;
+    if (!force && !acts.stale && acts.loaded && acts.user === u && Date.now() - acts.at < FRESH) return Promise.resolve(acts);
+    if (inflight[k]) return inflight[k];
+    var p = api('GET', actUrl(u)).then(function(d){
+      delete inflight[k];
+      if (u !== actWho()) return acts;   // the person filter changed meanwhile
+      var fresh = (Array.isArray(d.entries) ? d.entries : []).map(normEntry), more = !!d.has_more;
+      seeActors(fresh);
+      if (more && acts.loaded && acts.user === u && fresh.length && acts.list.length > fresh.length) {
+        var seen = {}, low = fresh[fresh.length - 1].t;
+        fresh.forEach(function(x){ seen[x.id] = 1; });
+        var keep = acts.list.filter(function(x){ return !seen[x.id] && x.t <= low; });
+        if (keep.length) { fresh = fresh.concat(keep); more = acts.has_more; }
+      }
+      acts = { list: fresh, has_more: more, user: u, at: Date.now(), loaded: true, stale: false, err: null, errUser: null, api: Array.isArray(d.entries), demo: !!d.demo };
+      dataVer++;
+      return acts;
+    }, function(e){
+      delete inflight[k];
+      if (u === actWho()) { acts.err = e; acts.errUser = u; dataVer++; }
+      throw e;
+    });
+    inflight[k] = p;
+    return p;
+  }
+  function loadTeam(force){
+    var keep = function(e){ return { _err: e }; };
+    return Promise.all([loadUsers(force).then(null, keep), loadActivity(force).then(null, keep)]).then(function(r){
+      var a = findBy(r, function(x){ return x && x._err && x._err.message === 'auth'; });
+      if (a) throw a._err;
+    });
+  }
+  function loadOlder(btn){
+    if (!acts.loaded || !acts.list.length || acts.older) return;
+    var u = acts.user, before = acts.list[acts.list.length - 1].t, done = busyBtn(btn, 'Loading…');
+    acts.older = true;
+    api('GET', actUrl(u, before)).then(function(d){
+      acts.older = false; done();
+      if (u !== acts.user) return;
+      var seen = {}, n = acts.list.length;
+      acts.list.forEach(function(x){ seen[x.id] = 1; });
+      var add = (Array.isArray(d.entries) ? d.entries : []).map(normEntry).filter(function(x){ return !seen[x.id]; });
+      seeActors(add);
+      acts.list = acts.list.concat(add); acts.has_more = !!d.has_more && add.length > 0;
+      keepFocus(renderActivity);
+      // the button is gone at the end of the log: carry on from the count
+      if (!document.activeElement || document.activeElement === document.body) { var s = $('aSum'); if (s) { s.setAttribute('tabindex', '-1'); s.focus(); } }
+      toast(add.length ? esc(plural(add.length, 'older entry', 'older entries')) + ' loaded.' : 'No older entries.', 'ok');
+      if (n && add.length) navList = uniq((actRows() || []).filter(function(x){ return isBookingRef(x.ref); }).map(function(x){ return x.ref; }));
+    }, function(e){ acts.older = false; done(); if (authFail(e)) return; toast('Could not load older entries: ' + esc(why(e)), 'err'); });
+  }
+
+  /* ---------------------------------------------------------------- users panel */
+  function userRow(u){
+    var off = u.status === 'disabled', last = u.last_login_at ? Date.parse(u.last_login_at) : 0, made = u.created_at ? Date.parse(u.created_at) : 0;
+    return '<tr' + (off ? ' class="off"' : '') + '><td class="main"><span class="nm">' + esc(u.name) + '</span></td>' +
+      '<td data-l="Username"><span class="uname">' + esc(u.username) + '</span></td>' +
+      '<td data-l="Role"><select class="urole" data-urole="' + esc(u.id) + '" aria-label="Role of ' + esc(u.name) + '">' + opt('team', 'Team', u.role) + opt('viewer', 'View only', u.role) + '</select></td>' +
+      '<td data-l="Status">' + (off ? '<span class="pill can">Disabled</span>' : '<span class="pill act">Active</span>') + '</td>' +
+      '<td data-l="Test">' + (u.test ? '<span class="pill demo" title="Made with Create 3 test users">Test</span>' : '') + '</td>' +
+      '<td data-l="Last sign-in"' + (last ? ' title="' + esc(new Date(last).toLocaleString('en-GB')) + '"' : '') + '>' + (last ? esc(ago(Math.floor(last / 1000))) : '<span class="muted">Never</span>') + '</td>' +
+      '<td data-l="Created">' + (made ? esc(fmtDay(Math.floor(made / 1000))) : '–') + '</td>' +
+      '<td class="ed"><div class="uact"><button type="button" class="btn btn-ghost btn-sm" data-uact="reset:' + esc(u.id) + '">Reset password</button>' +
+        (off ? '<button type="button" class="btn btn-ghost btn-sm" data-uact="enable:' + esc(u.id) + '">Enable</button>' : '<button type="button" class="btn btn-ghost btn-sm" data-uact="disable:' + esc(u.id) + '">Disable</button>') + '</div></td></tr>';
+  }
+  function skel(n){ var h = '<div aria-busy="true"><span class="vh">Loading…</span>'; for (var i = 0; i < n; i++) h += '<span class="sk" style="width:' + (55 + (i * 29) % 40) + '%"></span>'; return h + '</div>'; }
+  function renderUsers(){
+    var box = $('tmUsers'); if (!box) return;
+    var d = users.d, rk = modal && modal.ret && $('view').contains(modal.ret) ? focusKey(modal.ret) : null;
+    $('tmAdd').hidden = true; $('tmTest').hidden = true;
+    if (!d) { $('tmUsersSub').textContent = ''; box.innerHTML = users.err && !inflight._users ? '<p class="note err">Could not load the users: ' + esc(why(users.err)) + ' <button type="button" class="lnk" data-retry>Try again</button></p>' : skel(3); return; }
+    if (!Array.isArray(d.users)) { $('tmUsersSub').textContent = ''; box.innerHTML = '<p class="note">The booking system doesn\'t manage team users yet: that comes with the next deployment of the booking functions.</p>'; return; }
+    if (d.demo) { $('tmUsersSub').textContent = ''; box.innerHTML = '<p class="note">Demo mode: Stripe isn\'t connected yet (no <code>STRIPE_SECRET_KEY</code>). Team users are kept in Stripe, so they can be added once it is.</p>'; return; }
+    var list = userList(), on = list.filter(function(u){ return u.status !== 'disabled'; }).length;
+    $('tmUsersSub').textContent = list.length ? plural(list.length, 'person', 'people') + ' · ' + on + ' active' : '';
+    $('tmAdd').hidden = false; $('tmTest').hidden = d.live !== false;
+    box.innerHTML = (users.err ? '<p class="note err">Could not refresh the users: ' + esc(why(users.err)) + '. Showing the list from ' + clock(users.at) + '.</p>' : '') + (list.length
+      ? '<div class="tw"><table class="tbl stack"><thead><tr><th>Name</th><th>Username</th><th>Role</th><th>Status</th><th>Test</th><th>Last sign-in</th><th>Created</th><th><span class="vh">Actions</span></th></tr></thead><tbody>' + list.map(userRow).join('') + '</tbody></table></div>'
+      : '<div class="empty"><h2>No team members yet</h2><p>Add the people who help with bookings. ' + (d.live === false ? 'Or create 3 test users to try the roles.' : '') + '</p></div>');
+    // a modal opened from a button in the old table returns focus to the same button in the new one
+    if (rk && modal && !document.body.contains(modal.ret)) { var n = null; try { n = $('view').querySelector(rk); } catch (x) {} if (n) modal.ret = n; }
+  }
+  // after a change: the list now, the server's (and the log) again shortly
+  function teamChanged(key){
+    keepFocus(renderUsers);
+    var a = document.activeElement;
+    if (key && (!a || a === document.body || !document.body.contains(a))) { var n = null; try { n = $('view').querySelector(key); } catch (x) {} if (n) n.focus(); }
+    acts.stale = true;
+    setTimeout(function(){ if (token && route.tab === 'team') ensure('team', true); }, 1500);
+  }
+  function userErr(e){
+    if (e && e.status === 404) setTimeout(function(){ if (token && route.tab === 'team') ensure('team', true); }, 0);   // gone meanwhile: the list again
+    var fl = e && e.data && e.data.fields; return fl && Object.keys(fl).length ? Object.keys(fl).map(function(k){ return fl[k]; }).join(' ') : why(e);
+  }
+  function changeRole(id, role, sel){
+    var u = userById(id); if (!u || u.role === role) return;
+    var before = u.role, key = focusKey(sel);
+    sel.disabled = true;
+    post({ action: 'user_update', id: id, role: role }).then(function(d){
+      var x = normUser(d && d.user ? d.user : u); if (!(d && d.user)) x.role = role;
+      rememberUser(x); teamChanged(key);
+      toast(esc(x.username) + ' is now ' + esc(ROLES[x.role]) + '. They are signed out and sign in again with the same password.', 'ok');
+    }, function(e){
+      if (document.body.contains(sel)) { sel.disabled = false; sel.value = before; sel.focus(); }
+      if (authFail(e)) return;
+      toast('Could not change the role of ' + esc(u.username) + ': ' + esc(userErr(e)), 'err');
+    });
+  }
+  function setUserStatus(u, status, btn){
+    var off = status === 'disabled', next = '[data-uact="' + (off ? 'enable:' : 'disable:') + u.id.replace(/["\\]/g, '\\$&') + '"]';
+    var go = function(){
+      var done = busyBtn(btn, off ? 'Disabling…' : 'Enabling…');
+      post({ action: 'user_update', id: u.id, status: status }).then(function(d){
+        done();
+        var x = normUser(d && d.user ? d.user : u); if (!(d && d.user)) x.status = status;
+        rememberUser(x); teamChanged(next);
+        toast(off ? esc(u.username) + ' is disabled: signed out, and can\'t sign in until you enable them again.' : esc(u.username) + ' can sign in again with their password.', 'ok');
+      }, function(e){ done(); if (authFail(e)) return; toast('Could not ' + (off ? 'disable ' : 'enable ') + esc(u.username) + ': ' + esc(userErr(e)), 'err'); });
+    };
+    if (!off) { go(); return; }
+    confirmBox({ title: 'Disable ' + u.name + '?', danger: true, ok: 'Disable user', cancel: 'Keep access', ret: btn,
+      html: '<p><b>' + esc(u.username) + '</b> is signed out at once and can\'t sign in until you enable them again. What they did stays in the activity log.</p>' })
+      .then(function(yes){ if (yes) go(); });
+  }
+
+  /* ---------------------------------------------------------------- passwords: shown once */
+  // items: [{ username, name, role, password }]
+  function showPasswords(title, items, ret, intro){
+    var many = items.length > 1;
+    var all = items.map(function(x){ return x.username + ' / ' + x.password; }).join('\n') + '\n\nSign in at ' + DASH_URL;
+    openModal('<h2 id="mTitle">' + esc(title) + '</h2>' + (intro ? '<p class="mtext">' + intro + '</p>' : '') +
+      '<p class="note warn"><b>Shown once.</b> Copy ' + (many ? 'these passwords' : 'the password') + ' now: ' + (many ? 'they' : 'it') + ' won\'t be shown again. If one gets lost, reset it.</p>' +
+      '<table class="pwl"><thead><tr><th>User</th><th>Password</th><th><span class="vh">Copy</span></th></tr></thead><tbody>' + items.map(function(x, i){
+        return '<tr><td><b class="uname">' + esc(x.username) + '</b><span class="sub">' + esc(x.name + (ROLES[x.role] ? ' · ' + ROLES[x.role] : '')) + '</span></td><td><code>' + esc(x.password) + '</code></td>' +
+          '<td><button type="button" class="btn btn-ghost btn-sm" data-pw="' + i + '" aria-label="Copy the password of ' + esc(x.username) + '">Copy</button></td></tr>';
+      }).join('') + '</tbody></table>' +
+      '<p class="pwurl">They sign in at <a href="' + esc(DASH_URL) + '" target="_blank" rel="noopener">' + esc(DASH_URL) + '</a> with their username and password.</p>' +
+      '<label class="f" id="pwHandWrap" hidden style="margin-top:10px"><span>Your browser didn\'t allow copying: select the text and copy it (Ctrl+C or ⌘C).</span><textarea id="pwHand" rows="5" readonly></textarea></label>' +
+      '<div class="mact"><button type="button" class="btn btn-ghost" id="pwAll">Copy all</button><button type="button" class="btn" data-close>Done</button></div>', { ret: ret, focus: '#pwAll', sticky: true });
+    // copying by hand stays in this modal: another modal would close it, and the passwords with it
+    var cp = function(text, what){
+      copyText(text).then(function(){ toast(esc(what) + ' copied.', 'ok'); }, function(){ var w = $('pwHandWrap'), t = $('pwHand'); if (!w) return; w.hidden = false; t.value = text; t.focus(); t.select(); });
+    };
+    each($('mbox').querySelectorAll('[data-pw]'), function(b){ b.onclick = function(){ var x = items[+b.getAttribute('data-pw')]; cp(x.password, 'Password of ' + x.username); }; });
+    $('pwAll').onclick = function(){ cp(all, many ? 'Usernames and passwords' : 'Username and password'); };
+  }
+
+  /* ---------------------------------------------------------------- add a user, reset a password, test users */
+  var LATIN = { a: 'áàâäãåāą', c: 'çčć', e: 'éèêëēęė', g: 'ģğ', i: 'íìîïī', k: 'ķ', l: 'ļł', n: 'ñņńň', o: 'óòôöõøō', r: 'ř', s: 'šśş', u: 'úùûüūů', y: 'ýÿ', z: 'žźż' };
+  // "Ānis Bērziņš" → "anis": a username to start from (the owner can change it)
+  function suggestUsername(name){
+    var s = String(name || '').toLowerCase().replace(/[^\x00-\x7f]/g, function(ch){ for (var k in LATIN) if (LATIN[k].indexOf(ch) >= 0) return k; return ''; });
+    var w = s.split(/[^a-z0-9]+/).filter(Boolean);
+    if (!w.length) return '';
+    return (w[0].length >= 3 || w.length < 2 ? w[0] : w.join('.')).slice(0, 32);
+  }
+  var UNAME = /^[a-z0-9._-]{3,32}$/;
+  function pwModeHtml(prefix, min){
+    return '<fieldset class="f" style="margin-top:14px"><legend class="lbl">Password</legend><div class="radios"><label class="radio"><input type="radio" name="' + prefix + 'Mode" value="gen" checked> Make one up for me</label><label class="radio"><input type="radio" name="' + prefix + 'Mode" value="own"> I\'ll type one</label></div></fieldset>' +
+      '<label class="f" id="' + prefix + 'PwWrap" hidden style="margin-top:10px"><span>Password <small>(' + min + '–100 characters)</small></span><input type="text" id="' + prefix + 'Pw" maxlength="100" autocomplete="off" autocapitalize="off" spellcheck="false"><span class="err" data-uerr="password"></span></label>';
+  }
+  function bindPwMode(prefix){
+    each($('mbox').querySelectorAll('input[name="' + prefix + 'Mode"]'), function(r){
+      r.onchange = function(){ var own = r.value === 'own' && r.checked; $(prefix + 'PwWrap').hidden = !own; if (own) $(prefix + 'Pw').focus(); };
+    });
+  }
+  function pwChoice(prefix){ var own = $('mbox').querySelector('input[name="' + prefix + 'Mode"][value="own"]'); return own && own.checked ? $(prefix + 'Pw').value.trim() : null; }
+  function pwProblem(pw){ var min = pwMin(); return pw.length < min ? 'At least ' + min + ' characters.' : pw.length > 100 ? 'At most 100 characters.' : ''; }
+  // field errors next to their fields; any other message under the form
+  function formErrors(form, fields, msg){
+    each(form.querySelectorAll('[data-uerr]'), function(s){ s.textContent = ''; });
+    each(form.querySelectorAll('[aria-invalid]'), function(x){ x.removeAttribute('aria-invalid'); });
+    var first = null, rest = [];
+    Object.keys(fields || {}).forEach(function(k){
+      var s = form.querySelector('[data-uerr="' + k + '"]'), wrap = s && s.closest('[hidden]');
+      if (!s || wrap) { rest.push(fields[k]); return; }
+      s.textContent = fields[k];
+      var c = s.parentNode.querySelector('input:not([type="radio"]),select') || s.parentNode.querySelector('input');
+      if (c) { c.setAttribute('aria-invalid', 'true'); if (!first) first = c; }
+    });
+    var m = form.querySelector('.merr'), text = [msg || (Object.keys(fields || {}).length ? 'Please check the highlighted details.' : '')].concat(rest).filter(Boolean).join(' ');
+    m.textContent = text; m.hidden = !text;
+    if (first) first.focus();
+  }
+  function openUserForm(ret){
+    var touched = false;
+    openModal('<h2 id="mTitle">Add a user</h2><p class="muted" style="margin:0 0 14px">They sign in with their own username and password. You see the password once, to send to them.</p>' +
+      '<form id="ufForm" novalidate><div class="fgrid">' +
+        '<label class="f"><span>Name</span><input type="text" id="ufName" maxlength="60" autocomplete="off" placeholder="e.g. Anna Bērziņa"><span class="err" data-uerr="name"></span></label>' +
+        '<label class="f"><span>Username <small>(3–32: a–z, 0–9, . _ -)</small></span><input type="text" id="ufUser" maxlength="32" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="e.g. anna"><span class="err" data-uerr="username"></span></label></div>' +
+        '<fieldset class="f" style="margin-top:14px"><legend class="lbl">Role</legend><div class="radios"><label class="radio"><input type="radio" name="ufRole" value="team" checked> Team <small class="muted">· every booking action</small></label>' +
+          '<label class="radio"><input type="radio" name="ufRole" value="viewer"> View only <small class="muted">· can look, can\'t change</small></label></div><span class="err" data-uerr="role"></span></fieldset>' +
+        pwModeHtml('uf', pwMin()) +
+        '<p class="merr" role="alert" hidden></p>' +
+        '<div class="mact"><button type="button" class="btn btn-ghost" data-close>Cancel</button><button type="submit" class="btn" id="ufGo">Add user</button></div></form>', { ret: ret, focus: '#ufName', sticky: true });
+    var form = $('ufForm');
+    bindPwMode('uf');
+    $('ufName').oninput = function(){ if (!touched) $('ufUser').value = suggestUsername($('ufName').value); };
+    $('ufUser').oninput = function(){ touched = !!$('ufUser').value; };
+    $('ufUser').onblur = function(){ $('ufUser').value = $('ufUser').value.trim().toLowerCase(); };
+    form.addEventListener('input', function(e){ var t = e.target; if (t.getAttribute('aria-invalid')) { t.removeAttribute('aria-invalid'); var s = t.parentNode.querySelector('.err'); if (s) s.textContent = ''; } });
+    form.onsubmit = function(e){
+      e.preventDefault();
+      var name = $('ufName').value.trim(), un = $('ufUser').value.trim().toLowerCase(), roleEl = form.querySelector('input[name="ufRole"]:checked'), role = roleEl ? roleEl.value : 'team', pw = pwChoice('uf'), f = {};
+      $('ufUser').value = un;
+      if (!name) f.name = 'Add their name.';
+      else if (/^[=+\-@]/.test(name)) f.name = 'A name can\'t start with = + - or @.';
+      if (!UNAME.test(un)) f.username = 'Use 3–32 characters: a–z, 0–9, dot, dash or underscore.';
+      else if (findBy(userList(), function(u){ return u.username.toLowerCase() === un; })) f.username = 'Already taken.';
+      if (pw != null && pwProblem(pw)) f.password = pwProblem(pw);
+      if (Object.keys(f).length) { formErrors(form, f); return; }
+      formErrors(form, {});
+      var body = { action: 'user_create', name: name, username: un, role: role };
+      if (pw != null) body.password = pw;
+      var btn = $('ufGo'), done = busyBtn(btn, 'Adding…');
+      post(body).then(function(d){
+        done();
+        var x = normUser(d && d.user ? d.user : { username: un, name: name, role: role }), pass = d && typeof d.password === 'string' ? d.password : pw;
+        if (x.id) rememberUser(x);
+        teamChanged();
+        if (pass) showPasswords('User ' + x.username + ' added', [{ username: x.username, name: x.name, role: x.role, password: pass }], $('tmAdd'), 'Send <b>' + esc(x.test ? x.username : firstName(x.name) || x.username) + '</b> the username, the password and the link below.');
+        else { closeModal(); toast('User ' + esc(x.username) + ' added.', 'ok'); }
+      }, function(e){
+        done();
+        if (authFail(e)) return;
+        var fl = e.data && e.data.fields;
+        if (fl && Object.keys(fl).length) { formErrors(form, fl, e.message && !/^Please/.test(e.message) && !(e.status === 409 && fl.username) ? e.message : null); return; }
+        formErrors(form, {}, why(e)); btn.focus();
+      });
+    };
+  }
+  function openReset(u, ret){
+    openModal('<h2 id="mTitle">Reset the password of ' + esc(u.name) + '?</h2>' +
+      '<p class="mtext">The current password stops working at once and <b>' + esc(u.username) + '</b> is signed out. You see the new one once, to send to them.</p>' +
+      '<form id="rpForm" novalidate>' + pwModeHtml('rp', pwMin()) + '<p class="merr" role="alert" hidden></p>' +
+      '<div class="mact"><button type="button" class="btn btn-ghost" data-close>Cancel</button><button type="submit" class="btn" id="rpGo">Reset password</button></div></form>', { ret: ret, sticky: true });
+    var form = $('rpForm');
+    bindPwMode('rp');
+    $('rpPw').oninput = function(){ if ($('rpPw').getAttribute('aria-invalid')) formErrors(form, {}); };
+    form.onsubmit = function(e){
+      e.preventDefault();
+      var pw = pwChoice('rp');
+      if (pw != null && pwProblem(pw)) { formErrors(form, { password: pwProblem(pw) }); return; }
+      var body = { action: 'user_update', id: u.id };
+      if (pw != null) body.password = pw; else body.reset_password = true;
+      var btn = $('rpGo'), done = busyBtn(btn, 'Resetting…'), key = focusKey(ret);
+      post(body).then(function(d){
+        done();
+        var x = normUser(d && d.user ? d.user : u), pass = d && typeof d.password === 'string' ? d.password : pw;
+        rememberUser(x); teamChanged();
+        var back = null; try { back = key && $('view').querySelector(key); } catch (z) {}
+        if (pass) showPasswords('New password for ' + x.username, [{ username: x.username, name: x.name, role: x.role, password: pass }], back || ret, 'Send it to <b>' + esc(x.test ? x.username : firstName(x.name) || x.username) + '</b>. The old one no longer works.');
+        else { closeModal(); toast('Password of ' + esc(x.username) + ' reset.', 'ok'); }
+      }, function(e){
+        done();
+        if (authFail(e)) return;
+        var fl = e.data && e.data.fields;
+        formErrors(form, fl || {}, fl && Object.keys(fl).length ? null : userErr(e));
+        if (!(fl && Object.keys(fl).length)) btn.focus();
+      });
+    };
+  }
+  function createTestUsers(btn){
+    confirmBox({ title: 'Create 3 test users?', ok: 'Create test users', ret: btn,
+      html: '<p><b>test1</b> and <b>test2</b> (Team) and <b>test3</b> (View only), each with a new password, to try the dashboard as a team member. Any of them made before is enabled again with a new password.</p><p class="muted">Stripe test mode only.</p>' })
+      .then(function(yes){
+        if (!yes) return;
+        var done = busyBtn(btn, 'Creating…');
+        post({ action: 'test_users_create' }).then(function(d){
+          done();
+          var items = (d && Array.isArray(d.users) ? d.users : []).filter(function(r){ return r && r.user && typeof r.password === 'string'; }).map(function(r){
+            var x = normUser(r.user); rememberUser(x); return { username: x.username, name: x.name, role: x.role, password: r.password };
+          });
+          teamChanged();
+          if (items.length) showPasswords(plural(items.length, 'test user') + ' ready', items, $('tmTest'), 'Each signs in with their username and password. Team users can do every booking action; View only can look but not change anything.');
+          else toast('Test users created. Reset a password to see it.', 'warn');
+        }, function(e){
+          done(); if (authFail(e)) return;
+          if (e.code === 'live_mode' && users.d) { users.d.live = true; keepFocus(renderUsers); }
+          toast('Could not create the test users: ' + esc(userErr(e)), 'err');
+        });
+      });
+  }
+
+  /* ---------------------------------------------------------------- activity log panel */
+  function actFilters(){ return { who: actWho(), grp: route.q.grp || '', q: route.q.q || '' }; }
+  function setActQ(k, v){ var q = copyObj(route.q); if (v) q[k] = v; else delete q[k]; replaceQ(q); }
+  // the loaded entries that pass the filters; null while the person's entries aren't in yet
+  function actRows(){
+    var f = actFilters(), terms = f.q.toLowerCase().split(/\s+/).filter(Boolean);
+    if (!acts.loaded || acts.user !== f.who) return null;
+    return acts.list.filter(function(x){
+      if (f.grp && actGroup(x.action) !== f.grp) return false;
+      if (!terms.length) return true;
+      var hay = [x.actor.name, ROLES[x.actor.role] || '', actLabel(x.action), x.action, x.ref, x.summary, x.program && PBY[x.program] ? wkName(x.program) : x.program].join(' ').toLowerCase();
+      for (var i = 0; i < terms.length; i++) if (hay.indexOf(terms[i]) < 0) return false;
+      return true;
+    });
+  }
+  function actPeople(){
+    var out = [['', 'Everyone'], ['owner', 'Main admin']], seen = { '': 1, owner: 1 };
+    userList().forEach(function(u){ if (!seen[u.id]) { seen[u.id] = 1; out.push([u.id, u.name + ' (' + u.username + ')' + (u.status === 'disabled' ? ' · disabled' : '')]); } });
+    Object.keys(actors).forEach(function(id){ if (!seen[id]) { seen[id] = 1; out.push([id, id === '-' ? 'Refused sign-ins' : actors[id]]); } });
+    var w = actWho(); if (w && !seen[w]) out.push([w, w === '-' ? 'Refused sign-ins' : w]);
+    return out;
+  }
+  // "5 Oct, 14:32" (with the year when it isn't this year)
+  function actWhen(t){ var d = new Date(t); return d.toLocaleString('en-GB', { day: 'numeric', month: 'short', year: d.getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined, hour: '2-digit', minute: '2-digit' }); }
+  function actRef(x){
+    if (!x.ref || /^cus_/.test(x.ref)) return '';
+    if (/^BL-/.test(x.ref)) return blkReg[x.ref] ? '<button type="button" class="refbtn" data-block="' + esc(x.ref) + '" title="Block details">' + esc(x.ref) + '</button>' : '<code>' + esc(x.ref) + '</code>';
+    if (isBookingRef(x.ref)) return '<button type="button" class="refbtn" data-open="' + esc(x.ref) + '" data-w="' + esc(PBY[x.program] ? x.program : '') + '" title="Open booking ' + esc(x.ref) + '">' + esc(x.ref) + '</button>';
+    return '<code>' + esc(x.ref) + '</code>';
+  }
+  function actRow(x){
+    var r = x.actor, owner = r.id === 'owner' || r.role === 'owner';
+    return '<tr><td class="main when"><span title="' + esc(x.t ? new Date(x.t).toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' }) : '') + '">' + esc(x.t ? actWhen(x.t) : '–') + '</span></td>' +
+      '<td data-l="Who" class="who">' + (owner && (!r.name || r.name === ROLES.owner) ? rolePill('owner') : '<span class="nm">' + esc(r.name || '–') + '</span>' + rolePill(r.role)) + (r.id === '-' ? '<span class="sub">username tried</span>' : '') + '</td>' +
+      '<td data-l="What">' + (x.action === 'login_failed' ? '<span class="pill chk">' + esc(actLabel(x.action)) + '</span>' : esc(actLabel(x.action))) + '</td>' +
+      '<td data-l="Booking">' + actRef(x) + '</td>' +
+      '<td data-l="Details">' + (x.summary ? esc(x.summary) : '<span class="muted">–</span>') + '</td></tr>';
+  }
+  function syncActFilters(){
+    if (!$('aWho')) return;
+    var f = actFilters();
+    $('aWho').innerHTML = actPeople().map(function(p){ return opt(p[0], p[1], f.who); }).join('');
+    $('aGrp').innerHTML = opt('', 'All actions', f.grp) + ACT_GROUPS.map(function(g){ return opt(g[0], g[1], f.grp); }).join('');
+    if (document.activeElement !== $('aQ')) $('aQ').value = f.q;
+  }
+  function renderActivity(){
+    var box = $('tmAct'); if (!box) return;
+    syncActFilters();
+    var f = actFilters(), rows = actRows(), filtered = !!(f.grp || f.q);
+    if (!rows) {
+      var failed = acts.err && acts.errUser === f.who && !inflight['act:' + f.who];
+      box.innerHTML = failed ? '<p class="note err">Could not load the activity log: ' + esc(why(acts.err)) + ' <button type="button" class="lnk" data-retry>Try again</button></p>' : skel(5);
+      $('aSum').textContent = ''; $('tmCsv').disabled = true;
+      return;
+    }
+    if (!acts.api || acts.demo) { box.innerHTML = acts.demo ? '<p class="note">Demo mode: Stripe isn\'t connected yet (no <code>STRIPE_SECRET_KEY</code>). The activity log is kept in Stripe, so it starts once it is.</p>' : '<p class="note">The booking system doesn\'t keep an activity log yet: it starts with the next deployment of the booking functions.</p>'; $('aSum').textContent = ''; $('tmCsv').disabled = true; return; }
+    navList = uniq(rows.filter(function(x){ return isBookingRef(x.ref); }).map(function(x){ return x.ref; }));
+    $('aSum').innerHTML = '<b>' + esc(plural(rows.length, 'entry', 'entries')) + '</b>' + (filtered ? ' of ' + acts.list.length + ' loaded' : '') + (acts.has_more ? ' · older ones not loaded yet' : '') +
+      (filtered || f.who ? ' <button type="button" class="lnk" id="aClear">Clear filters</button>' : '');
+    $('tmCsv').disabled = !rows.length;
+    $('tmCsv').textContent = 'Export CSV' + (rows.length ? ' (' + rows.length + ')' : '');
+    box.innerHTML = (acts.err && acts.errUser === f.who ? '<p class="note err">Could not refresh the log: ' + esc(why(acts.err)) + '. Showing it as of ' + clock(acts.at) + '.</p>' : '') + (rows.length
+      ? '<div class="tw"><table class="tbl stack atbl"><thead><tr><th>When</th><th>Who</th><th>What</th><th>Booking</th><th>Details</th></tr></thead><tbody>' + rows.map(actRow).join('') + '</tbody></table></div>'
+      : '<div class="empty"><h2>' + (acts.list.length ? 'No entries match' : 'Nothing logged yet') + '</h2><p>' + (acts.list.length ? (acts.has_more ? 'Try other filters, or load older entries.' : 'Try other filters.') : f.who ? 'Nothing from this person in the log yet.' : 'Changes made in the dashboard, and sign-ins, appear here.') + '</p></div>') +
+      (acts.has_more ? '<div class="more"><button type="button" class="btn btn-ghost btn-sm" id="aMore">Load older entries</button></div>' : '');
+  }
+  function activityCsv(){
+    var rows = actRows() || [];
+    if (!rows.length) return;
+    downloadCsv('activity-log-' + todayIso() + '.csv', ['time', 'person', 'role', 'person_id', 'action', 'what', 'group', 'reference', 'week', 'details'], rows.map(function(x){
+      var g = findBy(ACT_GROUPS, function(y){ return y[0] === actGroup(x.action); });
+      return [x.t ? new Date(x.t).toISOString() : '', x.actor.name, ROLES[x.actor.role] || x.actor.role, x.actor.id, x.action, actLabel(x.action), g ? g[1] : '', x.ref, x.program ? (PBY[x.program] ? wkName(x.program) : x.program) : '', x.summary];
+    }));
+  }
+  VIEWS.team = {
+    mount: function(el){
+      el.innerHTML = '<section class="panel"><div class="ph"><h2>Users <small id="tmUsersSub"></small></h2><div class="tbtns"><button type="button" class="btn btn-ghost btn-sm" id="tmTest" hidden>Create 3 test users</button><button type="button" class="btn btn-sm" id="tmAdd" hidden>Add user</button></div></div>' +
+          '<p class="tm-intro">Team members sign in with their own username and password. <b>Team</b> can do every booking action; <b>View only</b> can look but not change anything. Only you see this tab.</p><div id="tmUsers"></div></section>' +
+        '<section class="panel"><div class="ph"><h2>Activity log <small>who did what, newest first</small></h2><div class="tbtns"><button type="button" class="btn btn-ghost btn-sm" id="tmCsv">Export CSV</button>' +
+          '<button type="button" class="ibtn" id="tmActRefresh" title="Refresh the log (R)" aria-label="Refresh the activity log">' + IC.refresh + '</button></div></div>' +
+          '<div class="toolbar atb" role="search"><select id="aWho" aria-label="Person"></select><select id="aGrp" aria-label="Kind of action"></select>' +
+            '<div class="grow"><input type="search" id="aQ" placeholder="Search: booking, room, name, amount" aria-label="Search the activity log" autocomplete="off"></div></div>' +
+          '<p class="sumline" id="aSum" aria-live="polite"></p><div id="tmAct"></div></section>';
+      var qt = null;
+      $('tmAdd').onclick = function(){ openUserForm($('tmAdd')); };
+      $('tmTest').onclick = function(){ createTestUsers($('tmTest')); };
+      $('tmUsers').addEventListener('change', function(e){ var s = e.target; if (s.hasAttribute('data-urole')) changeRole(s.getAttribute('data-urole'), s.value, s); });
+      $('tmUsers').addEventListener('click', function(e){
+        var b = e.target.closest && e.target.closest('[data-uact]'); if (!b) return;
+        var v = b.getAttribute('data-uact'), i = v.indexOf(':'), act = v.slice(0, i), u = userById(v.slice(i + 1));
+        if (!u) return;
+        if (act === 'reset') openReset(u, b); else setUserStatus(u, act === 'disable' ? 'disabled' : 'active', b);
+      });
+      $('aWho').onchange = function(){ setActQ('who', $('aWho').value); renderActivity(); ensure('team'); };
+      $('aGrp').onchange = function(){ setActQ('grp', $('aGrp').value); renderActivity(); };
+      $('aQ').oninput = function(){ var v = $('aQ').value; clearTimeout(qt); qt = setTimeout(function(){ setActQ('q', v.trim()); renderActivity(); }, 120); };
+      $('tmCsv').onclick = activityCsv;
+      $('tmActRefresh').onclick = function(){ ensure('team', true); };
+      $('tmAct').addEventListener('click', function(e){
+        var t = e.target, el = t.closest && t.closest('#aMore, [data-block]');
+        if (!el) return;
+        if (el.id === 'aMore') loadOlder(el); else openBlock(el.getAttribute('data-block'), el);
+      });
+      $('aSum').addEventListener('click', function(e){
+        if (!(e.target.closest && e.target.closest('#aClear'))) return;
+        var had = !!actWho(); replaceQ({}); renderActivity(); if (had) ensure('team'); $('aQ').focus();
+      });
+    },
+    update: function(){ renderUsers(); renderActivity(); }
+  };
 
   /* ================================================================ booking drawer */
   var drawerRef = null, drawerRet = null, drawerPushed = false;
@@ -3027,7 +3575,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     var named = b.guests.some(function(g){ var rt = roomType(id, g.room); return rt && rt.names && rt.names.length; });
     html += '<section class="dr-sec"><h3>Guests <small>' + b.guests.length + '</small></h3><table class="mini"><thead><tr><th>Guest</th><th>Room type</th><th>' + (named ? 'Room' : '') + '</th></tr></thead><tbody>' + b.guests.map(function(g, gi){
       var rt = roomType(id, g.room), names = rt && rt.names || [];
-      var cell = names.length && !can ? roomSelect(id, rm, b, gi, 'class="inl" data-assign="' + gi + '"') : b.assign[gi] ? esc(b.assign[gi]) : names.length ? '<span class="muted">–</span>' : '';
+      var cell = names.length && !can && canWrite() ? roomSelect(id, rm, b, gi, 'class="inl" data-assign="' + gi + '"') : b.assign[gi] ? esc(b.assign[gi]) : names.length ? '<span class="muted">–</span>' : '';
       return '<tr><td><b>' + esc(g.name) + '</b> ' + gBadge(g.gender) + (g.email ? '<span class="sub">' + esc(g.email) + '</span>' : '') + '</td><td>' + esc(rt ? rt.name : g.room) + '</td><td>' + cell + '</td></tr>';
     }).join('') + '</tbody></table>' + (lastWarn[b.ref] && lastWarn[b.ref].length ? '<ul class="warns">' + lastWarn[b.ref].map(function(w){ return '<li>' + esc(typeof w === 'string' ? w : w.message || JSON.stringify(w)) + '</li>'; }).join('') + '</ul>' : '') + '</section>';
     // money: the parts add up to the total (programme_cents and the sessions are what was charged, after any discount)
@@ -3051,21 +3599,22 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
       var label = (a.title || 'session') + ' for ' + guestName(b, a);
       return '<li class="svi' + ((a.status || 'todo') === 'cancelled' ? ' off' : '') + '"><b>' + esc((a.practitioner_name ? a.practitioner_name + ': ' : '') + (a.title || a.id)) + '</b>' +
         '<span class="sub">' + (a.minutes ? a.minutes + ' min · ' : '') + eur(sessCents(a)) + ' · for ' + esc(guestName(b, a)) + ' · ' + (a.source === 'extra' ? 'added after booking' : 'booked with the stay') + (a.pending ? ' · payment processing' : '') + '</span>' +
-        (a.key && !can ? '<div class="sved">' + svcControls(b, a, label) + whenInput(b, a, label) + '<span class="svst" data-st="' + esc(a.key) + '" aria-live="polite"></span></div>' : '<span class="sub">' + esc(svcLabel(a.status)) + (a.when ? ' · ' + esc(a.when) : '') + '</span>') + '</li>';
+        (a.key && !can && canWrite() ? '<div class="sved">' + svcControls(b, a, label) + whenInput(b, a, label) + '<span class="svst" data-st="' + esc(a.key) + '" aria-live="polite"></span></div>' : '<span class="sub">' + esc(svcLabel(a.status)) + (a.when ? ' · ' + esc(a.when) : '') + '</span>') + '</li>';
     }).join('') + '</ul>' : '<p class="muted">No wellbeing sessions on this booking.</p>') + '</section>';
     if (b.diet) html += '<section class="dr-sec"><h3>Dietary needs or allergies</h3><div class="diet">' + esc(b.diet) + '</div></section>';
-    // note
-    html += '<section class="dr-sec notebox"><h3><label for="drNote">Team note</label> <small>not shown to the guest</small></h3><textarea id="drNote" maxlength="480" rows="3" placeholder="Arrival plans, room wishes, anything the team should know" data-saved="' + esc(b.note || '') + '">' + esc(b.note || '') + '</textarea>' +
-      '<div class="note-f"><span id="drNoteCt">' + String(b.note || '').length + '/480</span><span class="sp" id="drNoteSt" aria-live="polite"></span><button type="button" class="btn btn-sm" id="drNoteSave" disabled>Save note</button></div></section>';
+    // note (read only for view-only access)
+    html += canWrite() ? '<section class="dr-sec notebox"><h3><label for="drNote">Team note</label> <small>not shown to the guest</small></h3><textarea id="drNote" maxlength="480" rows="3" placeholder="Arrival plans, room wishes, anything the team should know" data-saved="' + esc(b.note || '') + '">' + esc(b.note || '') + '</textarea>' +
+      '<div class="note-f"><span id="drNoteCt">' + String(b.note || '').length + '/480</span><span class="sp" id="drNoteSt" aria-live="polite"></span><button type="button" class="btn btn-sm" id="drNoteSave" disabled>Save note</button></div></section>'
+      : '<section class="dr-sec"><h3>Team note <small>not shown to the guest</small></h3>' + (b.note ? '<p class="ronote">' + esc(b.note) + '</p>' : '<p class="muted">No note.</p>') + '</section>';
     // source
     var utm = b.utm || {}, uk = Object.keys(utm);
     html += '<section class="dr-sec"><h3>Source</h3><dl class="utm"><dt>Booked</dt><dd>' + (b.source === 'admin' ? 'With a team booking link' : 'Online') + (b.ui ? ' · ' + (b.ui === 'embedded' ? 'payment form in the page' : 'Stripe\'s own page') : '') + '</dd>' +
       (b.page ? '<dt>Page</dt><dd>' + esc(b.page) + '</dd>' : '') + uk.map(function(k){ return '<dt>' + esc(k) + '</dt><dd>' + esc(utm[k]) + '</dd>'; }).join('') +
       (b.terms_at ? '<dt>Terms accepted</dt><dd>' + esc(new Date(b.terms_at).toLocaleString('en-GB')) + '</dd>' : '') + (b.remind ? '<dt>Reminder email</dt><dd>Opted in</dd>' : '') + '</dl></section>';
-    html += '</div><div class="dr-f">' + (balOk ? '<button type="button" class="btn btn-sm" id="drBal">Balance link</button>' : '') +
+    html += '</div><div class="dr-f">' + (balOk && canWrite() ? '<button type="button" class="btn btn-sm" id="drBal">Balance link</button>' : '') +
       '<button type="button" class="btn btn-ghost btn-sm" id="drCopy">Copy summary</button>' +
       (b.booking_pi ? '<a class="btn btn-ghost btn-sm" href="' + esc(stripeUrl(b.booking_pi, mode)) + '" target="_blank" rel="noopener">Open in Stripe ' + IC.ext + '</a>' : '') +
-      '<span class="sp"></span>' + (can ? '<button type="button" class="btn btn-ghost btn-sm" id="drRestore">Restore booking</button>' : '<button type="button" class="btn btn-ghost btn-sm" id="drCancel">Cancel booking</button>') + '</div>';
+      '<span class="sp"></span>' + (!canWrite() ? '' : can ? '<button type="button" class="btn btn-ghost btn-sm" id="drRestore">Restore booking</button>' : '<button type="button" class="btn btn-ghost btn-sm" id="drCancel">Cancel booking</button>') + '</div>';
     return html;
   }
   function renderDrawer(){
@@ -3085,9 +3634,11 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     each(dr.querySelectorAll('[data-copy]'), function(x){ x.onclick = function(){ copyAndTell(x.getAttribute('data-copy'), x.getAttribute('data-what') || 'Text'); }; });
     each(dr.querySelectorAll('[data-assign]'), function(s){ s.onchange = function(){ saveAssign(b, +s.getAttribute('data-assign'), s.value, s); }; });
     var note = $('drNote'), save = $('drNoteSave');
-    note.oninput = function(){ $('drNoteCt').textContent = note.value.length + '/480'; save.disabled = note.value === note.getAttribute('data-saved'); $('drNoteSt').textContent = ''; };
-    note.onkeydown = function(e){ if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); if (!save.disabled) save.click(); } };
-    save.onclick = function(){ saveNote(b, note, save); };
+    if (note) {
+      note.oninput = function(){ $('drNoteCt').textContent = note.value.length + '/480'; save.disabled = note.value === note.getAttribute('data-saved'); $('drNoteSt').textContent = ''; };
+      note.onkeydown = function(e){ if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); if (!save.disabled) save.click(); } };
+      save.onclick = function(){ saveNote(b, note, save); };
+    }
     if ($('drBal')) $('drBal').onclick = function(){ balanceLink(b, $('drBal')); };
     each(dr.querySelectorAll('[data-void]'), function(x){ x.onclick = function(){ voidPayment(b, x.getAttribute('data-void'), x); }; });
     bindRecord(b);
@@ -3115,7 +3666,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
       btn.disabled = true; $('drNoteSt').textContent = 'Saved'; toast('Note saved for ' + esc(b.ref) + '.', 'ok');
       // the Save button is disabled again: back to the note (its "Saved" status is announced)
       if (drawerRef === b.ref) drawerRefocus($('drNote'), btn);
-    }, function(e){ done(); if (authFail(e)) return; $('drNoteSt').textContent = 'Not saved'; toast('Could not save the note: ' + esc(why(e)), 'err'); if (drawerRef === b.ref) drawerRefocus($('drNoteSave'), btn); });
+    }, function(e){ done(); if ($('drNoteSt')) $('drNoteSt').textContent = 'Not saved'; if (authFail(e)) return; toast('Could not save the note: ' + esc(why(e)), 'err'); if (drawerRef === b.ref) drawerRefocus($('drNoteSave'), btn); });
   }
   function saveAssign(b, idx, name, sel, after){
     var map = {};
@@ -3232,7 +3783,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
         var id = x.invoice_id || x.id || '', when = ISO.test(x.received || '') ? isoLabel(x.received, { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }) : fmtWhen(x.created);
         return '<li class="off"><span class="d">' + esc(when) + '</span><span class="k"><span class="pm">' + esc(methodLabel(x.method)) + '</span>' +
           (/^in_/.test(id) ? '<a href="' + esc(stripeUrl(id, mode)) + '" target="_blank" rel="noopener" title="Open the invoice in Stripe">' + IC.ext + '<span class="vh">Open in Stripe</span></a>' : '') +
-          (id && !/^local-/.test(id) ? '<button type="button" class="lnk undo" data-void="' + esc(id) + '" aria-label="Undo the ' + esc(methodLabel(x.method).toLowerCase() + ' of ' + eur(x.amount_cents)) + '">Undo</button>' : '') + '</span>' +
+          (id && !/^local-/.test(id) && canWrite() ? '<button type="button" class="lnk undo" data-void="' + esc(id) + '" aria-label="Undo the ' + esc(methodLabel(x.method).toLowerCase() + ' of ' + eur(x.amount_cents)) + '">Undo</button>' : '') + '</span>' +
           '<span class="a">' + money(x.amount_cents) + '</span>' +
           '<span class="x">' + esc([x.comment || '', x.created ? 'recorded ' + fmtWhen(x.created) : ''].filter(Boolean).join(' · ')) + '</span></li>';
       }
@@ -3241,7 +3792,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     }).join('') + '</ol>' : '<p class="muted">No payments yet.</p>') + '</section>';
   }
   function recordSec(b){
-    if (!active(b)) return '';
+    if (!active(b) || !canWrite()) return '';
     var f = payf && payf.ref === b.ref ? payf : null;
     if (!f) return '<section class="dr-sec" id="drRec"><h3>Record a payment</h3><p class="muted" style="margin:0 0 10px;font-size:.84rem">Money that arrived outside the online checkout: a bank transfer, cash. It counts towards Paid and the balance.</p><button type="button" class="btn btn-ghost btn-sm" id="pfOpen">Record a payment</button></section>';
     var amt = parseEuro(f.amount), e = function(k){ return '<span class="err" data-perr="' + k + '">' + esc(f.errs[k] || '') + '</span>'; };
@@ -3419,16 +3970,17 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     var pe = priceEdit && priceEdit.ref === b.ref;
     html += '<section class="dr-sec"><h3>Money</h3><dl class="kv"><dt>Agreed price</dt><dd>' + (pe
         ? '<form class="mprice" id="drPriceForm" novalidate><label class="vh" for="drPrice">Agreed price in euros</label><input type="text" id="drPrice" inputmode="decimal" autocomplete="off" value="' + esc(priceEdit.v) + '"' + (priceEdit.err ? ' aria-invalid="true"' : '') + '><button type="submit" class="btn btn-sm" id="drPriceSave">Save</button><button type="button" class="lnk" id="drPriceCancel">Cancel</button></form>' + (priceEdit.err ? '<span class="sub refund">' + esc(priceEdit.err) + '</span>' : '')
-        : '<div class="mprice"><span>' + money(b.total_cents) + '</span>' + (can ? '' : '<button type="button" class="lnk" id="drPriceEdit" aria-label="Change the agreed price">Change</button>') + '</div>') + '</dd>' +
+        : '<div class="mprice"><span>' + money(b.total_cents) + '</span>' + (can || !canWrite() ? '' : '<button type="button" class="lnk" id="drPriceEdit" aria-label="Change the agreed price">Change</button>') + '</div>') + '</dd>' +
       '<dt>Paid</dt><dd>' + money(b.paid_cents) + '</dd>' +
       '<dt class="tot">Balance</dt><dd class="tot">' + (num(b.balance_cents) ? money(b.balance_cents) : num(b.total_cents) ? 'Nothing to pay' : '<span class="muted">No price set</span>') + '</dd>' +
       (num(b.paid_cents) > num(b.total_cents) && num(b.total_cents) ? '<dt>Overpaid</dt><dd class="refund">' + money(num(b.paid_cents) - num(b.total_cents)) + '</dd>' : '') + '</dl></section>';
     html += payTimeline(b) + recordSec(b);
-    html += '<section class="dr-sec notebox"><h3><label for="drNote">Comment</label> <small>for the team</small></h3><textarea id="drNote" maxlength="480" rows="3" placeholder="How they booked, how they pay, anything the team should know" data-saved="' + esc(m.comment || '') + '">' + esc(m.comment || '') + '</textarea>' +
-      '<div class="note-f"><span id="drNoteCt">' + String(m.comment || '').length + '/480</span><span class="sp" id="drNoteSt" aria-live="polite"></span><button type="button" class="btn btn-sm" id="drNoteSave" disabled>Save comment</button></div></section>';
+    html += canWrite() ? '<section class="dr-sec notebox"><h3><label for="drNote">Comment</label> <small>for the team</small></h3><textarea id="drNote" maxlength="480" rows="3" placeholder="How they booked, how they pay, anything the team should know" data-saved="' + esc(m.comment || '') + '">' + esc(m.comment || '') + '</textarea>' +
+      '<div class="note-f"><span id="drNoteCt">' + String(m.comment || '').length + '/480</span><span class="sp" id="drNoteSt" aria-live="polite"></span><button type="button" class="btn btn-sm" id="drNoteSave" disabled>Save comment</button></div></section>'
+      : '<section class="dr-sec"><h3>Comment <small>for the team</small></h3>' + (m.comment ? '<p class="ronote">' + esc(m.comment) + '</p>' : '<p class="muted">No comment.</p>') + '</section>';
     html += '</div><div class="dr-f"><button type="button" class="btn btn-ghost btn-sm" id="drCopy">Copy summary</button>' +
       (/^cus_/.test(m.customer || '') ? '<a class="btn btn-ghost btn-sm" href="' + esc(stripeUrl(m.customer, stripeMode(b))) + '" target="_blank" rel="noopener">Open in Stripe ' + IC.ext + '</a>' : '') + '<span class="sp"></span>' +
-      (can ? '<button type="button" class="btn btn-ghost btn-sm" id="drRestore">Restore booking</button>' : '<button type="button" class="btn btn-ghost btn-sm" id="drCancel">Cancel booking</button>') + '</div>';
+      (!canWrite() ? '' : can ? '<button type="button" class="btn btn-ghost btn-sm" id="drRestore">Restore booking</button>' : '<button type="button" class="btn btn-ghost btn-sm" id="drCancel">Cancel booking</button>') + '</div>';
     return html;
   }
   function bindManual(b){
@@ -3439,9 +3991,9 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     each(dr.querySelectorAll('[data-void]'), function(x){ x.onclick = function(){ voidPayment(b, x.getAttribute('data-void'), x); }; });
     bindRecord(b);
     var note = $('drNote'), save = $('drNoteSave');
-    note.oninput = function(){ $('drNoteCt').textContent = note.value.length + '/480'; save.disabled = note.value === note.getAttribute('data-saved'); $('drNoteSt').textContent = ''; };
-    note.onkeydown = function(e){ if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); if (!save.disabled) save.click(); } };
-    save.onclick = function(){
+    if (note) note.oninput = function(){ $('drNoteCt').textContent = note.value.length + '/480'; save.disabled = note.value === note.getAttribute('data-saved'); $('drNoteSt').textContent = ''; };
+    if (note) note.onkeydown = function(e){ if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); if (!save.disabled) save.click(); } };
+    if (save) save.onclick = function(){
       var v = note.value.replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, ' ').slice(0, 480), done = busyBtn(save, 'Saving…');
       post({ action: 'manual_update', ref: b.ref, comment: v }).then(function(d){
         var c = d && d.booking && typeof d.booking.comment === 'string' ? d.booking.comment : d && typeof d.comment === 'string' ? d.comment : v;
@@ -3450,7 +4002,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
         save.disabled = true; $('drNoteSt').textContent = 'Saved'; toast('Comment saved for ' + esc(b.ref) + '.', 'ok');
         keepFocus(function(){ VIEWS[route.tab].update(); });
         drawerRefocus(note, save);
-      }, function(e){ done(); if (authFail(e)) return; $('drNoteSt').textContent = 'Not saved'; toast('Could not save the comment: ' + esc(why(e)), 'err'); drawerRefocus(save); });
+      }, function(e){ done(); if ($('drNoteSt')) $('drNoteSt').textContent = 'Not saved'; if (authFail(e)) return; toast('Could not save the comment: ' + esc(why(e)), 'err'); drawerRefocus(save); });
     };
     if ($('drPriceEdit')) $('drPriceEdit').onclick = function(){ priceEdit = { ref: b.ref, v: num(b.total_cents) ? eurNum(b.total_cents) : '', err: '' }; renderDrawer(); var p = $('drPrice'); if (p) { p.focus(); p.select(); } };
     if ($('drPriceCancel')) $('drPriceCancel').onclick = function(){ priceEdit = null; renderDrawer(); drawerRefocus($('drPriceEdit')); };
@@ -3511,7 +4063,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
       addons: [], discOn: false, disc: { type: 'percent', value: '', scope: 'programme', reason: '' }, note: '' };
   }
   function newLink(){
-    if (!PROGS.length) return;
+    if (!PROGS.length || !canWrite()) return;
     if (!nl) nl = nlFresh();
     openModal('<h2 id="mTitle">New booking link</h2><p class="muted" style="margin:0 0 6px">A secure Stripe payment page for one booking, valid for 24 hours. The guest pays there; the booking appears here once paid.</p><div id="nlBody"><span class="sk"></span><span class="sk"></span></div>', { wide: true, sticky: true });
     loadWeek(nl.week).then(nlRender, nlRender);
@@ -3678,7 +4230,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
       done();
       if (authFail(e)) return;
       if (e.status === 409 && e.code === 'already_paid') { nlAlreadyPaid(e, body); return; }
-      if (e.status === 503 && e.code === 'busy') { nlErrors({}, 'An earlier link for this guest is still being paid or can\'t be closed right now. Try again in a minute.'); return; }
+      if (e.status === 503 && e.code === 'busy') { nlErrors({}, e.message || 'An earlier link for this guest is still being paid or can\'t be closed right now. Try again in a minute.'); return; }
       var fl = e.data && e.data.fields;
       if (fl && Object.keys(fl).length) { nlErrors(fl, e.message && !/^Please/.test(e.message) ? e.message : null); return; }
       nlErrors({}, why(e));
@@ -3754,22 +4306,94 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
 
   /* ================================================================ sign in / keyboard / start */
   function show(dash){
-    $('login').hidden = dash; $('view').hidden = !dash; $('topCtl').hidden = !dash; $('tabs').hidden = !dash; $('foot').hidden = !dash; $('logout').hidden = !dash;
+    $('login').hidden = dash; $('view').hidden = !dash; $('topCtl').hidden = !dash; $('tabs').hidden = !dash; $('foot').hidden = !dash; $('acct').hidden = !dash;
+    $('roBar').hidden = !dash || me.role !== 'viewer';
+    if (dash) { paintMe(); applyRole(false); }
+  }
+  /* ---------------------------------------------------------------- who is signed in */
+  function paintMe(){
+    var r = ROLES[me.role] || '', nm = me.name || me.username, exp = userSession() ? Date.parse(store('s', 'aob_admin_exp') || '') : NaN;
+    $('me').innerHTML = 'Signed in as <b>' + esc(nm || r) + '</b>' + (nm && nm !== r ? ' · ' + esc(r) : '');
+    $('me').title = (me.username ? 'Username ' + me.username : r) + (isFinite(exp) ? ' · signed in until ' + untilText(Math.floor(exp / 1000)) : '');
+  }
+  // "me" from a GET: the server's word on who this is (a role can change while signed in)
+  function setMe(m){
+    if (!m || !ROLES[m.role]) return;
+    var n = { id: String(m.id || ''), name: String(m.name || ''), role: m.role, username: String(m.username || '') };
+    if (sameJSON(n, me)) return;
+    var changed = n.role !== me.role;
+    me = n; store('s', 'aob_admin_who', JSON.stringify(me)); paintMe();
+    if (changed) applyRole(true);
+  }
+  // the Team tab for the main admin, no write controls for view-only access
+  function applyRole(redraw){
+    var ro = me.role === 'viewer', own = me.role === 'owner';
+    document.body.classList.toggle('ro', ro);
+    $('roBar').hidden = !ro || !token;
+    $('newLink').hidden = ro;
+    $('tabTeam').hidden = !own;
+    $('kLast').textContent = own ? '7' : '6';
+    $('kNew').hidden = ro;
+    if (!redraw || !token) return;
+    if (route.tab === 'team' && !own) { go('overview'); return; }
+    // after the answer that carried "me" is handled
+    mounted = '';
+    setTimeout(function(){ if (!token) return; renderView(); if (drawerRef && !editingIn($('drawer'))) renderDrawer(); }, 0);
   }
   function signedOut(message){
-    store('s', 'aob_admin', null); token = ''; cache = {}; ovw = null; ov = {}; mounted = ''; nl = null;
+    store('s', 'aob_admin', null); store('s', 'aob_admin_who', null); store('s', 'aob_admin_exp', null); store('s', 'aob_admin_kind', null);
+    token = ''; me = copyObj(OWNER); cache = {}; ovw = null; ov = {}; mounted = ''; nl = null;
+    users = { d: null, at: 0, err: null }; uov = {}; acts = freshActs(); actors = {};
     if (modal) closeModal(true);
     if (drawerRef) closeDrawerUI();
-    $('view').innerHTML = ''; show(false);
+    $('view').innerHTML = ''; show(false); applyRole(false);
     $('loginErr').textContent = message || ''; $('loginErr').hidden = !message;
-    $('token').value = ''; $('token').focus();
+    $('token').value = ''; loginFocus();
   }
-  $('loginForm').onsubmit = function(e){
-    e.preventDefault();
-    token = $('token').value.trim(); if (!token) { $('token').focus(); return; }
-    store('s', 'aob_admin', token); $('loginErr').hidden = true; show(true);
+  // the last username used in this browser is filled in (empty: the main admin): straight to the password
+  function loginFocus(){
+    var last = store('l', 'aob_admin_last');
+    if (last != null && !$('user').value) $('user').value = last;
+    (last != null || $('user').value ? $('token') : $('user')).focus();
+  }
+  function startSession(tk, who, exp){
+    token = tk; store('s', 'aob_admin', tk); store('s', 'aob_admin_kind', who ? 'user' : 'owner');
+    me = who && ROLES[who.role] && who.role !== 'owner' ? { id: String(who.id || ''), name: String(who.name || ''), role: who.role, username: String(who.username || '') } : who ? { id: String(who.id || ''), name: String(who.name || ''), role: 'viewer', username: String(who.username || '') } : copyObj(OWNER);
+    store('s', 'aob_admin_who', JSON.stringify(me)); store('s', 'aob_admin_exp', who && exp ? String(exp) : null);
+    store('l', 'aob_admin_last', who ? me.username : '');
+    if (who) $('user').value = me.username;
+    $('loginErr').hidden = true; $('token').value = ''; $('token').removeAttribute('aria-invalid');
+    show(true);
     if (!location.hash) { try { history.replaceState(null, '', '#overview'); } catch (x) {} }
     onRoute();
+  }
+  function loginFail(msg, clear){
+    $('loginErr').textContent = msg; $('loginErr').hidden = false;
+    if (clear) $('token').value = '';
+    $('token').focus();
+  }
+  // with a username: POST /api/booking/login for a session token; without: the admin token itself
+  $('loginForm').onsubmit = function(e){
+    e.preventDefault();
+    var u = $('user').value.trim().toLowerCase(), pw = $('token').value.trim(), btn = $('signin');
+    if (!pw) { $('token').setAttribute('aria-invalid', 'true'); loginFail(u ? 'Enter your password.' : 'Enter the admin token, or your username and password.', false); return; }
+    $('token').removeAttribute('aria-invalid');
+    if (!u) { startSession(pw, null); return; }
+    if (btn.disabled) return;
+    var done = busyBtn(btn, 'Signing in…');
+    $('loginErr').hidden = true;
+    fetch(API + '/api/booking/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: u, password: pw }), cache: 'no-store' })
+      .then(function(r){ return r.text().then(function(t){ var d = {}; try { d = t ? JSON.parse(t) : {}; } catch (x) { d = {}; } return { s: r.status, ok: r.ok, d: d && typeof d === 'object' ? d : {} }; }); })
+      .then(function(x){
+        done();
+        var d = x.d;
+        if (x.ok && typeof d.token === 'string' && d.token) { var w = d.user && typeof d.user === 'object' ? d.user : {}; if (!w.username) w.username = u; startSession(d.token, w, d.expires_at); return; }
+        loginFail(x.s === 401 ? d.error || 'Wrong username or password.'
+          : x.s === 429 ? d.error || 'Too many attempts. Try again in a few minutes.'
+          : x.s === 503 ? d.error || 'Team sign-in isn\'t available right now. The main admin can still sign in with the admin token.'
+          : x.s === 404 || x.s === 405 ? 'Team sign-in isn\'t available yet. The main admin can sign in with the admin token (leave the username empty).'
+          : d.error || ('Something went wrong (error ' + x.s + '). Please try again.'), x.s === 401);
+      }, function(){ done(); loginFail('Could not reach the booking system. Check your connection and try again.', false); });
   };
   $('logout').onclick = function(){ signedOut(''); };
   document.addEventListener('keydown', function(e){
@@ -3785,13 +4409,13 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
       if (e.key === 'j') { navDrawer(1); e.preventDefault(); } else if (e.key === 'k') { navDrawer(-1); e.preventDefault(); }
       return;
     }
-    if (/^[1-6]$/.test(e.key)) { go(TABS[+e.key - 1]); e.preventDefault(); }
+    if (/^[1-7]$/.test(e.key)) { var tb = TABS[+e.key - 1]; if (tb !== 'team' || isOwner()) { go(tb); e.preventDefault(); } }
     else if (e.key === '/') { e.preventDefault(); if (route.tab !== 'bookings') go('bookings'); setTimeout(function(){ var s = $('fq'); if (s) s.focus(); }, 0); }
     else if (e.key === 'r' || e.key === 'R') { refreshNow(); e.preventDefault(); }
-    else if (e.key === 'n' || e.key === 'N') { newLink(); e.preventDefault(); }
+    else if ((e.key === 'n' || e.key === 'N') && canWrite()) { newLink(); e.preventDefault(); }
   });
   if (token) { show(true); if (!location.hash) { try { history.replaceState(null, '', '#overview'); } catch (x) {} } onRoute(); }
-  else { show(false); $('token').focus(); }
+  else { show(false); applyRole(false); loginFocus(); }
 })();
 </script>
 </body>

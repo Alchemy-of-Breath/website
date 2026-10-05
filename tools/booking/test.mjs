@@ -10,14 +10,18 @@ import * as webhook from '../../functions/api/booking/webhook.js';
 import * as release from '../../functions/api/booking/release.js';
 import * as lead from '../../functions/api/booking/lead.js';
 import * as addonsApi from '../../functions/api/booking/addons.js';
+import * as loginApi from '../../functions/api/booking/login.js';
 import { readFileSync } from 'node:fs';
 import PROGRAMS from '../../booking-lib/programs.js';
 import {
   verifyStripeSignature, clearAvailabilityMemo, stripeConfig, getProgram, listPrograms, bookingPageUrl, balancePageUrl, addMonths, ipKey, planEndAt,
   quote, groupBookings, roomingMap, parseBooking, parseAddons, parseSvc, parseAssign, bookingCheckoutParams, bookingMetadata,
   formEncode, str, cleanNote, saveAdminMeta, findBooking, forgetBooking,
-  availability, programWithRecords, calendarRooms, areaOf, blockInput, parseRecord, rangeLabel, overbooked, addDays, forgetWrites,
+  availability, programWithRecords, calendarRooms, areaOf, blockInput, parseRecord, rangeLabel, overbooked, addDays, forgetWrites, listRecords, forgetRateLimits,
 } from '../../booking-lib/core.js';
+import {
+  forgetTeam, adminIdentity, generatePassword, PASSWORD_WORDS, activityEntry, logActivity, scrubText, hashPassword, verifyPassword, LOGBOOK_MAX,
+} from '../../booking-lib/team.js';
 
 stripeConfig.retryBaseMs = 1; // keep retries fast
 
@@ -76,7 +80,7 @@ function reset(at = '2026-07-01T09:00:00Z') {
   store.faults.length = 0; store.disabledPM.clear(); store.rejectParams.clear(); store.badEmails.clear(); store.onCreate = null; store.onList = null; store.onGet = null;
   store.latency = 0; store.turnstileReply = null; store.noTosUrl = false; store.lagCustomers = false; store.lagInvoices = false; store.invoiceItems.length = 0;
   fakeNow = RealDate.parse(at);
-  clearAvailabilityMemo(undefined, { snapshot: true }); forgetWrites();
+  clearAvailabilityMemo(undefined, { snapshot: true }); forgetWrites(); forgetTeam();
 }
 const pad = n => String(n).padStart(6, '0');
 function parseForm(body) {
@@ -289,8 +293,8 @@ async function stripeMock(method, path, u, init) {
     inv.status = 'void'; return J(inv);
   }
   if (method === 'GET' && path === '/customers/search') {
-    const q = u.searchParams.get('query'), conds = metaConds(q);
-    if (conds.length) return J({ data: store.customers.filter(c => !c.deleted && !c._lagging && c.metadata && conds.every(([k, v]) => c.metadata[k] === v)), has_more: false, next_page: null });
+    const q = u.searchParams.get('query'), conds = metaConds(q), after = (q.match(/\bcreated>(\d+)/) || [])[1];
+    if (conds.length) return J({ data: store.customers.filter(c => !c.deleted && !c._lagging && c.metadata && conds.every(([k, v]) => c.metadata[k] === v) && (!after || c.created > +after)), has_more: false, next_page: null });
     const email = (q.match(/^email:'(.*)'$/) || [])[1];
     return J({ data: store.customers.filter(c => !c.deleted && c.email === email), has_more: false });
   }
@@ -432,6 +436,7 @@ const call = async (mod, method, path, body, env = {}, headers) => {
   const fn = mod['onRequest' + method[0] + method.slice(1).toLowerCase()];
   const r = await fn({ request: req(method, path, body, headers), env, waitUntil: p => store.waits.push(p) });
   const text = await r.text(); let data; try { data = JSON.parse(text); } catch { data = text; }
+  await Promise.all(store.waits.splice(0)); // background work (activity log, GHL, domains) done before the next step
   return { status: r.status, data, headers: r.headers };
 };
 const availGet = (env = {}, { fresh = true, headers, path = '' } = {}) => { if (fresh) clearAvailabilityMemo(); return call(avail, 'GET', `/api/booking/availability?program=${P}${path}`, null, env, headers); };
@@ -2682,6 +2687,524 @@ reset();
   const s = r.data.bookings.find(b => b.ref === one.ref);
   ok(r.status === 200 && r.data.live && s && s.program === 'stay' && s.paid_cents === 9500 && s.balance_cents === 0 && s.payments.some(p => p.kind === 'offline' && p.comment === 'SEPA, ref 4471') && !r.data.bookings.some(b => b.ref === inWeek.ref) && r.data.totals.paid_cents === 9500,
     'stays: lists the one-night stay with its bank transfer, not the stay inside a week');
+}
+
+/* ================================================================== round 5: team users, sign-in, activity log */
+const LIVEK = { ...LIVE, STRIPE_SECRET_KEY: 'sk_live_mock' };
+const bearer = t => ({ Authorization: 'Bearer ' + t });
+// each sign-in moves the clock 70 s on: never 10 tries for one username within 10 minutes by accident
+const loginAs = (username, password, { env = LIVE, headers } = {}) => { tick(70); return call(loginApi, 'POST', '/api/booking/login', { username, password }, env, headers); };
+const loginRaw = (body, headers, env = LIVE) => call(loginApi, 'POST', '/api/booking/login', body, env, headers);
+const asUser = (token, body, env = LIVE) => call(admin, 'POST', '/api/booking/admin', body, env, bearer(token));
+const getAs = (token, q, env = LIVE) => call(admin, 'GET', '/api/booking/admin?' + q, null, env, bearer(token));
+const ownerGet = (q, env = LIVE) => call(admin, 'GET', '/api/booking/admin?' + q, null, env, AUTH);
+const logbooks = () => store.customers.filter(c => c.metadata && c.metadata.aob_logbook === '1' && !c.deleted);
+const userCus = () => store.customers.filter(c => c.metadata && c.metadata.aob_user === '1');
+const entries = () => logbooks().flatMap(c => Object.entries(c.metadata).filter(([k]) => /^e[0-9a-z]+$/.test(k)).map(([k, v]) => ({ key: k, raw: v, ...JSON.parse(v) }))).sort((a, b) => (a.t - b.t) || (a.key < b.key ? -1 : 1));
+const lastEntry = a => entries().filter(e => e.a === a).pop();
+const cusOf = id => store.customers.find(c => c.id === id);
+const eur2t = c => '€' + (c / 100).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const PW_RE = /^[a-z]{4,6}-[a-z]{4,6}-[a-z]{4,6}-\d\d$/;
+const USER_KEYS = 'created_at,id,last_login_at,name,role,status,test,username';
+const OWNER_ME = JSON.stringify({ id: 'owner', name: 'Main admin', role: 'owner' });
+const secrets = []; // every password handed out or tried: never in Stripe as text, never in the log or the failure logs
+
+/* passwords */
+{
+  ok(PASSWORD_WORDS.length === 256 && new Set(PASSWORD_WORDS).size === 256 && PASSWORD_WORDS.every(w => /^[a-z]{4,6}$/.test(w)), 'password words: 256 distinct short lowercase words');
+  const gen = Array.from({ length: 300 }, generatePassword);
+  ok(gen.every(p => PW_RE.test(p) && p.split('-').slice(0, 3).every(w => PASSWORD_WORDS.includes(w))) && new Set(gen).size > 290, 'generated passwords: three words and two digits (lotus-amber-river-42), random');
+  const h = await hashPassword('lotus-amber-river-42');
+  ok(/^pbkdf2\$10000\$[A-Za-z0-9_-]{22}\$[A-Za-z0-9_-]{43}$/.test(h) && h !== await hashPassword('lotus-amber-river-42'), 'password hash: PBKDF2-SHA256, 10,000 iterations, 16-byte salt, 32-byte hash (salted)');
+  ok(await verifyPassword('lotus-amber-river-42', h) && !(await verifyPassword('lotus-amber-river-43', h)) && !(await verifyPassword('x', '')) && !(await verifyPassword('x', 'pbkdf2$99$a$b')), 'password check');
+  ok(scrubText('Paid by jane.doe@example.com, call +44 7700 900123 (SEPA ref 4471, 2026-07-01)') === 'Paid by [email], call [number] (SEPA ref 4471, 2026-07-01)', 'free text in the log: no email addresses or phone numbers (short numbers and dates stay)');
+}
+
+/* users: create, list (owner) */
+reset();
+let anna, annaPw, ben, carol;
+const benPw = 'benpw', carolPw = 'carol-pass-1';
+secrets.push(benPw, carolPw);
+{
+  r = await availJ(); const availBefore = JSON.stringify(r.data.rooms);
+  r = await ownerGet('users=1');
+  ok(r.status === 200 && Array.isArray(r.data.users) && r.data.users.length === 0 && r.data.live === false && r.data.password_min === 5 && JSON.stringify(r.data.me) === OWNER_ME, 'users: none yet; test keys: passwords of 5+ characters; me = the main admin');
+  r = await ownerGet('users=1', ADMIN_ONLY);
+  ok(r.status === 200 && r.data.demo === true && r.data.users.length === 0 && r.data.me.role === 'owner', 'users (demo): empty');
+  r = await ownerGet('activity=1', ADMIN_ONLY);
+  ok(r.status === 200 && r.data.demo === true && r.data.entries.length === 0 && r.data.has_more === false && r.data.me.role === 'owner', 'activity (demo): empty');
+  for (const q of [`program=${J1}`, 'overview=1', 'stays=1', 'calendar=1&from=2027-07-11&to=2027-08-08']) {
+    r = await ownerGet(q, ADMIN_ONLY);
+    ok(r.status === 200 && r.data.demo && JSON.stringify(r.data.me) === OWNER_ME, `demo GET ?${q.split('&')[0]} carries me`);
+  }
+  for (const [body, k, msg] of [
+    [{ username: 'a b', name: 'Anna', role: 'team' }, 'username', 'a space'],
+    [{ username: 'ab', name: 'Anna', role: 'team' }, 'username', 'too short'],
+    [{ username: 'x'.repeat(33), name: 'Anna', role: 'team' }, 'username', 'too long'],
+    [{ username: 'anna@x.com', name: 'Anna', role: 'team' }, 'username', 'an @'],
+    [{ name: 'Anna', role: 'team' }, 'username', 'none'],
+    [{ username: 'anna', name: '', role: 'team' }, 'name', 'no name'],
+    [{ username: 'anna', name: 'A'.repeat(61), role: 'team' }, 'name', 'a name over 60 characters'],
+    [{ username: 'anna', name: '=HYPERLINK("x")', role: 'team' }, 'name', 'a spreadsheet formula'],
+    [{ username: 'anna', name: 'Anna', role: 'owner' }, 'role', 'role owner'],
+    [{ username: 'anna', name: 'Anna' }, 'role', 'no role'],
+    [{ username: 'anna', name: 'Anna', role: 'team', password: 'abcd' }, 'password', 'a 4-character password'],
+    [{ username: 'anna', name: 'Anna', role: 'team', password: 'p'.repeat(101) }, 'password', 'a 101-character password'],
+    [{ username: 'anna', name: 'Anna', role: 'team', password: 12345678 }, 'password', 'a number as password'],
+  ]) {
+    r = await adm({ action: 'user_create', ...body });
+    ok(r.status === 422 && r.data.fields[k] && !r.data.password, `user_create refused: ${msg}`);
+  }
+  ok(userCus().length === 0 && logbooks().length === 0, 'nothing stored (or logged) for refused users');
+
+  r = await adm({ action: 'user_create', username: ' Anna.K ', name: '  Anna Kowalska ', role: 'team' });
+  anna = r.data.user; annaPw = r.data.password; secrets.push(annaPw);
+  const cA = cusOf(anna.id);
+  ok(r.status === 200 && r.data.ok && anna.username === 'anna.k' && anna.name === 'Anna Kowalska' && anna.role === 'team' && anna.status === 'active' && anna.test === false && anna.last_login_at === null && !Number.isNaN(Date.parse(anna.created_at)) && Object.keys(anna).sort().join() === USER_KEYS, 'user_create: the user (username lowercased, name trimmed)');
+  ok(PW_RE.test(annaPw) && JSON.stringify(r.data).split(annaPw).length === 2, 'user_create: a generated password, in the answer once');
+  ok(cA && cA.name === 'AoB team · Anna Kowalska' && cA.description === 'Booking dashboard user (do not delete)' && cA.email === null && cA.metadata.aob_user === '1' && cA.metadata.aob_username === 'anna.k' && cA.metadata.aob_uname === 'Anna Kowalska' && cA.metadata.aob_role === 'team' && cA.metadata.aob_uver === '1' && cA.metadata.aob_ustatus === 'active' && !Number.isNaN(Date.parse(cA.metadata.aob_ucreated)) && !cA.metadata.aob_utest && !cA.metadata.aob_ulast && !cA.metadata.aob_rec && !cA.metadata.aob_rec_any, 'a user is a Stripe customer without an email, the user in aob_* metadata (never a record)');
+  ok(/^pbkdf2\$10000\$/.test(cA.metadata.aob_pw) && !JSON.stringify(cA).includes(annaPw) && await verifyPassword(annaPw, cA.metadata.aob_pw), 'only a PBKDF2 hash of the password is stored');
+  r = await adm({ action: 'user_create', username: 'ANNA.K', name: 'Another Anna', role: 'viewer' });
+  ok(r.status === 409 && r.data.fields.username === 'Already taken.' && r.data.error && userCus().length === 1, 'user_create: a username already taken (any case) → 409');
+  r = await adm({ action: 'user_create', username: 'ben', name: 'Ben', role: 'viewer', password: ` ${benPw} ` });
+  ben = r.data.user;
+  ok(r.status === 200 && r.data.password === benPw && ben.role === 'viewer', 'user_create: a typed password (5 characters with test keys; spaces at the ends dropped)');
+  r = await adm({ action: 'user_create', username: 'carol', name: 'Carol', role: 'team', password: carolPw });
+  carol = r.data.user;
+  r = await adm({ action: 'user_create', username: 'dan', name: 'Dan', role: 'team', password: 'ninechars' }, LIVEK);
+  ok(r.status === 422 && r.data.fields.password === 'Use at least 10 characters.', 'live keys: passwords of 10+ characters');
+  r = await ownerGet('users=1', LIVEK);
+  ok(r.status === 200 && r.data.live === true && r.data.password_min === 10, 'users with live keys: live, password_min 10');
+  r = await ownerGet('users=1');
+  ok(r.status === 200 && r.data.users.map(u => u.username).join() === 'anna.k,ben,carol' && r.data.users.every(u => Object.keys(u).sort().join() === USER_KEYS) && !/pbkdf2|aob_pw|"pw"/.test(JSON.stringify(r.data)), 'users: oldest first, never a password hash');
+  ok(entries().filter(e => e.a === 'user_create').map(e => e.s).join('|') === 'Added user anna.k (team)|Added user ben (view only)|Added user carol (team)' && entries().every(e => e.u === 'owner' && e.n === 'Main admin' && e.r === 'owner'), 'activity: users added, by the main admin');
+  // users and logbooks are customers too, but never records
+  const recs = await listRecords(LIVE, { recent: true });
+  ok(recs.length === 0 && (await listRecords(LIVE, { cached: true })).length === 0, 'listRecords never sees users or logbooks');
+  r = await availJ();
+  ok(JSON.stringify(r.data.rooms) === availBefore, 'availability is untouched by users and logbooks');
+  r = await ownerGet('calendar=1&from=2027-07-11&to=2027-08-08');
+  ok(r.status === 200 && r.data.blocks.length === 0 && r.data.manual.length === 0 && r.data.stays.length === 0, 'the calendar shows no users or logbooks');
+}
+
+/* sign-in */
+{
+  r = await loginAs('anna.k', annaPw);
+  const t1 = r.data.token;
+  ok(r.status === 200 && r.data.ok && /^aobu\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]{43}$/.test(t1) && JSON.stringify(r.data.user) === JSON.stringify({ id: anna.id, username: 'anna.k', name: 'Anna Kowalska', role: 'team' }), 'login: a session token and the user');
+  ok(Date.parse(r.data.expires_at) === (nowS() + 12 * 3600) * 1000, 'login: the session lasts 12 hours');
+  const pl = JSON.parse(Buffer.from(t1.split('.')[1], 'base64url').toString());
+  ok(pl.sub === anna.id && pl.v === 1 && pl.exp === nowS() + 12 * 3600 && Object.keys(pl).length === 3, 'token payload: sub, v, exp only');
+  ok(cusOf(anna.id).metadata.aob_ulast === new Date(fakeNow).toISOString() && cusOf(anna.id).metadata.aob_uver === '1', 'login: last sign-in recorded (the version stays)');
+  r = await ownerGet('users=1');
+  ok(r.data.users.find(u => u.id === anna.id).last_login_at === cusOf(anna.id).metadata.aob_ulast, 'users: last sign-in');
+  r = await loginAs(' ANNA.K ', annaPw);
+  ok(r.status === 200, 'login: the username in any case, spaces ignored');
+  r = await loginAs('anna.k', annaPw + 'x');
+  const wrong = JSON.stringify(r.data);
+  ok(r.status === 401 && r.data.error === 'Wrong username or password.' && Object.keys(r.data).length === 1, 'login: a wrong password → 401');
+  r = await loginAs('nobody', annaPw);
+  ok(r.status === 401 && JSON.stringify(r.data) === wrong, 'login: an unknown user → the same 401');
+  r = await loginAs('a b', annaPw);
+  ok(r.status === 401 && JSON.stringify(r.data) === wrong, 'login: an impossible username → the same 401');
+  r = await loginAs('anna.k', '');
+  ok(r.status === 400 && r.data.error === 'Enter your username and password.', 'login: an empty password → 400');
+  r = await loginRaw('nope');
+  ok(r.status === 400 && r.data.error === 'Invalid request.', 'login: not JSON → 400');
+  r = await loginRaw({ username: 'anna.k', password: annaPw }, { 'Content-Type': 'text/plain' });
+  ok(r.status === 415, 'login: JSON only (415)');
+  r = await loginRaw({ username: 'anna.k', password: annaPw }, { Origin: 'https://evil.example' });
+  ok(r.status === 403, 'login: a foreign Origin is refused');
+  r = await call(loginApi, 'OPTIONS', '/api/booking/login', null, LIVE);
+  ok(r.status === 204 && r.headers.get('Access-Control-Allow-Origin') === ORIGIN, 'login: CORS preflight');
+  for (const [env, msg] of [[{ ...LIVE, ADMIN_TOKEN: '' }, 'no ADMIN_TOKEN'], [{ ...LIVE, ADMIN_TOKEN: 'short-token' }, 'an ADMIN_TOKEN under 16 characters'], [ADMIN_ONLY, 'no Stripe key']]) {
+    r = await loginRaw({ username: 'anna.k', password: annaPw }, {}, env);
+    ok(r.status === 503 && r.data.code === 'unavailable' && /admin token/.test(r.data.error), `login unavailable: ${msg} → 503`);
+  }
+  // Stripe unreachable: 503 busy, never "wrong password"
+  tick(31);
+  fault('GET', /^\/customers\/search$/, { status: 500, times: 3 });
+  r = await loginAs('carol', carolPw);
+  ok(r.status === 503 && r.data.code === 'busy', 'login: Stripe unreachable → 503 busy');
+  // rate limits: 10 tries per 10 minutes per address…
+  for (let i = 0; i < 10; i++) r = await loginRaw({ username: `guess${i}`, password: `pw-guess-${i}` }, ip(77));
+  ok(r.status === 401, 'login: 10 tries from one address are answered');
+  r = await loginRaw({ username: 'carol', password: carolPw }, ip(77));
+  ok(r.status === 429 && r.data.error === 'Too many attempts. Try again in a few minutes.' && Object.keys(r.data).length === 1, 'login: the 11th try from that address → 429 (even with the right password)');
+  r = await loginRaw({ username: 'carol', password: carolPw }, { 'CF-Connecting-IP': '2001:db8:1:2:aaaa::1' });
+  ok(r.status === 200, 'login: another address still signs in');
+  for (let i = 0; i < 10; i++) r = await loginRaw({ username: `v6guess${i}`, password: `pw-v6-${i}` }, { 'CF-Connecting-IP': `2001:db8:5:6::${i + 1}` });
+  r = await loginRaw({ username: 'ben', password: benPw }, { 'CF-Connecting-IP': '2001:db8:5:6:ffff::9' });
+  ok(r.status === 429, 'login: IPv6 addresses count per /64');
+  // …and 10 per 10 minutes per username, from any address (carol so far: the try while Stripe was down, 1 sign-in; + 8 wrong)
+  for (let i = 0; i < 8; i++) r = await loginRaw({ username: 'carol', password: `pw-wrong-${i}` }, ip(100 + i));
+  ok(r.status === 401, 'login: wrong passwords for carol from 8 addresses');
+  r = await loginRaw({ username: 'carol', password: carolPw }, ip(120));
+  ok(r.status === 429, 'login: the 11th try for one username (from a new address) → 429');
+  tick(11 * 60);
+  r = await loginRaw({ username: 'carol', password: carolPw }, ip(77));
+  ok(r.status === 200, 'login: 10 minutes later both limits have passed');
+  for (let i = 0; i < 10; i++) secrets.push(`pw-guess-${i}`, `pw-v6-${i}`, `pw-wrong-${i}`);
+  // the log
+  const ins = entries().filter(e => e.a === 'login'), outs = entries().filter(e => e.a === 'login_failed');
+  ok(ins.length >= 4 && ins.every(e => e.u !== '-' && e.r !== '-' && /^Signed in as [a-z.]+$/.test(e.s)) && ins.some(e => e.u === anna.id && e.n === 'Anna Kowalska' && e.r === 'team' && e.s === 'Signed in as anna.k'), 'activity: sign-ins, with who');
+  ok(outs.some(e => e.u === '-' && e.n === 'nobody' && e.r === '-' && e.s === 'Sign-in refused (unknown username)') && outs.some(e => e.u === '-' && e.n === 'anna.k' && e.s === 'Sign-in refused (wrong password)') && outs.some(e => e.n === 'guess9'), 'activity: refused sign-ins, named by the username tried, and why');
+  ok(!outs.some(e => e.n === 'carol' && e.t === nowS() * 1000), '(a try refused with 429 is not logged)');
+  r = await loginAs('x'.repeat(50), 'pw-long-name');
+  ok(r.status === 401 && lastEntry('login_failed').n === 'x'.repeat(32), 'activity: the username tried is cut to 32 characters');
+  r = await loginAs('jane.doe@example.com', 'pw-email-name');
+  ok(r.status === 401 && lastEntry('login_failed').n === '[email]', 'activity: an email typed as username is not logged');
+  secrets.push('pw-long-name', 'pw-email-name');
+}
+
+/* sessions: roles, ending, tampering */
+let bRef, tA;
+{
+  r = await call(checkout, 'POST', '/api/booking/checkout', jBooking([guest(1, 'twin-ensuite')]), LIVE);
+  bRef = r.data.ref; complete(r.data.session_id);
+  const bPi = () => [...store.pis.values()].find(p => p.metadata.aob_ref === bRef);
+  r = await loginAs('anna.k', annaPw); tA = r.data.token;
+  r = await loginAs('ben', benPw); const tB = r.data.token;
+  ok(JSON.stringify(await adminIdentity(req('GET', '/x', null, AUTH), LIVE)) === JSON.stringify({ kind: 'owner', id: 'owner', name: 'Main admin', role: 'owner' }) && JSON.stringify(await adminIdentity(req('GET', '/x', null, bearer(tA)), LIVE)) === JSON.stringify({ kind: 'user', id: anna.id, username: 'anna.k', name: 'Anna Kowalska', role: 'team' }) && await adminIdentity(req('GET', '/x', null, {}), LIVE) === null, 'adminIdentity: the owner, a user, or null');
+  for (const q of [`program=${J1}`, 'overview=1', 'calendar=1&from=2027-07-11&to=2027-08-08', 'stays=1']) {
+    r = await getAs(tA, q);
+    ok(r.status === 200 && JSON.stringify(r.data.me) === JSON.stringify({ id: anna.id, name: 'Anna Kowalska', role: 'team', username: 'anna.k' }), `a team member reads ?${q.split('&')[0]} (me: the team member)`);
+    r = await ownerGet(q);
+    ok(r.status === 200 && JSON.stringify(r.data.me) === OWNER_ME, `the owner: ?${q.split('&')[0]} carries me`);
+  }
+  r = await ownerGet('calendar=1&from=2027-07-20&to=2027-07-20');
+  ok(r.status === 400 && r.data.me.role === 'owner', 'an error answer carries me too');
+  r = await getAs(tB, `program=${J1}`);
+  ok(r.status === 200 && r.data.me.role === 'viewer' && r.data.me.username === 'ben' && r.data.bookings.some(b => b.ref === bRef), 'a viewer reads the week');
+  r = await asUser(tA, { action: 'note', ref: bRef, note: 'Arrives late' });
+  ok(r.status === 200 && r.data.note === 'Arrives late' && bPi().metadata.aob_note === 'Arrives late', 'a team member saves a note');
+  const eN = lastEntry('note');
+  ok(eN && eN.u === anna.id && eN.n === 'Anna Kowalska' && eN.r === 'team' && eN.f === bRef && eN.p === J1 && eN.s === `Note on ${bRef}`, 'activity: the note, by the team member');
+  for (const action of ['user_create', 'user_update', 'test_users_create', 'seed_demo', 'place_demo', 'clear_demo', 'register_domains', 'repair_plans']) {
+    r = await asUser(tA, { action, program: J1, id: anna.id, username: 'zed', name: 'Zed', role: 'team' });
+    ok(r.status === 403 && r.data.code === 'owner_only' && r.data.error === 'Only the main admin can do this.', `a team member: ${action} → 403 owner_only`);
+  }
+  for (const q of ['users=1', 'activity=1']) {
+    r = await getAs(tA, q);
+    ok(r.status === 403 && r.data.code === 'owner_only' && r.data.error === 'Only the main admin can do this.' && !r.data.users && !r.data.entries, `a team member: GET ?${q} → 403 owner_only`);
+    r = await getAs(tB, q);
+    ok(r.status === 403 && r.data.code === 'owner_only', `a viewer: GET ?${q} → 403 owner_only`);
+  }
+  for (const body of [{ action: 'note', ref: bRef, note: 'x' }, { action: 'cancel', ref: bRef }, { action: 'assign', ref: bRef, assign: { 0: RN.b2 } },
+    { action: 'block_create', rooms: [RN.a2], from: '2027-07-20', to: '2027-07-21' }, { action: 'manual_create', from: '2027-07-20', to: '2027-07-21', guests: [mg('Al', 'Female', RN.gs(3))] },
+    { action: 'offline_payment', ref: bRef, amount_cents: 100 }, { action: 'create_link', program: J1 }, { action: 'user_create', username: 'zed', name: 'Zed', role: 'team' }, { action: 'seed_demo', program: J1 }]) {
+    r = await asUser(tB, body);
+    ok(r.status === 403 && r.data.code === 'read_only' && r.data.error === 'View-only access: you can look but not change anything.', `a viewer: ${body.action} → 403 read_only`);
+  }
+  ok(bPi().metadata.aob_note === 'Arrives late' && bPi().metadata.aob_status !== 'cancelled' && !store.customers.some(c => c.metadata && c.metadata.aob_rec_any) && userCus().length === 3 && !store.invoices.some(i => i.metadata && i.metadata.aob_kind === 'offline'), 'nothing changed by the refused actions');
+  // altered or foreign tokens: 401 without a code
+  const [h, p, sig] = tA.split('.');
+  const forged = JSON.parse(Buffer.from(p, 'base64url').toString()); forged.v = 9; forged.exp += 3600;
+  const owner2 = JSON.parse(Buffer.from(p, 'base64url').toString()); owner2.sub = ben.id;
+  for (const [t, msg] of [[`${h}.${Buffer.from(JSON.stringify(forged)).toString('base64url')}.${sig}`, 'payload changed'], [`${h}.${Buffer.from(JSON.stringify(owner2)).toString('base64url')}.${sig}`, 'another user'],
+    [`${h}.${p}.${sig.slice(0, 20)}${sig[20] === 'A' ? 'B' : 'A'}${sig.slice(21)}`, 'signature changed'], [`${h}.${p}`, 'no signature'], ['aobu.x.y', 'garbage'], [tA + 'x', 'one character more'], [`xyz.${p}.${sig}`, 'another prefix']]) {
+    r = await getAs(t, `program=${J1}`);
+    ok(r.status === 401 && r.data.error === 'Not authorised.' && !r.data.code && !r.data.me, `an altered token is refused (401, no code): ${msg}`);
+  }
+  r = await asUser(`${h}.${Buffer.from(JSON.stringify(forged)).toString('base64url')}.${sig}`, { action: 'note', ref: bRef, note: 'forged' });
+  ok(r.status === 401 && bPi().metadata.aob_note === 'Arrives late', '… for actions too');
+  r = await getAs(tA, `program=${J1}`, { ...LIVE, ADMIN_TOKEN: 'another-admin-token-0987654321' });
+  ok(r.status === 401 && !r.data.code, 'a new ADMIN_TOKEN ends every team session');
+  r = await getAs(tA, `program=${J1}`, ADMIN_ONLY);
+  ok(r.status === 401, 'demo mode (no Stripe): team sessions can\'t be checked → 401');
+  // Stripe unreachable while checking a session: a read from a moment ago is used, else 503 busy (never a sign-out)
+  tick(20);
+  fault('GET', /^\/customers\/cus_/, { status: 500, times: 3 });
+  r = await getAs(tA, 'overview=1');
+  ok(r.status === 200 && r.data.me.id === anna.id, 'session check: Stripe down → the user as read a moment ago');
+  tick(3 * 60);
+  fault('GET', /^\/customers\/cus_/, { status: 500, times: 3 });
+  r = await getAs(tA, 'overview=1');
+  ok(r.status === 503 && r.data.code === 'busy', 'session check: Stripe down and no recent read → 503 busy');
+  fault('GET', /^\/customers\/cus_/, { status: 500, times: 3 });
+  r = await asUser(tA, { action: 'note', ref: bRef, note: 'x' });
+  ok(r.status === 503 && r.data.code === 'busy' && bPi().metadata.aob_note === 'Arrives late', '… for actions too (nothing done)');
+  // 12 hours
+  tick(12 * 3600 + 1);
+  r = await getAs(tA, `program=${J1}`);
+  ok(r.status === 401 && r.data.code === 'session_ended' && r.data.error === 'Not authorised.', 'after 12 hours: 401 session_ended');
+  r = await asUser(tA, { action: 'note', ref: bRef, note: 'late' });
+  ok(r.status === 401 && r.data.code === 'session_ended', '… for actions too');
+}
+
+/* user_update: role, status, password, name; each but the name ends the user's sessions */
+{
+  r = await loginAs('anna.k', annaPw); let t = r.data.token;
+  r = await adm({ action: 'user_update', id: anna.id, role: 'viewer' });
+  ok(r.status === 200 && r.data.ok && r.data.user.role === 'viewer' && !('password' in r.data) && cusOf(anna.id).metadata.aob_uver === '2' && lastEntry('user_update').s === 'Changed role of anna.k to view only', 'user_update: role → view only (version bumped, logged)');
+  r = await getAs(t, `program=${J1}`);
+  ok(r.status === 401 && r.data.code === 'session_ended', 'a role change ends the user\'s sessions (401 session_ended)');
+  r = await loginAs('anna.k', annaPw); t = r.data.token;
+  ok(r.data.user.role === 'viewer', 'signed in again: view only');
+  r = await asUser(t, { action: 'note', ref: bRef, note: 'x' });
+  ok(r.status === 403 && r.data.code === 'read_only', '… and can\'t change anything now');
+  r = await adm({ action: 'user_update', id: anna.id, status: 'disabled' });
+  ok(r.status === 200 && r.data.user.status === 'disabled' && lastEntry('user_update').s === 'Disabled anna.k', 'user_update: disabled');
+  r = await getAs(t, 'overview=1');
+  ok(r.status === 401 && r.data.code === 'session_ended', 'disabling ends the sessions');
+  r = await loginAs('anna.k', annaPw);
+  ok(r.status === 401 && r.data.error === 'Wrong username or password.' && lastEntry('login_failed').s === 'Sign-in refused (the user is disabled)', 'a disabled user can\'t sign in (the same 401; the log says why)');
+  r = await adm({ action: 'user_update', id: anna.id, status: 'active', role: 'team' });
+  ok(r.status === 200 && r.data.user.status === 'active' && r.data.user.role === 'team' && lastEntry('user_update').s === 'Updated anna.k: role team, active', 'enabled again as team (two changes, one entry)');
+  r = await loginAs('anna.k', annaPw); t = r.data.token;
+  ok(r.status === 200 && r.data.user.role === 'team', 'enabled: signs in again');
+  r = await adm({ action: 'user_update', id: anna.id, reset_password: true });
+  const annaPw2 = r.data.password; secrets.push(annaPw2);
+  ok(r.status === 200 && PW_RE.test(annaPw2) && annaPw2 !== annaPw && lastEntry('user_update').s === 'Reset password of anna.k', 'reset_password: a new generated password, shown once');
+  r = await getAs(t, 'overview=1');
+  ok(r.status === 401 && r.data.code === 'session_ended', 'a password reset ends the sessions');
+  r = await loginAs('anna.k', annaPw);
+  ok(r.status === 401, 'the old password no longer works');
+  r = await loginAs('anna.k', annaPw2); t = r.data.token;
+  ok(r.status === 200, 'the new one does');
+  r = await adm({ action: 'user_update', id: anna.id, name: 'Anna K.' });
+  ok(r.status === 200 && r.data.user.name === 'Anna K.' && cusOf(anna.id).name === 'AoB team · Anna K.' && cusOf(anna.id).metadata.aob_uver === '5' && lastEntry('user_update').s === 'Renamed anna.k to "Anna K."', 'user_update: renamed (the version stays)');
+  r = await getAs(t, 'overview=1');
+  ok(r.status === 200 && r.data.me.name === 'Anna K.', 'a new name keeps the session (me has the new name)');
+  r = await adm({ action: 'user_update', id: anna.id, password: 'typed-pass', reset_password: true });
+  secrets.push('typed-pass');
+  ok(r.status === 200 && r.data.password === 'typed-pass' && cusOf(anna.id).metadata.aob_uver === '6' && lastEntry('user_update').s === 'Set a new password for anna.k', 'user_update: a typed password wins over reset_password');
+  const n0 = entries().length;
+  r = await adm({ action: 'user_update', id: anna.id, name: 'Anna K.', role: 'team', status: 'active' });
+  ok(r.status === 200 && r.data.unchanged === true && !('password' in r.data) && entries().length === n0 && cusOf(anna.id).metadata.aob_uver === '6', 'user_update: nothing different → { unchanged: true }, not logged');
+  for (const [id, msg] of [['cus_nosuch000', 'an unknown id'], ['anna.k', 'not a customer id'], [logbooks()[0].id, 'a logbook (not a user)'], ['', 'no id']]) {
+    r = await adm({ action: 'user_update', id, role: 'team' });
+    ok(r.status === 404 && r.data.error === 'User not found.', `user_update: ${msg} → 404`);
+  }
+  for (const [body, k] of [[{ role: 'boss' }, 'role'], [{ status: 'gone' }, 'status'], [{ password: 'abc' }, 'password'], [{ name: '' }, 'name']]) {
+    r = await adm({ action: 'user_update', id: anna.id, ...body });
+    ok(r.status === 422 && r.data.fields[k], `user_update refused: a bad ${k}`);
+  }
+  tA = (await loginAs('anna.k', 'typed-pass')).data.token;
+}
+
+/* three test users in one click */
+{
+  r = await adm({ action: 'test_users_create' });
+  const T = r.data.users;
+  ok(r.status === 200 && r.data.ok && T.length === 3 && T.map(x => x.user.username).join() === 'test1,test2,test3' && T.map(x => x.user.name).join() === 'Test User 1,Test User 2,Test User 3' && T.map(x => x.user.role).join() === 'team,team,viewer' && T.every(x => x.user.test === true && x.user.status === 'active' && PW_RE.test(x.password) && Object.keys(x.user).sort().join() === USER_KEYS), 'test_users_create: test1, test2 (team), test3 (view only), generated passwords');
+  ok(T.every(x => cusOf(x.user.id).metadata.aob_utest === '1' && cusOf(x.user.id).metadata.aob_uver === '1') && lastEntry('test_users_create').s === 'Created 3 test users' && lastEntry('test_users_create').u === 'owner', 'test users are marked aob_utest; logged');
+  T.forEach(x => secrets.push(x.password));
+  r = await loginAs('test1', T[0].password); const tT1 = r.data.token;
+  ok(r.status === 200 && r.data.user.role === 'team', 'test1 signs in (team)');
+  r = await loginAs('test3', T[2].password);
+  ok(r.status === 200 && r.data.user.role === 'viewer', 'test3 signs in (view only)');
+  r = await adm({ action: 'user_update', id: T[1].user.id, status: 'disabled' });
+  r = await adm({ action: 'user_update', id: T[0].user.id, role: 'viewer' });
+  r = await adm({ action: 'test_users_create' });
+  const T2 = r.data.users;
+  ok(r.status === 200 && T2.length === 3 && T2.every((x, i) => x.user.id === T[i].user.id && x.password !== T[i].password && x.user.status === 'active' && x.user.role === T[i].user.role) && ['test1', 'test2', 'test3'].every(u => userCus().filter(c => c.metadata.aob_username === u).length === 1), 'test_users_create again: the same three users (no duplicates), active, their roles, new passwords');
+  ok(cusOf(T[0].user.id).metadata.aob_uver === '3' && cusOf(T[1].user.id).metadata.aob_uver === '3' && cusOf(T[2].user.id).metadata.aob_uver === '2' && lastEntry('test_users_create').s === 'Reset 3 test users (new passwords)', '… versions bumped; logged');
+  T2.forEach(x => secrets.push(x.password));
+  r = await getAs(tT1, 'overview=1');
+  ok(r.status === 401 && r.data.code === 'session_ended', 'test1\'s old session ended');
+  r = await loginAs('test1', T[0].password);
+  ok(r.status === 401, 'test1\'s old password no longer works');
+  r = await loginAs('test1', T2[0].password);
+  ok(r.status === 200 && r.data.user.role === 'team', '… its new one does');
+  r = await adm({ action: 'test_users_create' }, LIVEK);
+  ok(r.status === 403 && r.data.code === 'live_mode' && userCus().length === 6, 'test_users_create with live keys → 403');
+  r = await asUser(tA, { action: 'test_users_create' });
+  ok(r.status === 403 && r.data.code === 'owner_only' && userCus().length === 6, 'test_users_create by a team member → 403 owner_only');
+}
+
+/* the activity log: what each action writes, and reading it */
+{
+  const step = () => tick(1);
+  step(); r = await adm({ action: 'create_link', ...jBooking([guest(4, 'twin-ensuite')], 'full'), discount: { type: 'amount', value: 10000, scope: 'room', reason: 'Friend' } });
+  let e = lastEntry('create_link');
+  ok(r.status === 200 && e.s === `Booking link · BreathCamp 1 · 1 guest · ${eur2t(r.data.quote.total_cents)} · discount €100` && e.f === r.data.ref && e.p === J1 && e.u === 'owner', 'activity: create_link (week, guests, total, discount)');
+  step(); r = await asUser(tA, { action: 'assign', ref: bRef, assign: { 0: RN.b2 } });
+  e = lastEntry('assign');
+  ok(r.status === 200 && e.s === `Rooms on ${bRef}: 2B` && e.u === anna.id && e.f === bRef && e.p === J1, 'activity: assign (short room names), by the team member');
+  step(); r = await asUser(tA, { action: 'balance_link', ref: bRef });
+  ok(r.status === 200 && lastEntry('balance_link').s === `Balance link for ${bRef} · ${eur2t(r.data.balance_cents)}`, 'activity: balance_link');
+  step(); r = await asUser(tA, { action: 'cancel', ref: bRef });
+  ok(r.status === 200 && lastEntry('cancel').s === `Cancelled ${bRef}`, 'activity: cancel');
+  step(); r = await asUser(tA, { action: 'restore', ref: bRef });
+  ok(r.status === 200 && lastEntry('restore').s === `Restored ${bRef}`, 'activity: restore');
+  r = await call(checkout, 'POST', '/api/booking/checkout', jBooking([guest(5, 'twin-ensuite')], 'deposit', { addons: [{ id: S.kate, guest: 0 }] }), LIVE);
+  const sRef = r.data.ref; complete(r.data.session_id);
+  step(); r = await asUser(tA, { action: 'svc_status', ref: sRef, key: 'b0', status: 'scheduled', when: 'Tue 20 Jul, 15:00' });
+  ok(r.status === 200 && /^Session ".+ \d+ min" on BC2707-[A-Z0-9]+ → scheduled$/.test(lastEntry('svc_status').s) && lastEntry('svc_status').f === sRef, `activity: svc_status (${lastEntry('svc_status').s})`);
+  step(); r = await adm({ action: 'manual_create', from: '2027-07-14', to: '2027-07-15', total_cents: 9500, whatsapp: '+44 7700 900123', guests: [mg('Mia', 'Female', RN.a1, { email: 'mia@example.com' })] });
+  const mB = r.data.booking;
+  e = lastEntry('manual_create');
+  ok(r.status === 200 && e.s === `Manual booking ${mB.ref} · 1 guest · 14–15 Jul 2027` && e.f === mB.ref && e.p === 'stay', 'activity: manual_create');
+  step(); r = await asUser(tA, { action: 'offline_payment', ref: mB.ref, amount_cents: 9500, method: 'bank_transfer', comment: 'SEPA ref 4471 from mia@example.com, +44 7700 900123' });
+  const inv = r.data.payment.invoice_id;
+  ok(r.status === 200 && lastEntry('offline_payment').s === `€95.00 bank transfer recorded on ${mB.ref} · "SEPA ref 4471 from [email], [number]"` && lastEntry('offline_payment').u === anna.id && lastEntry('offline_payment').f === mB.ref && lastEntry('offline_payment').p === 'stay', 'activity: offline_payment (the comment without email or phone)');
+  step(); r = await adm({ action: 'offline_payment', ref: mB.ref, amount_cents: 500, method: 'cash', comment: 'Tip jar '.repeat(30), force: true });
+  ok(r.status === 200 && lastEntry('offline_payment').s === `€5.00 cash recorded on ${mB.ref} · "${'Tip jar '.repeat(30).trim().slice(0, 79)}…" · more than the balance`, 'activity: a long comment is cut to 80 characters; overpaid');
+  step(); r = await adm({ action: 'offline_void', invoice_id: inv, reason: 'Recorded twice' });
+  ok(r.status === 200 && lastEntry('offline_void').s === `Undid €95.00 payment on ${mB.ref} · "Recorded twice"` && lastEntry('offline_void').f === mB.ref, 'activity: offline_void');
+  step(); r = await adm({ action: 'manual_update', ref: mB.ref, comment: 'Late check-in', total_cents: 12000 });
+  ok(r.status === 200 && lastEntry('manual_update').s === `Edited manual booking ${mB.ref} (comment, price €120.00)` && lastEntry('manual_update').p === 'stay', 'activity: manual_update (which fields)');
+  step(); r = await adm({ action: 'note', ref: mB.ref, note: 'Quiet room' });
+  ok(r.status === 200 && lastEntry('note').s === `Note on ${mB.ref}` && lastEntry('note').p === 'stay', 'activity: a note on a manual booking');
+  step(); r = await adm({ action: 'manual_cancel', ref: mB.ref });
+  ok(r.status === 200 && lastEntry('manual_cancel').s === `Cancelled manual booking ${mB.ref}`, 'activity: manual_cancel');
+  step(); r = await adm({ action: 'manual_restore', ref: mB.ref });
+  ok(r.status === 200 && lastEntry('manual_restore').s === `Restored manual booking ${mB.ref}`, 'activity: manual_restore');
+  step(); r = await adm({ action: 'block_create', rooms: [RN.c2], from: '2027-07-13', to: '2027-07-14', reason: 'maintenance' });
+  const blk = r.data.block;
+  ok(r.status === 200 && lastEntry('block_create').s === 'Blocked 2C · Temple Cottage · 13–14 Jul 2027 (1 night) · maintenance' && lastEntry('block_create').f === blk.id, 'activity: block_create');
+  step(); r = await asUser(tA, { action: 'block_create', rooms: [RN.c2, RN.d2, RN.a2, RN.b1], from: '2027-07-13', to: '2027-07-15', reason: 'staff', force: true });
+  ok(r.status === 200 && lastEntry('block_create').s === 'Blocked 2C · Temple Cottage, 2D · Temple Cottage + 2 more · 13–15 Jul 2027 (2 nights) · staff · saved over a clash', 'activity: a block of four rooms, saved over a clash');
+  step(); r = await adm({ action: 'block_delete', id: blk.id });
+  ok(r.status === 200 && lastEntry('block_delete').s === `Removed block ${blk.id}` && lastEntry('block_delete').f === blk.id, 'activity: block_delete');
+  step(); r = await adm({ action: 'register_domains' });
+  ok(lastEntry('register_domains').s === 'Registered the payment domains', 'activity: register_domains');
+  step(); r = await adm({ action: 'repair_plans' });
+  ok(lastEntry('repair_plans').s === 'Repaired payment plans', 'activity: repair_plans');
+  step(); r = await adm({ action: 'clear_demo', program: J1 });
+  ok(lastEntry('clear_demo').s === 'Removed demo bookings · BreathCamp 1' && lastEntry('clear_demo').p === J1, 'activity: clear_demo');
+  const n1 = entries().length;
+  r = await asUser(tA, { action: 'note', ref: 'BC2707-NOSUCH', note: 'x' });
+  r = await adm({ action: 'block_create', rooms: ['Nowhere'], from: '2027-07-13', to: '2027-07-14' });
+  r = await adm({ action: 'nonsense', ref: bRef });
+  ok(entries().length === n1, 'activity: refused or failed actions (4xx) are not logged');
+  // nothing personal, no passwords, within Stripe's limits
+  const all = entries(), blob = JSON.stringify(logbooks().map(c => c.metadata));
+  ok(all.length > 40 && all.every(x => x.raw.length <= 500 && Number.isInteger(x.t) && x.u && typeof x.n === 'string' && x.r && x.a && typeof x.s === 'string'), `every entry: compact JSON of ≤ 500 characters (${all.length} entries)`);
+  ok(!blob.includes('@') && !/7700|900123|mia|Mia/.test(blob), 'no email address, phone number or guest name in the log');
+  ok(secrets.every(p => !blob.includes(p)) && secrets.every(p => logs.every(l => !l.includes(p))), `no password in the log or the failure logs (${secrets.length} checked)`);
+  ok(logbooks().every(c => c.name === 'AoB dashboard activity log' && c.description === '(do not delete)' && c.email === null && !c.metadata.aob_rec_any && Object.keys(c.metadata).length <= LOGBOOK_MAX + 1), 'logbooks: named, no email, never records, at most 48 entries');
+  // reading it
+  r = await ownerGet('activity=1');
+  const A = r.data.entries;
+  ok(r.status === 200 && JSON.stringify(r.data.me) === OWNER_ME && r.data.has_more === false && A.length === all.length, 'activity: every entry');
+  ok(A.every((x, i) => i === 0 || A[i - 1].t >= x.t) && A[0].t === Math.max(...all.map(x => x.t)), 'activity: newest first');
+  ok(A.every(x => Object.keys(x).sort().join() === 'action,actor,at,id,program,ref,summary,t' && Date.parse(x.at) === x.t && /^e[0-9a-z]+$/.test(x.id) && Object.keys(x.actor).sort().join() === 'id,name,role'), 'activity entry: { id, t, at, actor: { id, name, role }, action, ref, program, summary }');
+  const top = A[0];
+  ok(top.action === 'clear_demo' && top.actor.id === 'owner' && top.actor.name === 'Main admin' && top.actor.role === 'owner' && top.program === J1 && top.ref === null, 'activity: the newest entry read back');
+  r = await ownerGet(`activity=1&user=${anna.id}`);
+  ok(r.data.entries.length > 5 && r.data.entries.every(x => x.actor.id === anna.id) && r.data.entries.length === A.filter(x => x.actor.id === anna.id).length, 'activity: one person\'s entries (user=<actor id>)');
+  r = await ownerGet('activity=1&user=-');
+  ok(r.data.entries.length > 0 && r.data.entries.every(x => x.action === 'login_failed'), 'activity: user=- → the refused sign-ins');
+}
+
+/* the activity log: paging, the 1000 cap, fresh entries, rollover */
+{
+  // 25 more logbooks of 48 entries (as if written over months), all newer than what is there
+  const base = fakeNow + 1000;
+  for (let b = 0; b < 25; b++) {
+    const md = { aob_logbook: '1' };
+    for (let i = 0; i < 48; i++) { const t = base + (b * 48 + i) * 1000; md['e' + t.toString(36) + 'aa'] = JSON.stringify({ t, u: 'owner', n: 'Main admin', r: 'owner', a: 'note', f: 'BC2707-AAAAAA', p: J1, s: `Old note ${b * 48 + i}` }); }
+    store.customers.push({ id: 'cus_logx' + pad(b), object: 'customer', name: 'AoB dashboard activity log', email: null, description: '(do not delete)', metadata: md, created: nowS() - 86400 * (40 - b) });
+  }
+  const total = entries().length;
+  r = await ownerGet('activity=1&limit=5000');
+  ok(r.status === 200 && r.data.entries.length === 1000 && r.data.has_more === true && r.data.entries[0].summary === 'Old note 1199', 'activity: at most 1000 entries at a time (has_more)');
+  r = await ownerGet('activity=1');
+  ok(r.data.entries.length === 200 && r.data.has_more === true, 'activity: 200 by default');
+  r = await ownerGet('activity=1&limit=abc');
+  ok(r.data.entries.length === 200, 'activity: a bad limit → 200');
+  r = await ownerGet('activity=1&limit=3');
+  const p1 = r.data.entries;
+  ok(p1.length === 3 && r.data.has_more && p1.map(x => x.summary).join() === 'Old note 1199,Old note 1198,Old note 1197', 'activity: limit');
+  r = await ownerGet(`activity=1&limit=3&before=${p1[2].t}`);
+  ok(r.data.entries.map(x => x.summary).join() === 'Old note 1196,Old note 1195,Old note 1194', 'activity: before = the oldest t shown → the next older ones');
+  // every page in turn: nothing lost, nothing twice (entries of one millisecond are never split)
+  const seen = new Set(); let before = '', pages = 0, more = true;
+  while (more && pages < 60) {
+    r = await ownerGet(`activity=1&limit=37${before}`);
+    r.data.entries.forEach(x => seen.add(x.id)); more = r.data.has_more; pages++;
+    before = `&before=${r.data.entries[r.data.entries.length - 1].t}`;
+  }
+  ok(!more && seen.size === total, `activity: paging through all ${total} entries (${pages} pages) loses none`);
+  r = await ownerGet(`activity=1&user=${anna.id}&limit=2`);
+  ok(r.data.entries.length === 2 && r.data.has_more === true && r.data.entries.every(x => x.actor.id === anna.id), 'activity: one person, a page at a time');
+  r = await ownerGet(`activity=1&before=${base}&user=owner&limit=1000`);
+  ok(r.data.has_more === false && r.data.entries.every(x => x.actor.id === 'owner' && x.t < base) && r.data.entries.length === entries().filter(x => x.u === 'owner' && x.t < base).length, 'activity: user and before together; has_more false at the end');
+  // what this isolate wrote a moment ago is there even while Stripe's search lags behind
+  store.customers.forEach(c => { if (c.metadata && c.metadata.aob_logbook) c._lagging = true; });
+  tick(11 * 60); // nothing in the real-time list of new customers either
+  r = await adm({ action: 'note', ref: bRef, note: 'While search lags' });
+  r = await ownerGet('activity=1&limit=1');
+  ok(r.data.entries[0].summary === `Note on ${bRef}` && r.data.entries[0].t === fakeNow, 'activity: an entry written a moment ago shows at once (search lag)');
+  store.customers.forEach(c => { c._lagging = false; });
+}
+
+/* rollover: a logbook holds 48 entries */
+reset();
+{
+  const actor = { id: 'owner', name: 'Main admin', role: 'owner' };
+  const k = await callsOf(() => logActivity(LIVE, actor, { action: 'note', ref: 'BC2707-AAAAAA', summary: 'First' }));
+  ok(logbooks().length === 1 && k.calls.length === 3, `the first entry: one search, one real-time list, one new logbook (${k.calls.length} Stripe calls)`);
+  const k2 = await callsOf(() => logActivity(LIVE, actor, { action: 'note', summary: 'Second' }));
+  ok(k2.calls.length === 1 && k2.calls[0].method === 'POST' && /^\/customers\/cus_/.test(k2.calls[0].path), 'the next: one metadata update');
+  for (let i = 2; i < 48; i++) { tick(1); await logActivity(LIVE, actor, { action: 'offline_payment', ref: 'MB2707-ABCDEF', summary: `"${'x\\'.repeat(400)}` }); }
+  ok(logbooks().length === 1 && Object.keys(logbooks()[0].metadata).length === 49 && Object.values(logbooks()[0].metadata).every(v => v.length <= 500), 'a full logbook: aob_logbook + 48 entries, each ≤ 500 characters');
+  tick(1);
+  await logActivity(LIVE, actor, { action: 'note', summary: 'The 49th' });
+  let lb = logbooks().sort((a, b) => (a.created - b.created) || (a.id < b.id ? -1 : 1));
+  ok(lb.length === 2 && Object.keys(lb[0].metadata).length === 49 && Object.keys(lb[1].metadata).length === 2 && Object.values(lb[1].metadata).some(v => v.includes('The 49th')), 'the 49th entry starts a new logbook');
+  // other isolates wrote to the current logbook as well: Stripe's 50-key limit → a new logbook
+  const cur = lb[1];
+  for (let i = 0; i < 48; i++) cur.metadata['eother' + i.toString(36).padStart(2, '0')] = JSON.stringify({ t: fakeNow - i, u: 'owner', n: 'Main admin', r: 'owner', a: 'note', s: 'Elsewhere' });
+  tick(1);
+  ok(await logActivity(LIVE, actor, { action: 'note', summary: 'After the others' }) === true, 'the entry is written…');
+  lb = logbooks();
+  ok(lb.length === 3 && Object.keys(cur.metadata).length === 50 && lb.some(c => c !== cur && Object.values(c.metadata).some(v => v.includes('After the others'))), '… in a new logbook when other isolates filled the current one (Stripe 400 on the 51st key)');
+  // a fresh isolate finds the newest logbook with room
+  forgetTeam(); tick(1);
+  await logActivity(LIVE, actor, { action: 'note', summary: 'Cold isolate' });
+  ok(logbooks().length === 3 && logbooks().some(c => Object.keys(c.metadata).length === 3 && Object.values(c.metadata).some(v => v.includes('Cold isolate'))), 'a fresh isolate adds to the newest logbook with room');
+  // the longest entry
+  const big = activityEntry({ id: 'cus_' + 'x'.repeat(60), name: '"\\'.repeat(40), role: 'team' }, { action: 'offline_payment', ref: 'MB2707-ABCDEF', program: 'stay', summary: '"\\😀'.repeat(400) }, fakeNow);
+  const bo = JSON.parse(big);
+  ok(big.length <= 500 && bo.s.endsWith('…') && bo.s.length > 100 && bo.u.length <= 40 && bo.n.length <= 60 && !/[\uD800-\uDBFF](?![\uDC00-\uDFFF])/.test(bo.s), 'the longest entry is cut to 500 characters (the summary, with …; never half an emoji), still JSON');
+  ok(logbooks().every(c => Object.keys(c.metadata).length <= 50 && Object.keys(c.metadata).every(x => x.length <= 40) && Object.values(c.metadata).every(v => String(v).length <= 500)), 'every logbook within Stripe\'s metadata limits');
+  // the fullest user
+  r = await adm({ action: 'user_create', username: 'u'.repeat(32), name: '😀'.repeat(30), role: 'viewer', password: 'p'.repeat(100) });
+  const fu = r.data.user;
+  ok(r.status === 200 && fu.name.length === 60, 'the longest username and name, a 100-character password');
+  r = await adm({ action: 'test_users_create' });
+  r = await loginAs('u'.repeat(32), 'p'.repeat(100));
+  ok(r.status === 200, '… signs in');
+  r = await adm({ action: 'user_update', id: fu.id, role: 'team', status: 'disabled', reset_password: true, name: 'N'.repeat(60) });
+  ok(r.status === 200 && lastEntry('user_update').s === `Updated ${'u'.repeat(32)}: renamed to "${'N'.repeat(60)}", role team, disabled, password reset`, 'every change at once: one entry');
+  ok(userCus().every(c => Object.keys(c.metadata).length <= 12 && Object.keys(c.metadata).every(x => x.length <= 40) && Object.values(c.metadata).every(v => String(v).length <= 500) && c.name.length <= 256), 'users stay far within Stripe\'s metadata limits');
+}
+
+/* the log never fails or holds up an action */
+reset();
+{
+  r = await call(checkout, 'POST', '/api/booking/checkout', jBooking([guest(1, 'twin-ensuite')]), LIVE);
+  const ref = r.data.ref; complete(r.data.session_id);
+  r = await adm({ action: 'note', ref, note: 'one' });
+  const n0 = entries().length, l0 = logs.length;
+  ok(r.status === 200 && n0 === 1, 'a logbook exists');
+  fault('POST', /^\/customers\/cus_/, { status: 500, times: 3 });
+  r = await adm({ action: 'note', ref, note: 'two' });
+  ok(r.status === 200 && r.data.note === 'two' && [...store.pis.values()].find(p => p.metadata.aob_ref === ref).metadata.aob_note === 'two' && entries().length === n0, 'the log write failing never fails the action (the entry is lost)');
+  ok(logs.slice(l0).some(l => l.includes('"route":"activity.log"') && l.includes('"status":500')) && logs.slice(l0).every(l => !l.includes('@') && !l.includes('Note on')), 'the failure is in the error log, without personal data');
+  r = await ownerGet('activity=1');
+  ok(r.data.entries.length === n0, '… and is not shown as written');
+  // without waitUntil (another runtime): written before answering
+  let res = await admin.onRequestPost({ request: req('POST', '/api/booking/admin', { action: 'note', ref, note: 'three' }, AUTH), env: LIVE });
+  ok(res.status === 200 && entries().length === n0 + 1, 'without waitUntil: the entry is written before the answer');
+  fault('POST', /^\/customers\/cus_/, { status: 500, times: 3 });
+  res = await admin.onRequestPost({ request: req('POST', '/api/booking/admin', { action: 'note', ref, note: 'four' }, AUTH), env: LIVE });
+  ok(res.status === 200 && (await res.json()).note === 'four' && entries().length === n0 + 1, '… and a failing write still doesn\'t fail the action');
+  // a sign-in whose log write fails still signs in
+  r = await adm({ action: 'user_create', username: 'erin', name: 'Erin', role: 'team', password: 'erin-pass' }); secrets.push('erin-pass');
+  fault('POST', /^\/customers\/cus_/, { status: 500, times: 6 });
+  r = await loginAs('erin', 'erin-pass');
+  ok(r.status === 200 && r.data.token, 'login: a failing log (or last sign-in) write never fails the sign-in');
+  store.faults.length = 0;
+  // a flood of refused sign-ins is logged at most 30 times per 10 minutes per isolate
+  const f0 = entries().filter(x => x.a === 'login_failed').length;
+  forgetRateLimits();
+  for (let i = 0; i < 40; i++) await loginRaw({ username: `flood${i}`, password: `pw-flood-${i}` }, ip(150 + i));
+  ok(entries().filter(x => x.a === 'login_failed').length - f0 === 30, 'refused sign-ins: at most 30 log entries per 10 minutes per isolate');
+  tick(11 * 60);
 }
 
 /* nothing personal in the logs */
