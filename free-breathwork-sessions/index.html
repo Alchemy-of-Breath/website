@@ -271,7 +271,9 @@ main .btn-primary{box-shadow:0 8px 24px rgba(214,166,82,.3)}
 .form-frame iframe{display:block;width:100%;min-height:620px}
 
 /* 30 minutes: staggered paper cards */
-.bw-thirty{background:radial-gradient(ellipse at 10% 95%,#c6dbd62b,transparent 55%),#fffdf9;border-bottom:1px solid var(--line)}
+.bw-thirty{overflow:hidden;background:radial-gradient(ellipse at 10% 95%,#c6dbd62b,transparent 55%),#fffdf9;border-bottom:1px solid var(--line)}
+/* the original page's session photo, kept as a faint warm texture */
+.bw-thirty::before{content:'';position:absolute;inset:0;pointer-events:none;background:url('https://alchemyofbreath.com/wp-content/uploads/DSC_8959-4-1.jpg') center 35%/cover no-repeat;opacity:.08;filter:sepia(.4) saturate(.8);-webkit-mask-image:linear-gradient(180deg,transparent 0%,#000 25%,#000 75%,transparent 100%);mask-image:linear-gradient(180deg,transparent 0%,#000 25%,#000 75%,transparent 100%)}
 .section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:60px;margin-bottom:46px}
 .section-head .section-lead{max-width:360px;margin:0}
 .feat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;align-items:stretch}
@@ -334,8 +336,7 @@ main .btn-primary{box-shadow:0 8px 24px rgba(214,166,82,.3)}
 .voice-visual{position:relative;padding:18px 16px 20px;border-radius:210px 210px 22px 22px;background:linear-gradient(135deg,#ffffff96 0%,#ffffff30 35%,#e5f3ef40 67%,#ffffffad 100%);border:1px solid #ffffffd9;box-shadow:inset 1px 1px 1px #fff,0 24px 65px -18px #3f554839;isolation:isolate}
 .voice-visual::before{content:'';position:absolute;inset:-12px 14px 14px -12px;z-index:-1;border:1px solid #c8ab7166;border-radius:215px 215px 22px 22px;transform:rotate(-3deg)}
 .voice-window{position:relative;height:470px;overflow:hidden;border-radius:190px 190px 10px 10px;background:#3a302a}
-.vbg{position:absolute;inset:0;background:var(--img) center/cover no-repeat;opacity:0;transform:scale(1.05);transition:opacity 1.2s ease,transform 7s ease}
-.vbg.is-on{opacity:1;transform:none}
+.voice-window video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .voice-window::after{content:'';position:absolute;inset:55% 0 0;background:linear-gradient(transparent,#183329c4)}
 .voice-window .photo-label{z-index:2}
 .bw-voices h2{max-width:560px}
@@ -514,7 +515,7 @@ main .btn-primary{box-shadow:0 8px 24px rgba(214,166,82,.3)}
 }
 @media(prefers-reduced-motion:reduce){
   .hero-visual{transform:none !important}
-  .rot-item,.voice,.vbg,.feat,.next-card,.pill,.pill-label{transition:none}
+  .rot-item,.voice,.feat,.next-card,.pill,.pill-label{transition:none}
   .feat:hover,.next-card:hover{translate:none}
 }
 
@@ -1066,11 +1067,8 @@ main p em,main li em{color:var(--gold-text)}
     <div class="wrap voices-grid">
       <div class="voice-visual reveal" aria-hidden="true">
         <div class="voice-window">
-          <span class="vbg is-on" style="--img:url('https://alchemyofbreath.com/wp-content/uploads/BTWF-bg-1-1.jpg')"></span>
-          <span class="vbg" style="--img:url('https://alchemyofbreath.com/wp-content/uploads/mountain-glow-v2-e1760214745305.png')"></span>
-          <span class="vbg" style="--img:url('https://alchemyofbreath.com/wp-content/uploads/glow-head.jpg')"></span>
-          <span class="vbg" style="--img:url('https://alchemyofbreath.com/wp-content/uploads/20210903_072138-scaled.jpg')"></span>
-          <span class="vbg" style="--img:url('https://alchemyofbreath.com/wp-content/uploads/bg-dark-flow-small.jpg')"></span>
+          <!-- same film as the homepage Breathe The World panel; jsDelivr because Cloudflare Pages ignores the range requests Safari needs -->
+          <video id="btwFilm" src="https://cdn.jsdelivr.net/gh/Alchemy-of-Breath/website@main/assets/breathe-the-world.mp4" poster="https://cdn.jsdelivr.net/gh/Alchemy-of-Breath/website@main/assets/breathe-the-world-poster.jpg" muted loop playsinline preload="none"></video>
           <div class="photo-label"><span>After a Sunday session</span><strong>In their words</strong></div>
         </div>
       </div>
@@ -1439,8 +1437,19 @@ main p em,main li em{color:var(--gold-text)}
     hero.addEventListener('pointerleave',function(){ visual.style.removeProperty('--tilt-x'); visual.style.removeProperty('--tilt-y'); });
   }
 
-  /* voices: quote slider with crossfading arch backgrounds */
-  var voices=[].slice.call(document.querySelectorAll('.voice')), bgs=[].slice.call(document.querySelectorAll('.vbg'));
+  /* voices: the Breathe The World film plays only while its arch is near the screen */
+  var film=document.getElementById('btwFilm');
+  if(film && !reduce && 'IntersectionObserver' in window){
+    new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(e.isIntersecting){ var pr=film.play(); if(pr&&pr.catch) pr.catch(function(){}); }
+        else film.pause();
+      });
+    },{rootMargin:'200px 0px'}).observe(film);
+  }
+
+  /* voices: quote slider */
+  var voices=[].slice.call(document.querySelectorAll('.voice'));
   var dotsBox=document.querySelector('.vdots'), vi=0, timer=null;
   var dots=voices.map(function(_,i){
     var b=document.createElement('button'); b.type='button'; b.setAttribute('role','tab');
@@ -1452,7 +1461,6 @@ main p em,main li em{color:var(--gold-text)}
     vi=(i+voices.length)%voices.length;
     voices.forEach(function(v,k){ v.classList.toggle('is-on',k===vi); });
     dots.forEach(function(d,k){ d.setAttribute('aria-selected',k===vi?'true':'false'); });
-    bgs.forEach(function(b,k){ b.classList.toggle('is-on',k===vi%bgs.length); });
   }
   function restart(){ if(timer) clearInterval(timer); if(!reduce) timer=setInterval(function(){ if(!document.hidden) show(vi+1); },6500); }
   [].slice.call(document.querySelectorAll('.vbtn')).forEach(function(b){ b.addEventListener('click',function(){ show(vi+(+b.dataset.dir)); restart(); }); });
