@@ -145,12 +145,12 @@ footer{text-align:center;font-size:.78rem;color:var(--slate);padding:0 20px 20px
 <body>
 <header><a href="https://alchemyofbreath.com/"><img src="https://alchemyofbreath.com/wp-content/uploads/AOB-Gold-Black-Transparant.png" alt="Alchemy of Breath" width="252" height="72"></a></header>
 <main><div class="card" id="card">
-  <p class="eyebrow">BreathCamp at ASHA</p>
+  <p class="eyebrow" id="eyebrow">Your booking at ASHA</p>
   <h1>Pay your <em>balance</em>.</h1>
   <p class="sub" id="intro">Enter your booking reference and the email you booked with. We'll show you what's left to pay before you go to the secure payment page.</p>
   <p class="msg" id="msg" role="alert" hidden></p>
   <form id="form" novalidate>
-    <label for="ref">Booking reference</label><input id="ref" name="ref" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" placeholder="BC0000-ABC123" maxlength="24" required>
+    <label for="ref">Booking reference</label><input id="ref" name="ref" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" placeholder="e.g. BC2707-ABC123" maxlength="24" required>
     <label for="email">Email</label><input id="email" name="email" type="email" autocomplete="email" inputmode="email" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="name@example.com" maxlength="200" required>
     <div id="tsBox"></div>
     <button class="btn" id="go" type="submit">Show my balance <span class="arr" aria-hidden="true">&rarr;</span></button>
@@ -163,13 +163,13 @@ footer{text-align:center;font-size:.78rem;color:var(--slate);padding:0 20px 20px
       <dl class="rows" id="dueRows" hidden></dl>
     </div>
     <button class="btn" id="pay" type="button"></button>
-    <p class="terms">You'll finish on Stripe's secure checkout page. Your booking follows the <a href="https://alchemyofbreath.com/terms-and-conditions/#breathcamp-policy" target="_blank" rel="noopener">BreathCamp terms</a>.</p>
+    <p class="terms">You'll finish on Stripe's secure checkout page. Your booking follows the <a id="dueTerms" href="https://alchemyofbreath.com/terms-and-conditions/#breathcamp-policy" target="_blank" rel="noopener">booking terms</a>.</p>
     <button class="linkbtn" id="other" type="button">Look up a different booking</button>
   </section>
-  <p class="xtra" id="xtra" hidden><a id="xtraLink" href="../extras/">Add a private session to your week <span aria-hidden="true">&rarr;</span></a></p>
+  <p class="xtra" id="xtra" hidden><a id="xtraLink" href="../extras/">Add a private session to your stay <span aria-hidden="true">&rarr;</span></a></p>
   <p class="lock" id="lock"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Secure payment by Stripe</p>
 </div></main>
-<footer>Need help? <a href="https://wa.me/393534527348" target="_blank" rel="noopener">Message us on WhatsApp</a> &middot; <a href="https://alchemyofbreath.com/terms-and-conditions/#breathcamp-policy" target="_blank" rel="noopener">BreathCamp terms</a></footer>
+<footer>Need help? <a href="https://wa.me/393534527348" target="_blank" rel="noopener">Message us on WhatsApp</a> &middot; <a href="https://alchemyofbreath.com/terms-and-conditions/#breathcamp-policy" target="_blank" rel="noopener">Terms</a></footer>
 <script>
 (function(){
   var API = (/(^|\.)website-5h3\.pages\.dev$/.test(location.hostname) || location.hostname === '127.0.0.1' || location.hostname === 'localhost') ? '' : 'https://website-5h3.pages.dev';
@@ -278,7 +278,7 @@ footer{text-align:center;font-size:.78rem;color:var(--slate);padding:0 20px 20px
     var sub = 'Your balance payment' + (r ? ' for booking <b>' + r + '</b>' : '') + ' is complete. Your receipt is on its way by email.';
     if (num(s.amount_paid_cents)) sub = 'We received <b>' + money(s.amount_paid_cents) + '</b>' + (r ? ' for booking <b>' + r + '</b>' : '') + '. ' + (num(s.balance_cents) ? 'Still to pay: ' + money(s.balance_cents) + '.' : 'You are now paid in full. See you at ASHA!');
     card.innerHTML = '<div class="seal" aria-hidden="true"></div><p class="eyebrow">Payment received</p><h1>Thank you.</h1><p class="sub">' + sub + '</p><a class="btn btn-ghost" href="https://alchemyofbreath.com/">Back to Alchemy of Breath</a>' +
-      (r ? '<p class="xtra"><a href="' + esc(extrasHref(r)) + '">Add a private session to your week <span aria-hidden="true">&rarr;</span></a></p>' : '');
+      (r ? '<p class="xtra"><a href="' + esc(extrasHref(r)) + '">Add a private session to your stay <span aria-hidden="true">&rarr;</span></a></p>' : '');
   }
 
   /* --------------------------------------------- step 1: find the booking */
@@ -313,6 +313,11 @@ footer{text-align:center;font-size:.78rem;color:var(--slate);padding:0 20px 20px
   function showDue(d, ref, email){
     cur = { ref: cleanRef(d.ref) || ref, email: email, balance: d.balance_cents, url: typeof d.url === 'string' ? d.url : null, info: d };
     $('dueRef').textContent = cur.ref;
+    // the booking's programme (BreathCamp, Alchemy Regulation Method, …): its name and its terms
+    var p = d.program && typeof d.program === 'object' ? d.program : null;
+    if (p && (p.edition || p.title)) $('eyebrow').textContent = (p.edition || p.title) + (p.dates && (p.dates.medium || p.dates.label) ? ' · ' + (p.dates.medium || p.dates.label) : '');
+    if (p && p.title) $('dueTerms').textContent = p.title + ' terms';
+    if (p && typeof p.terms_url === 'string' && /^https:\/\//.test(p.terms_url)) $('dueTerms').href = p.terms_url;
     $('dueAmt').textContent = money(cur.balance);
     $('dueWhen').textContent = d.plan_ended
       ? 'left to pay: your monthly payment plan has ended' + (num(d.paid_count) && num(d.installments) ? ' (' + d.paid_count + ' of ' + d.installments + ' payments made)' : '') + ' · ' + dueText(d)
@@ -328,7 +333,7 @@ footer{text-align:center;font-size:.78rem;color:var(--slate);padding:0 20px 20px
     $('dueAmt').focus();
   }
   function backToForm(){
-    cur = null; $('due').hidden = true; $('form').hidden = false; showExtras('');
+    cur = null; $('due').hidden = true; $('form').hidden = false; showExtras(''); $('eyebrow').textContent = 'Your booking at ASHA';
     $('intro').textContent = 'Enter your booking reference and the email you booked with. We\'ll show you what\'s left to pay before you go to the secure payment page.';
   }
   $('form').addEventListener('submit', function(e){
@@ -338,7 +343,7 @@ footer{text-align:center;font-size:.78rem;color:var(--slate);padding:0 20px 20px
     var badRef = !REF.test(ref), badEmail = !EMAIL.test(email);
     invalid($('ref'), badRef); invalid($('email'), badEmail);
     if (badRef || badEmail) {
-      msg(badRef ? 'Please check your booking reference. It looks like BC0000-ABC123 and is in your confirmation email.' : 'Please enter the email you booked with.');
+      msg(badRef ? 'Please check your booking reference. It is in your confirmation email and looks like BC2707-ABC123: two letters, four digits, a dash and six letters or numbers.' : 'Please enter the email you booked with.');
       (badRef ? $('ref') : $('email')).focus();
       return;
     }

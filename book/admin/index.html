@@ -456,6 +456,14 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
 .bed .bn{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .bed .br{font-size:.68rem;color:var(--slate);letter-spacing:.03em}
 .bed.free{background:transparent;border:1px dashed var(--gold-soft);color:var(--slate);cursor:default;font-size:.76rem}
+/* a guest of another programme in a shared room (read only on this board) */
+.bed.oth{background:#F1F4F6;border:1px dashed #9FB3C0;color:#2F4A5A}
+.bed.oth .op{font-weight:500;color:#22394A}
+.bed.oth .br{color:#4E6A7B}
+div.bed.oth{cursor:default}
+.ovl{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px}
+.wkc-t{margin:0 0 2px;font-size:.66rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--slate)}
+.wkc-o{margin:2px 0 0;font-size:.76rem;color:var(--slate)}
 .legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.76rem;color:var(--slate);margin:0 0 12px}
 .bar{height:8px;border-radius:4px;background:rgba(91,120,137,.15);overflow:hidden;min-width:100px;display:flex}
 .bar i{display:block;height:100%;background:var(--gold-deep)}
@@ -504,7 +512,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
 .cal{--rw:184px;--cmin:35px;--lh:34px;position:relative;min-width:calc(var(--rw) + var(--n) * var(--cmin));font-size:.78rem}
 .cal-g{display:grid;grid-template-columns:var(--rw) repeat(var(--n),minmax(var(--cmin),1fr))}
 .cal-head{position:sticky;top:0;z-index:5;background:#fff;grid-template-rows:20px 24px 40px;box-shadow:0 1px 0 var(--line),0 6px 12px -10px rgba(34,31,32,.25)}
-.cal-corner{position:sticky;left:0;z-index:2;grid-column:1;grid-row:1/4;background:#fff;border-right:1px solid var(--line);display:flex;flex-direction:column;justify-content:flex-end;padding:0 12px 8px}
+.cal-corner{position:sticky;left:0;z-index:2;grid-column:1;grid-row:1/-1;background:#fff;border-right:1px solid var(--line);display:flex;flex-direction:column;justify-content:flex-end;padding:0 12px 8px}
 .cal-corner b{font-family:var(--serif);font-weight:400;font-size:1rem;line-height:1.2}
 .cal-corner small{font-size:.68rem;color:var(--slate)}
 .cal-mo{grid-row:1;min-width:0;border-left:1px solid var(--rule);font-size:.64rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--slate);padding:4px 0 0}
@@ -591,6 +599,10 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
   .calsc{max-height:72vh}
   .cal-tb .sp{display:none}
   .cal-nav{flex:1 1 100%}
+  /* five programmes: one row of jump chips that scrolls sideways, not five rows */
+  #calChips{flex:1 1 100%;min-width:0;flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none;padding:2px 0}
+  #calChips::-webkit-scrollbar{display:none}
+  #calChips .chip,#calChips .lbl{flex:none}
 }
 @media (min-width:1500px){.cal{--cmin:38px}}
 
@@ -859,9 +871,9 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
 <a class="skip" href="#view">Skip to content</a>
 <header class="top" id="top">
   <div class="top-in">
-    <a class="brand" href="#overview"><img src="https://alchemyofbreath.com/wp-content/uploads/AOB-Gold-Black-Transparant-symbol.png" alt="" width="32" height="32"><span><small>Alchemy of Breath · Team</small><b>BreathCamp bookings</b></span></a>
+    <a class="brand" href="#overview"><img src="https://alchemyofbreath.com/wp-content/uploads/AOB-Gold-Black-Transparant-symbol.png" alt="" width="32" height="32"><span><small>Alchemy of Breath · Team</small><b>Programme bookings</b></span></a>
     <div class="top-r" id="topCtl" hidden>
-      <label class="wsel" id="weekWrap"><span class="vh">Week</span><select id="week"></select></label>
+      <label class="wsel" id="weekWrap"><span class="vh">Programme</span><select id="week"></select></label>
       <span class="stamp" id="stamp" aria-live="polite"></span>
       <button class="ibtn" id="refresh" type="button" title="Refresh (R)" aria-label="Refresh"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg></button>
       <button class="btn" id="newLink" type="button" title="New booking link (N)">New booking link</button>
@@ -899,7 +911,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
 <div class="modal" id="modal" hidden><div class="mbox" id="mbox" role="dialog" aria-modal="true" aria-labelledby="mTitle"></div></div>
 <div class="toasts" id="toasts" aria-live="polite"></div>
 <div id="printRoot"></div>
-<script type="application/json" id="programList">[{"id":"breathcamp-jul-2027-1","title":"BreathCamp","edition":"BreathCamp 1","dates":{"start":"2027-07-18","end":"2027-07-24","nights":6,"label":"Sunday 18 – Saturday 24 July 2027","short":"18–24 Jul 2027","medium":"18–24 July 2027"}},{"id":"breathcamp-jul-2027-2","title":"BreathCamp","edition":"BreathCamp 2","dates":{"start":"2027-07-25","end":"2027-07-31","nights":6,"label":"Sunday 25 – Saturday 31 July 2027","short":"25–31 Jul 2027","medium":"25–31 July 2027"}}]</script><!-- /PROGRAM-LIST -->
+<script type="application/json" id="programList">[{"id":"arm-jun-2027","title":"Alchemy Regulation Method","edition":"ARM Coach Certification","dates":{"start":"2027-06-20","end":"2027-06-26","nights":6,"label":"Sunday 20 – Saturday 26 June 2027","short":"20–26 Jun 2027","medium":"20–26 June 2027"}},{"id":"live-residential-2027","title":"Live Residential Facilitator Training","edition":"Live Residential","dates":{"start":"2027-06-20","end":"2027-07-10","nights":20,"label":"Sunday 20 June – Saturday 10 July 2027","short":"20 Jun – 10 Jul 2027","medium":"20 June – 10 July 2027"}},{"id":"intuition-jul-2027","title":"Intuition Retreat","edition":"Intuition Retreat","dates":{"start":"2027-07-11","end":"2027-07-17","nights":6,"label":"Sunday 11 – Saturday 17 July 2027","short":"11–17 Jul 2027","medium":"11–17 July 2027"}},{"id":"breathcamp-jul-2027-1","title":"BreathCamp","edition":"BreathCamp 1","dates":{"start":"2027-07-18","end":"2027-07-24","nights":6,"label":"Sunday 18 – Saturday 24 July 2027","short":"18–24 Jul 2027","medium":"18–24 July 2027"}},{"id":"breathcamp-jul-2027-2","title":"BreathCamp","edition":"BreathCamp 2","dates":{"start":"2027-07-25","end":"2027-07-31","nights":6,"label":"Sunday 25 – Saturday 31 July 2027","short":"25–31 Jul 2027","medium":"25–31 July 2027"}}]</script><!-- /PROGRAM-LIST -->
 <script>
 (function(){
   'use strict';
@@ -918,7 +930,14 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
   var $ = function(id){ return document.getElementById(id); };
   var PROGS = [];
   try { PROGS = JSON.parse($('programList').textContent || '[]') || []; } catch (e) { PROGS = []; }
+  // in date order whatever order the build lists them in (programmes can overlap: the same first night → the shorter one first)
+  var PROG_FILE = PROGS = (Array.isArray(PROGS) ? PROGS : []).filter(function(p){ return p && p.id; });
+  PROGS = PROGS.slice().sort(progOrder);
   var PBY = {}; PROGS.forEach(function(p){ PBY[p.id] = p; });
+  function progOrder(a, b){
+    var x = (a && a.dates) || {}, y = (b && b.dates) || {}, cmp = function(u, v){ u = String(u || '~'); v = String(v || '~'); return u < v ? -1 : u > v ? 1 : 0; };
+    return cmp(x.start, y.start) || cmp(x.end, y.end) || (PROG_FILE.indexOf(a) - PROG_FILE.indexOf(b)) || cmp(a && a.id, b && b.id);
+  }
 
   /* ================================================================ helpers */
   function each(list, fn){ Array.prototype.forEach.call(list || [], fn); }
@@ -1218,7 +1237,32 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
 
   /* ---------------------------------------------------------------- program detail */
   function wk(id){ return PBY[id] || (D(id) && D(id).program) || { id: id, edition: id, title: '', dates: {} }; }
-  function wkName(id){ var p = wk(id); return p.edition || p.title || id; }
+  // (manual stays outside every programme are listed under STAY)
+  function wkName(id){ if (id === STAY) return 'Outside the programmes'; var p = wk(id); return p.edition || p.title || id; }
+  /* Programmes whose nights overlap this one's share its physical rooms (ARM inside Live Residential): the week
+     GET's overlaps [{ id, edition, dates }], else (an older API) worked out from the programme dates. */
+  function overlapsOf(id){
+    var d = D(id), dt = wk(id).dates || {}, out = [], seen = {};
+    var add = function(p){
+      if (typeof p === 'string') p = PBY[p] || { id: p };
+      if (!p || !p.id || p.id === id || seen[p.id]) return;
+      var q = PBY[p.id] || {}, qd = p.dates && ISO.test(p.dates.start || '') ? p.dates : q.dates || {};
+      seen[p.id] = 1; out.push({ id: p.id, edition: p.edition || q.edition || p.title || q.title || p.id, title: q.title || p.title || '', dates: qd });
+    };
+    if (d && Array.isArray(d.overlaps)) d.overlaps.forEach(add);
+    else if (ISO.test(dt.start || '') && ISO.test(dt.end || '')) PROGS.forEach(function(p){ var pd = p.dates || {}; if (ISO.test(pd.start || '') && ISO.test(pd.end || '') && overlaps(pd.start, pd.end, dt.start, dt.end)) add(p); });
+    return out.sort(progOrder);
+  }
+  // a programme as the week board names it: its edition, from the page's list, the week's overlaps or its id
+  function progLabel(pid, from){
+    if (!pid) return 'Another programme';
+    if (PBY[pid]) return wkName(pid);
+    var o = from && findBy(overlapsOf(from), function(x){ return x.id === pid; });
+    return o ? o.edition : D(pid) && D(pid).program ? wkName(pid) : pid;
+  }
+  // another programme's guest: the programme's name as the page knows it, else as the booking system sent it
+  function oLabel(g, from){ return g && (PBY[g.program] || !g.edition) ? progLabel(g && g.program, from) : g.edition; }
+  function andList(l){ return l.length < 2 ? l.join('') : l.slice(0, -1).join(', ') + ' and ' + l[l.length - 1]; }
   function wkDates(id, long){ var dt = wk(id).dates || {}; return long ? (dt.label || dt.medium || dt.short || '') : (dt.short || dt.medium || dt.label || ''); }
   function wkFull(id){ return wkName(id) + (wkDates(id) ? ' · ' + wkDates(id) : ''); }
   function wkMedium(id){ var dt = wk(id).dates || {}; return dt.medium || dt.label || dt.short || ''; }
@@ -1285,7 +1329,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     var d = D(id); if (!d) return null;
     var rooms = detail(id).rooms, byName = {}, order = [], unassigned = [], noRoom = [], seen = {};
     var dts = wk(id).dates || {};
-    rooms.forEach(function(r){ (r.names || []).forEach(function(n){ if (!byName[n]) { byName[n] = { name: n, room: r, beds: bedsOf(r), guests: [], gender: null, conflict: null, blocked: null }; order.push(n); } }); });
+    rooms.forEach(function(r){ (r.names || []).forEach(function(n){ if (!byName[n]) { byName[n] = { name: n, room: r, beds: bedsOf(r), guests: [], others: [], gender: null, conflict: null, blocked: null, peak: 0 }; order.push(n); } }); });
     (d.bookings || []).forEach(function(b){
       if (!active(b)) return;
       var man = b.source === 'manual';
@@ -1299,12 +1343,40 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
         else noRoom.push(who);
       });
     });
-    // the server's rooming map: blocks, and manual guests the bookings list doesn't carry
+    /* Guests of programmes overlapping this one, placed in its rooms: read only here, they take those beds on
+       their nights. From that programme's data when the page holds it (the team's latest room changes), else
+       from the server's rooming map (occupants with other: true, program, from, to). */
+    var ovl = overlapsOf(id), local = {}, oseen = {};
+    var addOther = function(x, o){
+      if (!x || !o || !o.ref) return;
+      var k = o.ref + '|' + (o.index != null ? o.index : o.name);
+      if (oseen[k] || seen[o.ref + '|' + o.name]) return;
+      o.from = ISO.test(o.from || '') ? o.from : dts.start; o.to = ISO.test(o.to || '') ? o.to : dts.end;
+      if (ISO.test(dts.start || '') && ISO.test(o.from || '') && !overlaps(o.from, o.to, dts.start, dts.end)) return;
+      oseen[k] = 1; o.other = true; o.room = x.room.id;
+      x.others.push(o);
+    };
+    ovl.forEach(function(q){
+      var qd = D(q.id); if (!qd || !Array.isArray(qd.bookings)) return;
+      var qs = ISO.test((q.dates || {}).start || '') ? q.dates : wk(q.id).dates || {};
+      local[q.id] = 1;
+      qd.bookings.forEach(function(b){
+        if (!active(b) || b.source === 'manual') return;
+        b.guests.forEach(function(g, i){ var nm = b.assign[i]; if (nm && byName[nm]) addOther(byName[nm], { ref: b.ref, index: i, name: g.name, gender: g.gender, program: q.id, from: qs.start, to: qs.end, b: b }); });
+      });
+    });
+    var inLocal = function(ref){ return Object.keys(local).some(function(q){ return weekBookings(q).some(function(b){ return b.ref === ref; }); }); };
+    // the server's rooming map: blocks, manual guests the bookings list doesn't carry, other programmes' guests
     var sr = d.rooming && typeof d.rooming === 'object' ? d.rooming : {};
     Object.keys(sr).forEach(function(n){
       var s = sr[n] || {}, x = byName[n]; if (!x) return;
       if (s.blocked && s.blocked.id && !blockGone(s.blocked.id)) x.blocked = regBlock(s.blocked, n);
-      (s.guests || []).forEach(function(g){
+      (Array.isArray(s.guests) ? s.guests : []).forEach(function(g){
+        if (g && g.other) {
+          if (g.program === id || (g.program ? local[g.program] : inLocal(g.ref))) return;
+          addOther(x, { ref: String(g.ref || ''), index: g.index != null ? num(g.index) : null, name: g.name || 'Guest', gender: g.gender, program: g.program ? String(g.program) : '', edition: g.edition ? String(g.edition) : '', from: g.from, to: g.to, b: null });
+          return;
+        }
         if (!g || !g.manual || seen[g.ref + '|' + g.name] || manualCancelled(g.ref)) return;
         seen[g.ref + '|' + g.name] = 1;
         x.guests.push({ ref: g.ref, index: num(g.index), name: g.name, gender: g.gender, room: x.room.id, b: null, manual: true, from: g.from, to: g.to });
@@ -1316,32 +1388,69 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
       if (!bl || !bl.id || blockGone(bl.id) || (dts.start && !overlaps(bl.from, bl.to, dts.start, dts.end))) return;
       (bl.rooms || []).forEach(function(n){ if (byName[n] && !byName[n].blocked) byName[n].blocked = regBlock(bl, n); });
     });
-    var conflicts = 0;
+    var conflicts = 0, otherN = 0, cross = [];
     order.forEach(function(n){
       var x = byName[n], kinds = uniq(x.guests.map(function(g){ return gKey(g.gender); }));
-      x.gender = kinds.length === 1 ? x.guests[0].gender : null;
-      x.conflict = x.blocked && x.guests.length ? 'blocked' : kinds.length > 1 && x.room.same_gender ? 'mixed' : x.guests.length > x.beds ? 'over' : null;
+      var own = x.blocked && x.guests.length ? 'blocked' : kinds.length > 1 && x.room.same_gender ? 'mixed' : x.guests.length > x.beds ? 'over' : null;
+      var o = occupancy(x, dts), all = uniq(x.guests.concat(x.others).map(function(g){ return gKey(g.gender); }));
+      x.peak = o.peak;
+      x.gender = all.length === 1 ? (x.guests[0] || x.others[0]).gender : null;
+      // with another programme's guests: more guests at once than beds, or women and men on the same night
+      x.conflict = own || (o.mixed && x.room.same_gender ? 'mixed' : o.peak > x.beds ? 'over' : null);
+      x.cross = !own && !!x.conflict;
+      x.otherIds = uniq(x.others.map(function(g){ return g.program || '?'; }));
+      otherN += x.others.length;
       if (x.conflict) conflicts++;
+      if (x.cross) cross.push(x);
     });
-    return { byName: byName, order: order, unassigned: unassigned, noRoom: noRoom, conflicts: conflicts, rooms: rooms };
+    return { byName: byName, order: order, unassigned: unassigned, noRoom: noRoom, conflicts: conflicts, rooms: rooms, overlaps: ovl, others: otherN, cross: cross, id: id };
   }
-  function conflictText(x){ return x.conflict === 'blocked' ? (isClosed(x.blocked) ? 'Guests placed in a room closed in Uplisting' : isExt(x.blocked) ? 'Guests placed in a room booked on Uplisting' : 'Guests placed in a blocked room') :x.conflict === 'mixed' ? 'Women and men in a same-gender room' : x.guests.length + ' guests for ' + plural(x.beds, 'bed'); }
+  /* How full a room is over the programme's nights: its own guests stay every night, another programme's guests
+     on their own nights (clipped to these). peak: the most guests on one night; mixed: women and men (or a guest
+     without a gender beside one with) on the same night. */
+  function occupancy(x, dts){
+    var ownK = {}, n = ISO.test(dts.start || '') && ISO.test(dts.end || '') ? nightsOf(dts.start, dts.end) : 0;
+    x.guests.forEach(function(g){ ownK[gKey(g.gender)] = 1; });
+    if (!x.others.length) return { peak: x.guests.length, mixed: Object.keys(ownK).length > 1 };
+    if (n < 1 || n > 400) {
+      var k0 = copyObj(ownK); x.others.forEach(function(g){ var k = gKey(g.gender); if (k !== 'o') k0[k] = 1; });
+      return { peak: x.guests.length + x.others.length, mixed: Object.keys(k0).length > 1 };
+    }
+    var peak = 0, mixed = false;
+    for (var i = 0; i < n; i++) {
+      var night = addDays(dts.start, i), c = x.guests.length, ks = copyObj(ownK);
+      // (another programme's guest without a known gender takes a bed, but isn't counted as a woman or a man)
+      x.others.forEach(function(g){ if (g.from <= night && night < g.to) { c++; var k = gKey(g.gender); if (k !== 'o') ks[k] = 1; } });
+      if (c > peak) peak = c;
+      if (Object.keys(ks).length > 1) mixed = true;
+    }
+    return { peak: peak, mixed: mixed };
+  }
+  // the programmes of the other guests in a room: "Live Residential", "ARM Coach Certification and Live Residential"
+  function otherProgs(x, from){ return andList(uniq(x.others.map(function(g){ return oLabel(g, from); }))); }
+  function conflictText(x, from){
+    var w = x.cross ? ' (with ' + otherProgs(x, from) + ' guests)' : '';
+    return x.conflict === 'blocked' ? (isClosed(x.blocked) ? 'Guests placed in a room closed in Uplisting' : isExt(x.blocked) ? 'Guests placed in a room booked on Uplisting' : 'Guests placed in a blocked room')
+      : x.conflict === 'mixed' ? 'Women and men in a same-gender room' + w : (x.cross ? x.peak + ' guests at once' : x.guests.length + ' guests') + ' for ' + plural(x.beds, 'bed') + w;
+  }
   function areaOf(name){ var p = String(name).split(' · '); return p.length > 1 ? p.slice(1).join(' · ').replace(/\s*\([^)]*\)\s*$/, '') : (String(name).replace(/\s*\d+$/, '') || String(name)); }
   function codeOf(name){ var p = String(name).split(' · '); return p.length > 1 ? p[0] : String(name); }
-  // how each room is right now: "· 1/2 women", "· free", "· full" ("full" only for rooms this guest isn't in)
+  // how each room is right now: "· 1/2 women", "· free", "· full" ("full" only for rooms this guest isn't in);
+  // guests of another programme count: "· 2/2 women (1 Live Residential) · full"
   function occHint(rm, name, ref, idx){
     var x = rm && rm.byName[name]; if (!x) return '';
-    var n = x.guests.length, mine = x.guests.some(function(g){ return g.ref === ref && g.index === idx; });
+    var n = x.peak != null ? x.peak : x.guests.length, mine = x.guests.some(function(g){ return g.ref === ref && g.index === idx; });
     if (x.blocked) return isClosed(x.blocked) ? ' · closed in Uplisting' : isExt(x.blocked) ? ' · booked on Uplisting (' + channelLabel(extOf(x.blocked).channel) + ')' : ' · blocked (' + reasonLabel(x.blocked.reason).toLowerCase() + ')';
-    if (!n) return ' · free';
-    var ks = uniq(x.guests.map(function(g){ return gWord(g.gender); }));
-    return ' · ' + n + '/' + x.beds + (ks.length === 1 && ks[0] && x.room.same_gender ? ' ' + ks[0] : ks.length > 1 && x.room.same_gender ? ' mixed' : '') + (!mine && n >= x.beds ? ' · full' : '');
+    if (!n && !(x.others || []).length) return ' · free';
+    var ks = uniq(x.guests.concat(x.others || []).map(function(g){ return gWord(g.gender); }));
+    return ' · ' + n + '/' + x.beds + (ks.length === 1 && ks[0] && x.room.same_gender ? ' ' + ks[0] : ks.length > 1 && x.room.same_gender ? ' mixed' : '') +
+      ((x.others || []).length ? ' (' + x.others.length + ' ' + otherProgs(x, rm.id) + ')' : '') + (!mine && n >= x.beds ? ' · full' : '');
   }
   function roomSelect(id, rm, b, i, attrs){
     var g = b.guests[i], rt = roomType(id, g.room), names = rt && rt.names || [], cur = b.assign[i] || '';
     var opts = '<option value="">Not placed yet</option>' + names.map(function(n){
       return '<option value="' + esc(n) + '"' + (n === cur ? ' selected' : '') + '>' + esc(n + occHint(rm, n, b.ref, i)) + '</option>';
-    }).join('') + (cur && names.indexOf(cur) < 0 ? '<option value="' + esc(cur) + '" selected>' + esc(cur) + ' (not a room this week)</option>' : '');
+    }).join('') + (cur && names.indexOf(cur) < 0 ? '<option value="' + esc(cur) + '" selected>' + esc(cur) + ' (not a room of this programme)</option>' : '');
     return '<select ' + attrs + ' aria-label="Room for ' + esc(g.name) + '">' + opts + '</select>';
   }
 
@@ -1483,7 +1592,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
   }
   week = store('l', 'aob_admin_week');
   if (!(week === 'all' || PBY[week])) week = defaultWeek();
-  $('week').innerHTML = '<option value="all">All weeks</option>' + PROGS.map(function(p){ return '<option value="' + esc(p.id) + '">' + esc(wkFull(p.id)) + '</option>'; }).join('');
+  $('week').innerHTML = '<option value="all">All programmes</option>' + PROGS.map(function(p){ return '<option value="' + esc(p.id) + '">' + esc(wkFull(p.id)) + '</option>'; }).join('');
   $('week').value = week;
   function setWeek(id, fromRoute){
     if (!(id === 'all' || PBY[id])) return;
@@ -1581,7 +1690,11 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     var setCt = function(id, n){ $('ct-' + id).textContent = n ? String(n) : ''; };
     setCt('bookings', scopeMissing().length ? 0 : list.filter(active).length);
     setCt('payments', list.filter(function(b){ return balanceDue(b) || planIssue(b); }).length);
-    var conf = 0; (week === 'all' ? PROGS.map(function(p){ return p.id; }) : [week]).forEach(function(id){ var rm = rooming(id); conf += rm ? rm.conflicts : 0; });
+    // a clash between two programmes' guests shows on both boards: All programmes counts it once
+    var conf = 0, cseen = {}; (week === 'all' ? PROGS.map(function(p){ return p.id; }) : [week]).forEach(function(id){
+      var rm = rooming(id); if (!rm) return;
+      rm.order.forEach(function(n){ var x = rm.byName[n]; if (!x.conflict) return; var k = x.cross ? 'x|' + n + '|' + [id].concat(x.otherIds).sort().join(',') : id + '|' + n; if (!cseen[k]) { cseen[k] = 1; conf++; } });
+    });
     setCt('rooming', conf);
     setCt('sessions', 0);
     var n = 0; each(PROGS, function(p){ var d = D(p.id); if (d) n += sum(d.bookings.filter(active), function(b){ return liveSessions(b).filter(function(a){ return (a.status || 'todo') === 'todo'; }).length; }); });
@@ -1624,7 +1737,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     return errs.length === miss.length ? errorNote(errs) : skeleton(7);
   }
   function chooseWeek(why){
-    return '<div class="panel empty"><h2>' + esc(why) + '</h2><p>Choose a week:</p><div class="wkpick">' +
+    return '<div class="panel empty"><h2>' + esc(why) + '</h2><p>Choose a programme:</p><div class="wkpick">' +
       PROGS.map(function(p){ return '<button type="button" class="btn btn-ghost" data-week="' + esc(p.id) + '">' + esc(wkFull(p.id)) + '</button>'; }).join('') + '</div></div>';
   }
   function statusPill(s){ return s === 'cancelled' ? '<span class="pill can">Cancelled</span>' : '<span class="pill act">Active</span>'; }
@@ -1648,7 +1761,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
   }
   function progPill(b){
     if (b.programme !== 'paid') return '';
-    if (b.programme_verified === 'stripe') return '<span class="pill ok" title="Booked room only. Stripe has earlier programme fee payments from this email that cover every guest: check they are for this week.">Room only · possible match</span>';
+    if (b.programme_verified === 'stripe') return '<span class="pill ok" title="Booked room only. Stripe has earlier programme fee payments from this email that cover every guest: check they are for this programme.">Room only · possible match</span>';
     if (b.programme_verified === 'admin') return '<span class="pill ok" title="Room-only booking link made by the team.">Room only · by the team</span>';
     return '<span class="pill chk" title="Booked room only. No earlier programme fee payments found in Stripe that cover every guest: match it to their GHL or RetreatGuru payment.">Room only · check</span>';
   }
@@ -1686,7 +1799,11 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     if (num(al.unverified_room_only)) alerts.push('<a href="' + hashFor('bookings', { w: id, prog: 'unverified' }) + '">' + esc(plural(al.unverified_room_only, 'room-only booking')) + ' to check</a>');
     if (num(al.pending)) alerts.push('<a class="soft" href="' + hashFor('bookings', { w: id, pay: 'processing' }) + '">' + esc(plural(al.pending, 'payment')) + ' processing</a>');
     var when = days == null ? '' : days > 0 ? 'starts ' + inDays(days) : end != null && end >= 0 ? 'happening now' : 'ended';
-    return '<article class="wkc"><div class="wkc-h"><div><h2>' + esc(p.edition || wkName(id)) + '</h2><p>' + esc(dts.label || dts.short || '') + (when ? ' · ' + esc(when) : '') + '</p></div>' +
+    // the programme's own name above its edition when it says more ("Alchemy Regulation Method" · ARM Coach Certification)
+    var ed = p.edition || wkName(id), ttl = p.title || (PBY[id] || {}).title || '', shows = ttl && String(ed).toLowerCase().indexOf(String(ttl).toLowerCase()) < 0;
+    var ovl = PBY[id] && ISO.test(dts.start || '') ? PROGS.filter(function(q){ var qd = q.dates || {}; return q.id !== id && ISO.test(qd.start || '') && overlaps(qd.start, qd.end, dts.start, dts.end); }) : [];
+    return '<article class="wkc"><div class="wkc-h"><div>' + (shows ? '<p class="wkc-t">' + esc(ttl) + '</p>' : '') + '<h2>' + esc(ed) + '</h2><p>' + esc(dts.label || dts.short || '') + (when ? ' · ' + esc(when) : '') + '</p>' +
+      (ovl.length ? '<p class="wkc-o">Shares rooms with ' + esc(andList(ovl.map(function(q){ return wkName(q.id); }))) + '</p>' : '') + '</div>' +
       '<a class="btn btn-ghost btn-sm" href="' + hashFor('bookings', { w: id }) + '">Bookings</a></div>' +
       (dots ? '<div><div class="dots" role="img" aria-label="' + esc(sold + ' of ' + spaces + ' places taken, ' + left + ' left') + '">' + dots + '</div>' +
         '<p class="places"><b>' + sold + '</b> of ' + spaces + ' places taken · <b>' + left + '</b> left</p></div>'
@@ -1707,21 +1824,24 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
         box.innerHTML = ovw && ovw.err && !inflight._ov ? '<p class="note err">Could not load the overview: ' + esc(why(ovw.err)) + ' <button type="button" class="lnk" data-retry>Try again</button></p>' : skeleton(8);
         return;
       }
-      var d = ovw.d, weeks = d.weeks || [], T = d.totals || {}, recent = d.recent || [];
+      // the programmes in date order, whatever order they come in
+      var d = ovw.d, T = d.totals || {}, recent = d.recent || [];
+      var pw = function(w){ var p = (w && w.program) || {}; return PBY[p.id] || p; };
+      var weeks = (Array.isArray(d.weeks) ? d.weeks : []).filter(Boolean).sort(function(a, b){ return progOrder(pw(a), pw(b)); });
       navList = recent.map(function(r){ return r.ref; });
       recent.forEach(function(r){ if (r.program) hint[r.ref] = r.program; });
       box.innerHTML = (d.demo ? demoNote() : '') + (ovw.err ? '<p class="note err">Could not refresh: ' + esc(why(ovw.err)) + '. Showing the figures from ' + clock(ovw.at) + '.</p>' : '') +
-        '<section class="kpis" aria-label="All weeks">' + kpi('Bookings', num(T.bookings), plural(weeks.length, 'week')) + kpi('Guests', num(T.guests)) +
+        '<section class="kpis" aria-label="All programmes">' + kpi('Bookings', num(T.bookings), plural(weeks.length, 'programme')) + kpi('Guests', num(T.guests)) +
           kpi('Paid so far', eur(T.paid_cents), num(T.refunded_cents) ? eur(T.refunded_cents) + ' refunded' : '') + kpi('Still to receive', eur(T.balance_cents), 'incl. running plans and payments clearing') +
           kpi('Sessions sold', num(T.sessions_count), eur(T.sessions_cents)) +
-          (d.stay && d.stay.totals && num(d.stay.totals.bookings) ? kpi('Stays outside the weeks', num(d.stay.totals.bookings), plural(num(d.stay.totals.guests), 'guest') + ' · paid ' + eur(d.stay.totals.paid_cents) + (num(d.stay.totals.balance_cents) ? ' · ' + eur(d.stay.totals.balance_cents) + ' to receive' : '')) : '') + '</section>' +
-        '<section class="weeks" aria-label="Weeks">' + weeks.map(weekCard).join('') + '</section>' +
-        '<section class="panel"><div class="ph"><h2>Recent bookings <small>newest first, all weeks</small></h2></div>' +
-        (recent.length ? '<table class="tbl stack"><thead><tr><th>Booking</th><th>Week</th><th>Lead guest</th><th class="num">Guests</th><th class="num">Total</th><th class="num">Paid</th><th>Status</th></tr></thead><tbody>' +
+          (d.stay && d.stay.totals && num(d.stay.totals.bookings) ? kpi('Stays outside the programmes', num(d.stay.totals.bookings), plural(num(d.stay.totals.guests), 'guest') + ' · paid ' + eur(d.stay.totals.paid_cents) + (num(d.stay.totals.balance_cents) ? ' · ' + eur(d.stay.totals.balance_cents) + ' to receive' : '')) : '') + '</section>' +
+        '<section class="weeks" aria-label="Programmes">' + weeks.map(weekCard).join('') + '</section>' +
+        '<section class="panel"><div class="ph"><h2>Recent bookings <small>newest first, all programmes</small></h2></div>' +
+        (recent.length ? '<table class="tbl stack"><thead><tr><th>Booking</th><th>Programme</th><th>Lead guest</th><th class="num">Guests</th><th class="num">Total</th><th class="num">Paid</th><th>Status</th></tr></thead><tbody>' +
           recent.map(function(r){
             return '<tr class="rowlink' + (r.status === 'cancelled' ? ' cancelled' : '') + '" data-open="' + esc(r.ref) + '" data-w="' + esc(r.program || '') + '">' +
               '<td class="main"><button type="button" class="refbtn" data-open="' + esc(r.ref) + '" data-w="' + esc(PBY[r.program] ? r.program : '') + '">' + esc(r.ref) + '</button>' + (r.source === 'manual' ? ' <span class="pill man">Manual</span>' : '') + '<span class="sub">' + esc(ago(r.created)) + '</span></td>' +
-              '<td data-l="Week">' + esc(r.edition || wkName(r.program)) + '</td><td data-l="Lead guest">' + esc(r.lead_name || '–') + '</td>' +
+              '<td data-l="Programme">' + esc(PBY[r.program] ? wkName(r.program) : r.edition || wkName(r.program || STAY)) + '</td><td data-l="Lead guest">' + esc(r.lead_name || '–') + '</td>' +
               '<td data-l="Guests" class="num">' + num(r.guests) + '</td><td data-l="Total" class="num">' + money(r.total_cents) + '</td><td data-l="Paid" class="num">' + money(r.paid_cents) + '</td>' +
               '<td data-l="Status">' + statusPill(r.status) + '</td></tr>';
           }).join('') + '</tbody></table>' : '<p class="muted">No bookings yet.</p>') + '</section>';
@@ -1766,7 +1886,9 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
   var SORTS = {
     created: function(b){ return num(b.created); }, ref: function(b){ return b.ref; }, lead: function(b){ return String(b.lead.name || '').toLowerCase(); },
     guests: function(b){ return b.guests.length; }, total: function(b){ return num(b.total_cents); }, paid: function(b){ return num(b.paid_cents); },
-    balance: function(b){ return num(b.balance_cents); }, sessions: function(b){ return liveSessions(b).length; }, week: function(b){ return wk(b._w).dates.start || ''; }
+    balance: function(b){ return num(b.balance_cents); }, sessions: function(b){ return liveSessions(b).length; },
+    // by programme: date order (the same first night: the shorter one first), stays outside the programmes by their dates
+    week: function(b){ var dt = wk(b._w).dates || {}; return (dt.start || (b.manual && b.manual.from) || '~') + '|' + (dt.end || '') + '|' + (PROGS.indexOf(PBY[b._w]) + 100) + '|' + wkName(b._w); }
   };
   function sorted(list, f){
     var fn = SORTS[f.sort] || SORTS.created, dir = f.dir === 'asc' ? 1 : -1;
@@ -1781,7 +1903,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     var l = b.lead, ses = liveSessions(b);
     return '<tr class="rowlink' + (active(b) ? '' : ' cancelled') + '" data-open="' + esc(b.ref) + '" data-w="' + esc(b._w) + '">' +
       '<td class="main">' + openBtn(b) + '<span class="sub">' + esc(fmtWhen(b.created)) + '</span></td>' +
-      (showWeek ? '<td data-l="Week">' + esc(wkName(b._w)) + '</td>' : '') +
+      (showWeek ? '<td data-l="Programme">' + esc(wkName(b._w)) + '</td>' : '') +
       '<td data-l="Lead guest"><span class="nm">' + esc(l.name || '–') + '</span><span class="sub">' + esc(l.email || '') + '</span></td>' +
       '<td data-l="Guests">' + b.guests.length + gLetters(b) + '<span class="sub">' + esc(isManual(b) ? [stayLabel(b.manual.from, b.manual.to), b.room_names].filter(Boolean).join(' · ') : b.room_names || '') + '</span></td>' +
       '<td data-l="Payment">' + payPill(b) + progPill(b) + srcPill(b) + discPill(b) + '</td>' +
@@ -1830,7 +1952,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
       var guests = sum(rows, function(b){ return b.guests.length; });
       $('bSum').innerHTML = '<b>' + esc(plural(rows.length, 'booking')) + '</b> · ' + esc(plural(guests, 'guest')) + ' · paid <b>' + eur(sum(rows, function(b){ return b.paid_cents; })) + '</b> · balance <b>' + eur(sum(rows, function(b){ return b.balance_cents; })) + '</b>';
       $('bCsv').textContent = 'Export CSV (' + rows.length + ')';
-      $('bList').innerHTML = (anyDemo() ? demoNote() : '') + errorNote(scopeErrors()) + (rows.length ? '<div class="tw"><table class="tbl stack"><thead><tr>' + th('Booking', 'created') + (all ? th('Week', 'week') : '') + th('Lead guest', 'lead') + th('Guests', 'guests') + '<th>Payment</th>' +
+      $('bList').innerHTML = (anyDemo() ? demoNote() : '') + errorNote(scopeErrors()) + (rows.length ? '<div class="tw"><table class="tbl stack"><thead><tr>' + th('Booking', 'created') + (all ? th('Programme', 'week') : '') + th('Lead guest', 'lead') + th('Guests', 'guests') + '<th>Payment</th>' +
         th('Total', 'total', 'num') + th('Paid', 'paid', 'num') + th('Balance', 'balance', 'num') + th('Sessions', 'sessions', 'num') + '</tr></thead><tbody>' +
         rows.map(function(b){ return bookingRow(b, all); }).join('') + '</tbody></table></div>'
         : '<div class="empty"><h2>' + (scopeBookings().length ? 'No bookings match' : 'No bookings yet') + '</h2><p>' + (scopeBookings().length ? 'Try clearing the filters.' : 'Paid bookings appear here, newest first.') + '</p></div>');
@@ -1878,7 +2000,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
 
   /* ================================================================ print */
   function printSheet(title, body){
-    $('printRoot').innerHTML = '<h1>' + esc(title) + '</h1><p class="pmeta">' + esc(week === 'all' ? 'All weeks' : wkFull(week)) + ' · printed ' + esc(new Date().toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })) + '</p>' + body;
+    $('printRoot').innerHTML = '<h1>' + esc(title) + '</h1><p class="pmeta">' + esc(week === 'all' ? 'All programmes' : wkFull(week)) + ' · printed ' + esc(new Date().toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })) + '</p>' + body;
     document.body.classList.add('print-sheet');
     window.print();
     setTimeout(function(){ document.body.classList.remove('print-sheet'); }, 600);
@@ -1888,7 +2010,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     if (document.body.classList.contains('print-sheet') || !token) return;
     var s = route.tab === 'rooming' && !calOn() ? (route.q.view === 'kitchen' ? kitchenPrint() : roomingPrint()) : route.tab === 'sessions' ? sessionsPrint() : null;
     if (!s) return;
-    $('printRoot').innerHTML = '<h1>' + esc(s[0]) + '</h1><p class="pmeta">' + esc(week === 'all' ? 'All weeks' : wkFull(week)) + '</p>' + s[1];
+    $('printRoot').innerHTML = '<h1>' + esc(s[0]) + '</h1><p class="pmeta">' + esc(week === 'all' ? 'All programmes' : wkFull(week)) + '</p>' + s[1];
     document.body.classList.add('print-sheet');
   });
   window.addEventListener('afterprint', function(){ document.body.classList.remove('print-sheet'); });
@@ -1904,30 +2026,48 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     var slots = x.guests.map(function(g){
       var gm = g.manual ? (g.b && g.b.manual) || g : null;
       return '<button type="button" class="bed' + (g.manual ? ' man' : '') + '" data-open="' + esc(g.ref) + '" data-w="' + esc(id) + '" title="' + esc(g.name + ' · ' + g.ref + (gm ? ' · manual booking' + (gm.from ? ' · ' + stayLabel(gm.from, gm.to) : '') : '')) + '">' + gBadge(g.gender) + '<span class="bn">' + esc(g.name) + '</span>' + (g.manual ? '<span class="mtag">Manual</span>' : '<span class="br">' + esc(g.ref) + '</span>') + '</button>';
-    }).join('');
+    }).join('') + (x.others || []).map(function(g){ return otherChip(g, id); }).join('');
     var bl = x.blocked, up = isExt(bl), uc = up && isClosed(bl), ux = extOf(bl), un = uc && ISO.test(bl.from || '') && ISO.test(bl.to || '') ? nightsOf(bl.from, bl.to) : 0;
-    for (var i = x.guests.length; i < x.beds; i++) slots += bl ? (uc ? '<div class="bed upd">Closed in Uplisting</div>' : up ? '<div class="bed upd">Uplisting</div>' : '<div class="bed blkd">Blocked</div>') : '<div class="bed free">Free bed</div>';
+    // free beds: what the most guests on one night leave (another programme's guests take theirs on their nights)
+    var left = x.beds - (x.peak != null ? x.peak : x.guests.length);
+    for (var i = 0; i < left; i++) slots += bl ? (uc ? '<div class="bed upd">Closed in Uplisting</div>' : up ? '<div class="bed upd">Uplisting</div>' : '<div class="bed blkd">Blocked</div>') : '<div class="bed free">Free bed</div>';
     var gw = x.gender && x.room.same_gender && x.beds > 1 ? (gKey(x.gender) === 'f' ? 'Women\'s room' : gKey(x.gender) === 'm' ? 'Men\'s room' : '') : '';
     return '<article class="rcard' + (x.conflict ? ' conf' : '') + (bl ? (up ? ' upb' + (uc ? ' upcl' : '') : ' blk') : '') + '"><div class="rn"><b>' + esc(codeOf(x.name)) + '</b>' + (oneType ? '' : '<span>' + esc(shortType(x.room)) + '</span>') + '</div>' +
       (gw ? '<p class="rg">' + gw + '</p>' : '') +
       (bl && uc ? '<button type="button" class="rb" data-block="' + esc(bl.id) + '" title="Closed in Uplisting: details" aria-label="' + esc('Closed in Uplisting, ' + stayLabel(bl.from, bl.to) + '. Details') + '"><b>Closed in Uplisting</b><br>' + esc(stayLabel(bl.from, bl.to) || '') + (un ? ' · ' + esc(plural(un, 'night')) : '') + '</button>' : '') +
       (bl && up && !uc ? '<button type="button" class="rb" data-block="' + esc(bl.id) + '" title="Uplisting booking details" aria-label="' + esc('Uplisting booking: ' + upLabel(bl) + ', ' + stayLabel(bl.from, bl.to) + '. Details') + '"><b>' + esc(upLabel(bl)) + '</b><br>' + esc(stayLabel(bl.from, bl.to) || '') + (num(ux.guests) ? ' · ' + esc(plural(num(ux.guests), 'guest')) : '') + '</button>' : '') +
       (bl && !up ? '<button type="button" class="rb" data-block="' + esc(bl.id) + '" title="Block details"><b>Blocked · ' + esc(reasonLabel(bl.reason)) + '</b><br>' + esc(stayLabel(bl.from, bl.to) || '') + (bl.comment ? ' · ' + esc(bl.comment) : '') + '</button>' : '') +
-      (x.conflict ? '<p class="cf">' + esc(conflictText(x)) + '</p>' : '') +
+      (x.conflict ? '<p class="cf">' + esc(conflictText(x, id)) + '</p>' : '') +
       '<div class="beds">' + slots + '</div></article>';
   }
+  /* A guest of another programme in this room: "Live Residential · Ana K.", with their nights when they are not
+     all of this programme's. Read only here: it opens their booking (in that programme) when the page knows it. */
+  function otherChip(g, id){
+    var ed = oLabel(g, id), dt = wk(id).dates || {}, part = ISO.test(dt.start || '') && (g.from > dt.start || g.to < dt.end);
+    var a = g.from > dt.start ? g.from : dt.start, z = g.to < dt.end ? g.to : dt.end;
+    var nights = part && a && z ? stayLabel(a, z) : '', tt = ed + ' · ' + (g.name || 'Guest') + (g.ref ? ' · ' + g.ref : '') + ' · ' + (stayLabel(g.from, g.to) || '') + ' · another programme in this room: it takes this bed' + (nights ? ' on ' + nights : '');
+    var inner = gBadge(g.gender) + '<span class="bn"><span class="op">' + esc(ed) + '</span> · ' + esc(shortGuest(g.name)) + '</span>' + (nights ? '<span class="br">' + esc(nights.replace(/ \d{4}$/, '')) + '</span>' : '');
+    return PBY[g.program] && g.ref ? '<button type="button" class="bed oth" data-open="' + esc(g.ref) + '" data-w="' + esc(g.program) + '" title="' + esc(tt) + '" aria-label="' + esc(tt + '. Open the booking') + '">' + inner + '</button>'
+      : '<div class="bed oth" title="' + esc(tt) + '">' + inner + '</div>';
+  }
   function availTable(id){
-    var d = D(id) || {}, av = d.availability || {}, avRooms = av.rooms || {}, rows = d.rooms || [];
+    var d = D(id) || {}, av = d.availability || {}, avRooms = av.rooms || {}, rows = d.rooms || [], oNames = andList(overlapsOf(id).map(function(q){ return q.edition; }));
     if (!rows.length) return '';
     return '<details class="panel" id="avail"><summary><h2>Places by room type</h2><span class="sum-line">' + (typeof av.program_left === 'number' ? esc(av.program_left + ' of ' + ((d.program || {}).program_spaces || '–') + ' programme places left') : '') + '</span></summary>' +
-      '<p class="legend"><span>Gold = paid</span><span>Teal = checkout in progress</span></p><div class="tw"><table class="tbl stack"><thead><tr><th>Room type</th><th class="num">Price</th><th class="num">Capacity</th><th class="num">Paid</th><th class="num">In checkout</th><th class="num">Left for women</th><th class="num">Left for men</th><th></th></tr></thead><tbody>' +
+      '<p class="legend"><span>Gold = paid</span><span>Teal = checkout in progress</span>' +
+        // the booking system counts the guests of overlapping programmes in the shared rooms too
+        (Array.isArray(d.overlaps) && d.overlaps.length ? '<span>Includes the guests and checkouts of ' + esc(andList(overlapsOf(id).map(function(q){ return q.edition; }))) + ' (the same rooms)</span>' : '') + '</p><div class="tw"><table class="tbl stack"><thead><tr><th>Room type</th><th class="num">Price</th><th class="num">Capacity</th><th class="num">Paid</th><th class="num">In checkout</th><th class="num">Left for women</th><th class="num">Left for men</th><th></th></tr></thead><tbody>' +
       rows.map(function(r){
         var a = avRooms[r.id] || {}, h = (d.holds || {})[r.id] || {};
         var held = typeof a.held === 'number' ? a.held : typeof h === 'number' ? h : num(h.female) + num(h.male) + num(h.other);
         var paid = Math.max(0, num(a.taken) - held), cap = num(r.capacity), L = a.left || {};
+        // overlapping programmes: taken_other is their part of taken (paid and in checkout), holds_other their checkouts
+        var ho = (d.holds_other || {})[r.id], heldO = typeof ho === 'number' ? ho : ho ? num(ho.female) + num(ho.male) + num(ho.other) : 0;
+        var paidO = typeof a.taken_other === 'number' ? Math.max(0, a.taken_other - heldO) : 0;
+        var incl = function(n){ return n ? '<span class="sub">incl. ' + esc(n + ' ' + oNames) + '</span>' : ''; };
         var cell = function(v){ return v != null ? esc(v) : '–'; };
-        return '<tr><td class="main"><b class="nm">' + esc(r.name) + '</b>' + (r.shared ? '<span class="sub">same gender</span>' : '') + '</td><td data-l="Price" class="num">' + eur(num(r.price) * 100) + '</td><td data-l="Capacity" class="num">' + cap + '</td><td data-l="Paid" class="num">' + paid + '</td>' +
-          '<td data-l="In checkout" class="num">' + held + (held && a.next_release_at ? '<span class="sub">until ' + esc(untilText(a.next_release_at)) + '</span>' : '') + '</td>' +
+        return '<tr><td class="main"><b class="nm">' + esc(r.name) + '</b>' + (r.shared ? '<span class="sub">same gender</span>' : '') + '</td><td data-l="Price" class="num">' + eur(num(r.price) * 100) + '</td><td data-l="Capacity" class="num">' + cap + '</td><td data-l="Paid" class="num">' + paid + incl(paidO) + '</td>' +
+          '<td data-l="In checkout" class="num">' + held + incl(Math.min(held, heldO)) + (held && a.next_release_at ? '<span class="sub">until ' + esc(untilText(a.next_release_at)) + '</span>' : '') + '</td>' +
           (a.kind === 'shared' ? '<td data-l="Left for women" class="num">' + cell(L.female) + '</td><td data-l="Left for men" class="num">' + cell(L.male) + '</td>' : '<td data-l="Left (anyone)" class="num" colspan="2">' + cell(a.left_any) + ' <span class="muted">(anyone)</span></td>') +
           '<td data-l="Taken"><div class="bar"><i style="width:' + (cap ? Math.min(100, paid / cap * 100) : 0) + '%"></i><i class="h" style="width:' + (cap ? Math.min(100, held / cap * 100) : 0) + '%"></i></div></td></tr>';
       }).join('') + '</tbody></table></div></details>';
@@ -1984,24 +2124,27 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
       var guests = sum(weekBookings(id).filter(active), function(b){ return b.guests.length; }), placed = 0, blocked = 0, upn = 0, ucn = 0;
       rm.order.forEach(function(n){ var x = rm.byName[n]; placed += x.guests.filter(function(g){ return !!g.b; }).length; if (x.blocked) { if (isClosed(x.blocked)) ucn++; else if (isExt(x.blocked)) upn++; else blocked++; } });
       navList = uniq(rm.unassigned.map(function(g){ return g.ref; }));
-      $('rmSum').innerHTML = '<b>' + placed + '</b> of ' + esc(plural(guests - rm.noRoom.length, 'guest')) + ' placed' + (blocked ? ' · ' + esc(plural(blocked, 'room')) + ' blocked' : '') + (upn ? ' · ' + esc(plural(upn, 'room')) + ' booked on Uplisting' : '') + (ucn ? ' · ' + esc(plural(ucn, 'room')) + ' closed in Uplisting' : '') + (rm.conflicts ? ' · <b class="refund">' + esc(plural(rm.conflicts, 'conflict')) + '</b>' : '');
-      var html = (d.demo ? demoNote() : '') + errorNote(scopeErrors());
-      if (!rm.order.length) html += '<p class="note">This week\'s room types have no physical room names yet (<code>names</code> in the program file), so guests can\'t be placed here.</p>';
+      $('rmSum').innerHTML = '<b>' + placed + '</b> of ' + esc(plural(guests - rm.noRoom.length, 'guest')) + ' placed' + (blocked ? ' · ' + esc(plural(blocked, 'room')) + ' blocked' : '') + (upn ? ' · ' + esc(plural(upn, 'room')) + ' booked on Uplisting' : '') + (ucn ? ' · ' + esc(plural(ucn, 'room')) + ' closed in Uplisting' : '') +
+        (rm.others ? ' · ' + esc(plural(rm.others, 'guest')) + ' of ' + esc(andList(uniq(rm.order.reduce(function(l, n){ return l.concat(rm.byName[n].others.map(function(g){ return oLabel(g, id); })); }, [])))) : '') +
+        (rm.conflicts ? ' · <b class="refund">' + esc(plural(rm.conflicts, 'conflict')) + '</b>' : '');
+      var html = (d.demo ? demoNote() : '') + errorNote(scopeErrors()) + overlapNote(rm);
+      if (!rm.order.length) html += '<p class="note">This programme\'s room types have no physical room names yet (<code>names</code> in the program file), so guests can\'t be placed here.</p>';
       if (rm.unassigned.length) {
         html += '<section class="panel"><div class="ph"><h2>Not placed yet <small>' + esc(plural(rm.unassigned.length, 'guest')) + '</small></h2></div><div class="tw"><table class="tbl stack"><thead><tr><th>Guest</th><th>Booking</th><th>Room type</th><th>Place in</th></tr></thead><tbody>' +
           rm.unassigned.map(function(g){
             var rt = roomType(id, g.room);
-            return '<tr><td class="main"><span class="nm">' + esc(g.name) + '</span> ' + gBadge(g.gender) + (g.stale ? '<span class="sub refund">Was in ' + esc(g.stale) + ' (not a room this week)</span>' : '') + '</td>' +
+            return '<tr><td class="main"><span class="nm">' + esc(g.name) + '</span> ' + gBadge(g.gender) + (g.stale ? '<span class="sub refund">Was in ' + esc(g.stale) + ' (not a room of this programme)</span>' : '') + '</td>' +
               '<td data-l="Booking">' + openBtn({ ref: g.ref, _w: id }) + '</td><td data-l="Room type">' + esc(rt ? rt.name : g.room) + '</td>' +
               '<td data-l="Place in" class="ed">' + (canWrite() ? roomSelect(id, rm, g.b, g.index, 'data-qa="' + esc(g.ref + '|' + g.index) + '"') : '<span class="muted">Not placed yet</span>') + '</td></tr>';
           }).join('') + '</tbody></table></div></section>';
       } else if (rm.order.length && guests) html += '<p class="note ok">Everyone with a room is placed.</p>';
       html += '<div class="areas">' + areas(rm).map(function(a){
-        var beds = sum(a.rooms, function(x){ return x.blocked ? 0 : x.beds; }), used = sum(a.rooms, function(x){ return x.blocked ? 0 : x.guests.length; });
+        var beds = sum(a.rooms, function(x){ return x.blocked ? 0 : x.beds; }), used = sum(a.rooms, function(x){ return x.blocked ? 0 : x.peak != null ? x.peak : x.guests.length; });
+        var no = sum(a.rooms, function(x){ return x.others.length; });
         var nb = a.rooms.filter(function(x){ return x.blocked && !isExt(x.blocked); }).length, nu = a.rooms.filter(function(x){ return isExt(x.blocked); }).length;
         var types = uniq(a.rooms.map(function(x){ return x.room.id; })), real = a.rooms.some(function(x){ return x.name.indexOf(' · ') > 0; });
         var oneType = types.length === 1 && !real;
-        return '<section class="area"><h3>' + esc(a.name) + ' <small>' + (oneType ? esc(a.rooms[0].room.name) + ' · ' : real ? esc(plural(a.rooms.length, 'room')) + ' · ' : '') + used + ' of ' + beds + ' taken' + (nb ? ' · ' + nb + ' blocked' : '') + (nu ? ' · ' + nu + ' on Uplisting' : '') + '</small></h3><div class="rgrid">' +
+        return '<section class="area"><h3>' + esc(a.name) + ' <small>' + (oneType ? esc(a.rooms[0].room.name) + ' · ' : real ? esc(plural(a.rooms.length, 'room')) + ' · ' : '') + used + ' of ' + beds + ' taken' + (no ? ' · ' + esc(no + ' by ' + andList(uniq(a.rooms.reduce(function(l, x){ return l.concat(x.others.map(function(g){ return oLabel(g, id); })); }, [])))) : '') + (nb ? ' · ' + nb + ' blocked' : '') + (nu ? ' · ' + nu + ' on Uplisting' : '') + '</small></h3><div class="rgrid">' +
           a.rooms.map(function(x){ return rcard(x, id, oneType); }).join('') + '</div></section>';
       }).join('') + '</div>';
       if (rm.noRoom.length) {
@@ -2016,14 +2159,30 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
       box.innerHTML = html + availTable(id);
     }
   };
+  /* The programmes sharing these rooms on some nights, how many of their guests are placed here, and the rooms
+     where the two programmes' guests clash (more guests than beds on a night, women and men together). */
+  function overlapNote(rm){
+    var id = rm.id, ovl = rm.overlaps || [], d = D(id) || {};
+    if (!ovl.length) return '';
+    var names = ovl.map(function(q){ return '<b>' + esc(q.edition) + '</b>' + (q.dates && q.dates.start ? ' (' + esc(q.dates.short || stayLabel(q.dates.start, q.dates.end)) + ')' : ''); });
+    var known = Array.isArray(d.overlaps) || ovl.some(function(q){ return !!D(q.id); });
+    var h = '<p class="note ovl" id="ovlNote"><span>Shares rooms with ' + andList(names) + '.</span><span>' +
+      (rm.others ? esc(plural(rm.others, 'guest')) + ' of ' + (ovl.length === 1 ? 'it' : 'them') + (rm.others === 1 ? ' is' : ' are') + ' in rooms here: shown read only, ' + (rm.others === 1 ? 'that guest takes a bed' : 'they take their beds') + ' on their nights.'
+        : known ? 'None of ' + (ovl.length === 1 ? 'its' : 'their') + ' guests are placed in these rooms.' : '') + '</span></p>';
+    if (rm.cross.length) h += '<div class="note err" role="alert" id="xNote"><b>' + esc(plural(rm.cross.length, 'room')) + ' clash' + (rm.cross.length === 1 ? 'es' : '') + ' with another programme\'s guests:</b><ul style="margin:6px 0 0;padding-left:18px">' +
+      rm.cross.map(function(x){ return '<li>' + esc(x.name + ': ' + conflictText(x, id).replace(/^\w/, function(c){ return c.toLowerCase(); })) + ' · ' + esc(x.guests.concat(x.others).map(function(g){ return shortGuest(g.name) + (g.other ? ' (' + oLabel(g, id) + ')' : ''); }).join(', ')) + '</li>'; }).join('') + '</ul></div>';
+    return h;
+  }
   function roomingPrint(){
     var rm = rooming(week); if (!rm) return null;
     var body = areas(rm).map(function(a){
       return '<h2>' + esc(a.name) + '</h2><table><thead><tr><th style="width:22%">Room</th><th style="width:22%">Type</th><th>Guests</th><th style="width:10%">Free</th></tr></thead><tbody>' + a.rooms.map(function(x){
         var bl = x.blocked;
-        return '<tr><td>' + esc(x.name) + (x.conflict ? '<div class="warn">' + esc(x.conflict === 'blocked' ? (isClosed(bl) ? 'Guests in a room closed in Uplisting' : isExt(bl) ? 'Guests in a room booked on Uplisting' : 'Guests in a blocked room') : x.conflict === 'mixed' ? 'Mixed genders' : 'Over capacity') + '</div>' : '') + '</td><td>' + esc(x.room.name) + '</td><td>' +
+        return '<tr><td>' + esc(x.name) + (x.conflict ? '<div class="warn">' + esc(x.conflict === 'blocked' ? (isClosed(bl) ? 'Guests in a room closed in Uplisting' : isExt(bl) ? 'Guests in a room booked on Uplisting' : 'Guests in a blocked room') : x.conflict === 'mixed' ? 'Mixed genders' : 'Over capacity') + (x.cross ? ' (with ' + esc(otherProgs(x, week)) + ' guests)' : '') + '</div>' : '') + '</td><td>' + esc(x.room.name) + '</td><td>' +
           (bl ? '<div class="warn">' + (isClosed(bl) ? 'Closed in Uplisting' : isExt(bl) ? 'Uplisting · ' + esc(upLabel(bl)) : 'Blocked · ' + esc(reasonLabel(bl.reason))) + ' · ' + esc(stayLabel(bl.from, bl.to)) + (bl.comment && !isExt(bl) ? ' · ' + esc(bl.comment) : '') + '</div>' : '') +
-          (x.guests.length ? x.guests.map(function(g){ return esc(g.name) + ' (' + esc((g.gender || '?').charAt(0)) + ') · ' + esc(g.ref) + (g.manual ? ' · manual' : ''); }).join('<br>') : bl ? '' : '–') + '</td><td class="r">' + (bl ? 0 : Math.max(0, x.beds - x.guests.length)) + '</td></tr>';
+          (x.guests.length || x.others.length ? x.guests.map(function(g){ return esc(g.name) + ' (' + esc((g.gender || '?').charAt(0)) + ') · ' + esc(g.ref) + (g.manual ? ' · manual' : ''); }).concat(x.others.map(function(g){
+            return esc(g.name) + ' (' + esc((g.gender || '?').charAt(0)) + ') · ' + esc(oLabel(g, week)) + ' · ' + esc(stayLabel(g.from, g.to)) + (g.ref ? ' · ' + esc(g.ref) : '');
+          })).join('<br>') : bl ? '' : '–') + '</td><td class="r">' + (bl ? 0 : Math.max(0, x.beds - (x.peak != null ? x.peak : x.guests.length))) + '</td></tr>';
       }).join('') + '</tbody></table>';
     }).join('');
     if (rm.unassigned.length) body += '<h2>Not placed yet</h2><table><thead><tr><th>Guest</th><th>Room type</th><th>Booking</th></tr></thead><tbody>' + rm.unassigned.map(function(g){ var rt = roomType(week, g.room); return '<tr><td>' + esc(g.name) + ' (' + esc((g.gender || '?').charAt(0)) + ')</td><td>' + esc(rt ? rt.name : g.room) + '</td><td>' + esc(g.ref) + '</td></tr>'; }).join('') + '</tbody></table>';
@@ -2037,8 +2196,10 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     areas(rm).forEach(function(a){ a.rooms.forEach(function(x){
       var bl = x.blocked, bt = !bl ? '' : isExt(bl) ? (isClosed(bl) ? 'Closed in Uplisting' : 'Uplisting ' + upLabel(bl)) + ' ' + (bl.from || '') + ' to ' + (bl.to || '')
         : reasonLabel(bl.reason) + ' ' + (bl.from || '') + ' to ' + (bl.to || '') + (bl.comment ? ' (' + bl.comment + ')' : '');
-      if (!x.guests.length) rows.push([a.name, x.name, x.room.name, x.beds, '', '', '', '', '', '', bt]);
+      if (!x.guests.length && !x.others.length) rows.push([a.name, x.name, x.room.name, x.beds, '', '', '', '', '', '', bt]);
       x.guests.forEach(function(g){ rows.push([a.name, x.name, x.room.name, x.beds, g.name, g.gender, g.ref, g.manual ? 'manual' : 'online', lead(g), x.conflict || '', bt]); });
+      // guests of another programme in the room: what it is, and their nights
+      x.others.forEach(function(g){ rows.push([a.name, x.name, x.room.name, x.beds, g.name, g.gender, g.ref, 'other programme: ' + oLabel(g, week) + ' ' + (g.from || '') + ' to ' + (g.to || ''), lead(g), x.conflict || '', bt]); });
     }); });
     rm.unassigned.forEach(function(g){ var rt = roomType(week, g.room); rows.push(['Not placed yet', '', rt ? rt.name : g.room, '', g.name, g.gender, g.ref, 'online', lead(g), '', '']); });
     rm.noRoom.forEach(function(g){ var rt = roomType(week, g.room); rows.push(['No room to assign', '', rt ? rt.name : g.room, '', g.name, g.gender, g.ref, g.manual ? 'manual' : 'online', lead(g), '', '']); });
@@ -2053,7 +2214,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
   function kitchenView(box){
     var k = kitchenRows(), guests = sum(k.all, function(b){ return b.guests.length; }), withDiet = k.all.filter(function(b){ return String(b.diet || '').trim(); });
     navList = k.rows.map(function(b){ return b.ref; });
-    $('rmSum').innerHTML = '<b>' + esc(plural(guests, 'guest')) + '</b> this week · <b>' + esc(plural(withDiet.length, 'booking')) + '</b> with dietary notes (' + esc(plural(sum(withDiet, function(b){ return b.guests.length; }), 'guest')) + ')';
+    $('rmSum').innerHTML = '<b>' + esc(plural(guests, 'guest')) + '</b> in ' + esc(wkName(week)) + ' · <b>' + esc(plural(withDiet.length, 'booking')) + '</b> with dietary notes (' + esc(plural(sum(withDiet, function(b){ return b.guests.length; }), 'guest')) + ')';
     box.innerHTML = (D(week).demo ? demoNote() : '') + '<section class="panel">' + (k.rows.length ? '<div class="tw"><table class="tbl stack"><thead><tr><th>Guests</th><th>Booking</th><th>Rooms</th><th>Dietary needs or allergies</th></tr></thead><tbody>' + k.rows.map(function(b){
       return '<tr><td class="main">' + b.guests.map(function(g){ return '<span class="nm">' + esc(g.name) + '</span> ' + gBadge(g.gender); }).join('<br>') + '</td><td data-l="Booking">' + openBtn(b) + '</td>' +
         '<td data-l="Rooms">' + b.guests.map(function(g, i){ return esc(placeOf(b, i)); }).join('<br>') + '</td><td data-l="Diet">' + (b.diet ? '<div class="diet">' + esc(b.diet) + '</div>' : '<span class="muted">–</span>') + '</td></tr>';
@@ -2062,7 +2223,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
   function kitchenPrint(){
     var k = kitchenRows(); if (!D(week)) return null;
     var guests = sum(k.all, function(b){ return b.guests.length; });
-    return ['Kitchen list', '<p>' + esc(plural(guests, 'guest')) + ' this week.</p><table><thead><tr><th style="width:30%">Guests</th><th style="width:22%">Rooms</th><th>Dietary needs or allergies</th></tr></thead><tbody>' + (k.rows.length ? k.rows.map(function(b){
+    return ['Kitchen list', '<p>' + esc(plural(guests, 'guest')) + ' in ' + esc(wkName(week)) + '.</p><table><thead><tr><th style="width:30%">Guests</th><th style="width:22%">Rooms</th><th>Dietary needs or allergies</th></tr></thead><tbody>' + (k.rows.length ? k.rows.map(function(b){
       return '<tr><td>' + b.guests.map(function(g){ return esc(g.name); }).join('<br>') + '<div style="font-size:8pt">' + esc(b.ref) + '</div></td><td>' + b.guests.map(function(g, i){ return esc(placeOf(b, i)); }).join('<br>') + '</td><td>' + esc(b.diet || '–') + '</td></tr>';
     }).join('') : '<tr><td colspan="3">No dietary notes.</td></tr>') + '</tbody></table>'];
   }
@@ -2168,8 +2329,9 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     if (!rooms.length) weekRooms().forEach(function(r){ addRoom(r); });
     var progs = [];
     (!legacy && Array.isArray(d.programs) && d.programs.length ? d.programs : PROGS).forEach(function(p){
-      if (p && p.id && p.dates && ISO.test(p.dates.start || '') && ISO.test(p.dates.end || '')) progs.push({ id: p.id, edition: p.edition || (PBY[p.id] || {}).edition || p.title || p.id, dates: p.dates });
+      if (p && p.id && p.dates && ISO.test(p.dates.start || '') && ISO.test(p.dates.end || '')) progs.push({ id: p.id, edition: p.edition || (PBY[p.id] || {}).edition || p.title || p.id, title: p.title || (PBY[p.id] || {}).title || '', dates: p.dates });
     });
+    progs.sort(function(a, b){ return progOrder(PBY[a.id] || a, PBY[b.id] || b); });
     var stays = [], fromWeek = {}, manDone = {};
     progs.forEach(function(p){
       var wd = D(p.id); if (!wd) return;
@@ -2275,8 +2437,19 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
       programs: progs, unplaced: unp, provisional: prov, legacy: legacy, demo: !!d.demo, err: c && c.err };
   }
 
+  // the programme bands in view, each in the first row free on its nights (overlapping programmes stack)
+  function calBands(m){
+    var w = m.win, out = [], ends = [];
+    m.programs.forEach(function(p){
+      var a = Math.max(0, nightsOf(w.from, p.dates.start)), z = Math.min(w.n, nightsOf(w.from, p.dates.end));
+      if (z > a) out.push({ p: p, a: a, z: z });
+    });
+    out.forEach(function(b){ var l = 0; while (l < ends.length && ends[l] > b.a) l++; ends[l] = b.z; b.lane = l; });
+    return { list: out, lanes: Math.max(1, ends.length) };
+  }
   function calHead(m){
-    var w = m.win, n = w.n, h = '<div class="cal-g cal-head"><div class="cal-corner"><b>Rooms</b><small>' + esc(plural(m.rooms.length, 'room')) + ' · nights →</small></div>';
+    var w = m.win, n = w.n, bd = calBands(m), L = bd.lanes;
+    var h = '<div class="cal-g cal-head" style="grid-template-rows:20px repeat(' + L + ',24px) 40px"><div class="cal-corner"><b>Rooms</b><small>' + esc(plural(m.rooms.length, 'room')) + ' · nights →</small></div>';
     for (var i = 0; i < n;) {
       var mo = m.days[i].slice(0, 7), j = i;
       while (j < n && m.days[j].slice(0, 7) === mo) j++;
@@ -2284,14 +2457,13 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
       h += '<div class="cal-mo" style="grid-column:' + (i + 2) + '/' + (j + 2) + '">' + (lab ? '<span>' + esc(lab) + '</span>' : '') + '</div>';
       i = j;
     }
-    m.programs.forEach(function(p){
-      var a = Math.max(0, nightsOf(w.from, p.dates.start)), z = Math.min(n, nightsOf(w.from, p.dates.end));
-      if (z <= a) return;
-      var lab = esc(p.edition) + '<small>' + esc(p.dates.short || stayLabel(p.dates.start, p.dates.end)) + '</small>', st = ' style="grid-column:' + (a + 2) + '/' + (z + 2) + '"';
-      h += PBY[p.id] ? '<button type="button" class="cal-wk"' + st + ' data-board="' + esc(p.id) + '" title="' + esc(p.edition + ' · ' + (p.dates.label || p.dates.short || '') + ': open its rooming board') + '">' + lab + '</button>'
-        : '<div class="cal-wk"' + st + '>' + lab + '</div>';
+    bd.list.forEach(function(b){
+      var p = b.p, lab = esc(p.edition) + '<small>' + esc(p.dates.short || stayLabel(p.dates.start, p.dates.end)) + '</small>', st = ' style="grid-column:' + (b.a + 2) + '/' + (b.z + 2) + ';grid-row:' + (b.lane + 2) + '"';
+      var tt = (p.title && String(p.edition).toLowerCase().indexOf(String(p.title).toLowerCase()) < 0 ? p.title + ' · ' : '') + p.edition + ' · ' + (p.dates.label || p.dates.short || '');
+      h += PBY[p.id] ? '<button type="button" class="cal-wk"' + st + ' data-board="' + esc(p.id) + '" title="' + esc(tt + ': open its rooming board') + '">' + lab + '</button>'
+        : '<div class="cal-wk"' + st + ' title="' + esc(tt) + '">' + lab + '</div>';
     });
-    m.days.forEach(function(d, i){ h += '<div class="cal-d' + m.cls[i] + '" style="grid-column:' + (i + 2) + '" title="' + esc(m.dl[i]) + '"><small>' + esc(wd2(d)) + '</small><b>' + (+d.slice(8)) + '</b></div>'; });
+    m.days.forEach(function(d, i){ h += '<div class="cal-d' + m.cls[i] + '" style="grid-column:' + (i + 2) + ';grid-row:' + (L + 2) + '" title="' + esc(m.dl[i]) + '"><small>' + esc(wd2(d)) + '</small><b>' + (+d.slice(8)) + '</b></div>'; });
     return h + '</div>';
   }
   function calBar(m, r, it){
@@ -2339,17 +2511,24 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     var w = m.win, total = 0, rows = '';
     Object.keys(m.unplaced).forEach(function(rid){
       var r0 = findBy(m.rooms, function(r){ return r.room_id === rid; }); if (!r0) return;   // tent pitches etc. have no rooms here
-      var bars = '';
+      var bars = '', list = [], ends = [];
+      // one bar per programme; overlapping programmes' bars each get a row of their own
       m.unplaced[rid].forEach(function(u){
         var p = findBy(m.programs, function(x){ return x.id === u.program; }); if (!p) return;
         var a = Math.max(0, nightsOf(w.from, p.dates.start)), z = Math.min(w.n, nightsOf(w.from, p.dates.end)); if (z <= a) return;
+        list.push({ u: u, p: p, a: a, z: z });
+      });
+      list.sort(function(x, y){ return x.a - y.a || x.z - y.z; });
+      list.forEach(function(it){ var l = 0; while (l < ends.length && ends[l] > it.a) l++; ends[l] = it.z; it.lane = l; });
+      list.forEach(function(it){
+        var u = it.u, p = it.p, a = it.a, z = it.z;
         total += num(u.count);
         var tx = plural(num(u.count), 'guest') + ' not placed' + (num(u.female) ? ' · ' + num(u.female) + ' F' : '') + (num(u.male) ? ' · ' + num(u.male) + ' M' : ''), tt = tx + ' · ' + (r0.room_name || rid) + ' · ' + p.edition;
-        bars += (PBY[p.id] ? '<button type="button" class="cb unp" data-board="' + esc(p.id) + '"' : '<div class="cb unp"') + ' style="grid-column:' + (a + 2) + '/' + (z + 2) + ';grid-row:1" title="' + esc(tt + (PBY[p.id] ? ': place them on the week\'s rooming board' : '')) + '" aria-label="' + esc(tt + ': open the rooming board') + '"><span class="t"><span>' + esc(num(u.count) + ' not placed' + (num(u.female) ? ' · ' + num(u.female) + ' F' : '') + (num(u.male) ? ' · ' + num(u.male) + ' M' : '')) + '</span></span>' + (PBY[p.id] ? '</button>' : '</div>');
+        bars += (PBY[p.id] ? '<button type="button" class="cb unp" data-board="' + esc(p.id) + '"' : '<div class="cb unp"') + ' style="grid-column:' + (a + 2) + '/' + (z + 2) + ';grid-row:' + (it.lane + 1) + '" title="' + esc(tt + (PBY[p.id] ? ': place them on the programme\'s rooming board' : '')) + '" aria-label="' + esc(tt + ': open the rooming board') + '"><span class="t"><span>' + esc((ends.length > 1 ? p.edition + ' · ' : '') + num(u.count) + ' not placed' + (num(u.female) ? ' · ' + num(u.female) + ' F' : '') + (num(u.male) ? ' · ' + num(u.male) + ' M' : '')) + '</span></span>' + (PBY[p.id] ? '</button>' : '</div>');
       });
       if (!bars) return;
       var cells = ''; for (var i = 0; i < w.n; i++) cells += '<div class="ccx' + m.cls[i] + '" style="grid-column:' + (i + 2) + '"></div>';
-      rows += '<div class="cal-row cal-g" style="--l:1"><div class="cal-rl" title="' + esc(r0.room_name || rid) + '"><b>' + esc(shortTypeName(r0.room_name) || rid) + '</b><small>room type</small></div>' + cells + bars + '</div>';
+      rows += '<div class="cal-row cal-g" style="--l:' + Math.max(1, ends.length) + '"><div class="cal-rl" title="' + esc(r0.room_name || rid) + '"><b>' + esc(shortTypeName(r0.room_name) || rid) + '</b><small>room type</small></div>' + cells + bars + '</div>';
     });
     return rows ? '<div class="cal-area unp"><span>Not placed yet<small>' + esc(plural(total, 'guest')) + ' still need a room</small></span></div>' + rows : '';
   }
@@ -2357,7 +2536,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     return '<div class="toolbar cal-tb"><div class="cal-nav"><button type="button" class="ibtn" data-cal="-' + CAL_STEP + '" title="Previous two weeks" aria-label="Previous two weeks">' + IC.left + '</button>' +
       '<button type="button" class="ibtn" data-cal="' + CAL_STEP + '" title="Next two weeks" aria-label="Next two weeks">' + IC.right + '</button>' +
       '<span class="cal-range" id="calRange" aria-live="polite"></span><button type="button" class="btn btn-ghost btn-sm" data-cal="today">Today</button></div>' +
-      '<div class="chips" id="calChips" role="group" aria-label="Jump to week"></div><span class="sp"></span>' +
+      '<div class="chips" id="calChips" role="group" aria-label="Jump to programme"></div><span class="sp"></span>' +
       (canWrite() ? '<button type="button" class="btn btn-ghost btn-sm" data-act="block">+ Block</button><button type="button" class="btn btn-sm" data-act="manual">+ Manual booking</button>' : '') +
       '<button type="button" class="btn btn-ghost btn-sm" data-act="csv">Export CSV</button></div><div id="calMain"></div>';
   }
@@ -2367,8 +2546,11 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     $('calRange').innerHTML = esc(stayLabel(w.from, last)) + '<small>' + esc(plural(w.n, 'night')) + '</small>';
     $('calChips').innerHTML = '<span class="lbl">Jump to</span>' + PROGS.map(function(p){
       var dt = p.dates || {}, inView = ISO.test(dt.start || '') && dt.start >= w.from && dt.end <= w.to;
-      return '<button type="button" class="chip" data-jump="' + esc(p.id) + '" aria-current="' + (inView ? 'true' : 'false') + '">' + esc(p.edition || p.title || p.id) + ' <small>' + esc(dt.short || '') + '</small></button>';
+      return '<button type="button" class="chip" data-jump="' + esc(p.id) + '" aria-current="' + (inView ? 'true' : 'false') + '" title="' + esc(wkFull(p.id) + (p.title && p.title !== p.edition ? ' (' + p.title + ')' : '')) + '">' + esc(p.edition || p.title || p.id) + ' <small>' + esc(dt.short || '') + '</small></button>';
     }).join('');
+    // phones: the chips scroll sideways; bring the first programme in view into sight (the row only, never the page)
+    var cc = $('calChips'), cur = cc.querySelector('.chip[aria-current="true"]');
+    if (cur && cc.scrollWidth > cc.clientWidth + 1) { var rel = cur.offsetLeft - cc.offsetLeft; if (rel < cc.scrollLeft || rel + cur.offsetWidth > cc.scrollLeft + cc.clientWidth) cc.scrollLeft = Math.max(0, rel - 60); }
     var m = calModel();
     if (!m) {
       main.innerHTML = c && c.err && !inflight['cal:' + k] ? '<p class="note err">Could not load the calendar: ' + esc(why(c.err)) + ' <button type="button" class="lnk" data-retry>Try again</button></p>' : skeleton(9);
@@ -2385,18 +2567,18 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     var nUp = Object.keys(ups).length;
     Object.keys(m.unplaced).forEach(function(rid){ m.unplaced[rid].forEach(function(u){ var p = findBy(m.programs, function(x){ return x.id === u.program; }); if (p && overlaps(p.dates.start, p.dates.end, w.from, w.to) && findBy(m.rooms, function(r){ return r.room_id === rid; })) unpl += num(u.count); }); });
     var clashes = m.rooms.filter(function(r){ return r.clash; }).length, ri = 0;
-    var legend = '<ul class="calleg" aria-label="Colours"><li><i class="sw paid"></i>Paid</li><li><i class="sw deposit"></i>Deposit</li><li><i class="sw plan"></i>Plan</li><li><i class="sw processing"></i>Processing</li><li><i class="sw demo"></i>Demo</li><li><i class="sw man"></i>Manual</li><li><i class="sw up"></i>Uplisting</li><li><i class="sw upc"></i>Closed in Uplisting</li><li><i class="sw blk"></i>Blocked</li><li><i class="sw wk"></i>BreathCamp week</li></ul>';
+    var legend = '<ul class="calleg" aria-label="Colours"><li><i class="sw paid"></i>Paid</li><li><i class="sw deposit"></i>Deposit</li><li><i class="sw plan"></i>Plan</li><li><i class="sw processing"></i>Processing</li><li><i class="sw demo"></i>Demo</li><li><i class="sw man"></i>Manual</li><li><i class="sw up"></i>Uplisting</li><li><i class="sw upc"></i>Closed in Uplisting</li><li><i class="sw blk"></i>Blocked</li><li><i class="sw wk"></i>Programme</li></ul>';
     var html = (m.demo ? demoNote() : '') + (m.err && !m.provisional ? '<p class="note err">Could not refresh the calendar: ' + esc(why(m.err)) + ' <button type="button" class="lnk" data-retry>Try again</button></p>' : '') +
-      (m.legacy ? '<p class="note">The booking system doesn\'t send the calendar yet, so this shows the BreathCamp weeks\' guests only (no blocks or manual stays).</p>' : '') +
+      (m.legacy ? '<p class="note">The booking system doesn\'t send the calendar yet, so this shows the programmes\' guests only (no blocks or manual stays).</p>' : '') +
       '<div class="calinfo"><span><b>' + esc(plural(guests, 'guest')) + '</b> in rooms · ' + esc(plural(Object.keys(man).length, 'manual booking')) + (nUp ? ' · ' + esc(plural(nUp, 'Uplisting booking')) : '') + (ucn ? ' · ' + esc(plural(ucn, 'room night')) + ' closed in Uplisting' : '') + ' · ' + esc(plural(Object.keys(blk).length, 'block')) +
         (unpl ? ' · <b class="refund">' + esc(unpl + ' not placed') + '</b>' : '') + (clashes ? ' · <b class="refund">' + esc(plural(clashes, 'room')) + ' with a clash</b>' : '') + '</span>' + legend + '</div>' +
-      '<div class="calwrap' + (m.provisional ? ' busy' : '') + '"' + (m.provisional ? ' aria-busy="true"' : '') + '><div class="calsc" id="calSc" role="region" aria-label="' + esc('Room calendar, ' + stayLabel(w.from, last)) + '">' +
+      '<div class="calwrap' + (m.provisional ? ' busy' : '') + '"' + (m.provisional ? ' aria-busy="true"' : '') + '><div class="calsc" id="calSc" role="region" style="scroll-padding-top:' + (60 + 24 * calBands(m).lanes) + 'px" aria-label="' + esc('Room calendar, ' + stayLabel(w.from, last)) + '">' +
         '<div class="cal" style="--n:' + w.n + '">' + calHead(m) + calUnplaced(m) +
         m.areas.map(function(a){
           var rs = m.rooms.filter(function(r){ return r.area === a; });
           return '<div class="cal-area"><span>' + esc(a) + '<small>' + esc(plural(rs.length, 'room') + ' · ' + plural(sum(rs, function(r){ return r.capacity; }), 'bed')) + '</small></span></div>' + rs.map(function(r){ return calRow(m, r, ri++); }).join('');
         }).join('') + '</div></div></div>' +
-      '<p class="calhint">' + (canWrite() ? 'Click an empty night to block a room or add a manual booking (keyboard: arrow keys, then Enter). ' : '') + 'Click a bar to open it. The week labels open that week\'s rooming board.</p>';
+      '<p class="calhint">' + (canWrite() ? 'Click an empty night to block a room or add a manual booking (keyboard: arrow keys, then Enter). ' : '') + 'Click a bar to open it. The programme labels open that programme\'s rooming board.</p>';
     main.innerHTML = html;
     // J / K in a booking's panel walk through the bookings in view, top to bottom
     var refs = []; each(main.querySelectorAll('.cal-row [data-open]'), function(x){ var v = x.getAttribute('data-open'); if (refs.indexOf(v) < 0) refs.push(v); }); navList = refs;
@@ -2504,7 +2686,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     if (!ISO.test(f.from) || !ISO.test(f.to)) return '<span>Choose the dates.</span>';
     var n = nightsOf(f.from, f.to), wks = rfWeeks();
     if (n < 1) return '<span class="refund">' + (man ? 'Check-out' : '"Until"') + ' must be after the first night.</span>';
-    return '<b>' + esc(plural(n, 'night')) + '</b> · ' + esc(dayLong(f.from)) + ' to ' + esc(dayLong(f.to)) + (wks.length ? '<br>During ' + esc(wks.map(function(p){ return wkName(p.id); }).join(' and ')) : '');
+    return '<b>' + esc(plural(n, 'night')) + '</b> · ' + esc(dayLong(f.from)) + ' to ' + esc(dayLong(f.to)) + (wks.length ? '<br>During ' + esc(andList(wks.map(function(p){ return wkName(p.id); }))) : '');
   }
   function rfErr(k){ var v = rf.errs[k] || ''; return '<span class="err" data-err="' + esc(k) + '">' + esc(v) + '</span>'; }
   function rfPicker(){
@@ -2560,7 +2742,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
       f.guests.map(rfGuestHtml).join('') + rfErr('guests') + '</div>' +
       '<div class="fsec"><div class="fgrid"><label class="f"><span>Lead guest\'s WhatsApp <small>(optional)</small></span><input type="tel" id="rfWa" inputmode="tel" autocomplete="off" placeholder="+44 7700 900123" value="' + esc(f.whatsapp) + '"' + (f.errs.whatsapp ? ' aria-invalid="true"' : '') + '>' + rfErr('whatsapp') + '</label>' +
         '<label class="f"><span>Agreed price in € <small>(optional, the whole stay)</small></span><input type="text" id="rfPrice" inputmode="decimal" autocomplete="off" placeholder="0" value="' + esc(f.price) + '"' + (f.errs.total_cents ? ' aria-invalid="true"' : '') + '>' + rfErr('total_cents') + '</label></div>' +
-        (wks.length ? '<label class="tick" style="margin-top:14px"><input type="checkbox" id="rfProg"' + (f.programme ? ' checked' : '') + '> Attends the BreathCamp programme (' + esc(wks.map(function(p){ return wkName(p.id); }).join(' and ')) + ')</label><p class="muted" style="font-size:.76rem;margin:4px 0 0 26px">Ticked, these guests take programme places of that week. Untick for a stay only (a partner, a staff member).</p>' + rfErr('programme') : '') +
+        (wks.length ? '<label class="tick" style="margin-top:14px"><input type="checkbox" id="rfProg"' + (f.programme ? ' checked' : '') + '> Attends the programme (' + esc(andList(wks.map(function(p){ return wkName(p.id); }))) + ')</label><p class="muted" style="font-size:.76rem;margin:4px 0 0 26px">Ticked, these guests take programme places of ' + (wks.length > 1 ? 'those programmes' : 'that programme') + '. Untick for a stay only (a partner, a staff member).</p>' + rfErr('programme') : '') +
         '<label class="f" style="margin-top:14px"><span>Comment <small>(optional, for the team)</small></span><textarea id="rfComment" maxlength="480" rows="2" placeholder="e.g. Friend of ASHA, pays by bank transfer">' + esc(f.comment) + '</textarea>' + rfErr('comment') + '</label></div>';
   }
   function rfMsg(){
@@ -2573,7 +2755,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
   function rfHtml(){
     var f = rf, man = f.mode === 'manual';
     return '<div class="seg rf-mode" role="group" aria-label="What to add"><button type="button" data-mode="block" aria-pressed="' + (!man) + '">Block</button><button type="button" data-mode="manual" aria-pressed="' + man + '">Manual booking</button></div>' +
-      '<p class="muted" style="margin:8px 0 14px;font-size:.86rem">' + (man ? 'A stay booked outside the website: by WhatsApp, phone or email. Its guests take their rooms on these nights. Record what they pay in the booking\'s panel.' : 'Takes rooms off sale on these nights (repairs, staff, the owner\'s guests). Online booking leaves a blocked room out of any BreathCamp week the block touches.') + '</p>' +
+      '<p class="muted" style="margin:8px 0 14px;font-size:.86rem">' + (man ? 'A stay booked outside the website: by WhatsApp, phone or email. Its guests take their rooms on these nights. Record what they pay in the booking\'s panel.' : 'Takes rooms off sale on these nights (repairs, staff, the owner\'s guests). Online booking leaves a blocked room out of any programme the block touches.') + '</p>' +
       '<form id="rfForm" novalidate><div class="fgrid" style="align-items:start">' +
         '<label class="f"><span>' + (man ? 'Check-in' : 'From') + ' <small>(first night)</small></span><input type="date" id="rfFrom" min="2026-01-01" max="2030-12-30" value="' + esc(f.from) + '"' + (f.errs.from ? ' aria-invalid="true"' : '') + '>' + rfErr('from') + '</label>' +
         '<label class="f"><span>' + (man ? 'Check-out' : 'Until') + ' <small>(morning after the last night)</small></span><input type="date" id="rfTo" min="2026-01-02" max="2030-12-31" value="' + esc(f.to) + '"' + (f.errs.to ? ' aria-invalid="true"' : '') + '>' + rfErr('to') + '</label>' +
@@ -2776,7 +2958,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     openModal('<h2 id="mTitle">Blocked · ' + esc(reasonLabel(bl.reason)) + '</h2>' +
       '<dl class="kv" style="margin-top:10px"><dt>' + (bl.rooms.length === 1 ? 'Room' : 'Rooms') + '</dt><dd class="l">' + bl.rooms.map(esc).join('<br>') + '</dd>' +
         '<dt>Nights</dt><dd class="l">' + esc(stayLabel(bl.from, bl.to)) + ' · ' + esc(plural(n, 'night')) + '<span class="sub">from the night of ' + esc(dayLong(bl.from)) + ' to the morning of ' + esc(dayLong(bl.to)) + '</span></dd>' +
-        (wks.length ? '<dt>Weeks</dt><dd class="l">' + esc(wks.map(function(p){ return wkName(p.id); }).join(', ')) + '<span class="sub">the room is off sale for the whole week online</span></dd>' : '') +
+        (wks.length ? '<dt>' + (wks.length > 1 ? 'Programmes' : 'Programme') + '</dt><dd class="l">' + esc(wks.map(function(p){ return wkName(p.id); }).join(', ')) + '<span class="sub">the room is off sale for the whole programme online</span></dd>' : '') +
         '<dt>Comment</dt><dd class="l">' + (bl.comment ? esc(bl.comment) : '<span class="muted">–</span>') + '</dd>' +
         (made && !isNaN(made.getTime()) ? '<dt>Made</dt><dd class="l">' + esc(made.toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })) + '</dd>' : '') +
         '<dt>Reference</dt><dd class="l"><code>' + esc(bl.id) + '</code></dd></dl>' +
@@ -2851,7 +3033,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
       '<dl class="kv"><dt>Listing</dt><dd class="l" id="upListing">' + listingHtml() + '</dd>' +
         '<dt>' + (rooms.length === 1 ? 'Room' : 'Rooms') + '</dt><dd class="l">' + (rooms.length ? rooms.map(esc).join('<br>') : '<span class="muted">–</span>') + '</dd>' +
         '<dt>Nights</dt><dd class="l">' + esc(stayLabel(bl.from, bl.to)) + ' · ' + esc(plural(n, 'night')) + '<span class="sub">from the night of ' + esc(dayLong(bl.from)) + ' to the morning of ' + esc(dayLong(bl.to)) + '</span></dd>' +
-        (wks.length ? '<dt>Weeks</dt><dd class="l">' + esc(wks.map(function(p){ return wkName(p.id); }).join(', ')) + '<span class="sub">' + (rooms.length === 1 ? 'the room is' : 'the rooms are') + ' off sale for the whole week online</span></dd>' : '') +
+        (wks.length ? '<dt>' + (wks.length > 1 ? 'Programmes' : 'Programme') + '</dt><dd class="l">' + esc(wks.map(function(p){ return wkName(p.id); }).join(', ')) + '<span class="sub">' + (rooms.length === 1 ? 'the room is' : 'the rooms are') + ' off sale for the whole programme online</span></dd>' : '') +
         '<dt>Last synced</dt><dd class="l">' + (isFinite(synced) ? esc(new Date(synced).toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })) + '<span class="sub">' + esc(ago(Math.floor(synced / 1000))) + '</span>' : '<span class="muted">–</span>') + '</dd>' +
         '<dt>Reference</dt><dd class="l"><code>' + esc(bl.id) + '</code></dd></dl>' +
       '<p class="note" style="margin:16px 0 0">Closed in Uplisting (RetreatGuru block, iCal import, admin block or season closure). Change it in Uplisting.</p>' +
@@ -2877,7 +3059,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
         '<dt>Channel</dt><dd class="l">' + esc(channelLabel(x.channel)) + '</dd>' +
         '<dt>' + (rooms.length === 1 ? 'Room' : 'Rooms') + '</dt><dd class="l">' + (rooms.length ? rooms.map(esc).join('<br>') : '<span class="muted">–</span>') + '</dd>' +
         '<dt>Nights</dt><dd class="l">' + esc(stayLabel(bl.from, bl.to)) + ' · ' + esc(plural(n, 'night')) + '<span class="sub">check-in ' + esc(dayLong(bl.from)) + ', check-out ' + esc(dayLong(bl.to)) + '</span></dd>' +
-        (wks.length ? '<dt>Weeks</dt><dd class="l">' + esc(wks.map(function(p){ return wkName(p.id); }).join(', ')) + '<span class="sub">' + (rooms.length === 1 ? 'the room is' : 'the rooms are') + ' off sale for the whole week online</span></dd>' : '') +
+        (wks.length ? '<dt>' + (wks.length > 1 ? 'Programmes' : 'Programme') + '</dt><dd class="l">' + esc(wks.map(function(p){ return wkName(p.id); }).join(', ')) + '<span class="sub">' + (rooms.length === 1 ? 'the room is' : 'the rooms are') + ' off sale for the whole programme online</span></dd>' : '') +
         '<dt>Listing</dt><dd class="l" id="upListing">' + listingHtml() + '</dd>' +
         '<dt>Uplisting status</dt><dd class="l">' + esc(uStatusLabel(x.status)) + '</dd>' +
         '<dt>Booking ID</dt><dd class="l">' + (x.id ? '<code>' + esc(x.id) + '</code>' : '–') + '<span class="sub">here ' + esc(bl.id) + '</span></dd>' +
@@ -3031,6 +3213,30 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     downloadCsv(fileWeek() + '-payments-by-hand.csv', ['week', 'reference', 'source', 'booking_status', 'lead_name', 'method', 'received', 'amount_eur', 'comment', 'recorded_at', 'stripe_invoice'],
       rows.map(function(r){ var b = r.b, x = r.x; return [wkName(b._w), b.ref, b.source || 'online', b.status, b.lead.name || '', methodLabel(x.method), x.received || '', eurNum(x.amount_cents), x.comment || '', x.created ? new Date(x.created * 1000).toISOString() : '', /^in_/.test(x.invoice_id || x.id || '') ? (x.invoice_id || x.id) : '']; }));
   }
+  /* All programmes: the money per programme (date order), stays outside the programmes last; a programme's name
+     narrows the view to it. */
+  function byProgramme(list){
+    var ids = PROGS.map(function(p){ return p.id; });
+    list.forEach(function(b){ if (ids.indexOf(b._w) < 0) ids.push(b._w || STAY); });
+    var rows = ids.map(function(id){
+      var bs = list.filter(function(b){ return (b._w || STAY) === id; }), act = bs.filter(active), ses = [];
+      act.forEach(function(b){ ses = ses.concat(liveSessions(b)); });
+      return { id: id, n: act.length, guests: sum(act, function(b){ return b.guests.length; }), paid: sum(act, function(b){ return b.paid_cents; }), bal: sum(act, function(b){ return b.balance_cents; }),
+        due: bs.filter(balanceDue).length, ref: sum(bs, function(b){ return b.refunded_cents; }), ses: sum(ses, sessCents), any: bs.length };
+    }).filter(function(r){ return PBY[r.id] || r.any; });
+    if (!rows.length) return '';
+    var T = { n: sum(rows, function(r){ return r.n; }), guests: sum(rows, function(r){ return r.guests; }), paid: sum(rows, function(r){ return r.paid; }), bal: sum(rows, function(r){ return r.bal; }), ref: sum(rows, function(r){ return r.ref; }), ses: sum(rows, function(r){ return r.ses; }) };
+    return '<section class="panel" id="byProg"><div class="ph"><h2>By programme <small>active bookings</small></h2></div><div class="tw"><table class="tbl stack"><thead><tr><th>Programme</th><th class="num">Bookings</th><th class="num">Paid</th><th class="num">Still to receive</th><th class="num">Refunded</th><th class="num">Sessions</th></tr></thead><tbody>' +
+      rows.map(function(r){
+        var dt = PBY[r.id] ? wkDates(r.id) : '';
+        return '<tr><td class="main">' + (PBY[r.id] ? '<button type="button" class="refbtn" data-week="' + esc(r.id) + '" title="' + esc('Show ' + wkName(r.id) + ' only') + '">' + esc(wkName(r.id)) + '</button>' : '<span class="nm">' + esc(wkName(r.id)) + '</span>') + (dt ? '<span class="sub">' + esc(dt) + '</span>' : '') + '</td>' +
+          '<td data-l="Bookings" class="num">' + r.n + '<span class="sub">' + esc(plural(r.guests, 'guest')) + '</span></td><td data-l="Paid" class="num">' + money(r.paid) + '</td>' +
+          '<td data-l="Still to receive" class="num">' + (r.bal ? money(r.bal) : '–') + (r.due ? '<span class="sub">' + esc(plural(r.due, 'balance')) + ' due</span>' : '') + '</td>' +
+          '<td data-l="Refunded" class="num">' + (r.ref ? '<span class="refund">' + money(r.ref) + '</span>' : '–') + '</td><td data-l="Sessions" class="num">' + (r.ses ? money(r.ses) : '–') + '</td></tr>';
+      }).join('') +
+      '<tr class="tot"><td class="main"><b class="nm">All programmes</b></td><td data-l="Bookings" class="num"><b>' + T.n + '</b><span class="sub">' + esc(plural(T.guests, 'guest')) + '</span></td><td data-l="Paid" class="num"><b>' + money(T.paid) + '</b></td><td data-l="Still to receive" class="num"><b>' + money(T.bal) + '</b></td>' +
+      '<td data-l="Refunded" class="num">' + money(T.ref) + '</td><td data-l="Sessions" class="num">' + money(T.ses) + '</td></tr></tbody></table></div></section>';
+  }
   // "Record payment" from a list: the booking's panel, with the form open
   function openRecordFor(ref, w){
     var b = anyBooking(ref);
@@ -3051,13 +3257,14 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
       var ses = []; act.forEach(function(b){ ses = ses.concat(liveSessions(b)); });
       var off = offlineRows(list);
       navList = uniq(due.concat(plans, pend, refunds, off.map(function(r){ return r.b; })).map(function(b){ return b.ref; }));
-      var wkCol = function(b){ return all ? '<td data-l="Week">' + esc(wkName(b._w)) + '</td>' : ''; }, wkTh = all ? '<th>Week</th>' : '';
+      var wkCol = function(b){ return all ? '<td data-l="Programme">' + esc(wkName(b._w)) + '</td>' : ''; }, wkTh = all ? '<th>Programme</th>' : '';
       var html = (anyDemo() ? demoNote() : '') + errorNote(scopeErrors()) +
         '<section class="kpis">' + kpi('Paid so far', eur(sum(act, function(b){ return b.paid_cents; })), plural(act.length, 'active booking')) +
           kpi('Still to receive', eur(sum(act, function(b){ return b.balance_cents; })), plural(due.length, 'balance') + ' due (' + eur(sum(due, function(b){ return b.balance_cents; })) + ')') +
           kpi('Refunded', eur(sum(list, function(b){ return b.refunded_cents; }))) + kpi('Sessions sold', ses.length, eur(sum(ses, sessCents))) +
           kpi('Payment plans', plans.filter(active).length, plans.filter(planIssue).length ? plural(plans.filter(planIssue).length, 'needs', 'need') + ' attention' : 'all running') +
           kpi('Recorded by hand', eur(sum(off, function(r){ return r.x.amount_cents; })), plural(off.length, 'payment') + ' · bank transfer, cash') + '</section>';
+      if (all) html += byProgramme(list);
       html += '<section class="panel"><div class="ph"><h2>Balances due <small>' + esc(plural(due.length, 'balance')) + ' due · ' + eur(sum(due, function(b){ return b.balance_cents; })) + '</small></h2></div>' + (due.length ?
         '<div class="tw"><table class="tbl stack"><thead><tr><th>Booking</th>' + wkTh + '<th>Lead guest</th><th class="num">Balance</th><th>Arrives</th><th>Last payment</th><th></th></tr></thead><tbody>' + due.map(function(b){
           var lp = lastPayment(b), dd = daysUntil(arrival(b)), wa = digits(b.lead.whatsapp);
@@ -3228,17 +3435,18 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
       if (!d && scopeMissing().length) { var w = notReady(); if (w) { box.innerHTML = w; return; } }
       var qa = document.activeElement && document.activeElement.id === 'upQ' ? [document.activeElement.selectionStart, document.activeElement.selectionEnd] : null;
       var links = '<section class="panel"><div class="ph"><h2>Booking page links</h2></div>' +
-        copyRow('All weeks', 'the hub page', SITE + '/book/') +
+        copyRow('All programmes', 'the hub page', SITE + '/book/') +
         PROGS.map(function(p){ return copyRow(wkFull(p.id), 'booking page', SITE + '/book/' + p.id + '/'); }).join('') +
         copyRow('Pay a balance', 'reference + email', SITE + '/book/balance/') + copyRow('Add sessions', 'after booking', SITE + '/book/extras/') + '</section>';
-      var roomOnly = '<section class="panel"><div class="ph"><h2>Room-only links</h2></div><p class="muted">For guests who already paid the programme fee' + (feeOf(PROGS[0] && PROGS[0].id) ? ' (' + eur(feeOf(PROGS[0].id) * 100) + ')' : '') +
+      // (programme fees differ: each link says its own)
+      var roomOnly = '<section class="panel"><div class="ph"><h2>Room-only links</h2></div><p class="muted">For guests who already paid the programme fee' +
         ' elsewhere. They choose and pay for their room only. Their booking shows as "Room only": "possible match" when Stripe has earlier programme payments from their email that cover every guest (check them), otherwise "check".</p>' +
-        (week === 'all' ? PROGS : [PBY[week]]).filter(Boolean).map(function(p){ return copyRow(wkFull(p.id), 'room only', SITE + '/book/' + p.id + '/?programme=paid'); }).join('') + '</section>';
+        (week === 'all' ? PROGS : [PBY[week]]).filter(Boolean).map(function(p){ var fee = feeOf(p.id); return copyRow(wkFull(p.id), 'room only' + (fee ? ' · fee ' + eur(fee * 100) + ' paid elsewhere' : ''), SITE + '/book/' + p.id + '/?programme=paid'); }).join('') + '</section>';
       var demoOn = !!(d && d.setup && d.setup.stripe === 'test') && isOwner();   // demo bookings: the main admin's only
       var demo = demoOn ? '<section class="panel"><div class="ph"><h2>Demo bookings <small style="font-family:var(--sans);font-size:.78rem;color:var(--slate)">Stripe test mode only</small></h2></div>' +
-        '<p class="muted">Fills ' + (week === 'all' ? 'each week' : 'this week') + ' to about 40% with made-up bookings (deposits, paid in full, some wellbeing sessions and balances), paid with Stripe\'s test card, and places every guest in a physical room at random (one gender per shared room, never over its beds). They show with a "Demo" label, count towards availability like real bookings, and can be removed at any time. New bookings can take a minute to appear here.</p>' +
+        '<p class="muted">Fills ' + (week === 'all' ? 'each programme' : 'this programme') + ' to about 40% with made-up bookings (deposits, paid in full, some wellbeing sessions and balances), paid with Stripe\'s test card, and places every guest in a physical room at random (one gender per shared room, never over its beds). They show with a "Demo" label, count towards availability like real bookings, and can be removed at any time. New bookings can take a minute to appear here.</p>' +
         '<div class="mact" style="justify-content:flex-start;margin-top:10px"><button type="button" class="btn" id="demoFill">Fill with demo bookings (about 40%)</button><button type="button" class="btn btn-ghost" id="demoPlace">Place demo guests in rooms</button><button type="button" class="btn btn-ghost" id="demoClear">Remove demo bookings</button></div></section>' : '';
-      box.innerHTML = (d ? setupPanel(d) : '') + '<div id="upWrap">' + upPanel() + '</div>' + demo + roomOnly + links + '<section><div class="ph" style="margin-top:6px"><h2 style="font-family:var(--serif);font-size:1.22rem">Week settings <small style="font-family:var(--sans);font-size:.78rem;color:var(--slate)">read only · from the program files</small></h2></div><div class="cfg">' + ids.map(configCard).join('') + '</div></section>';
+      box.innerHTML = (d ? setupPanel(d) : '') + '<div id="upWrap">' + upPanel() + '</div>' + demo + roomOnly + links + '<section><div class="ph" style="margin-top:6px"><h2 style="font-family:var(--serif);font-size:1.22rem">Programme settings <small style="font-family:var(--sans);font-size:.78rem;color:var(--slate)">read only · from the program files</small></h2></div><div class="cfg">' + ids.map(configCard).join('') + '</div></section>';
       if (qa && $('upQ')) { $('upQ').focus(); try { $('upQ').setSelectionRange(qa[0], qa[1]); } catch (x) {} }
       var rb = $('regDomains'), pb = $('repairPlans');
       if (rb) rb.onclick = function(){ registerDomains(rb); };
@@ -3247,7 +3455,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
       if (df) df.onclick = function(){ demoRun(df, 'seed_demo'); };
       var dp = $('demoPlace'); if (dp) dp.onclick = function(){ demoRun(dp, 'place_demo'); };
       if (dc) dc.onclick = function(){
-        confirmBox({ title: 'Remove demo bookings?', html: '<p>Every demo booking ' + (week === 'all' ? 'in every week' : 'in this week') + ' is taken out of the dashboard and its places are freed. Real bookings are not touched.</p>', ok: 'Remove demo bookings', danger: true, ret: dc })
+        confirmBox({ title: 'Remove demo bookings?', html: '<p>Every demo booking ' + (week === 'all' ? 'in every programme' : 'in this programme') + ' is taken out of the dashboard and its places are freed. Real bookings are not touched.</p>', ok: 'Remove demo bookings', danger: true, ret: dc })
           .then(function(yes){ if (yes) demoRun(dc, 'clear_demo'); });
       };
       Promise.all(ids.map(loadPub)).then(function(r){ if (r.some(Boolean) && route.tab === 'setup' && $('stBody') && !editingIn($('view'))) VIEWS.setup.update(); });
@@ -3860,7 +4068,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
       var v = onOff(firstOf(d, ['autoplace', 'aob_autoplace', 'mode'])) || mode;
       if (upl.d) upl.d.autoplace = v;
       upl.at = 0; renderUp(); upFocus('upAutoSw');
-      toast(v === 'on' ? 'Auto-place is on: guests of new paid bookings go straight into free rooms of the type they booked.' : 'Auto-place is off: place the guests of new bookings by hand on the week\'s rooming board.', 'ok');
+      toast(v === 'on' ? 'Auto-place is on: guests of new paid bookings go straight into free rooms of the type they booked.' : 'Auto-place is off: place the guests of new bookings by hand on the programme\'s rooming board.', 'ok');
     }, function(e){
       upBusy.auto = false; renderUp(); upFocus('upAutoSw');
       if (authFail(e)) return;
@@ -3969,8 +4177,8 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
   function autoCardHtml(d){
     var on = d.autoplace !== 'off';
     return '<section class="upcard" aria-labelledby="upAutoH"><div class="uch"><h3 id="upAutoH">Auto-place new bookings</h3>' + (isOwner() ? tglHtml('upAutoSw', on, 'Auto-place new bookings', upBusy.auto) : statePill(on)) + '</div>' +
-      '<p class="ucd">When an online booking is paid, its guests go straight into free rooms of the type they booked for that week: women and men apart in shared rooms, partly used rooms first, one booking\'s guests together, never a blocked room or one taken in Uplisting.</p>' +
-      '<p class="ust">' + (on ? '<b>On.</b> Guests who don\'t fit stay under <b>Not placed yet</b> on the week\'s rooming board.' : '<b>Off.</b> New guests are placed by hand on the week\'s rooming board.') + '</p></section>';
+      '<p class="ucd">When an online booking is paid, its guests go straight into free rooms of the type they booked for that programme (an overlapping programme\'s guests count too): women and men apart in shared rooms, partly used rooms first, one booking\'s guests together, never a blocked room or one taken in Uplisting.</p>' +
+      '<p class="ust">' + (on ? '<b>On.</b> Guests who don\'t fit stay under <b>Not placed yet</b> on the programme\'s rooming board.' : '<b>Off.</b> New guests are placed by hand on the programme\'s rooming board.') + '</p></section>';
   }
   function autoSyncCardHtml(d){
     var a = autoSync(d), ls = d.last_sync, own = isOwner(), open = upHowtoOpen == null ? !a.sc : upHowtoOpen;
@@ -4115,7 +4323,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     var open = dirty || (upOpenChoice == null ? !on || pr.length > 0 || !d.last_sync || umCounts().unmapped > 0 : upOpenChoice);
     var html = '';
     if (!on) {
-      html = '<p>Bookings made on Uplisting (Airbnb, Booking.com, Vrbo, direct…) can take their rooms here: off sale for BreathCamp online booking, in the rooming calendar and on the week boards, with clashes flagged.</p>' +
+      html = '<p>Bookings made on Uplisting (Airbnb, Booking.com, Vrbo, direct…) can take their rooms here: off sale for online programme booking, in the rooming calendar and on the programme boards, with clashes flagged.</p>' +
         '<ol class="upsteps"><li>In Uplisting, open <b>Connect → API</b> (<a href="https://app.uplisting.io/connect/api" target="_blank" rel="noopener">app.uplisting.io/connect/api</a>) and copy the API key.</li>' +
         '<li>In Cloudflare, open the website\'s <b>Pages → Settings → Variables and secrets</b> (Production) and add <code>UPLISTING_API_KEY</code> (the key) and <code>UPLISTING_WEBHOOK_SECRET</code> (16 or more random characters: it becomes part of the address Uplisting sends bookings to).</li>' +
         '<li>Redeploy: variables apply after the next deployment. Then come back here to choose the rooms of each listing, connect the webhooks and sync.</li></ol>' +
@@ -4759,7 +4967,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     if (b.plan && active(b) && b.plan.status === 'past_due') out.push(['err', 'The last plan payment failed. Stripe is retrying it automatically.']);
     if (b.plan && b.plan.ended && num(b.balance_cents) && active(b)) out.push(['err', 'The payment plan has ended with ' + eur(b.balance_cents) + ' unpaid: send a balance link.']);
     if (unverified(b)) out.push(['err', 'Room only: no earlier programme fee payment from this email was found in Stripe. Match it to their GHL or RetreatGuru payment.']);
-    if (rm && active(b)) rm.order.forEach(function(n){ var x = rm.byName[n]; if (x.conflict && x.guests.some(function(g){ return g.ref === b.ref; })) out.push(['err', n + ': ' + (x.conflict === 'blocked' ? (isClosed(x.blocked) ? 'this room is closed in Uplisting (' + stayLabel(x.blocked.from, x.blocked.to) + '). Move the guest, or reopen those nights in Uplisting.' : isExt(x.blocked) ? 'this room is booked on Uplisting (' + upLabel(x.blocked) + ', ' + stayLabel(x.blocked.from, x.blocked.to) + '). Move the guest, or change that booking in Uplisting.' : 'this room is blocked (' + reasonLabel(x.blocked.reason).toLowerCase() + ', ' + stayLabel(x.blocked.from, x.blocked.to) + '). Move the guest, or delete the block.') : x.conflict === 'mixed' ? 'women and men in a same-gender room.' : x.guests.length + ' guests for ' + plural(x.beds, 'bed') + '.')]); });
+    if (rm && active(b)) rm.order.forEach(function(n){ var x = rm.byName[n]; if (x.conflict && x.guests.some(function(g){ return g.ref === b.ref; })) out.push(['err', n + ': ' + (x.conflict === 'blocked' ? (isClosed(x.blocked) ? 'this room is closed in Uplisting (' + stayLabel(x.blocked.from, x.blocked.to) + '). Move the guest, or reopen those nights in Uplisting.' : isExt(x.blocked) ? 'this room is booked on Uplisting (' + upLabel(x.blocked) + ', ' + stayLabel(x.blocked.from, x.blocked.to) + '). Move the guest, or change that booking in Uplisting.' : 'this room is blocked (' + reasonLabel(x.blocked.reason).toLowerCase() + ', ' + stayLabel(x.blocked.from, x.blocked.to) + '). Move the guest, or delete the block.') : conflictText(x, b._w).replace(/^\w/, function(c){ return c.toLowerCase(); }) + '.')]); });
     return out;
   }
   function drawerHtml(b){
@@ -5292,7 +5500,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
   }
   function nlSvcHtml(){
     var svcs = nlServices();
-    if (!svcs.length) return '<p class="muted">No wellbeing sessions offered for this week (or not in the dashboard data yet).</p>';
+    if (!svcs.length) return '<p class="muted">No wellbeing sessions offered for this programme (or not in the dashboard data yet).</p>';
     return nl.addons.map(function(a, i){
       return '<div class="svrow"><select data-s="' + i + '" data-k="id" aria-label="Session ' + (i + 1) + '">' + svcs.map(function(s){ return opt(s.id, (s.practitioner_name ? s.practitioner_name + ': ' : '') + s.title + ' · ' + s.minutes + ' min · ' + eur(num(s.price) * 100), a.id); }).join('') + '</select>' +
         '<select data-s="' + i + '" data-k="guest" aria-label="Session ' + (i + 1) + ' is for">' + nl.guests.map(function(g, gi){ return opt(String(gi), 'For ' + (firstName(g.first) || (gi === 0 ? 'the lead guest' : 'guest ' + (gi + 1))), String(a.guest)); }).join('') + '</select>' +
@@ -5305,7 +5513,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     var d = D(nl.week), fee = feeOf(nl.week);
     if (!d) { box.innerHTML = '<p class="merr">Could not load the rooms for ' + esc(wkName(nl.week)) + ': ' + esc(why(cache[nl.week] && cache[nl.week].err)) + ' <button type="button" class="lnk" id="nlRetry">Try again</button></p>'; $('nlRetry').onclick = function(){ loadWeek(nl.week, true).then(nlRender, nlRender); }; return; }
     var dsc = nl.disc;
-    box.innerHTML = '<form id="nlForm" novalidate><div class="fgrid" style="align-items:end"><label class="f"><span>Week</span><select id="nlWeek">' + PROGS.map(function(p){ return opt(p.id, wkFull(p.id), nl.week); }).join('') + '</select></label>' +
+    box.innerHTML = '<form id="nlForm" novalidate><div class="fgrid" style="align-items:end"><label class="f"><span>Programme</span><select id="nlWeek">' + PROGS.map(function(p){ return opt(p.id, wkFull(p.id), nl.week); }).join('') + '</select></label>' +
       '<div class="f"><span>Guests</span><div class="stepper"><button type="button" id="nlMinus" aria-label="One guest fewer"' + (nl.guests.length <= 1 ? ' disabled' : '') + '>−</button><output id="nlCount" aria-live="polite">' + esc(plural(nl.guests.length, 'guest')) + '</output><button type="button" id="nlPlus" aria-label="One more guest"' + (nl.guests.length >= 6 ? ' disabled' : '') + '>+</button></div></div>' +
       '<label class="f"><span>Lead guest\'s WhatsApp</span><input type="tel" id="nlWa" inputmode="tel" autocomplete="off" placeholder="+44 7700 900123" value="' + esc(nl.whatsapp) + '"><span class="err" data-err="whatsapp"></span></label></div>' +
       '<div class="fsec"><h3>Guests</h3><div id="nlGuests">' + nl.guests.map(nlGuestHtml).join('') + '</div><span class="err" data-err="guests"></span></div>' +

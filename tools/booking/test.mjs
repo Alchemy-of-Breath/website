@@ -20,6 +20,7 @@ import {
   formEncode, str, cleanNote, saveAdminMeta, findBooking, forgetBooking,
   availability, programWithRecords, calendarRooms, areaOf, blockInput, parseRecord, rangeLabel, overbooked, addDays, forgetWrites, listRecords, forgetRateLimits,
   nightsBetween, channelLabel, guestShort, REC_REASONS, BLOCK_REASONS, validDay,
+  overlappingPrograms, buildOccupancy, knownRef, validRef, programsForRef, isManualRef,
 } from '../../booking-lib/core.js';
 import {
   forgetUplisting, uplistingConfig, parseProperties, normBooking, roomSets, chooseRooms, authHeader, mergeSettings, MAP_MAX_KEYS,
@@ -115,6 +116,14 @@ const J = (d, s = 200, h = {}) => new Response(JSON.stringify(d), { status: s, h
 const E = (status, type, message, param, code) => J({ error: { type, message, param, code } }, status);
 const charged = (pi, u) => ({ ...pi, latest_charge: u.searchParams.getAll('expand[]').includes('data.latest_charge') ? { id: 'ch_' + pi.id, amount_refunded: pi._refunded || 0 } : 'ch_' + pi.id });
 const metaConds = q => [...q.matchAll(/metadata\['(\w+)'\]:'([^']+)'/g)].map(m => [m[1], m[2]]);
+/* Stripe's search joins clauses with AND or with OR (never both in one query, at most 10 clauses) */
+const metaMatch = q => {
+  const conds = metaConds(q || ''), any = / OR /.test(q || '');
+  if (any && / AND /.test(q)) throw new Error('mock: AND and OR in one search query');
+  if (conds.length > 10) throw new Error('mock: more than 10 clauses in one search query');
+  return md => !!md && (any ? conds.some(([k, v]) => md[k] === v) : conds.every(([k, v]) => md[k] === v));
+};
+store.searches = [];
 /* Stripe's metadata rules: at most 50 keys, keys ≤ 40 characters, values ≤ 500; '' removes a key. */
 const metaError = md => {
   const keys = Object.keys(md || {});
@@ -173,8 +182,9 @@ async function stripeMock(method, path, u, init) {
     return res;
   }
   if (method === 'GET' && path === '/payment_intents/search') {
-    const q = u.searchParams.get('query'), conds = metaConds(q), st = (q.match(/status:'(\w+)'/) || [])[1];
-    const data = [...store.pis.values()].filter(pi => !pi._lagging && (!st || pi.status === st) && conds.every(([k, v]) => pi.metadata[k] === v)).map(pi => charged(pi, u));
+    const q = u.searchParams.get('query'), match = metaMatch(q), st = (q.match(/status:'(\w+)'/) || [])[1];
+    store.searches.push(q);
+    const data = [...store.pis.values()].filter(pi => !pi._lagging && (!st || pi.status === st) && match(pi.metadata)).map(pi => charged(pi, u));
     return J({ data, has_more: false, next_page: null });
   }
   if (method === 'GET' && path === '/payment_intents') {
@@ -204,8 +214,8 @@ async function stripeMock(method, path, u, init) {
     return J(pi);
   }
   if (method === 'GET' && path === '/subscriptions/search') {
-    const conds = metaConds(u.searchParams.get('query'));
-    return J({ data: [...store.subs.values()].filter(x => !x._lagging && conds.every(([k, v]) => x.metadata[k] === v)), has_more: false, next_page: null });
+    const match = metaMatch(u.searchParams.get('query'));
+    return J({ data: [...store.subs.values()].filter(x => !x._lagging && match(x.metadata)), has_more: false, next_page: null });
   }
   if (method === 'GET' && path === '/subscriptions') return J(page([...store.subs.values()].filter(x => x.status !== 'canceled'), u));
   if ((m = path.match(/^\/subscriptions\/(sub_\w+)$/))) {
@@ -239,8 +249,8 @@ async function stripeMock(method, path, u, init) {
   }
   /* offline payments: invoice (draft) → its line → finalize → paid out of band; metadata search */
   if (method === 'GET' && path === '/invoices/search') {
-    const conds = metaConds(u.searchParams.get('query'));
-    return J({ data: store.invoices.filter(i => i.metadata && !i._lagging && conds.every(([k, v]) => i.metadata[k] === v)), has_more: false, next_page: null });
+    const match = metaMatch(u.searchParams.get('query'));
+    return J({ data: store.invoices.filter(i => i.metadata && !i._lagging && match(i.metadata)), has_more: false, next_page: null });
   }
   if (method === 'POST' && path === '/invoices') {
     const md = metaMerge({}, b.metadata || {}), err = metaError(md);
@@ -2351,7 +2361,7 @@ reset();
     guests: [{ first: '=SUM(A1)', last: '', email: 'nope', gender: 'Other', room_name: 'Nowhere' }] });
   ok(r.status === 422 && r.data.fields['guests.0.first'] && r.data.fields['guests.0.last'] && r.data.fields['guests.0.email'] && r.data.fields['guests.0.gender'] && r.data.fields['guests.0.room_name'] && /country code/.test(r.data.fields.whatsapp) && r.data.fields.total_cents, 'manual: guests validated like a checkout (names, email, gender, room, WhatsApp, price)');
   r = await adm({ action: 'manual_create', from: '2027-08-10', to: '2027-08-12', programme: 'yes', guests: [mg('Al', 'Female', RN.gs(3))] });
-  ok(r.status === 422 && /don't overlap a BreathCamp week/.test(r.data.fields.programme), 'manual: attending the programme needs dates in a week');
+  ok(r.status === 422 && /don't overlap any programme week/.test(r.data.fields.programme), 'manual: attending the programme needs dates in a week');
   r = await adm({ action: 'manual_create', from: '2027-07-20', to: '2027-07-21', guests: Array.from({ length: 13 }, (_, i) => mg('G' + 'abcdefghijklm'[i], 'Female', RN.cv(1))) });
   ok(r.status === 422 && /1 to 12/.test(r.data.fields.guests), 'manual: at most 12 guests');
   // women and men in one room, from two bookings (saved anyway): the whole room is out
@@ -2787,7 +2797,8 @@ reset();
   ok(r.status === 200 && r.data.stays && r.data.demo && r.data.bookings.length === 0 && r.data.program.id === 'stay', 'stays: demo mode answers an empty list');
   r = await call(admin, 'GET', '/api/booking/admin?stays=1', null, LIVE);
   ok(r.status === 401, 'stays: needs the admin token');
-  const one = (await adm({ action: 'manual_create', from: '2027-07-12', to: '2027-07-13', total_cents: 9500, comment: 'One night', guests: [mg('Una', 'Female', RN.a1)] })).data.booking;
+  // (round 8: 12–13 July is the Intuition Retreat now, so the stay outside every week is in August)
+  const one = (await adm({ action: 'manual_create', from: '2027-08-02', to: '2027-08-03', total_cents: 9500, comment: 'One night', guests: [mg('Una', 'Female', RN.a1)] })).data.booking;
   const inWeek = (await adm({ action: 'manual_create', from: '2027-07-19', to: '2027-07-20', guests: [mg('Vera', 'Female', RN.d2)] })).data.booking;
   r = await adm({ action: 'offline_payment', ref: one.ref, amount_cents: 9500, method: 'bank_transfer', comment: 'SEPA, ref 4471' });
   ok(r.status === 200, 'stays: a bank transfer on the one-night stay');
@@ -3140,10 +3151,11 @@ let bRef, tA;
   const sRef = r.data.ref; complete(r.data.session_id);
   step(); r = await asUser(tA, { action: 'svc_status', ref: sRef, key: 'b0', status: 'scheduled', when: 'Tue 20 Jul, 15:00' });
   ok(r.status === 200 && /^Session ".+ \d+ min" on BC2707-[A-Z0-9]+ → scheduled$/.test(lastEntry('svc_status').s) && lastEntry('svc_status').f === sRef, `activity: svc_status (${lastEntry('svc_status').s})`);
-  step(); r = await adm({ action: 'manual_create', from: '2027-07-14', to: '2027-07-15', total_cents: 9500, whatsapp: '+44 7700 900123', guests: [mg('Mia', 'Female', RN.a1, { email: 'mia@example.com' })] });
+  // (a stay outside every week: in August since round 8 put the Intuition Retreat on 11–17 July)
+  step(); r = await adm({ action: 'manual_create', from: '2027-08-04', to: '2027-08-05', total_cents: 9500, whatsapp: '+44 7700 900123', guests: [mg('Mia', 'Female', RN.a1, { email: 'mia@example.com' })] });
   const mB = r.data.booking;
   e = lastEntry('manual_create');
-  ok(r.status === 200 && e.s === `Manual booking ${mB.ref} · 1 guest · 14–15 Jul 2027` && e.f === mB.ref && e.p === 'stay', 'activity: manual_create');
+  ok(r.status === 200 && e.s === `Manual booking ${mB.ref} · 1 guest · 4–5 Aug 2027` && e.f === mB.ref && e.p === 'stay', 'activity: manual_create');
   step(); r = await asUser(tA, { action: 'offline_payment', ref: mB.ref, amount_cents: 9500, method: 'bank_transfer', comment: 'SEPA ref 4471 from mia@example.com, +44 7700 900123' });
   const inv = r.data.payment.invoice_id;
   ok(r.status === 200 && lastEntry('offline_payment').s === `€95.00 bank transfer recorded on ${mB.ref} · "SEPA ref 4471 from [email], [number]"` && lastEntry('offline_payment').u === anna.id && lastEntry('offline_payment').f === mB.ref && lastEntry('offline_payment').p === 'stay', 'activity: offline_payment (the comment without email or phone)');
@@ -4442,6 +4454,259 @@ reset(); store.idem.clear(); upFixtures7();
   ok(/\$\{\{ secrets\.AOB_UPLISTING_SYNC_URL \}\}/.test(yml) && [...yml.matchAll(/key=(\S*)/g)].every(m => m[1] === '<UPLISTING_WEBHOOK_SECRET>' || m[1].startsWith('…&')) && !yml.includes(UPK) && !yml.includes(UPL.UPLISTING_WEBHOOK_SECRET), 'workflow: the URL only from the repository secret, no key in the file');
   ok(/MAX_CALLS=60/.test(yml) && /action=sync/.test(yml) && /retry_after/.test(yml) && /sleep/.test(yml) && /cursor/.test(yml) && /exit 1/.test(yml) && /\.done/.test(yml), 'workflow: loops with the cursor (max 60 calls, 3 s apart, honouring retry_after), fails the job on an error');
   ok(/permissions:\s*\n\s*contents: read/.test(yml) && /concurrency:/.test(yml), 'workflow: read-only token, one run at a time');
+}
+
+/* ================================================================== round 8: three more programmes, two of them overlapping (shared rooms) */
+const ARM = 'arm-jun-2027', LR = 'live-residential-2027', IR = 'intuition-jul-2027';
+const AP = getProgram(ARM), LP = getProgram(LR), IP = getProgram(IR);
+const pBooking = (prog, guests, payment = 'deposit', extra = {}) => booking(guests, payment, { program: prog, return_url: `https://alchemyofbreath.com/book/${prog}/`, page: `https://alchemyofbreath.com/book/${prog}/`, ...extra });
+const availP = (id, env = LIVE) => { clearAvailabilityMemo(); return call(avail, 'GET', `/api/booking/availability?program=${id}`, null, env); };
+const man = (n, room, extra = {}) => guest(n, room, { gender: 'Male', ...extra });
+/* one twin room shared by both programmes (the same physical room, 1B), for the tests that need the last unit */
+const oneTwin = () => {
+  const saved = [AP, LP].map(p => { const r = p.rooms.find(x => x.id === 'twin-ensuite'); return { r, units: r.units, names: r.names }; });
+  saved.forEach(x => { x.r.units = 1; x.r.names = [RN.b1]; });
+  return () => saved.forEach(x => { x.r.units = x.units; x.r.names = x.names; });
+};
+
+/* the programme files */
+reset();
+{
+  ok(AP && LP && IP && AP.title === 'Alchemy Regulation Method' && AP.edition === 'ARM Coach Certification' && LP.title === 'Live Residential Facilitator Training' && LP.edition === 'Live Residential'
+    && IP.title === 'Intuition Retreat' && IP.edition === 'Intuition Retreat', 'three more programmes load: ARM, the Live Residential, the Intuition Retreat');
+  ok(AP.dates.start === '2027-06-20' && AP.dates.end === '2027-06-26' && AP.dates.nights === 6 && LP.dates.start === '2027-06-20' && LP.dates.end === '2027-07-10' && LP.dates.nights === 20
+    && IP.dates.start === '2027-07-11' && IP.dates.end === '2027-07-17' && IP.dates.nights === 6 && AP.booking_closes === '2027-06-19' && LP.booking_closes === '2027-06-19' && IP.booking_closes === '2027-07-10',
+    'their dates (6, 20 and 6 nights) and booking closes the day before');
+  ok(AP.about_url === 'https://alchemyofbreath.com/alchemy-regulation-method/' && LP.about_url === 'https://alchemyofbreath.com/live-residential-breathwork-facilitator-training/' && IP.about_url === 'https://alchemyofbreath.com/intuition-retreat'
+    && [AP, LP, IP].every(p => p.program_spaces === 49 && p.terms_url === JP.terms_url && p.deposit.percent === 20 && p.payment_plan.last_payment_by === 'before_arrival' && p.services.items.length === JP.services.items.length),
+    'about pages, 49 places, the BreathCamp terms, deposit, plan and sessions as the base');
+  ok(AP.programme.fee === 888 && IP.programme.fee === 888 && LP.programme.fee === 2664 && LP.rooms.every(r => r.price === JP.rooms.find(x => x.id === r.id).price * 3)
+    && AP.rooms.every(r => r.price === JP.rooms.find(x => x.id === r.id).price) && LP.stay_includes[0].startsWith('20 nights'), '"price 3x": the Live Residential fee is 3 × €888 and every room 3 × the BreathCamp price');
+  ok(AP.ref_prefix === 'AR' && LP.ref_prefix === 'LR' && IP.ref_prefix === 'IR' && !JP.ref_prefix, 'reference prefixes AR, LR, IR (BreathCamp keeps BC)');
+  ok(listPrograms().slice(0, 5).map(p => p.id).join() === [ARM, LR, IR, J1, J2].join(), 'programs.js lists the weeks in date order');
+  ok(overlappingPrograms(AP).map(p => p.id).join() === LR && overlappingPrograms(LP).map(p => p.id).join() === ARM && !overlappingPrograms(IP).length && !overlappingPrograms(JP).length && !overlappingPrograms(PROG).length,
+    'overlaps: ARM ↔ the Live Residential (20–26 June); the Intuition Retreat starts the day the Live Residential ends: no overlap');
+}
+
+/* references: <prefix><YYMM>-XXXXXX, every prefix known, the team's own references kept apart */
+reset();
+{
+  r = await call(checkout, 'POST', '/api/booking/checkout', pBooking(ARM, [guest(1, 'twin-ensuite')]));
+  const aRef = r.data.ref;
+  ok(r.status === 200 && r.data.demo && /^AR2706-[A-Z0-9]{6}$/.test(aRef), `ARM booking reference ${aRef}`);
+  r = await call(checkout, 'POST', '/api/booking/checkout', pBooking(LR, [guest(1, 'twin-ensuite')]));
+  ok(r.status === 200 && /^LR2706-[A-Z0-9]{6}$/.test(r.data.ref), `Live Residential reference ${r.data.ref}`);
+  r = await call(checkout, 'POST', '/api/booking/checkout', pBooking(IR, [guest(1, 'twin-ensuite')]));
+  ok(r.status === 200 && /^IR2707-[A-Z0-9]{6}$/.test(r.data.ref), `Intuition Retreat reference ${r.data.ref}`);
+  ok(knownRef('AR2706-ABC234') && knownRef('LR2706-ABC234') && knownRef('IR2707-ABC234') && knownRef('BC2707-ABC234') && !knownRef('AR2707-ABC234') && !knownRef('XX2706-ABC234')
+    && !knownRef('MB2706-ABC234') && !knownRef('BL-ABC234') && !knownRef('UP-123456'), 'knownRef: every programme prefix + its month; manual (MB), block (BL) and Uplisting (UP) references are not bookings');
+  ok(validRef('LR2706-ABC234') && isManualRef('MB2706-ABC234') && !isManualRef('LR2706-ABC234') && programsForRef('LR2706-ABC234').map(p => p.id).join() === LR && programsForRef('BC2707-ABC234').map(p => p.id).join() === [J1, J2].join(),
+    'programsForRef: the Live Residential for LR2706, both July BreathCamps for BC2707');
+  let c0 = store.calls.length;
+  r = await call(balance, 'POST', '/api/booking/balance', { action: 'lookup', ref: 'XX2706-ABC234', email: 'a@b.co' }, LIVE);
+  ok(r.status === 404 && store.calls.length === c0, 'balance: a prefix no programme uses costs no Stripe call');
+  r = await call(balance, 'POST', '/api/booking/balance', { action: 'lookup', ref: 'LR2706-ABC234', email: 'a@b.co' }, LIVE);
+  ok(r.status === 404 && store.calls.length > c0, 'balance: an LR reference is looked up in Stripe (not found)');
+  r = await xa({ action: 'lookup', ref: 'AR2706-DEMO23', email: 'a@b.co' }, {});
+  ok(r.status === 200 && r.data.program.id === ARM && r.data.program.title === 'Alchemy Regulation Method' && r.data.program.terms_url === AP.terms_url, 'extras (demo): an AR reference finds ARM, with its terms page');
+}
+
+/* the Live Residential: 20 nights, "price 3x" */
+reset();
+{
+  r = await call(checkout, 'POST', '/api/booking/checkout', pBooking(LR, [guest(1, 'twin-ensuite')]));
+  let q = r.data.quote, sp8 = r.data.stripe_params;
+  ok(r.status === 200 && q.total_cents === 688500 && q.programme_cents === 266400 && q.accommodation_cents === 422100 && q.due_now_cents === 350820 && q.balance_cents === 337680,
+    'Live Residential quote: €2,664 programme + €4,221 twin room (3 × €1,407) for 20 nights; programme + 20% room deposit today');
+  ok(sumLines(sp8) === q.due_now_cents && sp8.line_items[0].price_data.product_data.name === 'Programme fee · Live Residential Facilitator Training, 20 Jun – 10 Jul 2027' && sp8.line_items[0].price_data.unit_amount === 266400,
+    'checkout lines name the programme and its dates');
+  ok(sp8.custom_text.submit.message.startsWith('Today €3,508.20 (programme fee + 20% room deposit). Then €3,376.80 before you arrive on 20 June.')
+    && /unless we cancel Live Residential Facilitator Training; see the Live Residential Facilitator Training terms\./.test(sp8.custom_text.submit.message), 'the schedule and policy line name the programme');
+  ok(sp8.payment_intent_data.statement_descriptor_suffix === 'LIVE RESIDENTIAL FACIL' && sp8.metadata.aob_program === LR, 'statement descriptor from the title (22 characters)');
+  r = await call(checkout, 'POST', '/api/booking/checkout', pBooking(LR, [guest(1, 'cottage-two'), guest(2, 'cottage-two')], 'full'));
+  ok(r.status === 200 && r.data.quote.total_cents === (2 * 2664 + 15672) * 100 && r.data.quote.due_now_cents === r.data.quote.total_cents, 'the cottage for two: 2 × €2,664 + €15,672 (3 × €5,224), paid in full');
+  r = await call(checkout, 'POST', '/api/booking/checkout', pBooking(ARM, [guest(1, 'twin-ensuite')], 'plan'));
+  ok(r.status === 200 && r.data.quote.plan.installments === 3 && /^3 monthly payments/.test(r.data.stripe_params.subscription_data.description.split(' · ')[2] || ''), 'ARM: the monthly plan is on offer (all payments before 19 June 2027)');
+}
+
+/* rooms are shared: one twin room (1B) in both programmes */
+reset();
+{
+  const restore = oneTwin();
+  r = await call(checkout, 'POST', '/api/booking/checkout', pBooking(ARM, [guest(1, 'twin-ensuite')]), LIVE);
+  ok(r.status === 200, 'ARM: a woman books the twin room');
+  complete(r.data.session_id);
+  r = await availP(LR);
+  let tw = r.data.rooms['twin-ensuite'];
+  ok(r.status === 200 && tw.left.female === 1 && tw.left.male === 0 && tw.taken_other === 1 && tw.empty_units === 0 && r.data.program_left === 49,
+    'Live Residential: the ARM woman takes a bed of its twin room (one left, for a woman); its programme places are its own (49)');
+  r = await call(checkout, 'POST', '/api/booking/checkout', pBooking(LR, [man(2, 'twin-ensuite')]), LIVE);
+  ok(r.status === 409 && r.data.code === 'unavailable' && r.data.error === 'Twin Room Ensuite has no places left for men.', 'Live Residential: a man can\'t share the room with the ARM woman');
+  r = await call(checkout, 'POST', '/api/booking/checkout', pBooking(LR, [guest(3, 'twin-ensuite')]), LIVE);
+  ok(r.status === 200, 'Live Residential: a woman takes the last bed (an open checkout)');
+  const lrCs = r.data.session_id, lrExp = r.data.expires_at;
+  r = await availP(ARM);
+  tw = r.data.rooms['twin-ensuite'];
+  ok(tw.sold_out && tw.held === 1 && tw.next_release_at === lrExp && tw.left_if_released.female === 1 && r.data.program_left === 48, 'ARM: the Live Residential checkout holds the last bed (sold out, back if released); ARM\'s places count only its own guest');
+  r = await call(checkout, 'POST', '/api/booking/checkout', pBooking(ARM, [guest(4, 'twin-ensuite')]), LIVE);
+  ok(r.status === 409 && /Twin Room Ensuite is sold out/.test(r.data.error), 'ARM: a hold of the overlapping programme blocks the checkout');
+  complete(lrCs);
+  r = await availP(ARM);
+  ok(r.data.rooms['twin-ensuite'].sold_out && r.data.rooms['twin-ensuite'].held === 0 && r.data.rooms['twin-ensuite'].taken_other === 1, 'the Live Residential guest has the last unit: ARM sold out');
+  r = await availP(LR);
+  ok(r.data.rooms['twin-ensuite'].sold_out && r.data.program_left === 48 && r.data.rooms['twin-ensuite'].taken === 2 && r.data.rooms['twin-ensuite'].taken_other === 1, 'and the Live Residential too (1 own + 1 ARM)');
+  // the weeks that don't overlap are untouched
+  r = await availP(J1);
+  ok(r.data.rooms['twin-ensuite'].left.female === 10 && r.data.rooms['twin-ensuite'].empty_units === 5 && !('taken_other' in r.data.rooms['twin-ensuite']) && r.data.program_left === 49, 'BreathCamp 1 (no overlap): untouched, no taken_other');
+  r = await availP(IR);
+  ok(r.data.rooms['twin-ensuite'].empty_units === 5 && !('taken_other' in r.data.rooms['twin-ensuite']), 'the Intuition Retreat (starts the day the Live Residential ends): untouched');
+  // the admin week
+  r = await call(admin, 'GET', `/api/booking/admin?program=${ARM}`, null, LIVE, AUTH);
+  ok(r.status === 200 && r.data.overlaps.length === 1 && r.data.overlaps[0].id === LR && r.data.overlaps[0].edition === 'Live Residential' && r.data.overlaps[0].dates.end === '2027-07-10'
+    && r.data.program_detail.overlaps[0].id === LR && r.data.program_detail.ref_prefix === 'AR' && r.data.bookings.length === 1 && r.data.availability.rooms['twin-ensuite'].sold_out && r.data.totals.guests === 1,
+    'admin week (ARM): overlaps the Live Residential; its own bookings only; availability counts the other programme');
+  r = await call(admin, 'GET', `/api/booking/admin?program=${J1}`, null, LIVE, AUTH);
+  ok(r.status === 200 && Array.isArray(r.data.overlaps) && r.data.overlaps.length === 0, 'admin week (BreathCamp 1): no overlaps');
+  // a restore and a booking link are checked across programmes too
+  r = await adm({ action: 'create_link', program: ARM, payment: 'deposit', programme: 'included', whatsapp: '+447700900123', guests: [guest(5, 'twin-ensuite')] });
+  ok(r.status === 409 && r.data.code === 'unavailable', 'admin booking link: the room taken by the other programme is sold out');
+  restore();
+}
+
+/* the oversell guard after creating a checkout: an earlier hold of the overlapping programme wins */
+reset();
+{
+  const rivalLR = (created, room) => {
+    const id = 'cs_test_rival' + pad(++store.seq) + 'abcdef';
+    store.sessions.set(id, { id, status: 'open', payment_status: 'unpaid', mode: 'payment', created, expires_at: created + 1860, amount_total: 1, currency: 'eur',
+      metadata: { aob_kind: 'booking', aob_program: LR, aob_ref: 'LR2706-RIVAL1', aob_lead_email: 'rival@example.com', aob_g1: `Rival Guest | rival@example.com | Female | ${room}`, aob_rooms: `${room}:1`, aob_guests: '1' } });
+    return id;
+  };
+  store.onCreate = x => { store.onCreate = null; rivalLR(x.created - 1, 'cottage-one'); };
+  r = await call(checkout, 'POST', '/api/booking/checkout', pBooking(ARM, [guest(1, 'cottage-one')]), LIVE);
+  const mine8 = [...store.sessions.values()].find(x => x.metadata.aob_lead_email === 't1@example.com');
+  ok(r.status === 409 && r.data.code === 'unavailable' && mine8.status === 'expired' && r.data.availability.rooms['cottage-one'].sold_out, 'race: an earlier Live Residential hold for the only cottage for one wins; the ARM checkout is expired');
+  reset();
+  store.onCreate = x => { store.onCreate = null; rivalLR(x.created + 1, 'cottage-one'); };
+  r = await call(checkout, 'POST', '/api/booking/checkout', pBooking(ARM, [guest(1, 'cottage-one')]), LIVE);
+  ok(r.status === 200, 'race: a later Live Residential hold doesn\'t take it from ARM');
+  // a visitor's open checkout of ARM is never replaced by their checkout of the Live Residential (one hold per week)
+  reset();
+  r = await call(checkout, 'POST', '/api/booking/checkout', pBooking(ARM, [guest(1, 'camper')]), LIVE, ip(81));
+  const armCs = r.data.session_id;
+  r = await call(checkout, 'POST', '/api/booking/checkout', pBooking(LR, [guest(1, 'camper')]), LIVE, ip(81));
+  ok(r.status === 200 && store.sessions.get(armCs).status === 'open', 'the same guest\'s ARM checkout stays open when they start a Live Residential one');
+}
+
+/* physical rooms: auto-place, assign warnings, the rooming map, conflicts, the push to Uplisting */
+reset(); store.idem.clear(); upFixtures7();
+{
+  r = await upAdm({ action: 'uplisting_map', mapping: MAP7 });
+  await pushOn();
+  const paid8 = async (prog, guests) => {
+    const c = await call(checkout, 'POST', '/api/booking/checkout', pBooking(prog, guests), UPL);
+    const pi = complete(c.data.session_id);
+    const w = await kCalls(() => hook(sessionEvent('checkout.session.completed', c.data.session_id), UPL));
+    return { ref: c.data.ref, cs: c.data.session_id, pi, hook: w };
+  };
+  const assign8 = pi => store.pis.get(pi).metadata.aob_assign || '';
+  const L = await paid8(LR, [guest(1, 'twin-ensuite', { first: 'Ana', last: 'Kos' })]);
+  ok(assign8(L.pi) === `0=${RN.b1}` && ledgerOf(L7.b1) === '20270620+20' && ledgerOf(L7.full) === '20270620+20', `Live Residential woman placed in 1B, closed in Uplisting for her 20 nights (${ledgerOf(L7.b1)})`);
+  clearAvailabilityMemo(); forgetUplisting(); forgetWrites(); forgetTeam(); // a cold isolate for the measurement below
+  const A = await paid8(ARM, [guest(2, 'twin-ensuite', { first: 'Bea' }), man(3, 'twin-ensuite', { first: 'Cal' })]);
+  ok(assign8(A.pi) === `0=${RN.b1}|1=${RN.a2}`, `auto-place: the ARM woman joins the Live Residential woman in 1B, the ARM man goes to an empty room, never 1B (${assign8(A.pi)})`);
+  ok(ledgerOf(L7.b1) === '20270620+20' && ledgerOf(L7.a2) === '20270620+6', 'the push: 1B stays closed for the union of both stays (20 nights), 2A for the ARM week');
+  ok(A.hook.total <= 45, `webhook of an overlapping programme (auto-place + push): ${A.hook.total} subrequests (Stripe ${A.hook.stripe}, Uplisting ${A.hook.upl})`);
+  // the rooming map: the other programme's guests are read-only occupants
+  r = await call(admin, 'GET', `/api/booking/admin?program=${ARM}`, null, UPL, AUTH);
+  let b1 = r.data.rooming[RN.b1];
+  const ana = b1.guests.find(g => g.other);
+  ok(b1.guests.length === 2 && b1.conflict === null && ana && ana.ref === L.ref && ana.name === 'Ana Kos' && ana.gender === 'Female' && ana.program === LR && ana.edition === 'Live Residential'
+    && ana.from === '2027-06-20' && ana.to === '2027-06-26' && r.data.rooming[RN.a2].guests.length === 1 && !r.data.rooming[RN.a2].guests[0].other, 'ARM rooming: the Live Residential woman in 1B (other: true, her nights within ARM\'s week)');
+  r = await call(admin, 'GET', `/api/booking/admin?program=${LR}`, null, UPL, AUTH);
+  ok(r.data.rooming[RN.b1].guests.filter(g => g.other && g.program === ARM).length === 1 && r.data.rooming[RN.a2].guests[0].other && r.data.rooming[RN.a2].guests[0].from === '2027-06-20' && r.data.rooming[RN.a2].guests[0].to === '2027-06-26'
+    && r.data.unassigned.length === 0, 'Live Residential rooming: ARM\'s guests in 1B and 2A for 20–26 June');
+  // the team moves the ARM man into 1B: a warning names the other programme
+  r = await upAdm({ action: 'assign', ref: A.ref, assign: { 1: RN.b1 } });
+  ok(r.status === 200 && r.data.warnings.length === 1 && r.data.warnings[0].startsWith(`${RN.b1}: women and men are in the same room (with Live Residential: Ana Kos, 20–26 Jun 2027)`),
+    `assign: a cross-programme clash is a warning (${r.data.warnings[0]})`);
+  r = await call(admin, 'GET', `/api/booking/admin?program=${LR}`, null, UPL, AUTH);
+  ok(r.data.rooming[RN.b1].conflict === 'mixed', 'the Live Residential rooming shows the clash too');
+  r = await upAdm({ action: 'assign', ref: A.ref, assign: { 1: RN.a2 } });
+  ok(r.status === 200 && r.data.warnings.length === 0 && ledgerOf(L7.a2) === '20270620+6', 'moved back to 2A: no warning');
+  // a block over 1B in ARM's week names both programmes' guests; a block only in the Live Residential's later nights doesn't name ARM
+  r = await upAdm({ action: 'block_create', rooms: [RN.b1], from: '2027-06-22', to: '2027-06-23', reason: 'maintenance' });
+  ok(r.status === 409 && r.data.conflicts.some(c => c.startsWith(`${RN.b1}: Ana Kos (${L.ref}, Live Residential)`)) && r.data.conflicts.some(c => c.includes(`(${A.ref}, ARM Coach Certification)`)), 'block over 1B in ARM\'s week: both programmes\' guests named');
+  r = await upAdm({ action: 'block_create', rooms: [RN.b1], from: '2027-07-01', to: '2027-07-02', reason: 'maintenance' });
+  ok(r.status === 409 && r.data.conflicts.length === 1 && r.data.conflicts[0].startsWith(`${RN.b1}: Ana Kos (${L.ref}, Live Residential) is there 1–2 Jul 2027`), 'block over 1B on 1 July: only the Live Residential guest');
+  // the calendar: each guest with their own programme's nights
+  r = await call(admin, 'GET', '/api/booking/admin?calendar=1&from=2027-06-15&to=2027-07-15', null, UPL, AUTH);
+  const in1B = r.data.stays.filter(s => s.room_name === RN.b1);
+  ok(in1B.length === 2 && in1B.some(s => s.program === LR && s.from === '2027-06-20' && s.to === '2027-07-10') && in1B.some(s => s.program === ARM && s.from === '2027-06-20' && s.to === '2027-06-26')
+    && r.data.programs.slice(0, 3).map(p => p.edition).join() === 'ARM Coach Certification,Live Residential,Intuition Retreat', 'calendar: both stays in 1B with their own dates; the programmes in date order');
+  // the Live Residential booking is cancelled: 1B reopens after ARM's week, ARM's woman keeps 20–26 June closed
+  r = await upAdm({ action: 'cancel', ref: L.ref });
+  ok(r.status === 200 && ledgerOf(L7.b1) === '20270620+6' && ledgerOf(L7.full) === '20270620+6', `cancel: 1B reopened from 26 June, still closed for ARM (${ledgerOf(L7.b1)})`);
+  r = await call(admin, 'GET', `/api/booking/admin?program=${ARM}`, null, UPL, AUTH);
+  ok(!r.data.rooming[RN.b1].guests.some(g => g.other) && r.data.availability.rooms['twin-ensuite'].taken_other === 0, 'ARM: the cancelled Live Residential guest no longer counts');
+}
+
+/* demo bookings respect the overlap: ARM and the Live Residential are never filled past the rooms they share */
+reset();
+{
+  for (let i = 0; i < 3; i++) {
+    r = await call(admin, 'POST', '/api/booking/admin', { action: 'seed_demo', program: i % 2 ? LR : ARM, percent: 90 }, LIVE, AUTH);
+    ok(r.status === 200, `seed_demo ${i % 2 ? 'Live Residential' : 'ARM'} (${r.data.created} bookings, ${r.data.guests} guests)`);
+    tick(5);
+  }
+  r = await call(admin, 'POST', '/api/booking/admin', { action: 'seed_demo', program: LR, percent: 90 }, LIVE, AUTH);
+  const pays8 = [...store.pis.values()].filter(pi => pi.status === 'succeeded').map(pi => ({ id: pi.id, md: pi.metadata }));
+  const both = pays8.filter(p => p.md.aob_kind === 'booking' && (p.md.aob_program === ARM || p.md.aob_program === LR));
+  const over = overbooked(AP, buildOccupancy(AP, pays8, [], [], []));
+  ok(both.some(p => p.md.aob_program === ARM) && both.some(p => p.md.aob_program === LR) && !Object.keys(over.rooms).length && over.programme === 0,
+    `demo bookings in both programmes, no room type over its rooms (${both.length} bookings)`);
+  for (const id of [ARM, LR]) {
+    r = await call(admin, 'GET', `/api/booking/admin?program=${id}`, null, LIVE, AUTH);
+    ok(Object.values(r.data.rooming).every(x => !x.conflict), `${id}: every placed guest (both programmes) fits its room's rules`);
+  }
+}
+
+/* subrequests of an overlapping programme (Cloudflare free plan: 50 per invocation) */
+reset();
+{
+  r = await call(checkout, 'POST', '/api/booking/checkout', pBooking(LR, [guest(1, 'twin-ensuite')], 'plan'), LIVE); complete(r.data.session_id);
+  r = await call(checkout, 'POST', '/api/booking/checkout', pBooking(ARM, [guest(2, 'twin-ensuite')], 'plan'), LIVE); complete(r.data.session_id);
+  clearAvailabilityMemo();
+  let k = await callsOf(() => call(avail, 'GET', `/api/booking/availability?program=${ARM}`, null, LIVE));
+  const nAvail = k.calls.length;
+  ok(k.res.status === 200 && nAvail === 6 && store.searches.slice(-1)[0].includes(' OR '), `availability (ARM): ${nAvail} Stripe calls, the same as a week alone (one OR'ed search for both programmes)`);
+  k = await callsOf(() => call(avail, 'GET', `/api/booking/availability?program=${LR}`, null, LIVE));
+  ok(k.res.status === 200 && k.calls.length === 0, 'availability (Live Residential) within 15 s: served by the same read');
+  k = await callsOf(() => call(checkout, 'POST', '/api/booking/checkout', pBooking(ARM, [guest(3, 'twin-ensuite')]), LIVE));
+  const nCheckout = k.calls.length;
+  ok(k.res.status === 200 && nCheckout <= 45, `checkout (ARM): ${nCheckout} Stripe calls`);
+  clearAvailabilityMemo();
+  k = await callsOf(() => call(admin, 'GET', `/api/booking/admin?program=${ARM}`, null, LIVE, AUTH));
+  const nWeek = k.calls.length, invoiceLists = k.calls.filter(c => c.method === 'GET' && c.path === '/invoices').length;
+  ok(k.res.status === 200 && nWeek <= 45 && invoiceLists === 2, `admin week (ARM): ${nWeek} Stripe calls (invoice lists: the offline real-time list + ARM's one plan; the Live Residential plan isn't totalled)`);
+  k = await callsOf(() => call(admin, 'GET', '/api/booking/admin?overview=1', null, LIVE, AUTH));
+  ok(k.res.status === 200 && k.calls.length <= 45 && k.res.data.weeks.find(w => w.program.id === ARM).places.left === 47, `overview: ${k.calls.length} Stripe calls (every week in one search)`);
+}
+
+/* the pages */
+{
+  const hub = readFileSync(new URL('../../book/index.html', import.meta.url), 'utf8');
+  const hd = JSON.parse(hub.match(/<script type="application\/json" id="programsData">([\s\S]*?)<\/script>/)[1]);
+  ok(hd.weeks.map(w => w.id).join() === [ARM, LR, IR, J1, J2].join() && hd.weeks[1].programme_fee === 2664 && hd.weeks[1].about_url === LP.about_url && hd.weeks[0].summary && hd.weeks[3].title === 'BreathCamp',
+    'hub: every programme in date order, with its fee, about page and summary');
+  ok(/<title>Book your programme at ASHA \| Alchemy of Breath<\/title>/.test(hub) && /Alchemy Regulation Method, Live Residential Facilitator Training, Intuition Retreat or BreathCamp/.test(hub), 'hub: title and description name the programmes');
+  const lrPage = readFileSync(new URL('../../book/live-residential-2027/index.html', import.meta.url), 'utf8');
+  const lpd = JSON.parse(lrPage.match(/<script type="application\/json" id="programData">([\s\S]*?)<\/script>/)[1]);
+  ok(lpd.id === LR && lpd.ref_prefix === 'LR' && lpd.dates.nights === 20 && /<title>Book Live Residential · 20 June – 10 July 2027 \| Alchemy of Breath<\/title>/.test(lrPage)
+    && lrPage.includes('id="heroEyebrow">Live Residential · ASHA, Tuscany</p>') && lrPage.includes(`About Live Residential Facilitator Training <span`), 'Live Residential page: its data, head and header');
+  const j1Page = readFileSync(new URL('../../book/breathcamp-jul-2027-1/index.html', import.meta.url), 'utf8');
+  ok(j1Page.includes('id="heroEyebrow">BreathCamp 1 · ASHA, Tuscany</p>') && j1Page.includes('About BreathCamp <span') && !/"ref_prefix"/.test(j1Page.match(/id="programData">([\s\S]*?)<\/script>/)[1]),
+    'BreathCamp page: as before');
 }
 
 /* nothing personal in the logs */

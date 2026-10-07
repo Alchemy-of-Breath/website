@@ -43,7 +43,7 @@ export async function onRequestPost({ request, env }) {
     const info = {
       ref, total_cents: booking.total_cents, paid_cents: booking.paid_cents, balance_cents: booking.balance_cents,
       balance_due: (program.deposit && program.deposit.balance_due) || null, currency: program.currency,
-      program: { id: program.id, title: program.title, edition: program.edition, dates: program.dates },
+      program: { id: program.id, title: program.title, edition: program.edition, dates: program.dates, terms_url: program.terms_url || null },
     };
     if (booking.pending) return send({ ...info, error: 'Your first payment is still being processed. Please check back once it has cleared.', code: 'processing' }, 409);
     if (booking.balance_cents <= 0) return send({ paid_in_full: true, ...info });

@@ -5,9 +5,11 @@
    out of every booking search (PaymentIntents can't be deleted). Refused with a live key.
    The team's records count like everywhere else: blocked rooms and manual bookings take their places
    out of the availability, and demo guests are never placed in a blocked room or beside a manual
-   booking's guests where that breaks the room's rules. */
+   booking's guests where that breaks the room's rules. So do the programs overlapping the week (they share
+   its rooms): their bookings and holds take rooms (ARM and the Live Residential are never filled past the
+   rooms they share), and their placed guests' rooms are taken. */
 import {
-  quote, checkAvailability, availability, buildOccupancy, programPayments, openBookingSessions,
+  quote, checkAvailability, availability, buildOccupancy, groupPayments, groupSessions, overlappingPrograms,
   bookingMetadata, newRef, stripe, searchAll, clearAvailabilityMemo, liveMode, serviceItems, logError,
   parseAssign, assignToString, listRecords, physicalRooms as physicalRoomsOf, placeGuests,
 } from './core.js';
@@ -29,19 +31,23 @@ function rng(seed) { // small deterministic PRNG, seeded per request
    auto-place of paid bookings): one gender per shared room, never more guests than a room sleeps, the cottage
    for two only for the guests of one booking, never a blocked room ---- */
 const guestsOf = md => { const out = []; for (let i = 1; i <= 12; i++) { const v = md[`aob_g${i}`]; if (!v) continue; const p = v.split(' | '); out.push({ i: i - 1, gender: p[2], room: p[3] }); } return out; };
-// physical rooms of the week and what is already in them, from every active booking's aob_assign
-// and the team's records overlapping the week (a blocked room is full; manual guests are in theirs)
+// physical rooms of the week and what is already in them, from every active booking's aob_assign (this week's,
+// and the overlapping weeks': their guests occupy their rooms too) and the team's records overlapping the week
+// (a blocked room is full; manual guests are in theirs)
 function physicalRooms(program, mds, records = []) {
-  const bookings = mds.filter(md => md.aob_kind === 'booking' && md.aob_status !== 'cancelled' && md.aob_program === program.id)
-    .map(md => { const guests = []; guestsOf(md).forEach(g => { guests[g.i] = { gender: g.gender }; }); return { ref: md.aob_ref, status: 'active', guests, assign: parseAssign(md.aob_assign) }; });
-  return physicalRoomsOf(program, bookings, records);
+  const asBooking = md => { const guests = []; guestsOf(md).forEach(g => { guests[g.i] = { gender: g.gender }; }); return { ref: md.aob_ref, status: 'active', guests, assign: parseAssign(md.aob_assign) }; };
+  const live = md => md.aob_kind === 'booking' && md.aob_status !== 'cancelled';
+  const bookings = mds.filter(md => live(md) && md.aob_program === program.id).map(asBooking);
+  const others = overlappingPrograms(program).map(q => ({ program: q, bookings: mds.filter(md => live(md) && md.aob_program === q.id).map(asBooking) }));
+  return physicalRoomsOf(program, bookings, records, others);
 }
 export { placeGuests };
 
 export async function seedDemo(env, program, { percent = 40, now = new Date() } = {}) {
   if (liveMode(env)) { const e = new Error('Demo bookings can only be added in Stripe test mode.'); e.status = 403; throw e; }
   const rnd = rng(program.id + ':' + now.getTime());
-  const [pays, sessions, recs] = await Promise.all([programPayments(env, program), openBookingSessions(env, program), listRecords(env, { recent: true })]);
+  // the overlapping weeks' bookings and holds come with the same reads (they take rooms, not programme places)
+  const [pays, sessions, recs] = await Promise.all([groupPayments(env, program), groupSessions(env, program), listRecords(env, { recent: true })]);
   const records = pays.slice();
   let avail = availability(program, buildOccupancy(program, records, sessions, [], recs));
   const phys = physicalRooms(program, records.map(p => p.md || {}), recs);
@@ -120,12 +126,13 @@ export async function seedDemo(env, program, { percent = 40, now = new Date() } 
 export async function placeDemo(env, program, { now = new Date() } = {}) {
   if (liveMode(env)) { const e = new Error('Demo bookings only exist in Stripe test mode.'); e.status = 403; throw e; }
   const rnd = rng(program.id + ':place:' + now.getTime());
-  const [pays, recs] = await Promise.all([programPayments(env, program), listRecords(env, { recent: true })]);
+  const [pays, recs] = await Promise.all([groupPayments(env, program), listRecords(env, { recent: true })]);
   const mds = pays.map(p => p.md || {});
   const phys = physicalRooms(program, mds, recs);
   let placed = 0, guests = 0, unplaced = 0;
   for (const p of pays) {
     const md = p.md || {};
+    if (md.aob_program !== program.id) continue; // an overlapping week's booking: counted above, never changed here
     if (md.aob_demo !== '1' || md.aob_kind !== 'booking' || md.aob_status === 'cancelled' || p.sub || placed >= 40) continue;
     const hasNames = id => { const r = program.rooms.find(x => x.id === id); return !!(r && (r.names || []).length); };
     const have = parseAssign(md.aob_assign), gs = guestsOf(md).filter(g => !have[g.i] && hasNames(g.room));   // tent pitches have no names

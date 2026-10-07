@@ -547,20 +547,23 @@ export function fits(a, f, m) {
    Adds per room `held` (places in open checkouts) and `next_release_at` (earliest hold expiry).
    records: the team's blocks and manual bookings overlapping the week, applied to a copy of the
    program first (programWithRecords): fewer rooms, beds already taken, fewer programme places. */
+const addCounts = (...cs) => cs.reduce((s, c) => (c ? { female: s.female + (c.female || 0), male: s.male + (c.male || 0), other: s.other + (c.other || 0), units: s.units + (c.units || 0) } : s),
+  { female: 0, male: 0, other: 0, units: 0 });
+const people = c => c.female + c.male + c.other;
 export function availability(program, occ) {
   if (occ && occ.records && occ.records.length) return availability(programWithRecords(program, occ.records), { ...occ, records: null });
   const booked = (occ && occ.booked) || {}, holds = (occ && occ.holds) || {}, release = (occ && occ.release) || {};
-  const sum = id => {
-    const a = booked[id] || {}, h = holds[id] || {};
-    return { female: (a.female || 0) + (h.female || 0), male: (a.male || 0) + (h.male || 0), other: (a.other || 0) + (h.other || 0), units: (a.units || 0) + (h.units || 0) };
-  };
+  // the overlapping programs' guests and holds (buildOccupancy's `other`): they take rooms, not programme places
+  const other = (occ && occ.other) || {}, ob = other.booked || {}, oh = other.holds || {};
+  const shared = !!(other.programs && other.programs.length) || overlappingPrograms(program).length > 0;
   const t = {}; let used = 0;
-  for (const r of program.rooms) { t[r.id] = sum(r.id); used += t[r.id].female + t[r.id].male + t[r.id].other; }
+  for (const r of program.rooms) { const own = addCounts(booked[r.id], holds[r.id]); used += people(own); t[r.id] = addCounts(own, ob[r.id], oh[r.id]); }
   const program_left = Math.max(0, program.program_spaces - used);
   const rooms = {};
   for (const r of program.rooms) {
-    const x = t[r.id], taken = x.female + x.male + x.other, capacity = roomCapacity(r), h = holds[r.id] || {};
-    const extra = { held: (h.female || 0) + (h.male || 0) + (h.other || 0), next_release_at: release[r.id] || null };
+    const x = t[r.id], taken = x.female + x.male + x.other, capacity = roomCapacity(r), h = addCounts(holds[r.id], oh[r.id]);
+    const extra = { held: people(h), next_release_at: release[r.id] || null };
+    if (shared) extra.taken_other = people(addCounts(ob[r.id], oh[r.id])); // places the overlapping programs take here
     if (isShared(r)) {
       const st = sharedState(r, x);
       const lf = Math.min(program_left, st.partial.female + st.empty_units * st.beds);
@@ -582,7 +585,7 @@ export function availability(program, occ) {
   // room's packing (empty rooms, partly filled rooms) so the page can run fits() on it: a mixed
   // group may need two empty rooms even when both genders have places on paper.
   const anyHeld = Object.values(rooms).some(x => x.held > 0);
-  const base = anyHeld ? availability(program, { booked }) : null;
+  const base = anyHeld ? availability(program, { booked, other: { booked: ob, holds: {}, programs: other.programs || [] } }) : null;
   for (const id of Object.keys(rooms)) {
     const b = base ? base.rooms[id] : rooms[id];
     rooms[id].left_if_released = b.left;
@@ -752,7 +755,13 @@ export function parseBooking(md = {}, program = getProgram(md.aob_program)) {
   };
 }
 
-const refPrefix = program => 'BC' + program.dates.start.replace(/-/g, '').slice(2, 6); // BC + YYMM
+/* A booking reference: the program's ref_prefix (two capital letters, default 'BC'; ARM 'AR', the Live
+   Residential 'LR', the Intuition Retreat 'IR') + YYMM of its start, '-', six letters/digits. The team's own
+   references stay apart: manual bookings MBYYMM-…, blocks BL-…, Uplisting UP-… / UC-… (build.py refuses those
+   prefixes for a program). */
+export const REF_PREFIX_DEFAULT = 'BC', RESERVED_REF_PREFIXES = ['MB', 'BL', 'UP', 'UC'];
+export const programRefPrefix = program => (typeof program.ref_prefix === 'string' && /^[A-Z]{2}$/.test(program.ref_prefix) ? program.ref_prefix : REF_PREFIX_DEFAULT);
+const refPrefix = program => programRefPrefix(program) + program.dates.start.replace(/-/g, '').slice(2, 6); // e.g. BC + YYMM
 export function newRef(program) {
   const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789', b = new Uint8Array(6);
   crypto.getRandomValues(b);
@@ -978,7 +987,8 @@ const RECENT_PAY_SEC = 40 * 60;  // safety net for Stripe's search lag, by PAYME
 const OPEN_HOLD_SEC = 35 * 60;   // guests' checkouts expire 31 minutes after creation…
 const LINK_HOLD_SEC = 24 * 3600 + 600; // …admin booking links after up to 24 hours (they hold their places too)
 
-/* Rows in order; a later row for the same id wins (lists are real time, search lags). */
+/* Rows in order; a later row for the same id wins (lists are real time, search lags). amounts: true (every
+   plan's paid invoices are read), or a test on the plan's metadata (only those plans: one call each). */
 async function toRecords(env, match, pis, subs, amounts) {
   const byId = new Map(), overlays = new Map();
   for (const pi of pis) {
@@ -994,7 +1004,8 @@ async function toRecords(env, match, pis, subs, amounts) {
     if (LIVE_SUB(sub)) live.set(sub.id, sub); else live.delete(sub.id);
   }
   const list = [...live.values()];
-  const paid = amounts ? await mapLimit(list, 4, s => paidOnSub(env, s.id).catch(() => null)) : [];
+  const want = typeof amounts === 'function' ? sub => !!amounts(sub.metadata || {}) : () => !!amounts;
+  const paid = amounts ? await mapLimit(list, 4, s => (want(s) ? paidOnSub(env, s.id).catch(() => null) : null)) : [];
   list.forEach((sub, i) => {
     // an ended plan's overlay: paidOnSub's fresh read when there is one, else what search found
     const p = amounts ? paid[i] : null, fresh = p && p.first_pi && p.first_pi.metadata;
@@ -1034,11 +1045,34 @@ export async function programPayments(env, program, { amounts = false, recent, o
   const [p, off] = await Promise.all([pays, Array.isArray(offline) ? offline : listOffline(env, { program: program.id, recent: true })]);
   return [...p, ...off.filter(o => o.md.aob_program === program.id)];
 }
-/* Only the real-time part (for the post-create race check). */
-export async function recentProgramPayments(env, program) {
+/* Only the real-time part (for the post-create race check). programs: the weeks to keep (default: this one). */
+export async function recentProgramPayments(env, program, programs = [program]) {
+  const ids = new Set(programs.map(p => p.id));
   const r = await recentRaw(env);
-  return toRecords(env, md => md.aob_program === program.id, r.pis, r.subs, false);
+  return toRecords(env, md => ids.has(md.aob_program), r.pis, r.subs, false);
 }
+/* The payments of several programs with ONE PaymentIntent search and ONE subscription search (Stripe's search
+   takes up to 10 clauses joined by OR; bigger sets are split, 10 at a time) and one read of the real-time lists.
+   amounts: as in programPayments, true, or a test on the plan's metadata (e.g. only one program's plans).
+   offline: the offline payments already read (every one; this set's are kept). A single program: exactly
+   programPayments (same query). */
+const SEARCH_OR_MAX = 10;
+export async function programsPayments(env, programs, { amounts = false, recent, offline } = {}) {
+  const list = (programs || []).filter(Boolean);
+  if (!list.length) return [];
+  if (list.length === 1) return programPayments(env, list[0], { amounts, recent, offline });
+  const ids = new Set(list.map(p => p.id)), rec = recent || recentRaw(env);
+  if (!recent) rec.catch(() => {});
+  const chunks = [];
+  for (let i = 0; i < list.length; i += SEARCH_OR_MAX) chunks.push(list.slice(i, i + SEARCH_OR_MAX));
+  const query = ch => ch.map(p => `metadata['aob_program']:'${p.id}'`).join(' OR ');
+  const rows = await Promise.all(chunks.map(ch => Promise.all([searchAll(env, query(ch), 2000, 'payment_intents', EXPAND_CHARGE), searchAll(env, query(ch), 2000, 'subscriptions')])));
+  const r = await rec;
+  const pays = await toRecords(env, md => ids.has(md.aob_program), [...rows.flatMap(x => x[0]), ...r.pis], [...rows.flatMap(x => x[1]), ...r.subs], amounts);
+  return Array.isArray(offline) ? [...pays, ...offline.filter(o => ids.has(o.md.aob_program))] : pays;
+}
+/* A program's own rows out of a set read for several programs. */
+export const paysOf = (pays, programId) => (pays || []).filter(p => (p.md || {}).aob_program === programId);
 export function mergePayments(...lists) {
   const m = new Map();
   for (const l of lists) for (const p of l || []) m.set(p.id, p);
@@ -1081,8 +1115,36 @@ export function planDates(anchorSec, n) {
   return Array.from({ length: n }, (_, k) => Math.floor(addMonths(a, k).getTime() / 1000));
 }
 
-/* ------------------------------------------------------------- occupancy */
+/* ------------------------------------------------------------- occupancy
+   The rooms are physical and shared by every program: two programs overlap when their nights [start, end)
+   intersect (ARM 20–26 June inside the Live Residential's 20 June – 10 July). A program's room availability
+   counts the paid bookings and open checkouts of every overlapping program too (room types matched by id;
+   a type the other program doesn't have is ignored), as if they were its own; its programme places
+   (program_spaces) stay its own. Physical rooms: a guest of another program placed in a room occupies it
+   for that program's nights. */
+export const overlappingPrograms = (program, programs = listPrograms()) =>
+  programs.filter(q => q && q.id !== program.id && q.dates && overlaps(weekRange(q), weekRange(program)))
+    .sort((a, b) => (a.dates.start < b.dates.start ? -1 : a.dates.start > b.dates.start ? 1 : a.dates.end < b.dates.end ? -1 : a.dates.end > b.dates.end ? 1 : 0));
+/* The program and the ones overlapping it (what its availability is read from). */
+export const occupancyGroup = program => [program, ...overlappingPrograms(program)];
+/* What the team sees of an overlapping program: { id, title, edition, dates } */
+export const overlapOut = q => ({ id: q.id, title: q.title, edition: q.edition || q.title, dates: q.dates });
 const isBookingHold = (s, program) => !!s && s.status === 'open' && (s.metadata || {}).aob_kind === 'booking' && (s.metadata || {}).aob_program === program.id;
+/* An open booking checkout of any of these programs (ids: a Set) */
+const isHoldOf = (s, ids) => !!s && s.status === 'open' && (s.metadata || {}).aob_kind === 'booking' && ids.has((s.metadata || {}).aob_program);
+/* The open booking checkouts of the program and the programs overlapping it. rows: openSessionsRaw() already read. */
+export async function groupSessions(env, program, rows) {
+  const ids = new Set(occupancyGroup(program).map(p => p.id));
+  return (rows || await openSessionsRaw(env)).filter(s => isHoldOf(s, ids));
+}
+/* The payments of the program and of the programs overlapping it (one search for them all; a program with
+   no overlap: exactly programPayments). amounts: only this program's plans are totalled. */
+export function groupPayments(env, program, { amounts = false, recent, offline } = {}) {
+  const others = overlappingPrograms(program);
+  if (!others.length) return programPayments(env, program, { amounts, recent, offline });
+  return programsPayments(env, [program, ...others], { amounts: amounts ? (md => md.aob_program === program.id) : false, recent,
+    offline: Array.isArray(offline) ? offline : undefined });
+}
 /* Every open Checkout Session created in the last 24 hours (+10 min), all pages. Only status=open
    rows come back, so the longer window costs little: guests' checkouts are gone after 31 minutes. */
 export const openSessionsRaw = env => listAll(env, '/checkout/sessions', { status: 'open', 'created[gte]': nowSec() - LINK_HOLD_SEC });
@@ -1121,22 +1183,33 @@ function addGuests(into, md, program) {
 }
 /* booked (paid, not cancelled) + holds (open checkouts, minus `exclude`d session ids) + per-room
    earliest hold expiry + the team's records (blocks, manual bookings) that overlap the week. Pure:
-   payments, sessions and records come from programPayments / openBookingSessions / listRecords. */
+   payments, sessions and records come from programPayments / openBookingSessions / listRecords (or
+   groupPayments / groupSessions). Rows of the programs overlapping this one (when the caller read them)
+   go to `other` { booked, holds, programs: [ids] }: they take rooms (and their holds release like ours),
+   never programme places. Rows of programs that don't overlap it are ignored. */
 export function buildOccupancy(program, payments, sessions, exclude = [], records = []) {
   const booked = {}, holds = {}, release = {}, skip = new Set(exclude);
+  const near = new Set(overlappingPrograms(program).map(p => p.id)), other = { booked: {}, holds: {}, programs: [] };
+  const seen = id => { if (!other.programs.includes(id)) other.programs.push(id); };
   for (const p of payments || []) {
     const md = p.md || {};
-    if (md.aob_kind === 'booking' && md.aob_program === program.id && md.aob_status !== 'cancelled') addGuests(booked, md, program);
+    if (md.aob_kind !== 'booking' || md.aob_status === 'cancelled') continue;
+    if (md.aob_program === program.id) addGuests(booked, md, program);
+    else if (near.has(md.aob_program)) { addGuests(other.booked, md, program); seen(md.aob_program); }
   }
   const open = (sessions || []).filter(s => !skip.has(s.id) && isBookingHold(s, program));
-  for (const s of open) {
-    const per = addGuests(holds, s.metadata || {}, program);
+  const theirs = near.size ? (sessions || []).filter(s => !skip.has(s.id) && isHoldOf(s, near)) : [];
+  const hold = (into, s) => {
+    const per = addGuests(into, s.metadata || {}, program);
     for (const room of Object.keys(per)) if (s.expires_at && (!release[room] || s.expires_at < release[room])) release[room] = s.expires_at;
-  }
-  return { booked, holds, release, open, records: recordsFor(program, records) };
+  };
+  for (const s of open) hold(holds, s);
+  for (const s of theirs) { hold(other.holds, s); seen(s.metadata.aob_program); }
+  return { booked, holds, release, open, records: recordsFor(program, records), other };
 }
+/* (reads the overlapping programs too, unless payments / open are given) */
 export async function occupancy(env, program, payments, { exclude = [], open, records } = {}) {
-  const [pays, sessions, recs] = await Promise.all([payments || programPayments(env, program), open || openBookingSessions(env, program),
+  const [pays, sessions, recs] = await Promise.all([payments || groupPayments(env, program), open || groupSessions(env, program),
     records || listRecords(env, { recent: true })]);
   return buildOccupancy(program, pays, sessions, exclude, recs);
 }
@@ -1150,25 +1223,31 @@ export async function occupancy(env, program, payments, { exclude = [], open, re
 const MEMO_TTL_MS = 15000, SNAPSHOT_MAX_MS = 3600 * 1000;
 const memo = new Map(), snapshots = new Map();
 let memoGen = 0;
-/* No programId: every week, and the records memo too. */
+/* The memo is kept per occupancy group (the program and the ones overlapping it: one read serves them all,
+   and a change to any of them clears it). key: the group's ids, sorted. */
+const groupKey = program => occupancyGroup(program).map(p => p.id).sort().join('|');
+/* No programId: every week, and the records memo too. A programId clears every group it is in (a hold on the
+   Live Residential changes what ARM has left). */
 export function clearAvailabilityMemo(programId, { snapshot = false } = {}) {
   memoGen++;
-  if (programId) { memo.delete(programId); if (snapshot) snapshots.delete(programId); }
-  else { memo.clear(); clearRecordsMemo(); if (snapshot) snapshots.clear(); }
+  if (programId) {
+    for (const k of [...memo.keys()]) if (k.split('|').includes(programId)) memo.delete(k);
+    if (snapshot) snapshots.delete(programId);
+  } else { memo.clear(); clearRecordsMemo(); if (snapshot) snapshots.clear(); }
 }
-/* { pays, open, records, at, cached } */
+/* { pays, open, records, at, cached }: pays / open of the program's whole group (buildOccupancy sorts them out). */
 export function liveOccupancy(env, program) {
-  const m = memo.get(program.id);
-  if (m && m.raw && Date.now() - m.at < MEMO_TTL_MS) return Promise.resolve({ ...m.raw, at: m.at, cached: true });
-  if (m && m.inflight) return m.inflight;
+  const key = groupKey(program), m = memo.get(key);
+  if (m && m.raw && Date.now() - m.at < MEMO_TTL_MS) { snapshots.set(program.id, { ...m.raw, at: m.at }); return Promise.resolve({ ...m.raw, at: m.at, cached: true }); }
+  if (m && m.inflight) return m.inflight.then(v => { snapshots.set(program.id, v); return v; });
   const gen = memoGen, entry = { inflight: null };
-  entry.inflight = Promise.all([programPayments(env, program), openBookingSessions(env, program), listRecords(env, { cached: true })]).then(([pays, open, records]) => {
+  entry.inflight = Promise.all([groupPayments(env, program), groupSessions(env, program), listRecords(env, { cached: true })]).then(([pays, open, records]) => {
     const v = { pays, open, records, at: Date.now() };
     snapshots.set(program.id, v);
-    if (memoGen === gen && memo.get(program.id) === entry) memo.set(program.id, { raw: { pays, open, records }, at: v.at });
+    if (memoGen === gen && memo.get(key) === entry) memo.set(key, { raw: { pays, open, records }, at: v.at });
     return v;
-  }, e => { if (memo.get(program.id) === entry) memo.delete(program.id); throw e; });
-  memo.set(program.id, entry);
+  }, e => { if (memo.get(key) === entry) memo.delete(key); throw e; });
+  memo.set(key, entry);
   return entry.inflight;
 }
 /* { avail, at, cached }: availability without the `exclude`d checkouts (the asking visitor's own). */
@@ -1254,9 +1333,29 @@ export function groupBookings(program, payments, now = nowSec()) {
    reason, comment, from, to, ext } (ext: an Uplisting booking, see parseRecord; anyone placed in a
    blocked room → conflict 'blocked'); the guests of a
    manual booking overlapping the week are in their rooms with manual: true (they count for the
-   beds and the one-gender rule like everyone else). bookings: the online ones only. */
+   beds and the one-gender rule like everyone else). bookings: the online ones only.
+   others: [{ program, bookings }] of the programs overlapping this one (groupBookings): their guests placed
+   in this week's rooms are read-only occupants { ref, index, name, gender, program, edition, from, to,
+   other: true } (from / to: their nights within this week); they count like everyone else. */
 export const nameCapacity = r => r && (r.same_gender || byUnit(r)) ? (r.sleeps || 1) : 1;
-export function roomingMap(program, bookings, records = []) {
+/* The online guests of the overlapping programs placed in this week's rooms: [{ room (physical name), ref, index,
+   name, gender, program, edition, from, to }] (from / to: the nights the two programs share). */
+export function otherOccupants(program, others = []) {
+  const wk = weekRange(program), out = [];
+  for (const { program: q, bookings } of others || []) {
+    if (!q || q.id === program.id || !overlaps(weekRange(q), wk)) continue;
+    const from = q.dates.start > wk.from ? q.dates.start : wk.from, to = q.dates.end < wk.to ? q.dates.end : wk.to;
+    for (const b of bookings || []) {
+      if (b.status === 'cancelled' || b.source === 'manual') continue;
+      (b.guests || []).forEach((g, i) => {
+        const name = (b.assign || {})[i];
+        if (name) out.push({ room: name, ref: b.ref, index: i, name: g.name, gender: g.gender, program: q.id, edition: q.edition || q.title, from, to });
+      });
+    }
+  }
+  return out;
+}
+export function roomingMap(program, bookings, records = [], others = []) {
   const rooming = {}, unassigned = [];
   for (const r of program.rooms) for (const name of r.names || []) rooming[name] = { room_id: r.id, gender: null, capacity: nameCapacity(r), guests: [], conflict: null };
   for (const b of bookings || []) {
@@ -1267,6 +1366,11 @@ export function roomingMap(program, bookings, records = []) {
       const slot = rooming[name] || (rooming[name] = { room_id: g.room, gender: null, capacity: nameCapacity(program.rooms.find(r => r.id === g.room)), guests: [], conflict: null, unknown: true });
       slot.guests.push(who);
     });
+  }
+  // the overlapping programs' guests in this week's rooms (a room this week doesn't list is left out)
+  for (const o of otherOccupants(program, others)) {
+    const { room, ...who } = o;
+    if (rooming[room]) rooming[room].guests.push({ ...who, other: true });
   }
   for (const rec of recordsFor(program, records)) {
     if (rec.type === 'block') {
@@ -1291,8 +1395,9 @@ export function roomingMap(program, bookings, records = []) {
 const pgk = g => (String(g || '').toLowerCase() === 'male' ? 'male' : 'female');
 /* The week's physical rooms and who is in them: { name: { room, cap, shared, unit, used, gender, refs, blocked } }.
    bookings: [{ ref, status, source, guests: [{ gender }], assign: { index: name } }] (online ones: groupBookings, or
-   read from metadata); records: listRecords() (blocks and manual bookings overlapping the week count). */
-export function physicalRooms(program, bookings, records = []) {
+   read from metadata); records: listRecords() (blocks and manual bookings overlapping the week count);
+   others: [{ program, bookings }] of the overlapping programs (their placed guests occupy their rooms too). */
+export function physicalRooms(program, bookings, records = [], others = []) {
   const phys = {};
   for (const r of program.rooms) for (const name of r.names || []) phys[name] = { room: r.id, cap: nameCapacity(r), shared: !!r.same_gender, unit: byUnit(r), used: 0, gender: null, refs: new Set() };
   for (const b of bookings || []) {
@@ -1302,6 +1407,10 @@ export function physicalRooms(program, bookings, records = []) {
       if (!slot || !g) continue;
       slot.used++; slot.gender = slot.gender || pgk(g.gender); slot.refs.add(b.ref);
     }
+  }
+  for (const o of otherOccupants(program, others)) {
+    const slot = phys[o.room];
+    if (slot) { slot.used++; slot.gender = slot.gender || pgk(o.gender); slot.refs.add(o.ref); }
   }
   for (const rec of recordsFor(program, records)) {
     if (rec.type === 'block') { rec.rooms.forEach(n => { if (phys[n]) { phys[n].used = phys[n].cap; phys[n].blocked = true; } }); continue; }
@@ -1368,7 +1477,7 @@ export async function findBooking(env, ref, { cached = false } = {}) {
 
 /* ------------------------------------------------------------ nights
    A stay [from, to) uses the nights from `from` (the check-in day) up to the night before `to` (the
-   check-out day): one night is to = from + 1 day. A BreathCamp week is [dates.start, dates.end). */
+   check-out day): one night is to = from + 1 day. A program's week is [dates.start, dates.end). */
 const ISO_DAY = /^\d{4}-\d{2}-\d{2}$/;
 export const validDay = s => { if (typeof s !== 'string' || !ISO_DAY.test(s)) return false; const d = new Date(s + 'T00:00:00Z'); return !Number.isNaN(d.getTime()) && d.toISOString().slice(0, 10) === s; };
 export const addDays = (s, n) => { const d = new Date(s + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
@@ -1420,7 +1529,7 @@ export function calendarRooms(programs = listPrograms()) {
    aob_status ('active' | 'cancelled', + aob_status_at), aob_created_at. Blocks: aob_rooms (physical
    room names joined by |), aob_reason. Manual bookings: aob_g1..aob_g12 ('First Last | email | gender
    | physical room'), aob_lead_name, aob_lead_email, aob_whatsapp, aob_total (agreed price, cents),
-   aob_programme ('yes': the guests attend the BreathCamp of an overlapping week and take programme
+   aob_programme ('yes': the guests attend the programme of an overlapping week and take programme
    places there; 'no': just staying), aob_source 'manual'. A block is removed by deleting its
    customer; a manual booking is cancelled / restored (it may have offline payments).
    Everywhere availability is computed they are applied to a copy of the week (programWithRecords).
@@ -1603,12 +1712,12 @@ export function programWithRecords(program, records) {
 export function overbooked(program, occ) {
   const p = programWithRecords(program, (occ && occ.records) || []);
   const booked = (occ && occ.booked) || {}, holds = (occ && occ.holds) || {}, rooms = {};
+  const other = (occ && occ.other) || {}, ob = other.booked || {}, oh = other.holds || {}; // overlapping programs: rooms only
   let used = 0;
   for (const r of p.rooms) {
-    const a = booked[r.id] || {}, h = holds[r.id] || {};
-    const x = { female: (a.female || 0) + (h.female || 0), male: (a.male || 0) + (h.male || 0), other: (a.other || 0) + (h.other || 0), units: (a.units || 0) + (h.units || 0) };
-    const n = x.female + x.male + x.other;
-    used += n;
+    const own = addCounts(booked[r.id], holds[r.id]), x = addCounts(own, ob[r.id], oh[r.id]);
+    const n = people(x);
+    used += people(own);
     if (!n) continue;
     const over = isShared(r) ? sharedState(r, x).unplaced : byUnit(r) ? Math.max(0, x.units - (r.capacity || 0)) : Math.max(0, n - (r.capacity || 0));
     if (over > 0) rooms[r.id] = over;
@@ -1690,8 +1799,10 @@ export function nameConflicts(cand, others, weeks, rooms = calendarRooms().rooms
   return out;
 }
 
-/* The week a manual booking belongs to (the first BreathCamp it overlaps), else null (a stay). */
-export const homeProgram = (rec, programs = listPrograms()) => programs.slice().sort((a, b) => (a.dates.start < b.dates.start ? -1 : 1)).find(p => overlaps(rec, weekRange(p))) || null;
+/* The week a manual booking belongs to (the first program it overlaps: earliest start, then the shorter one),
+   else null (a stay). */
+const byDates = (a, b) => (a.dates.start < b.dates.start ? -1 : a.dates.start > b.dates.start ? 1 : a.dates.end < b.dates.end ? -1 : a.dates.end > b.dates.end ? 1 : a.id < b.id ? -1 : 1);
+export const homeProgram = (rec, programs = listPrograms()) => programs.slice().sort(byDates).find(p => overlaps(rec, weekRange(p))) || null;
 /* A block as the admin shows it. ext: { source: 'uplisting', id, property_id, property_name, unit, channel,
    guest, guests, status, synced_at } for a booking imported from Uplisting, else null. */
 export const blockOut = rec => ({ id: rec.id, customer: rec.customer, rooms: rec.rooms.slice(), from: rec.from, to: rec.to, nights: rec.nights,
@@ -1786,7 +1897,7 @@ export function manualInput(body, { now = new Date(), rooms = calendarRooms().ro
   let whatsapp = '';
   if (body.whatsapp != null && String(body.whatsapp).trim()) { whatsapp = normalizePhone(body.whatsapp); const pe = phoneError(whatsapp); if (pe) errors.whatsapp = pe; }
   const programme = body.programme === 'yes' || body.programme === true ? 'yes' : 'no';
-  if (programme === 'yes' && !errors.from && !errors.to && !programs.some(p => overlaps({ from, to }, weekRange(p)))) errors.programme = 'These dates don\'t overlap a BreathCamp week.';
+  if (programme === 'yes' && !errors.from && !errors.to && !programs.some(p => overlaps({ from, to }, weekRange(p)))) errors.programme = 'These dates don\'t overlap any programme week.';
   const tc = body.total_cents == null || body.total_cents === '' ? 0 : typeof body.total_cents === 'number' ? body.total_cents : /^\d{1,9}$/.test(String(body.total_cents).trim()) ? parseInt(body.total_cents, 10) : NaN;
   if (!Number.isInteger(tc) || tc < 0 || tc > 100000000) errors.total_cents = 'Enter the agreed price in cents (0 or more).';
   if (Object.keys(errors).length) return { errors };
@@ -1915,7 +2026,9 @@ export const programDetail = p => ({
     capacity: roomCapacity(r), names: Array.isArray(r.names) ? r.names.slice() : null })),
   services: serviceItems(p).map(s => { const i = serviceInfo(p, s.id); return { id: s.id, title: s.title, practitioner: s.practitioner, practitioner_name: i.practitioner_name, category: s.category || null, minutes: s.minutes, price: s.price }; }),
   practitioners: Object.fromEntries(Object.entries((p.services && p.services.practitioners) || {}).map(([k, v]) => [k, { name: v.name, role: v.role || '', photo: v.photo || null }])),
-  booking_url: `${SITE}/book/${p.id}/`,
+  booking_url: `${SITE}/book/${p.id}/`, about_url: p.about_url || null, ref_prefix: programRefPrefix(p),
+  // the programs sharing some of these nights (their guests take rooms here too)
+  overlaps: overlappingPrograms(p).map(overlapOut),
   deposit: { percent: (p.deposit && p.deposit.percent) || null, balance_due: (p.deposit && p.deposit.balance_due) || null, available_until: (p.deposit && p.deposit.available_until) || null },
   payment_plan: p.payment_plan ? { installments: p.payment_plan.installments || null, last_payment_by: lastPaymentBy(p) } : null,
   programme_fee: (p.programme && p.programme.fee) || 0,

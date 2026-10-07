@@ -2,7 +2,7 @@
 // (embedded in the booking page when a publishable key is set and the page asks for it, else Stripe's page).
 import {
   json, preflight, guardPost, readBody, clientIp, ipHash, verifyTurnstile, getProgram, isClosed, quote, planInfo,
-  checkAvailability, availability, buildOccupancy, programPayments, recentProgramPayments, mergePayments, openBookingSessions,
+  checkAvailability, availability, buildOccupancy, groupPayments, recentProgramPayments, mergePayments, openSessionsRaw, groupSessions, occupancyGroup,
   newRef, bookingMetadata, bookingCheckoutParams, bookingPageUrl, publicQuote, stripe, safeCreateSession, expireSession, expireOrCheck,
   sessionState, programmeFeePayments, claimedProgrammePayments, matchProgramme, publishableKey, autoRegisterDomain, clearAvailabilityMemo, listRecords,
   cleanAttempt, remindEnabled, isBusy, logError, BUSY, CS_ID, nowSec,
@@ -68,13 +68,18 @@ export async function onRequestPost(context) {
   const iph = await ipHash(env, ip);
   const feeLookup = q.programme === 'paid' ? programmeFeePayments(env, program, lead).catch(() => []) : Promise.resolve(null);
 
-  // the team's room blocks and manual bookings: read fresh (with the real-time list of new ones)
-  let payments, open, records;
-  try { [payments, open, records] = await Promise.all([programPayments(env, program), openBookingSessions(env, program), listRecords(env, { recent: true })]); }
+  // the team's room blocks and manual bookings: read fresh (with the real-time list of new ones). The rooms are
+  // shared with the programs overlapping this week: their bookings and open checkouts are read in the same
+  // searches (one OR'ed search, one list of open checkouts) and take rooms here too (never programme places).
+  let payments, rows, records;
+  try { [payments, rows, records] = await Promise.all([groupPayments(env, program), openSessionsRaw(env), listRecords(env, { recent: true })]); }
   catch (e) {
     logError('checkout.read', e);
     return isBusy(e) ? send(BUSY, 503) : send({ error: 'We could not check availability just now. Please try again in a moment.' }, 502);
   }
+  const group = occupancyGroup(program);
+  const all = await groupSessions(env, program, rows);                       // this week's and the overlapping weeks' holds
+  const open = all.filter(s => s.metadata.aob_program === program.id);     // this week's (one hold per person and week)
 
   // This visitor's own earlier checkouts: the one this browser is replacing, and any other open
   // booking for this week with the same lead email from the same visitor (one hold per person).
@@ -101,13 +106,13 @@ export async function onRequestPost(context) {
   // Abuse cap: a few open checkouts, and one booking's worth of places, per visitor and week.
   if (iph && overCap(program, open.filter(s => !mine.has(s.id) && s.metadata.aob_iph === iph), q.guests.length)) return send(TOO_MANY, 429);
 
-  const avail = availability(program, buildOccupancy(program, payments, open, ids, records));
+  const avail = availability(program, buildOccupancy(program, payments, all, ids, records));
   const full = checkAvailability(program, q, avail);
   if (full) return send({ error: full, code: 'unavailable', availability: avail }, 409);
 
   let prog = { status: 'unverified', pis: [] };
   const feePays = await feeLookup;
-  if (feePays) prog = matchProgramme(feePays, q.guests.length, claimedProgrammePayments(payments, open, ids));
+  if (feePays) prog = matchProgramme(feePays, q.guests.length, claimedProgrammePayments(payments, all, ids));
 
   const ref = newRef(program);
   const md = bookingMetadata(program, q, ref, { page, utm: body.utm, ui: embedded ? 'embedded' : 'hosted', attempt, iph, progVerified: prog.status, progPis: prog.pis });
@@ -129,10 +134,10 @@ export async function onRequestPost(context) {
   // sessions created in the same second count as earlier (Stripe ids don't follow creation order),
   // so in a tie both back off rather than both keep the place.
   try {
-    const [fresh, recent] = await Promise.all([openBookingSessions(env, program), recentProgramPayments(env, program)]);
+    const [fresh, recent] = await Promise.all([groupSessions(env, program), recentProgramPayments(env, program, group)]);
     const created = session.created || nowSec();
     const earlier = fresh.filter(s => s.id !== session.id && !mine.has(s.id) && s.created <= created);
-    if (iph && overCap(program, earlier.filter(s => s.metadata.aob_iph === iph), q.guests.length)) return await drop(429, TOO_MANY);
+    if (iph && overCap(program, earlier.filter(s => s.metadata.aob_program === program.id && s.metadata.aob_iph === iph), q.guests.length)) return await drop(429, TOO_MANY);
     const pays = mergePayments(payments, recent);
     const clash = checkAvailability(program, q, availability(program, buildOccupancy(program, pays, earlier, [], records)));
     if (clash) {

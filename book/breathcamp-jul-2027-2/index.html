@@ -781,7 +781,7 @@ fieldset.lock{border:0;margin:0;padding:0;min-width:0}
 footer{position:relative;z-index:1;text-align:center;font-size:.8rem;color:var(--slate);padding:0 24px 40px}
 footer a{color:var(--slate);display:inline-block;padding:6px 0}
 
-/* slim booking header: the BreathCamp page explains the week, this page only books it */
+/* slim booking header: the programme's own page (about_url) explains the week, this page only books it */
 .hero.slim{display:flex;align-items:flex-end;justify-content:space-between;gap:12px 28px;flex-wrap:wrap;padding-top:28px;padding-bottom:6px}
 .hero.slim h1{font-size:clamp(1.7rem,3vw,2.3rem);max-width:none}
 .hero.slim .eyebrow{margin-bottom:10px}
@@ -913,7 +913,7 @@ footer a{color:var(--slate);display:inline-block;padding:6px 0}
 
         <div class="policy" id="policy"></div>
         <div class="checks">
-          <label class="terms" id="termsRow"><input type="checkbox" id="terms"><span>I have read the above and agree to the <a id="termsLink" href="#" target="_blank" rel="noopener">BreathCamp terms and conditions</a>.</span></label>
+          <label class="terms" id="termsRow"><input type="checkbox" id="terms"><span>I have read the above and agree to the <a id="termsLink" href="#" target="_blank" rel="noopener">terms and conditions</a>.</span></label>
           <label class="terms" id="remindRow" hidden><input type="checkbox" id="remind"><span>Email me a link to finish my booking if I get interrupted <small>(optional; we use your email only for this, see our <a class="privacy-link" href="#" target="_blank" rel="noopener">Privacy Policy</a>)</small></span></label>
         </div>
         <div id="tsBox"></div>
@@ -1402,7 +1402,7 @@ footer a{color:var(--slate);display:inline-block;padding:6px 0}
     if (progOn()) {
       var planned = planOffer() && state.payment === 'plan';
       box.innerHTML = '<span class="pic">' + ICON.prog + '</span><div class="pt"><p class="ph2"><b>' + fee + ' programme fee per person</b><span>' + (planned ? 'Paid with your monthly payments' : 'Paid in full at booking') + '</span></p>' +
-        '<p class="d">Covers the full BreathCamp programme. Your room, with all meals, is chosen next.' + inc + '</p>' +
+        '<p class="d">Covers the full ' + esc(P.title) + ' programme. Your room, with all meals, is chosen next.' + inc + '</p>' +
         (state.roomOnlyLink ? '<button type="button" class="sw" id="progSw">Already paid the ' + fee + ' programme fee? Book your room only</button>'
           : '<a class="sw" href="' + esc(waLink('Hi! I have already paid the ' + fee + ' programme fee for ' + WHEN + ' and would like to book my room.')) + '" target="_blank" rel="noopener">Already paid the ' + fee + ' programme fee? Message us</a>') + '</div>';
     } else {
@@ -1596,7 +1596,7 @@ footer a{color:var(--slate);display:inline-block;padding:6px 0}
     box.innerHTML = html;
     box.querySelectorAll('[data-gr]').forEach(function(s){ s.onchange = function(){
       var i = +s.getAttribute('data-gr'); state.guestRooms[i] = s.value || null; showAlert(2, ''); save(); renderRooms(); renderFolio();
-      if (s.value) dl('select_item', { item_list_id:'rooms', item_list_name:'BreathCamp rooms', items:[{ item_id:s.value, item_name:ROOMS[s.value].name, price:ROOMS[s.value].price }] });
+      if (s.value) dl('select_item', { item_list_id:'rooms', item_list_name: P.title + ' rooms', items:[{ item_id:s.value, item_name:ROOMS[s.value].name, price:ROOMS[s.value].price }] });
     }; });
     if (f != null) focusEl(box.querySelector('[data-gr="' + f + '"]'));
   }
@@ -1661,14 +1661,14 @@ footer a{color:var(--slate);display:inline-block;padding:6px 0}
     renderAssign(); renderHelpLinks();
     if (!listViewed && state.step === 2 && $('done').hidden) {
       listViewed = true;
-      dl('view_item_list', { item_list_id:'rooms', item_list_name:'BreathCamp rooms', items: shown.map(function(x, i){ return { item_id:x.r.id, item_name:x.r.name, item_category: CATS[x.r.category] || x.r.category, price: cardPrice(x.r).all / 100, index:i }; }) });
+      dl('view_item_list', { item_list_id:'rooms', item_list_name: P.title + ' rooms', items: shown.map(function(x, i){ return { item_id:x.r.id, item_name:x.r.name, item_category: CATS[x.r.category] || x.r.category, price: cardPrice(x.r).all / 100, index:i }; }) });
     }
   }
   function pickRoom(id){
     if (!groupFits(id)) return;
     var changed = state.room !== id;
     state.room = id; showAlert(2, ''); save(); renderRooms(); renderFolio();
-    if (changed) dl('select_item', { item_list_id:'rooms', item_list_name:'BreathCamp rooms', items:[{ item_id:id, item_name:ROOMS[id].name, item_category: CATS[ROOMS[id].category], price: cardPrice(ROOMS[id]).all / 100 }] });
+    if (changed) dl('select_item', { item_list_id:'rooms', item_list_name: P.title + ' rooms', items:[{ item_id:id, item_name:ROOMS[id].name, item_category: CATS[ROOMS[id].category], price: cardPrice(ROOMS[id]).all / 100 }] });
   }
   function bindRooms(){
     var root = $('step2');
@@ -2061,7 +2061,7 @@ footer a{color:var(--slate);display:inline-block;padding:6px 0}
     var svc = state.addons.length ? 'Wellbeing sessions that can\'t be scheduled during your stay are refunded in full.' : '';
     $('policy').innerHTML = '<h4>Before you pay</h4><ul>' + (pol.points || []).map(function(x){ return '<li>' + esc(x) + '</li>'; }).join('') + (svc ? '<li>' + esc(svc) + '</li>' : '') + (change ? '<li>' + esc(change) + '</li>' : '') + '</ul>' +
       (pol.health_note ? '<p class="health">' + esc(pol.health_note) + '</p>' : '') +
-      '<a href="' + esc(P.terms_url) + '" target="_blank" rel="noopener">Read the full BreathCamp terms</a>' +
+      '<a href="' + esc(P.terms_url) + '" target="_blank" rel="noopener">Read the full ' + esc(P.title) + ' terms</a>' +
       (pol.medical_url ? ' &middot; <a href="' + esc(pol.medical_url) + '" target="_blank" rel="noopener">Medical disclaimer &amp; contraindications</a>' : '');
   }
   function renderPayTrust(){
@@ -2580,6 +2580,8 @@ footer a{color:var(--slate);display:inline-block;padding:6px 0}
   ['helpLink','footHelp','genderWa'].forEach(function(id){ $(id).href = wa; });
   $('footMail').href = 'mailto:' + P.contact.email; $('footMail').textContent = P.contact.email;
   ['termsLink','footTerms'].forEach(function(id){ $(id).href = P.terms_url; });
+  $('termsLink').textContent = P.title + ' terms and conditions';
+  if (NIGHTS > 7 && $('svcTt').firstChild) $('svcTt').firstChild.nodeValue = 'Add a private session to your stay '; // a longer programme isn't "your week"
   document.querySelectorAll('.privacy-link').forEach(function(a){ if (P.privacy_url) a.href = P.privacy_url; else a.hidden = true; });
   document.querySelectorAll('.medical-link').forEach(function(a){ if (P.policy && P.policy.medical_url) a.href = P.policy.medical_url; else a.hidden = true; });
   $('clearMine').onclick = function(){
@@ -2676,7 +2678,7 @@ footer a{color:var(--slate);display:inline-block;padding:6px 0}
   function icsText(ref){
     var t = eventTimes(), e = function(s){ return String(s).replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n'); };
     var fold = function(l){ var out = '', s = l; while (s.length > 60) { out += s.slice(0, 60) + '\r\n '; s = s.slice(60); } return out + s; };
-    return ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Alchemy of Breath//BreathCamp booking//EN','CALSCALE:GREGORIAN','METHOD:PUBLISH','BEGIN:VEVENT',
+    return ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Alchemy of Breath//' + String(P.title).replace(/[^A-Za-z0-9 ]/g, '') + ' booking//EN','CALSCALE:GREGORIAN','METHOD:PUBLISH','BEGIN:VEVENT',
       'UID:' + (ref || P.id) + '@alchemyofbreath.com', 'DTSTAMP:' + stamp(new Date()),
       t.allDay ? 'DTSTART;VALUE=DATE:' + ymd(t.s) : 'DTSTART:' + stamp(t.s), t.allDay ? 'DTEND;VALUE=DATE:' + ymd(t.e) : 'DTEND:' + stamp(t.e),
       'SUMMARY:' + e(P.edition + ' at ASHA'), 'LOCATION:' + e(P.venue.name + ', ' + P.venue.address), 'DESCRIPTION:' + e(eventDetails(ref)),
@@ -2713,8 +2715,8 @@ footer a{color:var(--slate);display:inline-block;padding:6px 0}
       return '<li class="mm-card"><span class="mm-ava" aria-hidden="true">' + (p.photo ? svcPic(p.photo, 'sq-480', 480, 480) : '') + '</span>' +
         '<div class="mt"><h4>' + esc(p.name || '') + '</h4><p class="w">' + esc(pr.groups[0].title) + '</p><p class="m">from ' + money(svcFrom(all) * 100) + '</p></div></li>';
     }).join('');
-    return '<section class="mmw" aria-labelledby="mmwH"><h3 id="mmwH">Make the most of <em>your week</em></h3>' +
-      '<p class="mm-lead">One-to-one sessions with the ASHA wellbeing team, arranged around the BreathCamp timetable.</p>' + yours +
+    return '<section class="mmw" aria-labelledby="mmwH"><h3 id="mmwH">Make the most of <em>your ' + (NIGHTS > 7 ? 'stay' : 'week') + '</em></h3>' +
+      '<p class="mm-lead">One-to-one sessions with the ASHA wellbeing team, arranged around the ' + esc(P.title) + ' timetable.</p>' + yours +
       '<ul class="mm-cards">' + cards + '</ul>' +
       '<div class="actions"><a class="btn btn-ink" href="../extras/?ref=' + encodeURIComponent(ref) + '&amp;program=' + encodeURIComponent(P.id) + '">Add a session <span class="arr" aria-hidden="true">&rarr;</span></a></div>' +
       (SV.note ? '<p class="mm-lead mm-note">' + esc(SV.note) + '</p>' : '') + '</section>';

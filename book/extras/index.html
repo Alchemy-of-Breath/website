@@ -72,8 +72,8 @@
 </script>
 <!-- AOB-UTM:end -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Add a private session · BreathCamp | Alchemy of Breath</title>
-<meta name="description" content="Add one-to-one sessions with the ASHA wellbeing team to your BreathCamp booking.">
+<title>Add a private session | Alchemy of Breath</title>
+<meta name="description" content="Add one-to-one sessions with the ASHA wellbeing team to your booking at ASHA.">
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#FBF7EF">
 <link rel="icon" type="image/png" href="https://alchemyofbreath.com/wp-content/uploads/AOB-Gold-Black-Transparant-symbol.png">
@@ -360,12 +360,12 @@ footer a{color:var(--slate);display:inline-block;padding:6px 0}
   <!-- 1 · find the booking -->
   <section class="narrow" id="vFind">
     <div class="card">
-      <p class="eyebrow">BreathCamp at ASHA</p>
-      <h1 id="findH" tabindex="-1">Add a private <em>session</em> to your week.</h1>
-      <p class="sub" id="findSub">One-to-one sessions with the ASHA wellbeing team, arranged around the BreathCamp timetable. Enter your booking reference and the email you booked with to see them.</p>
+      <p class="eyebrow">Your booking at ASHA</p>
+      <h1 id="findH" tabindex="-1">Add a private <em>session</em> to your stay.</h1>
+      <p class="sub" id="findSub">One-to-one sessions with the ASHA wellbeing team, arranged around your programme's timetable. Enter your booking reference and the email you booked with to see them.</p>
       <div class="alert" id="msg" role="alert" hidden></div>
       <form id="findForm" novalidate>
-        <div class="f"><label for="ref">Booking reference</label><input id="ref" name="ref" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" placeholder="BC0000-ABC123" maxlength="24" required aria-describedby="refHint"><span class="hint" id="refHint">It's in your booking confirmation email.</span></div>
+        <div class="f"><label for="ref">Booking reference</label><input id="ref" name="ref" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" placeholder="e.g. BC2707-ABC123" maxlength="24" required aria-describedby="refHint"><span class="hint" id="refHint">It's in your booking confirmation email.</span></div>
         <div class="f"><label for="email">Email you booked with</label><input id="email" name="email" type="email" autocomplete="email" inputmode="email" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="name@example.com" maxlength="200" required></div>
         <button class="btn btn-primary wide" id="findBtn" type="submit">Show the sessions <span class="arr" aria-hidden="true">&rarr;</span></button>
       </form>
@@ -377,9 +377,9 @@ footer a{color:var(--slate);display:inline-block;padding:6px 0}
   <!-- 2 · choose sessions and pay -->
   <section id="vChoose" hidden>
     <div class="xhead">
-      <p class="eyebrow" id="xEyebrow">BreathCamp at ASHA</p>
-      <h1 id="xH" tabindex="-1">Add a private <em>session</em> to your week.</h1>
-      <p class="sub">One-to-one sessions with the ASHA wellbeing team, arranged around the BreathCamp timetable.</p>
+      <p class="eyebrow" id="xEyebrow">Your booking at ASHA</p>
+      <h1 id="xH" tabindex="-1">Add a private <em>session</em> to your <span id="xHw">week</span>.</h1>
+      <p class="sub">One-to-one sessions with the ASHA wellbeing team, arranged around the <span id="xTt">programme</span> timetable.</p>
       <p class="bref" id="bref"></p>
     </div>
     <div class="bk">
@@ -402,14 +402,14 @@ footer a{color:var(--slate);display:inline-block;padding:6px 0}
         </section>
       </div>
       <aside class="folio" id="folioWrap" aria-labelledby="folH"><div class="fol">
-        <div class="fol-h"><small>Your booking</small><h2 id="folH">BreathCamp</h2><p id="folDates"></p></div>
+        <div class="fol-h"><small>Your booking</small><h2 id="folH">Your booking</h2><p id="folDates"></p></div>
         <div class="fol-b">
           <div class="svc-mine" id="svcMine"></div>
           <div class="fol-due"><span class="k">Today</span><span class="v" id="folTotal">€0</span></div>
           <p class="fol-sm" id="folSm">Paid in full now. Nothing else on your booking changes.</p>
           <button type="button" class="btn btn-primary fol-cta" id="payBtn">Continue to secure payment <span class="arr" aria-hidden="true">&rarr;</span></button>
           <p class="fol-trust"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Secure payment by Stripe</p>
-          <p class="fol-terms">Sessions follow the <a href="https://alchemyofbreath.com/terms-and-conditions/#breathcamp-policy" target="_blank" rel="noopener">BreathCamp terms</a>. <button type="button" class="linkbtn" id="other" style="min-height:0;font-size:inherit">Look up a different booking</button></p>
+          <p class="fol-terms">Sessions follow the <a id="folTerms" href="https://alchemyofbreath.com/terms-and-conditions/#breathcamp-policy" target="_blank" rel="noopener">booking terms</a>. <button type="button" class="linkbtn" id="other" style="min-height:0;font-size:inherit">Look up a different booking</button></p>
         </div>
       </div></aside>
     </div>
@@ -427,7 +427,7 @@ footer a{color:var(--slate);display:inline-block;padding:6px 0}
   <details><summary>What Stripe would receive</summary><pre id="demoPre"></pre></details>
   <div class="actions"><button type="button" class="btn btn-ink" id="demoClose">Close</button></div>
 </div></div>
-<footer><p>Questions? <a href="https://wa.me/393534527348" target="_blank" rel="noopener">Message us on WhatsApp</a> &middot; <a href="https://alchemyofbreath.com/terms-and-conditions/#breathcamp-policy" target="_blank" rel="noopener">BreathCamp terms</a> &middot; <a href="https://alchemyofbreath.com/privacy-policy/" target="_blank" rel="noopener">Privacy Policy</a> &middot; &copy; Alchemy of Breath &amp; ASHA</p></footer>
+<footer><p>Questions? <a href="https://wa.me/393534527348" target="_blank" rel="noopener">Message us on WhatsApp</a> &middot; <a href="https://alchemyofbreath.com/terms-and-conditions/#breathcamp-policy" target="_blank" rel="noopener">Terms</a> &middot; <a href="https://alchemyofbreath.com/privacy-policy/" target="_blank" rel="noopener">Privacy Policy</a> &middot; &copy; Alchemy of Breath &amp; ASHA</p></footer>
 <script>
 (function(){
   'use strict';
@@ -575,16 +575,16 @@ footer a{color:var(--slate);display:inline-block;padding:6px 0}
     $('ref').value = ref;
     var badRef = !REF.test(ref), badEmail = !EMAIL.test(email);
     invalid($('ref'), badRef); invalid($('email'), badEmail);
-    if (badRef || badEmail) { msg(badRef ? 'Please check your booking reference. It looks like BC0000-ABC123 and is in your confirmation email.' : 'Please enter the email you booked with.'); focusEl(badRef ? $('ref') : $('email')); return; }
+    if (badRef || badEmail) { msg(badRef ? 'Please check your booking reference. It is in your confirmation email and looks like BC2707-ABC123: two letters, four digits, a dash and six letters or numbers.' : 'Please enter the email you booked with.'); focusEl(badRef ? $('ref') : $('email')); return; }
     lookup(ref, email);
   });
   function showClosed(d){
-    var reason = d.reason, ed = (d.program && (d.program.edition || d.program.title)) || 'BreathCamp';
+    var reason = d.reason, ed = (d.program && (d.program.edition || d.program.title)) || 'Your programme', pt = (d.program && d.program.title) || '';
     var text = d.message || (reason === 'cancelled' ? 'This booking has been cancelled.' : reason === 'ended' ? ed + ' has ended, so sessions can no longer be added.' : reason === 'processing' ? 'Your first payment is still being processed. Please check back once it has cleared.' : 'Wellbeing sessions can\'t be added to this booking online.');
     view('find'); msg('');
     $('findForm').hidden = true; $('findSub').hidden = true;
     $('closed').innerHTML = '<h2>Sessions can\'t be added online</h2><p>Booking <b>' + esc(bref) + '</b>: ' + waLinkify(text) + '</p>' +
-      '<a class="btn btn-ghost" href="' + esc(WA + '?text=' + encodeURIComponent('Hi! I\'d like to add a wellbeing session to my BreathCamp booking ' + bref + '.')) + '" target="_blank" rel="noopener">Message us on WhatsApp</a>' +
+      '<a class="btn btn-ghost" href="' + esc(WA + '?text=' + encodeURIComponent('Hi! I\'d like to add a wellbeing session to my ' + (pt ? pt + ' ' : '') + 'booking ' + bref + '.')) + '" target="_blank" rel="noopener">Message us on WhatsApp</a>' +
       '<button type="button" class="linkbtn" id="closedBack" style="width:100%;justify-content:center">Look up a different booking</button>';
     $('closed').hidden = false;
     $('closedBack').onclick = function(){ showFind('ref'); };
@@ -799,8 +799,13 @@ footer a{color:var(--slate);display:inline-block;padding:6px 0}
     IMG = SV.img_cdn || '/assets/booking/services/';
     if (look.stripe) info.stripe = look.stripe;
     var p = look.program || {}, dts = p.dates || {};
-    $('xEyebrow').textContent = (p.edition || p.title || 'BreathCamp') + ' · ' + (dts.medium || dts.label || '');
-    $('folH').textContent = p.edition || p.title || 'BreathCamp';
+    $('xEyebrow').textContent = (p.edition || p.title || 'Your booking') + ' · ' + (dts.medium || dts.label || '');
+    $('folH').textContent = p.edition || p.title || 'Your booking';
+    // the programme's own words: its title, its terms, "your stay" for a programme longer than a week
+    $('xTt').textContent = p.title || 'programme';
+    $('xHw').textContent = dts.nights > 7 ? 'stay' : 'week';
+    $('folTerms').textContent = (p.title ? p.title + ' ' : 'booking ') + 'terms';
+    if (typeof p.terms_url === 'string' && /^https:\/\//.test(p.terms_url)) $('folTerms').href = p.terms_url;
     $('folDates').textContent = (dts.medium || dts.label || '') + ' · ASHA';
     var names = (look.guests || []).map(function(g, i){ return guestLabel(i); });
     $('bref').innerHTML = 'Booking <b>' + esc(bref) + '</b><span>' + esc(names.join(', ')) + '</span>';
@@ -1042,7 +1047,7 @@ footer a{color:var(--slate);display:inline-block;padding:6px 0}
       (ref ? '<p class="ref">Booking <b>' + esc(ref) + '</b></p>' : '') +
       (rows ? '<ul class="dlist">' + rows + '<li class="tot"><span>Paid today</span><span>' + money(paid) + '</span></li></ul>' : '<p class="receipt">Paid today: <b>' + money(paid) + '</b></p>') +
       '<p class="receipt">' + (s.receipt_email ? 'Your receipt is on its way to <b>' + esc(s.receipt_email) + '</b>.' : 'Your receipt is on its way by email.') + '</p>' +
-      '<p class="dnote">' + esc(s.services_note || 'ASHA Reception will arrange the times with you before or during your week.') + '</p>' +
+      '<p class="dnote">' + esc(s.services_note || 'ASHA Reception will arrange the times with you before or during your stay.') + '</p>' +
       '<div class="actions">' + (ref ? '<a class="btn btn-primary" href="' + esc(location.pathname + '?ref=' + encodeURIComponent(ref)) + '">Add another session</a>' : '') +
       '<a class="btn btn-ghost" href="' + esc(WA) + '" target="_blank" rel="noopener">WhatsApp us</a><a class="btn btn-ghost" href="https://alchemyofbreath.com/">Back to Alchemy of Breath</a></div>');
     // this purchase is done: the next one starts fresh (never as a replacement of a paid checkout),

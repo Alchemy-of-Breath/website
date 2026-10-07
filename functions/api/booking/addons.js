@@ -48,7 +48,7 @@ function lookupInfo(request, env, program, booking) {
   const st = extrasOpen(program, booking);
   return {
     ref: booking.ref,
-    program: { id: program.id, title: program.title, edition: program.edition, dates: program.dates, currency: program.currency },
+    program: { id: program.id, title: program.title, edition: program.edition, dates: program.dates, currency: program.currency, terms_url: program.terms_url || null },
     guests: booking.guests.map((g, i) => ({ index: i, first_name: firstName(g, i) })),
     addons: booking.addons.map(addonOut),
     services: publicServices(program, imgBase(request)),

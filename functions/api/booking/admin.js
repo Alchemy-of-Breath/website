@@ -8,6 +8,12 @@
 //                   payments incl. offline ones; manual bookings overlapping the week with source 'manual'), the
 //                   week's rooms and sessions (program_detail), the rooming map (blocked rooms, manual guests),
 //                   availability (after the team's records), the blocks overlapping the week, the setup panel.
+//                   Programs whose nights overlap share the rooms: overlaps [{ id, title, edition, dates }] lists them;
+//                   availability counts their paid guests and open checkouts in the rooms (rooms[id].taken includes
+//                   them, rooms[id].taken_other is their part, held includes their holds; program_left stays this
+//                   week's own), holds_other is their open checkouts per room, and their guests placed in this
+//                   week's rooms are in rooming[name].guests as read-only occupants { ref, index, name, gender,
+//                   program, edition, from, to (their nights within this week), other: true }.
 // GET ?overview=1   every week at a glance: totals (manual bookings and offline payments included), places, alerts,
 //                   the 15 newest bookings; manual stays outside every week under `stay`.
 // GET ?stays=1      the manual bookings outside every week (program 'stay'), with their offline payments.
@@ -90,7 +96,7 @@ import {
   liveMode, isBusy, listRecords, listOffline, calendarRooms, weekConflicts, nameConflicts, manualBooking, blockOut, blockInput, manualInput,
   manualUpdateInput, offlineInput, createOfflinePayment, recordsChanged, rememberWrite, parseRecord, isManualRef, isBlockId, homeProgram,
   overlaps, weekRange, validDay, addDays, nightsBetween, todayIso, rangeLabel, OFFLINE_METHODS, REC_MAX_NIGHTS, BUSY, cut,
-  isExternal, externalText, isClosure,
+  isExternal, externalText, isClosure, groupPayments, groupSessions, programsPayments, paysOf, overlappingPrograms, occupancyGroup, overlapOut,
 } from '../../../booking-lib/core.js';
 import { uplistingPanel, saveMapping, connectHooks, syncSlice, pushPreview, saveFlag, pushAfter, syncSummary, pushRunSummary } from '../../../booking-lib/uplisting.js';
 import { seedDemo, clearDemo, placeDemo } from '../../../booking-lib/demo.js';
@@ -197,7 +203,7 @@ export async function onRequestGet({ request, env }) {
 
   // the manual bookings outside every week (a one-night stay, a stay between the weeks): the weeks' data leaves them out
   if (params.get('stays')) {
-    const program = { id: 'stay', edition: 'Outside the weeks', title: 'Stay', dates: {} };
+    const program = { id: 'stay', edition: 'Outside the programmes', title: 'Stay', dates: {} };
     if (!env.STRIPE_SECRET_KEY) return send({ stays: true, demo: true, programs, program, bookings: [] });
     try {
       const [recs, offline] = await Promise.all([listRecords(env, { recent: true }), listOffline(env, { recent: true })]);
@@ -217,10 +223,12 @@ export async function onRequestGet({ request, env }) {
       const [recent, rows, recs, offline] = await Promise.all([recentRaw(env), openSessionsRaw(env), listRecords(env, { recent: true }), listOffline(env, { recent: true })]);
       // a manual booking counts in the first week it overlaps (or under `stay`), never twice
       const manual = recs.filter(r => r.type === 'booking').map(r => manualBooking(r, offline));
-      const all = await Promise.all(progs.map(async p => {
-        const [pays, open] = await Promise.all([programPayments(env, p, { amounts: true, recent, offline }), openBookingSessions(env, p, rows)]);
-        return { p, bookings: [...groupBookings(p, pays), ...manual.filter(b => b.program === p.id)], avail: availability(p, buildOccupancy(p, pays, open, [], recs)) };
-      }));
+      // every week's payments in one search (10 weeks per search); a week's availability counts the weeks overlapping it
+      const every = await programsPayments(env, progs, { amounts: true, recent, offline });
+      const all = progs.map(p => {
+        const pays = paysOf(every, p.id);
+        return { p, bookings: [...groupBookings(p, pays), ...manual.filter(b => b.program === p.id)], avail: availability(p, buildOccupancy(p, every, rows, [], recs)) };
+      });
       const weeks = all.map(x => weekSummary(x.p, x.bookings, x.avail));
       const stayB = manual.filter(b => b.program === 'stay');
       return send({ ...overviewOf(weeks, [...all.flatMap(x => x.bookings.map(b => ({ p: x.p, b }))), ...stayB.map(b => ({ p: null, b }))], { totals: totalsOf(stayB) }), live: true, programs });
@@ -231,26 +239,35 @@ export async function onRequestGet({ request, env }) {
   const detail = programDetail(program);
   if (!env.STRIPE_SECRET_KEY) {
     return send({ demo: true, programs, program: programSummary(program), program_detail: detail, bookings: [], rooms: roomsOf(program),
+      overlaps: overlappingPrograms(program).map(overlapOut),
       availability: availability(program), ...roomingMap(program, []), blocks: [], setup: { ...setupBase(env), domains: [] } });
   }
   try {
-    const [pays, open, domains, recs, offline] = await Promise.all([
-      programPayments(env, program, { amounts: true }),
-      openBookingSessions(env, program),
+    // the programs overlapping this week share its rooms: their payments come with the same searches (only this
+    // week's plans are totalled), their open checkouts from the same list
+    const [all, rows, domains, recs, offline] = await Promise.all([
+      groupPayments(env, program, { amounts: true }),
+      openSessionsRaw(env),
       listDomains(env).catch(e => { logError('admin.domains', e); return null; }),
       listRecords(env, { recent: true }),
       listOffline(env, { recent: true }), // every offline payment (a few): the week's bookings', and the manual bookings'
     ]);
+    const pays = paysOf(all, program.id), near = overlappingPrograms(program);
     const online = groupBookings(program, [...pays, ...offline.filter(o => o.md.aob_program === program.id)]);
     const manual = recs.filter(r => r.type === 'booking' && overlaps(r, weekRange(program))).map(r => manualBooking(r, offline));
     const bookings = [...online, ...manual].sort((a, b) => b.created - a.created);
-    const occ = buildOccupancy(program, pays, open, [], recs);
+    const occ = buildOccupancy(program, all, await groupSessions(env, program, rows), [], recs);
+    const others = near.map(q => ({ program: q, bookings: groupBookings(q, paysOf(all, q.id)) }));
     const checks = planRecords(pays).map(p => ({ p, state: planEndCheckRecord(p).state }));
     return send({
       live: true, programs, program: programSummary(program), program_detail: detail, bookings,
       rooms: roomsOf(program),
-      availability: availability(program, occ), holds: occ.holds,
-      ...roomingMap(program, online, recs),
+      // overlaps: the programs sharing some of these nights; their guests and holds take rooms here (availability
+      // counts them, never against this week's programme places), and the ones placed in a room are in the rooming
+      // map as read-only occupants (other: true)
+      overlaps: near.map(overlapOut),
+      availability: availability(program, occ), holds: occ.holds, holds_other: occ.other.holds,
+      ...roomingMap(program, online, recs, others),
       blocks: occ.records.filter(r => r.type === 'block').map(blockOut),
       setup: { ...setupBase(env), domains },
       // plans whose end date is missing or wrong (Repair payment plans fixes them) …
@@ -296,7 +313,8 @@ async function calendar(env, params, send) {
   if (!env.STRIPE_SECRET_KEY) return send({ ...base, demo: true, stays: [], blocks: [], unplaced: [], manual: [] });
   const weeksIn = progs.filter(p => overlaps(weekRange(p), range));
   const [recs, offline, recent] = await Promise.all([listRecords(env, { recent: true }), listOffline(env, { recent: true }), weeksIn.length ? recentRaw(env) : null]);
-  const weeks = await Promise.all(weeksIn.map(async p => ({ p, bookings: groupBookings(p, await programPayments(env, p, { recent, offline })) })));
+  const every = weeksIn.length ? await programsPayments(env, weeksIn, { recent, offline }) : [];
+  const weeks = weeksIn.map(p => ({ p, bookings: groupBookings(p, paysOf(every, p.id)) }));
   const stays = [], unplaced = [];
   for (const { p, bookings } of weeks) {
     const per = {};
@@ -334,10 +352,11 @@ async function conflictsFor(env, cand) {
   const progs = listPrograms().filter(p => overlaps(cand, weekRange(p)));
   const [recs, recent, rows] = await Promise.all([listRecords(env, { recent: true }), progs.length ? recentRaw(env) : null, progs.length ? openSessionsRaw(env) : []]);
   const others = recs.filter(r => r.customer !== cand.customer && r.status === 'active');
-  const weeks = await Promise.all(progs.map(async p => {
-    const [pays, open] = await Promise.all([programPayments(env, p, { recent }), openBookingSessions(env, p, rows)]);
-    return { program: p, bookings: groupBookings(p, pays), occ: buildOccupancy(p, pays, open, [], others) };
-  }));
+  // every week the candidate overlaps, in one search; a week's occupancy counts the other weeks of that set that
+  // overlap it (they share its rooms on the candidate's nights; a week the candidate doesn't touch can't clash)
+  const ids = new Set(progs.map(p => p.id)), holds = rows.filter(s => ids.has((s.metadata || {}).aob_program));
+  const every = progs.length ? await programsPayments(env, progs, { recent }) : [];
+  const weeks = progs.map(p => ({ program: p, bookings: groupBookings(p, paysOf(every, p.id)), occ: buildOccupancy(p, every, holds, [], others) }));
   return [...nameConflicts(cand, others, weeks), ...weeks.flatMap(w => weekConflicts(w.program, w.occ, cand))];
 }
 const CONFLICT = conflicts => ({ error: 'This clashes with what is already booked. Check the list, or save it anyway.', code: 'conflict', conflicts });
@@ -505,17 +524,20 @@ const saveOnBooking = saveAdminMeta;
 
 /* Warnings for the rooms this booking's guests are in, after its new assignment (records: the team's
    blocks and manual bookings, which count too). */
-function assignWarnings(program, bookings, booking, records = []) {
-  const { rooming } = roomingMap(program, bookings, records);
+function assignWarnings(program, bookings, booking, records = [], others = []) {
+  const { rooming } = roomingMap(program, bookings, records, others);
   const mine = new Set(Object.values(booking.assign || {}));
   const out = [];
   for (const name of mine) {
     const slot = rooming[name];
     if (!slot) continue;
+    // guests of an overlapping program in the room: say who (" (with Live Residential: Ana K., 20–26 Jun 2027)")
+    const theirs = slot.guests.filter(g => g.other);
+    const withOthers = theirs.length ? ` (with ${[...new Set(theirs.map(g => `${g.edition}: ${g.name}, ${rangeLabel(g.from, g.to)}`))].join('; ')})` : '';
     if (slot.conflict === 'blocked') out.push(slot.blocked.ext ? externalText(name, slot.blocked)
       : `${name} is blocked ${rangeLabel(slot.blocked.from, slot.blocked.to)} (${slot.blocked.reason}).`);
-    else if (slot.conflict === 'mixed') out.push(`${name}: women and men are in the same room.`);
-    else if (slot.conflict === 'over') out.push(`${name}: ${slot.guests.length} guests for ${slot.capacity} ${slot.capacity === 1 ? 'place' : 'beds'}.`);
+    else if (slot.conflict === 'mixed') out.push(`${name}: women and men are in the same room${withOthers}.`);
+    else if (slot.conflict === 'over') out.push(`${name}: ${slot.guests.length} guests for ${slot.capacity} ${slot.capacity === 1 ? 'place' : 'beds'}${withOthers}.`);
   }
   return out;
 }
@@ -553,11 +575,12 @@ async function createLink(env, body, send) {
   const params = bookingCheckoutParams(program, q, ref, md, returnUrl, { hours: 23.9, consent: true });
   if (!env.STRIPE_SECRET_KEY) return send({ ok: true, demo: true, url: null, ref, expires_at: params.expires_at, quote: publicQuote(q), ...termsInfo(program, params), stripe_params: params });
 
-  const [payments, open, records] = await Promise.all([programPayments(env, program), openBookingSessions(env, program), listRecords(env, { recent: true })]);
+  // the overlapping programs' bookings and holds take rooms too (same searches, same list)
+  const [payments, open, records] = await Promise.all([groupPayments(env, program), groupSessions(env, program), listRecords(env, { recent: true })]);
   // an earlier link for the same guest is replaced (one hold per person): left out of the check,
   // given up only once the new link exists (and only if it can be: see below)
   const lead = q.guests[0].email;
-  const mineS = open.filter(s => s.metadata.aob_source === 'admin' && s.metadata.aob_lead_email === lead);
+  const mineS = open.filter(s => s.metadata.aob_program === program.id && s.metadata.aob_source === 'admin' && s.metadata.aob_lead_email === lead);
   const mine = mineS.map(s => s.id), mineRefs = new Set(mineS.map(s => s.metadata.aob_ref).filter(Boolean));
   const avail = availability(program, buildOccupancy(program, payments, open, mine, records));
   const full = checkAvailability(program, q, avail);
@@ -567,7 +590,7 @@ async function createLink(env, body, send) {
   // the same race check as a guest's checkout: an earlier hold for the last places wins, and a hold
   // paid meanwhile counts as booked (except the link being replaced: a payment of it is answered below)
   try {
-    const [fresh, recent] = await Promise.all([openBookingSessions(env, program), recentProgramPayments(env, program)]);
+    const [fresh, recent] = await Promise.all([groupSessions(env, program), recentProgramPayments(env, program, occupancyGroup(program))]);
     const created = session.created || nowSec();
     const earlier = fresh.filter(s => s.id !== session.id && !mine.includes(s.id) && s.created <= created);
     const pays = mergePayments(payments, recent).filter(p => !mineRefs.has(p.md.aob_ref));
@@ -892,9 +915,11 @@ async function runAction(context, env, body, send, hint) {
       // warnings over the whole week (other bookings' guests may share the room)
       let warnings = [];
       try {
-        const [pays, recs] = await Promise.all([programPayments(env, program), listRecords(env, { recent: true })]);
-        const others = groupBookings(program, pays).filter(b => b.ref !== ref);
-        warnings = assignWarnings(program, [...others, { ...booking, assign }], { assign }, recs);
+        // the guests of the programs overlapping this week who are placed in its rooms count too
+        const [all, recs] = await Promise.all([groupPayments(env, program), listRecords(env, { recent: true })]);
+        const others = groupBookings(program, paysOf(all, program.id)).filter(b => b.ref !== ref);
+        const near = overlappingPrograms(program).map(q => ({ program: q, bookings: groupBookings(q, paysOf(all, q.id)) }));
+        warnings = assignWarnings(program, [...others, { ...booking, assign }], { assign }, recs, near);
       } catch (e) { logError('admin.assign_warnings', e, { ref }); warnings = assignWarnings(program, [{ ...booking, assign }], { assign }); }
       return send({ ok: true, ref, assign, warnings });
     }

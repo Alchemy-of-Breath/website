@@ -81,7 +81,7 @@ import {
   stripe, searchAll, nowSec, logError, str, cut, timingSafeEqual, validDay, addDays, todayIso, overlaps, weekRange, listPrograms, qs,
   calendarRooms, listRecords, recentCustomers, parseRecord, recordsChanged, programPayments, groupBookings, rangeLabel, channelLabel, guestShort,
   timeoutSignal, countSubrequest, isBusy, nightsBetween, recentRaw, isExternal, parseAssign, assignToString, saveAdminMeta, currentBookingMeta,
-  forgetBooking, physicalRooms, placeGuests, rateLimited,
+  forgetBooking, physicalRooms, placeGuests, rateLimited, groupPayments, paysOf, overlappingPrograms, programsPayments,
 } from './core.js';
 import { logActivity, scrubText, UPLISTING_ACTOR, SYSTEM_ACTOR } from './team.js';
 
@@ -913,14 +913,14 @@ function withOverride(bookings, o) {
   return bookings.map(b => (b.ref !== o.ref ? b : { ...b, ...(o.assign ? { assign: { ...o.assign } } : {}), ...(o.status ? { status: o.status } : {}) }));
 }
 const weeksIn = (from, to) => listPrograms().filter(p => overlaps(weekRange(p), { from, to })).sort((a, b) => (a.dates.start < b.dates.start ? -1 : 1));
-/* Stripe calls to read the weeks [from, to) overlaps: 2 real-time lists + 2 searches a week */
-const weeksCost = (from, to) => { const n = weeksIn(from, to).length; return n ? 2 + 2 * n : 0; };
+/* Stripe calls to read the weeks [from, to) overlaps: 2 real-time lists + 2 searches per 10 weeks (one OR'ed search
+   for them all, see programsPayments) */
+const weeksCost = (from, to) => { const n = weeksIn(from, to).length; return n ? 2 + 2 * Math.ceil(n / 10) : 0; };
 async function loadWeeks(env, from, to, override = null) {
   const progs = weeksIn(from, to);
   if (!progs.length) return [];
-  const recent = recentRaw(env);
-  recent.catch(() => {});
-  return Promise.all(progs.map(async p => ({ program: p, bookings: withOverride(groupBookings(p, await programPayments(env, p, { recent })), override) })));
+  const every = await programsPayments(env, progs);
+  return progs.map(p => ({ program: p, bookings: withOverride(groupBookings(p, paysOf(every, p.id)), override) }));
 }
 
 /* -------------------------------------------------------------- the push */
@@ -1219,8 +1219,10 @@ export async function autoPlace(env, program, md, { host = '', actor = SYSTEM_AC
   if (settings.autoplace === 'off') return { placed: 0, reason: 'off' };
   const recent = recentRaw(env);
   recent.catch(() => {});
-  const [pays, records] = await Promise.all([programPayments(env, program, { recent }), listRecords(env, { recent: true })]);
-  const all = groupBookings(program, pays), booking = all.find(b => b.ref === ref);
+  // the programs overlapping this week share its rooms: their placed guests are read in the same searches
+  const [every, records] = await Promise.all([groupPayments(env, program, { recent }), listRecords(env, { recent: true })]);
+  const all = groupBookings(program, paysOf(every, program.id)), booking = all.find(b => b.ref === ref);
+  const near = overlappingPrograms(program).map(q => ({ program: q, bookings: groupBookings(q, paysOf(every, q.id)) }));
   if (!booking) return { placed: 0, reason: 'not_found' };
   const cur = await currentBookingMeta(env, booking); // fresh: the team may have placed someone a moment ago
   if (cur.aob_status === 'cancelled' || booking.status === 'cancelled') return { placed: 0, reason: 'cancelled' };
@@ -1228,7 +1230,7 @@ export async function autoPlace(env, program, md, { host = '', actor = SYSTEM_AC
   const guests = booking.guests.map((g, i) => ({ i, gender: g.gender, room: g.room })).filter(g => !have[g.i] && named(g.room));
   if (!guests.length) return { placed: 0, reason: 'placed' };
   const others = all.map(b => (b.ref === ref ? { ...b, assign: have } : b));
-  const add = placeGuests(program, physicalRooms(program, others, records), guests, null, ref);
+  const add = placeGuests(program, physicalRooms(program, others, records, near), guests, null, ref);
   const n = Object.keys(add).length;
   if (!n) return { placed: 0, unplaced: guests.length, reason: 'no_room' };
   const assign = { ...have, ...add }, s = assignToString(assign);
@@ -1242,7 +1244,7 @@ export async function autoPlace(env, program, md, { host = '', actor = SYSTEM_AC
   const result = { placed: n, unplaced, assign };
   if (settings.push === 'on') {
     const rooms = [...new Set(Object.values(assign))];
-    result.push = pushAfter(env, { actor, host, rooms, from: wk.from, to: wk.to, override: { ref, assign }, weeks: [{ program, bookings: all }], records, ref });
+    result.push = pushAfter(env, { actor, host, rooms, from: wk.from, to: wk.to, override: { ref, assign }, weeks: [{ program, bookings: all }, ...near], records, ref });
   }
   return result;
 }

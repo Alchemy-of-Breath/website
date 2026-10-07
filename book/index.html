@@ -72,8 +72,10 @@
 </script>
 <!-- AOB-UTM:end -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Book BreathCamp at ASHA | Alchemy of Breath</title>
-<meta name="description" content="Choose your BreathCamp week at ASHA Retreat Centre in Tuscany, then your room: live availability, the programme and your stay with all meals in one booking, secure payment by Stripe.">
+<!-- HUB-HEAD -->
+<title>Book your programme at ASHA | Alchemy of Breath</title>
+<meta name="description" content="Choose Alchemy Regulation Method, Live Residential Facilitator Training, Intuition Retreat or BreathCamp at ASHA Retreat Centre in Tuscany, then your room: live availability, the programme and your stay with all meals in one booking, secure payment by Stripe.">
+<!-- /HUB-HEAD -->
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#FBF7EF">
 <link rel="icon" type="image/png" href="https://alchemyofbreath.com/wp-content/uploads/AOB-Gold-Black-Transparant-symbol.png">
@@ -149,9 +151,10 @@ h1,h2,h3{font-family:var(--serif);font-weight:400;line-height:1.15;margin:0}
 .pl b{font-weight:500}
 @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(0,165,178,.5)}75%,100%{box-shadow:0 0 0 7px rgba(0,165,178,0)}}
 @keyframes shimmer{to{background-position:-200% 0}}
-.wk h3{margin:14px 0 0;line-height:1}
-.wk h3 .dd{display:block;font-size:2.7rem;letter-spacing:-.015em}
-.wk h3 .mm{display:block;margin-top:6px;font-size:1.2rem;font-style:italic;color:var(--gold-text)}
+.wk .wh{margin:14px 0 0;line-height:1;font-family:var(--serif);font-weight:400}
+.wk .wh .dd{display:block;font-size:2.7rem;letter-spacing:-.015em}
+.wk .wh .mm{display:block;margin-top:6px;font-size:1.2rem;font-style:italic;color:var(--gold-text)}
+.wk .wh .dd.long{font-size:2rem}
 .wk-l{margin:10px 0 0;font-size:.88rem;color:var(--slate);line-height:1.5}
 .perf{--stub:var(--cream);position:relative;height:22px;margin:0 0 6px;background:linear-gradient(180deg,var(--stub) 50%,#fff 50%)}
 .perf::before{content:"";position:absolute;left:22px;right:22px;top:50%;border-top:1.5px dashed rgba(225,182,104,.6)}
@@ -167,7 +170,7 @@ h1,h2,h3{font-family:var(--serif);font-weight:400;line-height:1.15;margin:0}
 .wk-a{margin-top:auto;padding-top:18px;display:flex;flex-direction:column;align-items:stretch;gap:6px}
 .wk-a .alt{align-self:center;display:inline-block;padding:12px 6px;margin:-4px 0 -10px;font-size:.84rem}
 .wk.is-full .wk-h,.wk.is-closed .wk-h,.wk.is-full .perf,.wk.is-closed .perf{--stub:#F4F2EE}
-.wk.is-full h3 .mm,.wk.is-closed h3 .mm{color:var(--slate)}
+.wk.is-full .wh .mm,.wk.is-closed .wh .mm{color:var(--slate)}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;border:0;cursor:pointer;text-decoration:none;font-weight:500;font-size:.95rem;letter-spacing:.03em;border-radius:999px;padding:15px 26px;min-height:48px;transition:transform .2s,box-shadow .2s,filter .2s,background .2s}
 .btn-primary{background:var(--grad-gold);color:var(--ink);box-shadow:0 10px 26px rgba(214,166,82,.4)}
 .btn-primary:hover{transform:translateY(-1px);filter:brightness(1.05);box-shadow:0 14px 34px rgba(214,166,82,.52)}
@@ -175,6 +178,16 @@ h1,h2,h3{font-family:var(--serif);font-weight:400;line-height:1.15;margin:0}
 .btn-ghost:hover{background:rgba(34,31,32,.04)}
 .btn .arr{transition:transform .2s}.btn:hover .arr{transform:translateX(3px)}
 .empty{margin:0;padding:22px;border:1px dashed rgba(34,31,32,.2);border-radius:18px;background:#fff;color:var(--slate)}
+/* several programmes: one group per programme (consecutive dates of one title), in date order */
+.grp{margin:0 0 30px;padding-top:24px;border-top:1px solid rgba(225,182,104,.3)}
+.grp:first-child{padding-top:0;border-top:0}
+.grp:last-child{margin-bottom:0}
+.grp-h{margin:0 0 16px;min-width:0}
+.grp-h h3{font-size:1.5rem;margin:0}
+.grp-s{margin:8px 0 0;font-size:.88rem;color:var(--slate);line-height:1.55;max-width:46em;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden}
+.grp-a{display:inline-flex;align-items:center;gap:6px;margin-top:4px;padding:8px 0;font-size:.86rem;color:var(--gold-text);text-decoration:none}
+.grp-a:hover{text-decoration:underline;text-underline-offset:3px}
+.wks.many{grid-template-columns:minmax(0,1fr)}
 
 /* how it works + trust */
 .how{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:26px var(--gutr) 0 var(--gut)}
@@ -205,7 +218,11 @@ footer a{color:var(--slate);display:inline-block;padding:6px 0}
   .chips li:nth-child(n+3){display:inline-flex}
   .wks{grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:24px}
   .wk-h{padding:26px 28px 14px}.wk-b{padding:0 28px 26px}
-  .wk h3 .dd{font-size:3.1rem}
+  .wk .wh .dd{font-size:3.1rem}
+  .wk .wh .dd.long{font-size:2.3rem}
+  .wks.many{grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
+  .grp-h h3{font-size:1.7rem}
+  .grp-s{display:block;-webkit-line-clamp:none;overflow:visible}
   .wk-a{flex-direction:row;align-items:center;flex-wrap:wrap}
   .wk-a .btn{flex:1}
   .how ol{grid-template-columns:repeat(3,minmax(0,1fr))}
@@ -217,6 +234,8 @@ footer a{color:var(--slate);display:inline-block;padding:6px 0}
   .arch figcaption{display:block;position:absolute;left:-28px;bottom:34px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 16px;box-shadow:var(--shadow-soft);font-size:.78rem;line-height:1.4;max-width:220px}
   .arch figcaption strong{display:block;font-family:var(--serif);font-weight:400;font-size:1rem}
   .wk:hover{transform:translateY(-2px);box-shadow:var(--shadow-lift)}
+  .grp{display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:24px 44px;align-items:start}
+  .grp-h{margin:0;position:sticky;top:92px}
 }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 /* slim header: BreathCamp itself is explained on its own page */
@@ -241,16 +260,16 @@ footer a{color:var(--slate);display:inline-block;padding:6px 0}
 <main>
   <section class="hero slim" aria-labelledby="heroH">
     <div>
-      <p class="eyebrow" id="heroEyebrow">BreathCamp · ASHA, Tuscany</p>
-      <h1 id="heroH">Book BreathCamp <em>at ASHA</em>.</h1>
-      <p class="intro" id="heroIntro">Choose your week, then your room. One booking covers the programme and your stay at ASHA with all meals.</p>
+      <p class="eyebrow" id="heroEyebrow">Alchemy of Breath · ASHA, Tuscany</p>
+      <h1 id="heroH">Book your programme <em>at ASHA</em>.</h1>
+      <p class="intro" id="heroIntro">Choose your programme and dates, then your room. One booking covers the programme and your stay at ASHA with all meals.</p>
       <ul class="chips" id="heroChips" aria-label="At a glance"></ul>
     </div>
-    <a class="about-link" href="https://alchemyofbreath.com/breathcamps/" target="_blank" rel="noopener">About BreathCamp <span aria-hidden="true">&rarr;</span></a>
+    <a class="about-link" id="heroAbout" href="https://alchemyofbreath.com/breathcamps/" target="_blank" rel="noopener" hidden>About <span id="heroAboutT">BreathCamp</span> <span aria-hidden="true">&rarr;</span></a>
   </section>
 
   <section class="weeks" aria-labelledby="weeksH">
-    <h2 class="sec-h" id="weeksH">Choose your week</h2>
+    <h2 class="sec-h" id="weeksH">Choose your programme</h2>
     <div class="wks" id="weeks"></div>
     <noscript><p class="empty">Online booking needs JavaScript. Please turn it on, or <a href="https://wa.me/393534527348">message us on WhatsApp</a> and we'll help you book.</p></noscript>
   </section>
@@ -277,7 +296,7 @@ footer a{color:var(--slate);display:inline-block;padding:6px 0}
 
 <footer><p>Questions? <a id="footHelp" href="https://wa.me/393534527348" target="_blank" rel="noopener">Message us on WhatsApp</a> &middot; <a href="https://alchemyofbreath.com/terms-and-conditions/#breathcamp-policy" target="_blank" rel="noopener">Terms</a> &middot; <a href="https://alchemyofbreath.com/privacy-policy/" target="_blank" rel="noopener">Privacy Policy</a> &middot; <a href="https://alchemyofbreath.com/medical-disclaimer-contraindications/" target="_blank" rel="noopener">Medical disclaimer</a> &middot; &copy; Alchemy of Breath &amp; ASHA</p></footer>
 
-<script type="application/json" id="programsData">{"img_cdn":"https://cdn.jsdelivr.net/gh/Alchemy-of-Breath/website@d71a16219026b2ca74751a407f3e0d63c9b60e5d/assets/booking/rooms/","weeks":[{"id":"breathcamp-jul-2027-1","title":"BreathCamp","edition":"BreathCamp 1","dates":{"start":"2027-07-18","end":"2027-07-24","nights":6,"label":"Sunday 18 – Saturday 24 July 2027","short":"18–24 Jul 2027","medium":"18–24 July 2027"},"venue":"ASHA Retreat Centre","region":"Tuscany","currency":"EUR","url":"/book/breathcamp-jul-2027-1/","booking_closes":"2027-07-17","program_spaces":49,"programme_fee":888,"from_all_in":1649,"room_from":761,"hero_image":"asha-campus.jpg","services":10,"rooms":[{"id":"twin-ensuite","price":1407,"unit":"person","sleeps":2},{"id":"twin-shared-bath","price":1171,"unit":"person","sleeps":2},{"id":"triple-ensuite","price":1107,"unit":"person","sleeps":3},{"id":"glamping-single","price":1161,"unit":"person","sleeps":1},{"id":"glamping-twin","price":1037,"unit":"person","sleeps":2},{"id":"camper","price":807,"unit":"person","sleeps":1},{"id":"own-tent","price":761,"unit":"person","sleeps":1},{"id":"single-ensuite","price":1857,"unit":"person","sleeps":1},{"id":"cottage-one","price":2612,"unit":"person","sleeps":1},{"id":"cottage-two","price":5224,"unit":"cottage","sleeps":2}]},{"id":"breathcamp-jul-2027-2","title":"BreathCamp","edition":"BreathCamp 2","dates":{"start":"2027-07-25","end":"2027-07-31","nights":6,"label":"Sunday 25 – Saturday 31 July 2027","short":"25–31 Jul 2027","medium":"25–31 July 2027"},"venue":"ASHA Retreat Centre","region":"Tuscany","currency":"EUR","url":"/book/breathcamp-jul-2027-2/","booking_closes":"2027-07-24","program_spaces":49,"programme_fee":888,"from_all_in":1649,"room_from":761,"hero_image":"asha-campus.jpg","services":10,"rooms":[{"id":"twin-ensuite","price":1407,"unit":"person","sleeps":2},{"id":"twin-shared-bath","price":1171,"unit":"person","sleeps":2},{"id":"triple-ensuite","price":1107,"unit":"person","sleeps":3},{"id":"glamping-single","price":1161,"unit":"person","sleeps":1},{"id":"glamping-twin","price":1037,"unit":"person","sleeps":2},{"id":"camper","price":807,"unit":"person","sleeps":1},{"id":"own-tent","price":761,"unit":"person","sleeps":1},{"id":"single-ensuite","price":1857,"unit":"person","sleeps":1},{"id":"cottage-one","price":2612,"unit":"person","sleeps":1},{"id":"cottage-two","price":5224,"unit":"cottage","sleeps":2}]}]}</script><!-- /PROGRAMS-DATA -->
+<script type="application/json" id="programsData">{"img_cdn":"https://cdn.jsdelivr.net/gh/Alchemy-of-Breath/website@d71a16219026b2ca74751a407f3e0d63c9b60e5d/assets/booking/rooms/","weeks":[{"id":"arm-jun-2027","title":"Alchemy Regulation Method","edition":"ARM Coach Certification","dates":{"start":"2027-06-20","end":"2027-06-26","nights":6,"label":"Sunday 20 – Saturday 26 June 2027","short":"20–26 Jun 2027","medium":"20–26 June 2027"},"venue":"ASHA Retreat Centre","region":"Tuscany","currency":"EUR","url":"/book/arm-jun-2027/","booking_closes":"2027-06-19","program_spaces":49,"programme_fee":888,"from_all_in":1649,"room_from":761,"hero_image":"asha-campus.jpg","services":10,"about_url":"https://alchemyofbreath.com/alchemy-regulation-method/","summary":"The seven-day residential coach certification at ASHA: the full 60 hours of training on the land and online, the six stages of regulation felt in your own body first, hands-on partner practice of the session framework, and the online study after the week that completes your certification.","rooms":[{"id":"twin-ensuite","price":1407,"unit":"person","sleeps":2},{"id":"twin-shared-bath","price":1171,"unit":"person","sleeps":2},{"id":"triple-ensuite","price":1107,"unit":"person","sleeps":3},{"id":"glamping-single","price":1161,"unit":"person","sleeps":1},{"id":"glamping-twin","price":1037,"unit":"person","sleeps":2},{"id":"camper","price":807,"unit":"person","sleeps":1},{"id":"own-tent","price":761,"unit":"person","sleeps":1},{"id":"single-ensuite","price":1857,"unit":"person","sleeps":1},{"id":"cottage-one","price":2612,"unit":"person","sleeps":1},{"id":"cottage-two","price":5224,"unit":"cottage","sleeps":2}]},{"id":"live-residential-2027","title":"Live Residential Facilitator Training","edition":"Live Residential","dates":{"start":"2027-06-20","end":"2027-07-10","nights":20,"label":"Sunday 20 June – Saturday 10 July 2027","short":"20 Jun – 10 Jul 2027","medium":"20 June – 10 July 2027"},"venue":"ASHA Retreat Centre","region":"Tuscany","currency":"EUR","url":"/book/live-residential-2027/","booking_closes":"2027-06-19","program_spaces":49,"programme_fee":2664,"from_all_in":4947,"room_from":2283,"hero_image":"asha-campus.jpg","services":10,"about_url":"https://alchemyofbreath.com/live-residential-breathwork-facilitator-training/","summary":"The live residential that opens the four-month Breathwork Facilitator Training: twenty-one days at ASHA breathing Conscious Connected Breathing and the Mandala Breath every day, learning to hold individual and group sessions under close supervision, then around three months of online study and mentorship until you graduate with a triple-accredited certification.","rooms":[{"id":"twin-ensuite","price":4221,"unit":"person","sleeps":2},{"id":"twin-shared-bath","price":3513,"unit":"person","sleeps":2},{"id":"triple-ensuite","price":3321,"unit":"person","sleeps":3},{"id":"glamping-single","price":3483,"unit":"person","sleeps":1},{"id":"glamping-twin","price":3111,"unit":"person","sleeps":2},{"id":"camper","price":2421,"unit":"person","sleeps":1},{"id":"own-tent","price":2283,"unit":"person","sleeps":1},{"id":"single-ensuite","price":5571,"unit":"person","sleeps":1},{"id":"cottage-one","price":7836,"unit":"person","sleeps":1},{"id":"cottage-two","price":15672,"unit":"cottage","sleeps":2}]},{"id":"intuition-jul-2027","title":"Intuition Retreat","edition":"Intuition Retreat","dates":{"start":"2027-07-11","end":"2027-07-17","nights":6,"label":"Sunday 11 – Saturday 17 July 2027","short":"11–17 Jul 2027","medium":"11–17 July 2027"},"venue":"ASHA Retreat Centre","region":"Tuscany","currency":"EUR","url":"/book/intuition-jul-2027/","booking_closes":"2027-07-10","program_spaces":49,"programme_fee":888,"from_all_in":1649,"room_from":761,"hero_image":"asha-campus.jpg","services":10,"about_url":"https://alchemyofbreath.com/intuition-retreat","summary":"A week at ASHA with Amy Rachelle, ND, co-founder of Alchemy of Breath and ASHA: discover your intuitive gifts, learn to trust them and put them to work for your greater purpose, with an optional detox alongside.","rooms":[{"id":"twin-ensuite","price":1407,"unit":"person","sleeps":2},{"id":"twin-shared-bath","price":1171,"unit":"person","sleeps":2},{"id":"triple-ensuite","price":1107,"unit":"person","sleeps":3},{"id":"glamping-single","price":1161,"unit":"person","sleeps":1},{"id":"glamping-twin","price":1037,"unit":"person","sleeps":2},{"id":"camper","price":807,"unit":"person","sleeps":1},{"id":"own-tent","price":761,"unit":"person","sleeps":1},{"id":"single-ensuite","price":1857,"unit":"person","sleeps":1},{"id":"cottage-one","price":2612,"unit":"person","sleeps":1},{"id":"cottage-two","price":5224,"unit":"cottage","sleeps":2}]},{"id":"breathcamp-jul-2027-1","title":"BreathCamp","edition":"BreathCamp 1","dates":{"start":"2027-07-18","end":"2027-07-24","nights":6,"label":"Sunday 18 – Saturday 24 July 2027","short":"18–24 Jul 2027","medium":"18–24 July 2027"},"venue":"ASHA Retreat Centre","region":"Tuscany","currency":"EUR","url":"/book/breathcamp-jul-2027-1/","booking_closes":"2027-07-17","program_spaces":49,"programme_fee":888,"from_all_in":1649,"room_from":761,"hero_image":"asha-campus.jpg","services":10,"about_url":"https://alchemyofbreath.com/breathcamps/","summary":"Every breathwork session, workshop, class and evening event with Amy, Anthony and senior Alchemy of Breath trainers, daily yoga and course materials, plus the whole of ASHA in summer: the pool, the creeks, the Dharma Den, Nadi Shala and Prana Shala.","rooms":[{"id":"twin-ensuite","price":1407,"unit":"person","sleeps":2},{"id":"twin-shared-bath","price":1171,"unit":"person","sleeps":2},{"id":"triple-ensuite","price":1107,"unit":"person","sleeps":3},{"id":"glamping-single","price":1161,"unit":"person","sleeps":1},{"id":"glamping-twin","price":1037,"unit":"person","sleeps":2},{"id":"camper","price":807,"unit":"person","sleeps":1},{"id":"own-tent","price":761,"unit":"person","sleeps":1},{"id":"single-ensuite","price":1857,"unit":"person","sleeps":1},{"id":"cottage-one","price":2612,"unit":"person","sleeps":1},{"id":"cottage-two","price":5224,"unit":"cottage","sleeps":2}]},{"id":"breathcamp-jul-2027-2","title":"BreathCamp","edition":"BreathCamp 2","dates":{"start":"2027-07-25","end":"2027-07-31","nights":6,"label":"Sunday 25 – Saturday 31 July 2027","short":"25–31 Jul 2027","medium":"25–31 July 2027"},"venue":"ASHA Retreat Centre","region":"Tuscany","currency":"EUR","url":"/book/breathcamp-jul-2027-2/","booking_closes":"2027-07-24","program_spaces":49,"programme_fee":888,"from_all_in":1649,"room_from":761,"hero_image":"asha-campus.jpg","services":10,"about_url":"https://alchemyofbreath.com/breathcamps/","summary":"Every breathwork session, workshop, class and evening event with Amy, Anthony and senior Alchemy of Breath trainers, daily yoga and course materials, plus the whole of ASHA in summer: the pool, the creeks, the Dharma Den, Nadi Shala and Prana Shala.","rooms":[{"id":"twin-ensuite","price":1407,"unit":"person","sleeps":2},{"id":"twin-shared-bath","price":1171,"unit":"person","sleeps":2},{"id":"triple-ensuite","price":1107,"unit":"person","sleeps":3},{"id":"glamping-single","price":1161,"unit":"person","sleeps":1},{"id":"glamping-twin","price":1037,"unit":"person","sleeps":2},{"id":"camper","price":807,"unit":"person","sleeps":1},{"id":"own-tent","price":761,"unit":"person","sleeps":1},{"id":"single-ensuite","price":1857,"unit":"person","sleeps":1},{"id":"cottage-one","price":2612,"unit":"person","sleeps":1},{"id":"cottage-two","price":5224,"unit":"cottage","sleeps":2}]}]}</script><!-- /PROGRAMS-DATA -->
 <script>
 (function(){
   'use strict';
@@ -318,24 +337,41 @@ footer a{color:var(--slate);display:inline-block;padding:6px 0}
   }
   function days(d){ var s = utcDate(d.start), e = utcDate(d.end); return s && e ? fmt(s, { weekday:'long' }) + ' to ' + fmt(e, { weekday:'long' }) : ''; }
   var CAL = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>';
+  // The programmes (BreathCamp, Alchemy Regulation Method, …): the weeks come in date order; consecutive weeks of
+  // one title are one group. One title only: the page reads as it always did ("Book BreathCamp at ASHA").
+  var GROUPS = [];
+  WEEKS.forEach(function(w){
+    var t = w.title || w.edition || '', g = GROUPS[GROUPS.length - 1];
+    if (!g || g.title !== t) GROUPS.push(g = { title: t, about: w.about_url || '', summary: w.summary || '', weeks: [] });
+    g.weeks.push(w);
+  });
+  var TITLES = GROUPS.map(function(g){ return g.title; }).filter(function(x, i, a){ return a.indexOf(x) === i; });
+  var ONE = TITLES.length <= 1 ? (TITLES[0] || 'BreathCamp') : null;   // the one programme's title, else null
 
   /* ---------------- hero ---------------- */
   (function(){
     var first = WEEKS[0];
     if (first) {
       var venue = first.venue || 'ASHA Retreat Centre', region = first.region || '';
-      $('heroEyebrow').textContent = 'BreathCamp · ' + venue.replace(' Retreat Centre', '') + (region ? ', ' + region : '');
+      $('heroEyebrow').textContent = (ONE || 'Alchemy of Breath') + ' · ' + venue.replace(' Retreat Centre', '') + (region ? ', ' + region : '');
+    }
+    if (ONE) {
+      $('heroH').innerHTML = 'Book ' + esc(ONE) + ' <em>at ASHA</em>.';
+      $('weeksH').textContent = 'Choose your week';
+      if (first && first.about_url) { $('heroAbout').href = first.about_url; $('heroAboutT').textContent = ONE; $('heroAbout').hidden = false; }
     }
     var same = function(k){ return WEEKS.length && WEEKS.every(function(w){ return w[k] === first[k]; }); };
     var fee = same('programme_fee') ? first.programme_fee : null;
     var nights = WEEKS.length && WEEKS.every(function(w){ return w.dates && w.dates.nights === first.dates.nights; }) ? first.dates.nights : null;
+    var pick = ONE ? 'your week' : 'your programme and dates';
     $('heroIntro').textContent = ROOM_ONLY
-      ? 'Choose your week, then your room: ' + (nights ? nights + ' nights' : 'your stay') + ' at ASHA with all meals, for guests who have already paid the programme fee.'
-      : 'Choose your week, then your room. One booking covers ' + (fee ? 'the ' + money(fee) + ' programme fee and ' : '') + (nights ? nights + ' nights at ASHA' : 'your stay at ASHA') + ' with all meals.';
+      ? 'Choose ' + pick + ', then your room: ' + (nights ? nights + ' nights' : 'your stay') + ' at ASHA with all meals, for guests who have already paid the programme fee.'
+      : 'Choose ' + pick + ', then your room. One booking covers ' + (fee ? 'the ' + money(fee) + ' programme fee and ' : 'the programme and ') + (nights ? nights + ' nights at ASHA' : 'your stay at ASHA') + ' with all meals.';
     var chips = [];
     if (WEEKS.length) {
       var months = WEEKS.map(function(w){ var d = utcDate(w.dates.start); return d ? fmt(d, { month:'long', year:'numeric' }) : ''; }).filter(function(x, i, a){ return x && a.indexOf(x) === i; });
-      chips.push(WEEKS.length + (WEEKS.length === 1 ? ' week' : ' weeks') + (months.length === 1 ? ' in ' + months[0] : ''));
+      if (ONE) chips.push(WEEKS.length + (WEEKS.length === 1 ? ' week' : ' weeks') + (months.length === 1 ? ' in ' + months[0] : ''));
+      else chips.push(TITLES.length + ' programmes' + (months.length === 1 ? ' in ' + months[0] : months.length > 1 ? ', ' + months[0].split(' ')[0] + ' – ' + months[months.length - 1] : ''));
     }
     if (nights) chips.push(nights + ' nights, all meals');
     chips.push('Live availability');
@@ -387,14 +423,16 @@ footer a{color:var(--slate);display:inline-block;padding:6px 0}
   }
   function card(w){
     var r = range(w.dates || {}), pl = placesHtml(w), n = w.dates && w.dates.nights, closes = utcDate(w.booking_closes);
+    var h = ONE ? 'h3' : 'h4', long = r.big.length > 9 ? ' long' : '';   // under a programme heading the dates are h4
+    var wk = n > 7 ? 'these dates' : 'this week';                       // a three-week residential isn't "this week"
     var when = (w.edition || w.title) + ' (' + ((w.dates && w.dates.short) || r.big + ' ' + r.small) + ')';
     var action;
     if (pl.state === 'closed') action = '<a class="btn btn-ghost" href="' + esc(waLink('Hi! Online booking for ' + when + ' has closed. Is a place still possible?')) + '" target="_blank" rel="noopener">Message us on WhatsApp</a>';
-    else if (pl.state === 'full') action = '<a class="btn btn-ghost" href="' + esc(waLink('Hi! I\'d like to join the waitlist for ' + when + '.')) + '" target="_blank" rel="noopener">Join the waitlist</a><a class="alt" href="' + esc(weekUrl(w)) + '">See this week</a>';
-    else action = '<a class="btn btn-primary" href="' + esc(weekUrl(w)) + '" aria-label="Choose ' + esc(w.edition || w.title) + ', ' + esc(r.big + ' ' + r.small) + '">Choose this week <span class="arr" aria-hidden="true">&rarr;</span></a>';
+    else if (pl.state === 'full') action = '<a class="btn btn-ghost" href="' + esc(waLink('Hi! I\'d like to join the waitlist for ' + when + '.')) + '" target="_blank" rel="noopener">Join the waitlist</a><a class="alt" href="' + esc(weekUrl(w)) + '">See ' + wk + '</a>';
+    else action = '<a class="btn btn-primary" href="' + esc(weekUrl(w)) + '" aria-label="Choose ' + esc(w.edition || w.title) + ', ' + esc(r.big + ' ' + r.small) + '">Choose ' + wk + ' <span class="arr" aria-hidden="true">&rarr;</span></a>';
     return '<article class="wk' + (pl.state === 'full' ? ' is-full' : pl.state === 'closed' ? ' is-closed' : '') + '" id="wk-' + esc(w.id) + '" aria-labelledby="wkh-' + esc(w.id) + '">' +
       '<div class="wk-h"><div class="wk-top"><p class="wk-ed">' + esc(w.edition || w.title) + '</p><p class="' + pl.cls + '"' + (pl.html ? '' : ' hidden') + '>' + pl.html + '</p></div>' +
-        '<h3 id="wkh-' + esc(w.id) + '"><span class="vh">' + esc(w.edition || w.title) + ', </span><span class="dd">' + esc(r.big) + '</span><span class="mm">' + esc(r.small) + '</span></h3>' +
+        '<' + h + ' class="wh" id="wkh-' + esc(w.id) + '"><span class="vh">' + esc(w.edition || w.title) + ', </span><span class="dd' + long + '">' + esc(r.big) + '</span><span class="mm">' + esc(r.small) + '</span></' + h + '>' +
         '<p class="wk-l">' + esc(days(w.dates || {})) + (n ? ' · ' + n + ' nights' : '') + '<br>' + esc(w.venue || '') + (w.region ? ', ' + esc(w.region) : '') + '</p></div>' +
       '<div class="perf" aria-hidden="true"><i></i><i></i></div>' +
       '<div class="wk-b">' +
@@ -403,9 +441,16 @@ footer a{color:var(--slate);display:inline-block;padding:6px 0}
         (closes && pl.state !== 'closed' ? '<p class="wk-c">' + CAL + 'Booking closes ' + esc(fmt(closes, { day:'numeric', month:'long' })) + '</p>' : '') +
         '<div class="wk-a">' + action + '</div></div></article>';
   }
+  function group(g, i){
+    return '<section class="grp" aria-labelledby="grp-' + i + '"><div class="grp-h"><h3 id="grp-' + i + '">' + esc(g.title) + '</h3>' +
+      (g.summary ? '<p class="grp-s">' + esc(g.summary) + '</p>' : '') +
+      (g.about ? '<a class="grp-a" href="' + esc(g.about) + '" target="_blank" rel="noopener">About ' + esc(g.title) + ' <span aria-hidden="true">&rarr;</span></a>' : '') + '</div>' +
+      '<div class="wks many">' + g.weeks.map(card).join('') + '</div></section>';
+  }
   function render(){
+    if (!ONE && WEEKS.length) { $('weeks').className = ''; $('weeks').innerHTML = GROUPS.map(group).join(''); return; }
     $('weeks').innerHTML = WEEKS.length ? WEEKS.map(card).join('')
-      : '<p class="empty">There are no weeks open for booking right now. <a href="' + esc(waLink('Hi! When can I book the next BreathCamp?')) + '" target="_blank" rel="noopener">Message us on WhatsApp</a> and we\'ll tell you when the next one opens.</p>';
+      : '<p class="empty">There are no weeks open for booking right now. <a href="' + esc(waLink('Hi! When can I book the next ' + (ONE || 'programme') + '?')) + '" target="_blank" rel="noopener">Message us on WhatsApp</a> and we\'ll tell you when the next one opens.</p>';
   }
   // only the places line and the button change once the live numbers arrive
   function update(w){
@@ -433,7 +478,7 @@ footer a{color:var(--slate);display:inline-block;padding:6px 0}
   loadAll();
   document.addEventListener('visibilitychange', function(){ if (!document.hidden && Date.now() - loadedAt > 60000) loadAll(); });
 
-  var wa = waLink('Hi! I have a question about booking BreathCamp at ASHA.');
+  var wa = waLink('Hi! I have a question about booking ' + (ONE ? ONE + ' ' : '') + 'at ASHA.');
   ['helpLink','trustWa','footHelp'].forEach(function(id){ $(id).href = wa; });
 })();
 </script>

@@ -30,7 +30,13 @@ prices in whole euros, minutes, limits). A program opts in with "services": "all
 service ids; the resolved list is compiled into the program for the server (prices) and the page.
 Rooms may list their physical rooms in "names" (shared rooms: one per unit; others: one per place);
 the admin uses them for room assignment.
-The hub page book/index.html gets the list of weeks (between the PROGRAMS-DATA markers).
+The hub page book/index.html gets the list of weeks (between the PROGRAMS-DATA markers), and its <title> and
+description (between the HUB-HEAD markers) from the programmes' titles.
+
+"ref_prefix" (optional): two capital letters that start the program's booking references (default "BC":
+BC2707-K4M9QX); MB, BL, UP and UC are the team's own references and can't be used.
+Programs whose nights overlap share the physical rooms (the server counts each other's guests): the same
+room id must mean the same physical rooms ("names") in both; build.py warns when it doesn't.
 
 The page gets a public copy of the program: internal notes ("about", "source" notes, RetreatGuru
 ids) stay in booking-lib/programs.js only. Its hero (between the HERO markers) is written here too,
@@ -43,6 +49,7 @@ import glob, html, json, os, re, subprocess
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 REQUIRED = ['id', 'title', 'dates', 'venue', 'currency', 'program_spaces', 'deposit', 'rooms', 'genders', 'terms_url']
 DATE = re.compile(r'\d{4}-\d{2}-\d{2}')
+RESERVED_REF_PREFIXES = ['MB', 'BL', 'UP', 'UC']  # manual bookings, blocks, Uplisting bookings / closures
 PM_TYPE = re.compile(r'[a-z][a-z0-9_]{1,40}')
 
 
@@ -159,6 +166,10 @@ def check_content(p):
             https(h.get('photo'), 'trust.hosts.photo', optional=True)
         texts(tr.get('facts'), 'trust.facts')
 
+    rp = p.get('ref_prefix')
+    if rp is not None and (not isinstance(rp, str) or not re.fullmatch(r'[A-Z]{2}', rp) or rp in RESERVED_REF_PREFIXES):
+        fail(f'ref_prefix must be two capital letters, not one of {RESERVED_REF_PREFIXES} (the team\'s own references)')
+
     wa = (p.get('contact') or {}).get('whatsapp')
     if wa is not None and not re.fullmatch(r'\+[1-9]\d{6,14}', str(wa)):
         fail('contact.whatsapp must be +<country code><number>, no spaces')
@@ -216,8 +227,28 @@ def load():
         if lpb not in (None, 'before_arrival') and not re.fullmatch(r'\d{4}-\d{2}-\d{2}', str(lpb)):
             raise SystemExit(f"{p['id']}: payment_plan.last_payment_by must be \"before_arrival\", YYYY-MM-DD or null")
         check_content(p)
+        if p['id'] in programs:
+            raise SystemExit(f"{p['id']}: two program files with this id")
         programs[p['id']] = p
+    # date order (earliest first, then the shorter one): the server's program list and every listing follow it
+    programs = dict(sorted(programs.items(), key=lambda kv: (kv[1]['dates']['start'], kv[1]['dates']['end'], kv[0])))
+    check_shared_rooms(programs)
     return programs
+
+
+def check_shared_rooms(programs):
+    """Overlapping programs count each other's guests in the rooms of the same id: warn when a room id means
+    different physical rooms in two of them (the counts would no longer match the rooms)."""
+    ps = list(programs.values())
+    for i, a in enumerate(ps):
+        for b in ps[i + 1:]:
+            if not (a['dates']['start'] < b['dates']['end'] and b['dates']['start'] < a['dates']['end']):
+                continue
+            rb = {r['id']: r for r in b['rooms']}
+            for r in a['rooms']:
+                o = rb.get(r['id'])
+                if o is not None and (r.get('names') != o.get('names') or r.get('sleeps') != o.get('sleeps')):
+                    print(f"warning: {a['id']} and {b['id']} overlap, but room {r['id']!r} differs (names or sleeps): their guests are counted in the same rooms")
 
 
 REPO = 'Alchemy-of-Breath/website'
@@ -349,7 +380,7 @@ def head_html(p):
     title = f'Book {ed} · {d.get("medium") or d["label"]} | Alchemy of Breath'
     fee = (p.get('programme') or {}).get('fee')
     desc = (f'Book {ed} at {p["venue"]["name"]} in Tuscany, {d.get("medium") or d["label"]}: '
-            + (f'the €{fee} programme fee and your room in one booking. ' if fee else 'choose your room. ')
+            + (f'the €{fee:,} programme fee and your room in one booking. ' if fee else 'choose your room. ')
             + 'Live availability, a deposit on your room or pay in full, secure payment by Stripe.')
     return f'\n<title>{e(title)}</title>\n<meta name="description" content="{e(desc)}">\n'
 
@@ -367,9 +398,27 @@ def hub_entry(p):
         'programme_fee': fee, 'from_all_in': min(all_in(r) for r in rooms if r['unit'] == 'person') if rooms else None,
         'room_from': min(r['price'] for r in rooms if r['unit'] == 'person') if rooms else None,
         'hero_image': p.get('hero_image') or 'asha-campus.jpg', 'services': len((p.get('services') or {}).get('items') or []),
+        'about_url': p.get('about_url'), 'summary': (p.get('programme') or {}).get('summary') or '',
         # so the hub can show a "from" price over rooms that are still bookable (live availability)
         'rooms': [{'id': r['id'], 'price': r['price'], 'unit': r['unit'], 'sleeps': r['sleeps']} for r in rooms],
     }
+
+
+def hub_head(weeks):
+    """<title> and meta description of the hub (book/index.html): one programme by its title, several in general."""
+    e = lambda s: html.escape(str(s), quote=True)
+    titles = []
+    for w in weeks:
+        if w['title'] not in titles:
+            titles.append(w['title'])
+    tail = 'then your room: live availability, the programme and your stay with all meals in one booking, secure payment by Stripe.'
+    if len(titles) <= 1:
+        t = titles[0] if titles else 'BreathCamp'
+        title, desc = f'Book {t} at ASHA | Alchemy of Breath', f'Choose your {t} week at ASHA Retreat Centre in Tuscany, {tail}'
+    else:
+        names = ', '.join(titles[:-1]) + ' or ' + titles[-1]
+        title, desc = 'Book your programme at ASHA | Alchemy of Breath', f'Choose {names} at ASHA Retreat Centre in Tuscany, {tail}'
+    return f'\n<title>{e(title)}</title>\n<meta name="description" content="{e(desc)}">\n'
 
 
 def day_month(iso):
@@ -440,10 +489,12 @@ def main():
             if '<!-- PROGRAM-HEAD -->' in open(page, encoding='utf-8').read():
                 inject(page, '<!-- PROGRAM-HEAD -->', '<!-- /PROGRAM-HEAD -->', head_html(p))
         print(f"book/{pid}/index.html: {'generated' if ok else 'no page yet'} (photos {img_base.split('@')[1].split('/')[0][:7]})")
-    weeks = sorted((hub_entry(p) for p in programs.values()), key=lambda w: w['dates']['start'])
+    weeks = sorted((hub_entry(p) for p in programs.values()), key=lambda w: (w['dates']['start'], w['dates']['end']))
     hub = json.dumps({'img_cdn': img_base, 'weeks': weeks}, ensure_ascii=False, separators=(',', ':')).replace('</', '<\\/')
-    if inject(os.path.join(ROOT, 'book', 'index.html'),
-              '<script type="application/json" id="programsData">', '</script><!-- /PROGRAMS-DATA -->', hub):
+    hub_page = os.path.join(ROOT, 'book', 'index.html')
+    if inject(hub_page, '<script type="application/json" id="programsData">', '</script><!-- /PROGRAMS-DATA -->', hub):
+        if '<!-- HUB-HEAD -->' in open(hub_page, encoding='utf-8').read():
+            inject(hub_page, '<!-- HUB-HEAD -->', '<!-- /HUB-HEAD -->', hub_head(weeks))
         print('book/index.html: updated')
     listing = json.dumps([{'id': p['id'], 'title': p['title'], 'edition': p.get('edition', ''), 'dates': p['dates']}
                           for p in sorted(programs.values(), key=lambda x: x['dates']['start'])], ensure_ascii=False, separators=(',', ':'))
