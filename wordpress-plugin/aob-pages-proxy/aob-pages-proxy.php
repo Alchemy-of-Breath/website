@@ -49,6 +49,8 @@ function aob_pages_proxy_serve() {
 		'the-bridge-workshop'  => '/the-bridge-workshop/',
 		'on-site-offer'        => '/on-site-offer/',
 		'breathwork-fundamentals' => '/breathwork-fundamentals/',
+		'shop'                 => '/shop/',
+		'3-ways-to-reduce-anxiety' => '/3-ways-to-reduce-anxiety/',
 	);
 
 	// Old URLs that now live somewhere else. Redirected so search engines and
