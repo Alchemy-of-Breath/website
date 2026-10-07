@@ -476,6 +476,8 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
 .rcard.upb:not(.conf){border-color:var(--up-line)}
 .rcard.upb .rb b{color:var(--up-ink)}
 .bed.upd{background:transparent;border:1px dashed var(--up-line);color:var(--up-ink);cursor:default;font-size:.76rem}
+.rcard.upcl{background:repeating-linear-gradient(135deg,rgba(122,91,181,.07) 0 2px,transparent 2px 8px),#FAF9FC;border-style:dashed}
+.rcard.upcl:not(.conf){border-color:#B9AAD8}
 
 /* ---------- calendar (rooming, all weeks) */
 .cal-tb{margin-bottom:10px}
@@ -572,6 +574,12 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
 .cb.blk .t span{color:#4b4446}
 .cb.up,.sw.up{background:var(--up-wash);color:var(--up-ink);border-left:3px solid var(--up)}
 .cb.up em{color:#5E4596}
+/* nights closed in Uplisting (RetreatGuru blocks, iCal imports…): grey-violet, hatched */
+.cb.upc,.sw.upc{background:repeating-linear-gradient(135deg,rgba(122,91,181,.2) 0 2px,transparent 2px 7px),#F3F1F6;color:var(--up-ink);border:1px dashed #A594C9;box-shadow:none}
+.sw.upc{border-left-width:1px}
+.cb.upc em{color:#5E4596}
+.cb.upc .t span{color:#4A3B6B}
+.cb.upc:hover{filter:brightness(.97)}
 .cb.unp{background:#fff;color:var(--err);border:1px dashed var(--err-line);box-shadow:none}
 .cb.clash{box-shadow:0 0 0 2px var(--err-strong);z-index:2}
 .sw.wk{background:var(--gold-wash);border-left:0;border:1px solid var(--gold-soft)}
@@ -713,6 +721,44 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
 .upbar.dirty{background:#fff;border:1px solid var(--warn-line);border-radius:14px;padding:8px 10px 8px 14px;box-shadow:var(--shadow-lift)}
 .upbar.dirty .st{color:var(--warn);font-weight:500}
 .pill.sys{background:var(--up-wash);color:var(--up-ink);border-color:var(--up-line)}
+/* push, auto-place, automatic sync */
+.upcards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,400px),1fr));gap:12px;margin:16px 0 0}
+.upcard{border:1px solid var(--line);border-radius:14px;padding:12px 14px 14px;min-width:0;background:#fff}
+.upcard.wide{grid-column:1/-1}
+.upcard.on{border-color:var(--teal-line);background:linear-gradient(180deg,var(--teal-wash),#fff 60%)}
+.uch{display:flex;align-items:center;justify-content:space-between;gap:8px 12px;flex-wrap:wrap}
+.uch h3{font-family:var(--serif);font-size:1.08rem;min-width:0}
+.ucd{font-size:.8rem;color:var(--slate);margin:6px 0 8px;line-height:1.5}
+.ust{font-size:.84rem;margin:0 0 6px;line-height:1.5;overflow-wrap:anywhere}
+.ust b{font-weight:500}
+.ust.bad{color:var(--err)}
+.ust.warn{color:var(--warn)}
+.upcard .tools{margin-top:10px}
+.upcard .warns{margin:6px 0 0}
+.tgl{all:unset;box-sizing:border-box;cursor:pointer;display:inline-flex;align-items:center;gap:8px;font-size:.82rem;font-weight:500;border-radius:999px;padding:3px 6px 3px 3px;min-height:32px;white-space:nowrap}
+.tgl .tr{position:relative;width:40px;height:24px;border-radius:999px;background:#CFC9C0;transition:background .15s;flex:none}
+.tgl .tr::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(34,31,32,.3);transition:transform .15s}
+.tgl[aria-checked="true"] .tr{background:var(--teal)}
+.tgl[aria-checked="true"] .tr::after{transform:translateX(16px)}
+.tgl:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+.tgl[aria-disabled="true"]{opacity:.6;cursor:progress}
+.howto{margin:10px 0 0;font-size:.82rem}
+.howto>summary{cursor:pointer;color:var(--teal-text);text-decoration:underline;text-underline-offset:3px;font-weight:500;width:max-content;max-width:100%;border-radius:4px}
+.howto>summary:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+.howto .upsteps{margin:10px 0 0;font-size:.82rem}
+.cprow{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;margin:6px 0 2px}
+.cprow code{flex:1 1 220px;min-width:0;padding:6px 9px;line-height:1.45}
+.howto mark{background:var(--warn-wash);color:var(--warn);border-radius:4px;padding:0 3px;font-weight:500}
+/* the push preview (modal) */
+.pvsum{font-size:.88rem;margin:0 0 10px}
+.pvsum b{font-weight:500}
+.pvg{margin:14px 0 0;padding-top:12px;border-top:1px solid var(--rule)}
+.pvg h3{font-family:var(--sans);font-size:.92rem;font-weight:500;margin:0 0 2px;overflow-wrap:anywhere}
+.pvg .pvm{font-size:.76rem;color:var(--slate);margin:0 0 6px;overflow-wrap:anywhere}
+.pvt td{vertical-align:baseline}
+@media (min-width:761px){.pvt{table-layout:fixed}.pvt th:nth-child(1){width:24%}.pvt th:nth-child(2){width:32%}}
+.pvt .refs{display:flex;flex-wrap:wrap;gap:4px 8px}
+.pvt .pill{margin:0}
 @media (max-width:640px){
   .umr{grid-template-columns:minmax(0,1fr)}
   .umr select{max-width:none;width:100%}
@@ -974,9 +1020,18 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
   function uStatusLabel(s){ s = String(s || ''); if (USTATUS[s]) return USTATUS[s]; s = s.replace(/_/g, ' '); return s ? s.charAt(0).toUpperCase() + s.slice(1) : '–'; }
   // "Jon Smith" → "Jon S." (how Uplisting guests show in the calendar and on the boards)
   function shortGuest(n){ var p = String(n || '').trim().split(/\s+/).filter(Boolean); return p.length > 1 ? p[0] + ' ' + p[p.length - 1].charAt(0) + '.' : p[0] || 'Guest'; }
-  function isExt(bl){ return !!bl && ((!!bl.ext && typeof bl.ext === 'object') || bl.reason === 'uplisting' || /^UP-/.test(String(bl.id || ''))); }
+  function isExt(bl){ return !!bl && ((!!bl.ext && typeof bl.ext === 'object') || bl.reason === 'uplisting' || /^U[PC]-/.test(String(bl.id || ''))); }
   function extOf(bl){ return bl && bl.ext && typeof bl.ext === 'object' ? bl.ext : {}; }
-  function upLabel(bl){ var x = extOf(bl); return channelLabel(x.channel) + ' · ' + shortGuest(x.guest); }
+  /* Nights closed in Uplisting (a RetreatGuru block, an iCal import, an admin block or a season closure there)
+     come in the same way: id UC-<listing id>-<first night>, reason 'uplisting', ext.kind 'closed' (bookings:
+     'booking'), comment 'Closed in Uplisting', the listing's one room. Nights this system pushed never do. */
+  function isClosed(bl){
+    if (!bl) return false;
+    var x = extOf(bl);
+    if (x.kind) return x.kind === 'closed';
+    return /^UC-/.test(String(bl.id || '')) || (isExt(bl) && !x.guest && !x.channel && /^closed in uplisting/i.test(String(bl.comment || '')));
+  }
+  function upLabel(bl){ var x = extOf(bl); return isClosed(bl) ? 'Closed in Uplisting' : channelLabel(x.channel) + ' · ' + shortGuest(x.guest); }
 
   /* ================================================================ API
      The Bearer is the main admin's ADMIN_TOKEN, or a team member's session token (aobu.…, from
@@ -1270,14 +1325,14 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     });
     return { byName: byName, order: order, unassigned: unassigned, noRoom: noRoom, conflicts: conflicts, rooms: rooms };
   }
-  function conflictText(x){ return x.conflict === 'blocked' ? (isExt(x.blocked) ? 'Guests placed in a room booked on Uplisting' : 'Guests placed in a blocked room') :x.conflict === 'mixed' ? 'Women and men in a same-gender room' : x.guests.length + ' guests for ' + plural(x.beds, 'bed'); }
+  function conflictText(x){ return x.conflict === 'blocked' ? (isClosed(x.blocked) ? 'Guests placed in a room closed in Uplisting' : isExt(x.blocked) ? 'Guests placed in a room booked on Uplisting' : 'Guests placed in a blocked room') :x.conflict === 'mixed' ? 'Women and men in a same-gender room' : x.guests.length + ' guests for ' + plural(x.beds, 'bed'); }
   function areaOf(name){ var p = String(name).split(' · '); return p.length > 1 ? p.slice(1).join(' · ').replace(/\s*\([^)]*\)\s*$/, '') : (String(name).replace(/\s*\d+$/, '') || String(name)); }
   function codeOf(name){ var p = String(name).split(' · '); return p.length > 1 ? p[0] : String(name); }
   // how each room is right now: "· 1/2 women", "· free", "· full" ("full" only for rooms this guest isn't in)
   function occHint(rm, name, ref, idx){
     var x = rm && rm.byName[name]; if (!x) return '';
     var n = x.guests.length, mine = x.guests.some(function(g){ return g.ref === ref && g.index === idx; });
-    if (x.blocked) return isExt(x.blocked) ? ' · booked on Uplisting (' + channelLabel(extOf(x.blocked).channel) + ')' : ' · blocked (' + reasonLabel(x.blocked.reason).toLowerCase() + ')';
+    if (x.blocked) return isClosed(x.blocked) ? ' · closed in Uplisting' : isExt(x.blocked) ? ' · booked on Uplisting (' + channelLabel(extOf(x.blocked).channel) + ')' : ' · blocked (' + reasonLabel(x.blocked.reason).toLowerCase() + ')';
     if (!n) return ' · free';
     var ks = uniq(x.guests.map(function(g){ return gWord(g.gender); }));
     return ' · ' + n + '/' + x.beds + (ks.length === 1 && ks[0] && x.room.same_gender ? ' ' + ks[0] : ks.length > 1 && x.room.same_gender ? ' mixed' : '') + (!mine && n >= x.beds ? ' · full' : '');
@@ -1353,12 +1408,13 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     if (!silent && m.ret && m.ret.focus && document.body.contains(m.ret)) m.ret.focus();
   }
   $('modal').addEventListener('mousedown', function(e){ if (e.target === $('modal') && modal && !modal.sticky) closeModal(); });
-  // { title, html, ok, cancel, danger } → Promise<boolean>. Danger: focus starts on the safe choice.
+  // { title, html, ok, cancel, danger, safe } → Promise<boolean>. Danger (or safe: a weighty choice that isn't
+  // destructive): focus starts on the safe choice.
   function confirmBox(o){
     return new Promise(function(res){
       openModal('<h2 id="mTitle">' + esc(o.title) + '</h2><div class="mtext">' + o.html + '</div>' +
         '<div class="mact"><button type="button" class="btn btn-ghost" id="mNo">' + esc(o.cancel || 'Go back') + '</button><button type="button" class="btn' + (o.danger ? ' btn-danger' : '') + '" id="mYes">' + esc(o.ok || 'Confirm') + '</button></div>',
-        { onClose: function(){ res(false); }, focus: o.danger ? '#mNo' : '#mYes', ret: o.ret });
+        { onClose: function(){ res(false); }, focus: o.danger || o.safe ? '#mNo' : '#mYes', ret: o.ret });
       $('mNo').onclick = function(){ closeModal(); };
       $('mYes').onclick = function(){ if (modal) modal.onClose = null; closeModal(); res(true); };
     });
@@ -1849,12 +1905,13 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
       var gm = g.manual ? (g.b && g.b.manual) || g : null;
       return '<button type="button" class="bed' + (g.manual ? ' man' : '') + '" data-open="' + esc(g.ref) + '" data-w="' + esc(id) + '" title="' + esc(g.name + ' · ' + g.ref + (gm ? ' · manual booking' + (gm.from ? ' · ' + stayLabel(gm.from, gm.to) : '') : '')) + '">' + gBadge(g.gender) + '<span class="bn">' + esc(g.name) + '</span>' + (g.manual ? '<span class="mtag">Manual</span>' : '<span class="br">' + esc(g.ref) + '</span>') + '</button>';
     }).join('');
-    var bl = x.blocked, up = isExt(bl), ux = extOf(bl);
-    for (var i = x.guests.length; i < x.beds; i++) slots += bl ? (up ? '<div class="bed upd">Uplisting</div>' : '<div class="bed blkd">Blocked</div>') : '<div class="bed free">Free bed</div>';
+    var bl = x.blocked, up = isExt(bl), uc = up && isClosed(bl), ux = extOf(bl), un = uc && ISO.test(bl.from || '') && ISO.test(bl.to || '') ? nightsOf(bl.from, bl.to) : 0;
+    for (var i = x.guests.length; i < x.beds; i++) slots += bl ? (uc ? '<div class="bed upd">Closed in Uplisting</div>' : up ? '<div class="bed upd">Uplisting</div>' : '<div class="bed blkd">Blocked</div>') : '<div class="bed free">Free bed</div>';
     var gw = x.gender && x.room.same_gender && x.beds > 1 ? (gKey(x.gender) === 'f' ? 'Women\'s room' : gKey(x.gender) === 'm' ? 'Men\'s room' : '') : '';
-    return '<article class="rcard' + (x.conflict ? ' conf' : '') + (bl ? (up ? ' upb' : ' blk') : '') + '"><div class="rn"><b>' + esc(codeOf(x.name)) + '</b>' + (oneType ? '' : '<span>' + esc(shortType(x.room)) + '</span>') + '</div>' +
+    return '<article class="rcard' + (x.conflict ? ' conf' : '') + (bl ? (up ? ' upb' + (uc ? ' upcl' : '') : ' blk') : '') + '"><div class="rn"><b>' + esc(codeOf(x.name)) + '</b>' + (oneType ? '' : '<span>' + esc(shortType(x.room)) + '</span>') + '</div>' +
       (gw ? '<p class="rg">' + gw + '</p>' : '') +
-      (bl && up ? '<button type="button" class="rb" data-block="' + esc(bl.id) + '" title="Uplisting booking details" aria-label="' + esc('Uplisting booking: ' + upLabel(bl) + ', ' + stayLabel(bl.from, bl.to) + '. Details') + '"><b>' + esc(upLabel(bl)) + '</b><br>' + esc(stayLabel(bl.from, bl.to) || '') + (num(ux.guests) ? ' · ' + esc(plural(num(ux.guests), 'guest')) : '') + '</button>' : '') +
+      (bl && uc ? '<button type="button" class="rb" data-block="' + esc(bl.id) + '" title="Closed in Uplisting: details" aria-label="' + esc('Closed in Uplisting, ' + stayLabel(bl.from, bl.to) + '. Details') + '"><b>Closed in Uplisting</b><br>' + esc(stayLabel(bl.from, bl.to) || '') + (un ? ' · ' + esc(plural(un, 'night')) : '') + '</button>' : '') +
+      (bl && up && !uc ? '<button type="button" class="rb" data-block="' + esc(bl.id) + '" title="Uplisting booking details" aria-label="' + esc('Uplisting booking: ' + upLabel(bl) + ', ' + stayLabel(bl.from, bl.to) + '. Details') + '"><b>' + esc(upLabel(bl)) + '</b><br>' + esc(stayLabel(bl.from, bl.to) || '') + (num(ux.guests) ? ' · ' + esc(plural(num(ux.guests), 'guest')) : '') + '</button>' : '') +
       (bl && !up ? '<button type="button" class="rb" data-block="' + esc(bl.id) + '" title="Block details"><b>Blocked · ' + esc(reasonLabel(bl.reason)) + '</b><br>' + esc(stayLabel(bl.from, bl.to) || '') + (bl.comment ? ' · ' + esc(bl.comment) : '') + '</button>' : '') +
       (x.conflict ? '<p class="cf">' + esc(conflictText(x)) + '</p>' : '') +
       '<div class="beds">' + slots + '</div></article>';
@@ -1924,10 +1981,10 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
       var wait = notReady(); if (wait) { box.innerHTML = wait; $('rmSum').textContent = ''; return; }
       if (route.q.view === 'kitchen') return kitchenView(box);
       var rm = rooming(week), id = week, d = D(id);
-      var guests = sum(weekBookings(id).filter(active), function(b){ return b.guests.length; }), placed = 0, blocked = 0, upn = 0;
-      rm.order.forEach(function(n){ var x = rm.byName[n]; placed += x.guests.filter(function(g){ return !!g.b; }).length; if (x.blocked) { if (isExt(x.blocked)) upn++; else blocked++; } });
+      var guests = sum(weekBookings(id).filter(active), function(b){ return b.guests.length; }), placed = 0, blocked = 0, upn = 0, ucn = 0;
+      rm.order.forEach(function(n){ var x = rm.byName[n]; placed += x.guests.filter(function(g){ return !!g.b; }).length; if (x.blocked) { if (isClosed(x.blocked)) ucn++; else if (isExt(x.blocked)) upn++; else blocked++; } });
       navList = uniq(rm.unassigned.map(function(g){ return g.ref; }));
-      $('rmSum').innerHTML = '<b>' + placed + '</b> of ' + esc(plural(guests - rm.noRoom.length, 'guest')) + ' placed' + (blocked ? ' · ' + esc(plural(blocked, 'room')) + ' blocked' : '') + (upn ? ' · ' + esc(plural(upn, 'room')) + ' booked on Uplisting' : '') + (rm.conflicts ? ' · <b class="refund">' + esc(plural(rm.conflicts, 'conflict')) + '</b>' : '');
+      $('rmSum').innerHTML = '<b>' + placed + '</b> of ' + esc(plural(guests - rm.noRoom.length, 'guest')) + ' placed' + (blocked ? ' · ' + esc(plural(blocked, 'room')) + ' blocked' : '') + (upn ? ' · ' + esc(plural(upn, 'room')) + ' booked on Uplisting' : '') + (ucn ? ' · ' + esc(plural(ucn, 'room')) + ' closed in Uplisting' : '') + (rm.conflicts ? ' · <b class="refund">' + esc(plural(rm.conflicts, 'conflict')) + '</b>' : '');
       var html = (d.demo ? demoNote() : '') + errorNote(scopeErrors());
       if (!rm.order.length) html += '<p class="note">This week\'s room types have no physical room names yet (<code>names</code> in the program file), so guests can\'t be placed here.</p>';
       if (rm.unassigned.length) {
@@ -1964,8 +2021,8 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     var body = areas(rm).map(function(a){
       return '<h2>' + esc(a.name) + '</h2><table><thead><tr><th style="width:22%">Room</th><th style="width:22%">Type</th><th>Guests</th><th style="width:10%">Free</th></tr></thead><tbody>' + a.rooms.map(function(x){
         var bl = x.blocked;
-        return '<tr><td>' + esc(x.name) + (x.conflict ? '<div class="warn">' + esc(x.conflict === 'blocked' ? (isExt(bl) ? 'Guests in a room booked on Uplisting' : 'Guests in a blocked room') : x.conflict === 'mixed' ? 'Mixed genders' : 'Over capacity') + '</div>' : '') + '</td><td>' + esc(x.room.name) + '</td><td>' +
-          (bl ? '<div class="warn">' + (isExt(bl) ? 'Uplisting · ' + esc(upLabel(bl)) : 'Blocked · ' + esc(reasonLabel(bl.reason))) + ' · ' + esc(stayLabel(bl.from, bl.to)) + (bl.comment && !isExt(bl) ? ' · ' + esc(bl.comment) : '') + '</div>' : '') +
+        return '<tr><td>' + esc(x.name) + (x.conflict ? '<div class="warn">' + esc(x.conflict === 'blocked' ? (isClosed(bl) ? 'Guests in a room closed in Uplisting' : isExt(bl) ? 'Guests in a room booked on Uplisting' : 'Guests in a blocked room') : x.conflict === 'mixed' ? 'Mixed genders' : 'Over capacity') + '</div>' : '') + '</td><td>' + esc(x.room.name) + '</td><td>' +
+          (bl ? '<div class="warn">' + (isClosed(bl) ? 'Closed in Uplisting' : isExt(bl) ? 'Uplisting · ' + esc(upLabel(bl)) : 'Blocked · ' + esc(reasonLabel(bl.reason))) + ' · ' + esc(stayLabel(bl.from, bl.to)) + (bl.comment && !isExt(bl) ? ' · ' + esc(bl.comment) : '') + '</div>' : '') +
           (x.guests.length ? x.guests.map(function(g){ return esc(g.name) + ' (' + esc((g.gender || '?').charAt(0)) + ') · ' + esc(g.ref) + (g.manual ? ' · manual' : ''); }).join('<br>') : bl ? '' : '–') + '</td><td class="r">' + (bl ? 0 : Math.max(0, x.beds - x.guests.length)) + '</td></tr>';
       }).join('') + '</tbody></table>';
     }).join('');
@@ -1978,7 +2035,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     var rows = [];
     var lead = function(g){ return g.b && g.b.lead ? g.b.lead.name || '' : ''; };
     areas(rm).forEach(function(a){ a.rooms.forEach(function(x){
-      var bl = x.blocked, bt = !bl ? '' : isExt(bl) ? 'Uplisting ' + upLabel(bl) + ' ' + (bl.from || '') + ' to ' + (bl.to || '')
+      var bl = x.blocked, bt = !bl ? '' : isExt(bl) ? (isClosed(bl) ? 'Closed in Uplisting' : 'Uplisting ' + upLabel(bl)) + ' ' + (bl.from || '') + ' to ' + (bl.to || '')
         : reasonLabel(bl.reason) + ' ' + (bl.from || '') + ' to ' + (bl.to || '') + (bl.comment ? ' (' + bl.comment + ')' : '');
       if (!x.guests.length) rows.push([a.name, x.name, x.room.name, x.beds, '', '', '', '', '', '', bt]);
       x.guests.forEach(function(g){ rows.push([a.name, x.name, x.room.name, x.beds, g.name, g.gender, g.ref, g.manual ? 'manual' : 'online', lead(g), x.conflict || '', bt]); });
@@ -2173,9 +2230,9 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     });
     blocks.forEach(function(bl){
       if (!ISO.test(bl.from || '') || !ISO.test(bl.to || '')) return;
-      // an Uplisting booking takes every room its listing is mapped to: a stay bar in each
-      var up = isExt(bl);
-      (bl.rooms || []).forEach(function(n){ var r = byName[n]; if (r) r.items.push({ type: up ? 'up' : 'blk', id: bl.id, from: bl.from, to: bl.to, reason: bl.reason, comment: bl.comment || '', ext: up ? extOf(bl) : null, rooms: bl.rooms }); });
+      // an Uplisting booking takes every room its listing is mapped to: a stay bar in each (nights closed in Uplisting: closed)
+      var up = isExt(bl), uc = up && isClosed(bl);
+      (bl.rooms || []).forEach(function(n){ var r = byName[n]; if (r) r.items.push({ type: up ? 'up' : 'blk', closed: uc, id: bl.id, from: bl.from, to: bl.to, reason: bl.reason, comment: bl.comment || '', ext: up ? extOf(bl) : null, rooms: bl.rooms }); });
     });
     // nights in view: who is in each room, blocked or not, clashes, and the lines bars sit on
     var days = [], cls = [], dl = [], t = todayIso();
@@ -2185,14 +2242,19 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
       days.push(dd); cls.push(cc); dl.push(dayLong(dd));
     }
     rooms.forEach(function(r){
-      // recs / ups: team blocks and Uplisting bookings on each night (an Uplisting booking beside any other one is a clash)
+      // recs / ups: team blocks and Uplisting bookings on each night (an Uplisting booking beside any other one is a clash).
+      // Nights closed in Uplisting only clash with guests placed here: beside a block or a booking they are the same "not available"
       r.guests = []; r.blocked = []; r.gens = []; r.recs = []; r.ups = [];
       for (var i = 0; i < w.n; i++) { r.guests.push(0); r.blocked.push(null); r.gens.push(0); r.recs.push(0); r.ups.push(0); }
       var span = function(it){ return [Math.max(0, nightsOf(w.from, it.from)), Math.min(w.n, nightsOf(w.from, it.to))]; };
       r.items.forEach(function(it){
         var s = span(it);
         for (var i = s[0]; i < s[1]; i++) {
-          if (it.type === 'blk' || it.type === 'up') { r.blocked[i] = it; r.recs[i]++; if (it.type === 'up') r.ups[i]++; continue; }
+          if (it.type === 'blk' || it.type === 'up') {
+            if (!r.blocked[i] || r.blocked[i].closed) r.blocked[i] = it;
+            if (!it.closed) { r.recs[i]++; if (it.type === 'up') r.ups[i]++; }
+            continue;
+          }
           r.guests[i] += it.guests.length;
           it.guests.forEach(function(g){ var k = gKey(g.gender); r.gens[i] |= k === 'f' ? 1 : k === 'm' ? 2 : 0; });
         }
@@ -2200,7 +2262,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
       r.clash = false;
       r.items.forEach(function(it){
         var s = span(it);
-        for (var i = s[0]; i < s[1]; i++) if ((r.blocked[i] && r.guests[i]) || r.guests[i] > r.capacity || (r.same_gender && r.gens[i] === 3) || (r.ups[i] && r.recs[i] > 1)) { it.clash = true; r.clash = true; break; }
+        for (var i = s[0]; i < s[1]; i++) if (it.closed ? r.guests[i] > 0 : (r.blocked[i] && r.guests[i]) || r.guests[i] > r.capacity || (r.same_gender && r.gens[i] === 3) || (r.ups[i] && r.recs[i] > 1)) { it.clash = true; r.clash = true; break; }
       });
       var rank = { blk: 0, up: 1, man: 1, on: 2 }, ends = [];
       r.vis = r.items.filter(function(it){ return overlaps(it.from, it.to, w.from, w.to); });
@@ -2241,6 +2303,11 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     if (it.type === 'blk') {
       var tb = 'Blocked · ' + reasonLabel(it.reason) + ' · ' + r.name + ' · ' + when + (it.comment ? ' · ' + it.comment : '') + (it.clash ? ' · guests are booked in this room on these nights' : '');
       return '<button type="button" class="cb blk' + cls + '"' + pos + ' data-block="' + esc(it.id) + '" title="' + esc(tb) + '" aria-label="' + esc(tb) + '"><span class="t"><em>' + esc(reasonLabel(it.reason)) + '</em><span>' + esc(it.comment || 'Blocked') + '</span></span></button>';
+    }
+    if (it.type === 'up' && it.closed) {
+      var ln = upListingName(it.ext || {});
+      var tc = 'Closed in Uplisting · ' + r.name + ' · ' + when + (ln ? ' · listing ' + ln : '') + (it.clash ? ' · guests are placed in this room on these nights' : '');
+      return '<button type="button" class="cb upc' + cls + '"' + pos + ' data-block="' + esc(it.id) + '" title="' + esc(tc) + '" aria-label="' + esc(tc) + '"><span class="t"><em>Closed</em>' + (span >= 4 ? '<span>in Uplisting</span>' : '') + '</span></button>';
     }
     if (it.type === 'up') {
       var ux = it.ext || {}, ch = channelLabel(ux.channel), nm = shortGuest(ux.guest);
@@ -2308,15 +2375,20 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
       return;
     }
     var old = $('calSc'), keep = old && calKeep === k ? { l: old.scrollLeft, t: old.scrollTop } : null;
-    var guests = 0, man = {}, blk = {}, ups = {}, unpl = 0;
-    m.rooms.forEach(function(r){ r.vis.forEach(function(it){ if (it.type === 'blk') blk[it.id] = 1; else if (it.type === 'up') ups[it.id] = 1; else { guests += it.guests.length; if (it.type === 'man') man[it.ref] = 1; } }); });
+    var guests = 0, man = {}, blk = {}, ups = {}, unpl = 0, ucn = 0;
+    m.rooms.forEach(function(r){ r.vis.forEach(function(it){
+      if (it.type === 'blk') blk[it.id] = 1;
+      else if (it.type === 'up' && it.closed) ucn += Math.max(0, nightsOf(it.from > w.from ? it.from : w.from, it.to < w.to ? it.to : w.to));
+      else if (it.type === 'up') ups[it.id] = 1;
+      else { guests += it.guests.length; if (it.type === 'man') man[it.ref] = 1; }
+    }); });
     var nUp = Object.keys(ups).length;
     Object.keys(m.unplaced).forEach(function(rid){ m.unplaced[rid].forEach(function(u){ var p = findBy(m.programs, function(x){ return x.id === u.program; }); if (p && overlaps(p.dates.start, p.dates.end, w.from, w.to) && findBy(m.rooms, function(r){ return r.room_id === rid; })) unpl += num(u.count); }); });
     var clashes = m.rooms.filter(function(r){ return r.clash; }).length, ri = 0;
-    var legend = '<ul class="calleg" aria-label="Colours"><li><i class="sw paid"></i>Paid</li><li><i class="sw deposit"></i>Deposit</li><li><i class="sw plan"></i>Plan</li><li><i class="sw processing"></i>Processing</li><li><i class="sw demo"></i>Demo</li><li><i class="sw man"></i>Manual</li><li><i class="sw up"></i>Uplisting</li><li><i class="sw blk"></i>Blocked</li><li><i class="sw wk"></i>BreathCamp week</li></ul>';
+    var legend = '<ul class="calleg" aria-label="Colours"><li><i class="sw paid"></i>Paid</li><li><i class="sw deposit"></i>Deposit</li><li><i class="sw plan"></i>Plan</li><li><i class="sw processing"></i>Processing</li><li><i class="sw demo"></i>Demo</li><li><i class="sw man"></i>Manual</li><li><i class="sw up"></i>Uplisting</li><li><i class="sw upc"></i>Closed in Uplisting</li><li><i class="sw blk"></i>Blocked</li><li><i class="sw wk"></i>BreathCamp week</li></ul>';
     var html = (m.demo ? demoNote() : '') + (m.err && !m.provisional ? '<p class="note err">Could not refresh the calendar: ' + esc(why(m.err)) + ' <button type="button" class="lnk" data-retry>Try again</button></p>' : '') +
       (m.legacy ? '<p class="note">The booking system doesn\'t send the calendar yet, so this shows the BreathCamp weeks\' guests only (no blocks or manual stays).</p>' : '') +
-      '<div class="calinfo"><span><b>' + esc(plural(guests, 'guest')) + '</b> in rooms · ' + esc(plural(Object.keys(man).length, 'manual booking')) + (nUp ? ' · ' + esc(plural(nUp, 'Uplisting booking')) : '') + ' · ' + esc(plural(Object.keys(blk).length, 'block')) +
+      '<div class="calinfo"><span><b>' + esc(plural(guests, 'guest')) + '</b> in rooms · ' + esc(plural(Object.keys(man).length, 'manual booking')) + (nUp ? ' · ' + esc(plural(nUp, 'Uplisting booking')) : '') + (ucn ? ' · ' + esc(plural(ucn, 'room night')) + ' closed in Uplisting' : '') + ' · ' + esc(plural(Object.keys(blk).length, 'block')) +
         (unpl ? ' · <b class="refund">' + esc(unpl + ' not placed') + '</b>' : '') + (clashes ? ' · <b class="refund">' + esc(plural(clashes, 'room')) + ' with a clash</b>' : '') + '</span>' + legend + '</div>' +
       '<div class="calwrap' + (m.provisional ? ' busy' : '') + '"' + (m.provisional ? ' aria-busy="true"' : '') + '><div class="calsc" id="calSc" role="region" aria-label="' + esc('Room calendar, ' + stayLabel(w.from, last)) + '">' +
         '<div class="cal" style="--n:' + w.n + '">' + calHead(m) + calUnplaced(m) +
@@ -2401,6 +2473,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     m.rooms.forEach(function(r){ r.vis.forEach(function(it){
       var base = [r.area, r.name, r.room_name, it.from, it.to, nightsOf(it.from, it.to)];
       if (it.type === 'blk') rows.push(['block', it.id].concat(base, ['', reasonLabel(it.reason), '', '', it.comment || '']));
+      else if (it.type === 'up' && it.closed) rows.push(['uplisting closed', it.id].concat(base, ['', '', upListingName(it.ext), '', 'Closed in Uplisting']));
       else if (it.type === 'up') { var ux = it.ext || {}; rows.push(['uplisting', it.id].concat(base, [(ux.guest || '') + (num(ux.guests) ? ' (' + plural(num(ux.guests), 'guest') + ')' : ''), '', ux.property_name || '', channelLabel(ux.channel), 'Uplisting ' + uStatusLabel(ux.status).toLowerCase() + (ux.id ? ', booking ' + ux.id : '')])); }
       else if (it.type === 'man') rows.push(['manual', it.ref].concat(base, [fullNames(it.guests), '', it.programme === 'yes' ? 'attends the programme' : 'stay only', '', it.comment || '']));
       else it.segs.forEach(function(sg){ rows.push(['online', sg.ref].concat(base, [fullNames(sg.guests), '', wkName(sg.program), PAY_STATE[sg.pay_state] + (sg.demo ? ' (demo)' : ''), ''])); });
@@ -2422,7 +2495,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     if (!m || m.provisional || !ISO.test(from || '') || !ISO.test(to || '') || to <= from || from < m.win.from || to > m.win.to) return null;
     var r = m.byName[name]; if (!r) return null;
     var a = nightsOf(m.win.from, from), z = nightsOf(m.win.from, to), s = { guests: 0, blocked: null, gens: 0, cap: r.capacity, same: r.same_gender };
-    for (var i = a; i < z; i++) { s.guests = Math.max(s.guests, r.guests[i]); if (r.blocked[i]) s.blocked = r.blocked[i]; s.gens |= r.gens[i]; }
+    for (var i = a; i < z; i++) { s.guests = Math.max(s.guests, r.guests[i]); if (r.blocked[i] && (!s.blocked || s.blocked.closed)) s.blocked = r.blocked[i]; s.gens |= r.gens[i]; }
     return s;
   }
   function rfWeeks(){ var f = rf; return ISO.test(f.from) && ISO.test(f.to) && f.to > f.from ? PROGS.filter(function(p){ return p.dates && overlaps(f.from, f.to, p.dates.start, p.dates.end); }) : []; }
@@ -2442,7 +2515,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
       return '<fieldset><legend>' + esc(a) + '</legend><div class="rp">' + rooms.filter(function(r){ return r.area === a; }).map(function(r){
         var i = rooms.indexOf(r), s = nameState(r.name, f.from, f.to), h = ['', ''];
         if (!s) unknown = true;
-        else if (s.blocked) h = [s.blocked.type === 'up' ? 'Uplisting booking' : 'blocked', 'busy'];
+        else if (s.blocked) h = [s.blocked.type === 'up' ? (s.blocked.closed ? 'closed in Uplisting' : 'Uplisting booking') : 'blocked', 'busy'];
         else if (!s.guests) h = ['free', 'ok'];
         else h = [s.guests >= s.cap ? 'full' : s.guests + ' of ' + s.cap, 'busy'];
         return '<label><input type="checkbox" id="rfR' + i + '" data-room="' + esc(r.name) + '"' + (f.rooms.indexOf(r.name) >= 0 ? ' checked' : '') + '><span>' + esc(shortRoom(r)) + ' <small class="' + h[1] + '">' + esc([shortTypeName(r.room_name), h[0]].filter(Boolean).join(' · ')) + '</small></span></label>';
@@ -2457,7 +2530,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
       var s = nameState(r.name, f.from, f.to), mates = f.guests.filter(function(x, j){ return j !== i && x.room === r.name; });
       var used = (s ? s.guests : 0) + mates.length, gens = s ? s.gens : 0;
       mates.forEach(function(x){ var k = gKey(x.gender); gens |= k === 'f' ? 1 : k === 'm' ? 2 : 0; });
-      var bad = s && s.blocked ? (s.blocked.type === 'up' ? 'Uplisting booking' : 'blocked') : used >= r.capacity ? 'full' : r.same_gender && mine && gens && (gens | mine) === 3 ? (gens === 1 ? 'women\'s room' : gens === 2 ? 'men\'s room' : 'mixed') : '';
+      var bad = s && s.blocked ? (s.blocked.type === 'up' ? (s.blocked.closed ? 'closed in Uplisting' : 'Uplisting booking') : 'blocked') : used >= r.capacity ? 'full' : r.same_gender && mine && gens && (gens | mine) === 3 ? (gens === 1 ? 'women\'s room' : gens === 2 ? 'men\'s room' : 'mixed') : '';
       var label = shortRoom(r) + (shortRoom(r) !== r.name ? ' · ' + r.area : '') + ' · ' + shortTypeName(r.room_name) + (s || mates.length ? ' (' + (bad || (used ? used + ' of ' + r.capacity : 'free')) + ')' : '');
       (bad ? busy : s ? free : other).push(opt(r.name, label, g.room));
     });
@@ -2695,8 +2768,8 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
   /* ---------------------------------------------------------------- a block's details */
   function openBlock(id, ret){
     var bl = blkReg[id] || (recOv.blocks[id] && recOv.blocks[id].v);
-    if (!bl) { toast((/^UP-/.test(id) ? 'That Uplisting booking' : 'That block') + ' isn\'t loaded any more. Press Refresh and try again.', 'err'); return; }
-    if (isExt(bl)) { openUpBooking(bl, ret); return; }
+    if (!bl) { toast((/^UP-/.test(id) ? 'That Uplisting booking' : /^UC-/.test(id) ? 'That closure' : 'That block') + ' isn\'t loaded any more. Press Refresh and try again.', 'err'); return; }
+    if (isExt(bl)) { if (isClosed(bl)) openUpClosed(bl, ret); else openUpBooking(bl, ret); return; }
     var n = ISO.test(bl.from || '') && ISO.test(bl.to || '') ? nightsOf(bl.from, bl.to) : 0;
     var wks = n ? PROGS.filter(function(p){ return p.dates && overlaps(bl.from, bl.to, p.dates.start, p.dates.end); }) : [];
     var made = bl.created_at ? new Date(bl.created_at) : bl.created ? new Date(bl.created * 1000) : null;
@@ -2737,14 +2810,15 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     };
   }
   // what an Uplisting booking shares its rooms with on its nights: the calendar in view, and the week boards held
-  function upClashes(bl){
+  // (nights closed in Uplisting are no clash with a booking or a block; guestsOnly: a closure's own check)
+  function upClashes(bl, guestsOnly){
     var out = [], seen = {}, m = calModel();
     var add = function(k, t){ if (!seen[k]) { seen[k] = 1; out.push(t); } };
     var on = function(it){ var a = it.from > bl.from ? it.from : bl.from, z = it.to < bl.to ? it.to : bl.to; return stayLabel(a, z); };
     (bl.rooms || []).forEach(function(n){
       var r = m && m.byName[n];
       if (r) r.items.forEach(function(it){
-        if ((it.type === 'up' || it.type === 'blk') && it.id === bl.id) return;
+        if ((it.type === 'up' || it.type === 'blk') && (it.id === bl.id || it.closed || guestsOnly)) return;
         if (!overlaps(it.from, it.to, bl.from, bl.to)) return;
         if (it.type === 'up') add(it.id + '|' + n, n + ': Uplisting booking ' + it.id + ' (' + channelLabel((it.ext || {}).channel) + ' · ' + shortGuest((it.ext || {}).guest) + '), ' + on(it));
         else if (it.type === 'blk') add(it.id + '|' + n, n + ': block ' + it.id + ' (' + reasonLabel(it.reason).toLowerCase() + '), ' + on(it));
@@ -2758,6 +2832,31 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
       });
     });
     return out;
+  }
+  // a listing's name as the team knows it: its nickname (from the Setup data, once loaded), else its public name
+  function upListingName(x){
+    x = x || {};
+    var prop = upl.d && upl.d.properties ? findBy(upl.d.properties, function(p){ return p.id === String(x.property_id || ''); }) : null;
+    return (prop && (prop.nickname || prop.name)) || x.property_name || '';
+  }
+  // nights closed in Uplisting: details only (changed or reopened in Uplisting, never here)
+  function openUpClosed(bl, ret){
+    var x = extOf(bl), n = ISO.test(bl.from || '') && ISO.test(bl.to || '') ? nightsOf(bl.from, bl.to) : 0, rooms = bl.rooms || [];
+    var wks = n ? PROGS.filter(function(p){ return p.dates && overlaps(bl.from, bl.to, p.dates.start, p.dates.end); }) : [];
+    var synced = x.synced_at ? Date.parse(x.synced_at) : NaN, clash = n ? upClashes(bl, true) : [];
+    var listingHtml = function(){ var l = upListingName(x); return (l ? esc(l) : '<span class="muted">–</span>') + (x.property_id ? '<span class="sub">Uplisting listing ' + esc(x.property_id) + '</span>' : ''); };
+    if (!upl.d && x.property_id) loadUpl().then(function(){ var dd = $('upListing'); if (dd && modal) dd.innerHTML = listingHtml(); }, function(){});
+    openModal('<h2 id="mTitle">Closed in Uplisting</h2><p class="muted" style="margin:0 0 12px">' + esc(roomsText(rooms) || 'Room') + (n ? ' · ' + esc(stayLabel(bl.from, bl.to)) : '') + '</p>' +
+      (clash.length ? '<div class="note err" role="alert"><b>Guests are placed here.</b> On these nights ' + (rooms.length === 1 ? 'this room' : 'these rooms') + ' also ' + (rooms.length === 1 ? 'has' : 'have') + ':<ul style="margin:6px 0 0;padding-left:18px">' + clash.map(function(c){ return '<li>' + esc(c) + '</li>'; }).join('') + '</ul></div>' : '') +
+      '<dl class="kv"><dt>Listing</dt><dd class="l" id="upListing">' + listingHtml() + '</dd>' +
+        '<dt>' + (rooms.length === 1 ? 'Room' : 'Rooms') + '</dt><dd class="l">' + (rooms.length ? rooms.map(esc).join('<br>') : '<span class="muted">–</span>') + '</dd>' +
+        '<dt>Nights</dt><dd class="l">' + esc(stayLabel(bl.from, bl.to)) + ' · ' + esc(plural(n, 'night')) + '<span class="sub">from the night of ' + esc(dayLong(bl.from)) + ' to the morning of ' + esc(dayLong(bl.to)) + '</span></dd>' +
+        (wks.length ? '<dt>Weeks</dt><dd class="l">' + esc(wks.map(function(p){ return wkName(p.id); }).join(', ')) + '<span class="sub">' + (rooms.length === 1 ? 'the room is' : 'the rooms are') + ' off sale for the whole week online</span></dd>' : '') +
+        '<dt>Last synced</dt><dd class="l">' + (isFinite(synced) ? esc(new Date(synced).toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })) + '<span class="sub">' + esc(ago(Math.floor(synced / 1000))) + '</span>' : '<span class="muted">–</span>') + '</dd>' +
+        '<dt>Reference</dt><dd class="l"><code>' + esc(bl.id) + '</code></dd></dl>' +
+      '<p class="note" style="margin:16px 0 0">Closed in Uplisting (RetreatGuru block, iCal import, admin block or season closure). Change it in Uplisting.</p>' +
+      '<p class="muted" style="margin:8px 0 0;font-size:.78rem">Nights this booking system closes itself (Push to Uplisting) never show up here.</p>' +
+      '<div class="mact"><button type="button" class="btn btn-ghost" data-close>Close</button></div>', { ret: ret });
   }
   // an Uplisting booking: details only (it is changed or cancelled in Uplisting, never here)
   function openUpBooking(bl, ret){
@@ -3235,8 +3334,8 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     var known = {}; props.forEach(function(p){ known[p.id] = p; });
     var cfg = d.configured && typeof d.configured === 'object' ? d.configured : {}, hooks = null;
     if (d.hooks && typeof d.hooks === 'object') { hooks = {}; UP_EVENTS.forEach(function(e){ hooks[e[0]] = !!d.hooks[e[0]]; }); }
-    var ls = d.last_sync && typeof d.last_sync === 'object' && d.last_sync.at ? { at: String(d.last_sync.at), result: resultObj(d.last_sync.result) } : null;
-    return {
+    var ls = d.last_sync && typeof d.last_sync === 'object' && d.last_sync.at ? { at: String(d.last_sync.at), result: resultObj(d.last_sync.result), by: syncWho(d.last_sync) } : null;
+    return normR7(d, {
       configured: { api_key: !!cfg.api_key, webhook_secret: !!cfg.webhook_secret },
       account: d.account && typeof d.account === 'object' ? { name: String(d.account.name || '') } : null,
       properties: props, mapping: normMapping(d.mapping, known),
@@ -3247,7 +3346,67 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
       hooks: hooks, hint: typeof d.webhook_url_hint === 'string' ? d.webhook_url_hint : '', last_sync: ls,
       imported: d.imported && typeof d.imported === 'object' ? { active: num(d.imported.active), upcoming: num(d.imported.upcoming) } : null,
       error: typeof d.error === 'string' ? d.error : ''
-    };
+    });
+  }
+  /* Round 7 (an older API sends none of it, and then those parts don't show): push 'on'|'off' (nights taken
+     here are closed in Uplisting), last_push { at, result, by }, push_warnings, autoplace 'on'|'off' (new paid
+     online bookings get rooms at once), last_sync.by ('scheduled' or who ran it), imported.closed /
+     closed_nights (nights closed in Uplisting). Read loosely: a setting may come as a boolean, as { mode },
+     or under settings. */
+  function onOff(v){
+    if (v && typeof v === 'object') v = v.mode != null ? v.mode : v.on != null ? v.on : v.enabled != null ? v.enabled : v.status;
+    if (v === true || v === 1 || /^(on|true|1|yes)$/i.test(String(v))) return 'on';
+    if (v === false || v === 0 || /^(off|false|0|no)$/i.test(String(v))) return 'off';
+    return '';
+  }
+  function firstOf(o, keys){ if (!o || typeof o !== 'object') return undefined; for (var i = 0; i < keys.length; i++) if (o[keys[i]] != null) return o[keys[i]]; return undefined; }
+  // who ran a sync or a push: { scheduled, name } ('scheduled': GitHub's twice-daily run)
+  var SCHED = /^(scheduled|schedule|github|cron|auto|automatic)$/i;
+  function whoRan(v){
+    if (v == null || v === '') return null;
+    if (typeof v === 'object') {
+      var id = String(v.id || ''), nm = String(v.name || v.username || '');
+      if (SCHED.test(id) || SCHED.test(nm) || (v.role === 'system' && /schedul|github|cron|automatic/i.test(nm))) return { scheduled: true, name: 'GitHub (scheduled)' };
+      return { scheduled: false, name: nm || (id === 'owner' ? ROLES.owner : /^cus_/.test(id) ? 'a team member' : id) || 'someone' };
+    }
+    var t = String(v);
+    if (SCHED.test(t)) return { scheduled: true, name: 'GitHub (scheduled)' };
+    return { scheduled: false, name: t === 'owner' ? ROLES.owner : /^(uplisting|system)$/i.test(t) ? 'Uplisting' : /^cus_/.test(t) ? 'a team member' : t };
+  }
+  function syncWho(x){ if (!x || typeof x !== 'object') return null; if (x.scheduled === true) return whoRan('scheduled'); return whoRan(firstOf(x, ['by', 'who', 'actor', 'run_by', 'trigger', 'source'])); }
+  function warnText(w){
+    if (w == null) return '';
+    if (typeof w !== 'object') return String(w);
+    var t = String(w.message || w.text || w.warning || w.error || ''), n = String(w.nickname || w.listing_name || (w.listing_id ? 'Listing ' + w.listing_id : ''));
+    return t ? (n && t.indexOf(n) < 0 ? n + ': ' : '') + t : '';
+  }
+  function warnList(v){ return uniq((Array.isArray(v) ? v : v ? [v] : []).map(warnText).filter(Boolean)); }
+  function normR7(d, out){
+    var pr = firstOf(d, ['push', 'aob_push', 'push_mode']); if (pr === undefined) pr = firstOf(d.settings, ['push', 'aob_push']);
+    var po = pr && typeof pr === 'object' ? pr : null;
+    var ap = firstOf(d, ['autoplace', 'aob_autoplace', 'auto_place']); if (ap === undefined) ap = firstOf(d.settings, ['autoplace', 'aob_autoplace']);
+    var lp = firstOf(d, ['last_push', 'push_last']); if (lp == null && po) lp = firstOf(po, ['last', 'last_push', 'last_run']);
+    out.r7 = pr !== undefined || ap !== undefined || lp != null;
+    out.push = onOff(pr) || 'off';
+    out.autoplace = onOff(ap) || 'on';
+    lp = resultObj(lp);   // (it may come as the JSON text it is stored as)
+    var lpAt = lp ? firstOf(lp, ['at', 'finished_at', 'time']) : null;
+    out.last_push = lpAt && isFinite(Date.parse(lpAt)) ? { at: String(lpAt), result: resultObj(lp.result != null ? lp.result : lp.stats != null ? lp.stats : lp), by: syncWho(lp) } : null;
+    var none = function(x){ return x == null || (Array.isArray(x) && !x.length); };
+    var pw = firstOf(d, ['push_warnings']); if (none(pw) && po) pw = po.warnings; if (none(pw) && out.last_push && out.last_push.result) pw = out.last_push.result.warnings;
+    out.push_warnings = warnList(pw);
+    var sc = firstOf(d, ['last_scheduled_sync', 'scheduled_sync', 'last_auto_sync', 'auto_sync']);
+    // the last scheduled run: an object { at, result }, or just its time (top level, or on last_sync / run)
+    if (sc == null || typeof sc !== 'object') { var sa = sc != null ? sc : firstOf(d, ['scheduled_at', 'last_scheduled_at']); if (sa == null) sa = firstOf(d.last_sync, ['scheduled_at', 'last_scheduled_at', 'sa']); if (sa == null) sa = firstOf(d.run, ['sa', 'scheduled_at']); sc = typeof sa === 'string' && isFinite(Date.parse(sa)) ? { at: sa } : null; }
+    out.last_scheduled = sc && typeof sc === 'object' && sc.at && isFinite(Date.parse(sc.at)) ? { at: String(sc.at), result: resultObj(sc.result), by: whoRan('scheduled') } : null;
+    if (out.last_scheduled && out.last_sync && out.last_sync.at === out.last_scheduled.at && !out.last_scheduled.result) out.last_scheduled.result = out.last_sync.result;
+    var im = d.imported, cl = firstOf(im, ['closed', 'closures', 'closed_ranges']);
+    if (out.imported && cl !== undefined) {
+      out.imported.has_closed = true;
+      out.imported.closed = cl && typeof cl === 'object' ? num(firstOf(cl, ['ranges', 'active', 'count'])) : num(cl);
+      out.imported.closed_nights = num(firstOf(im, ['closed_nights', 'nights_closed'])) || (cl && typeof cl === 'object' ? num(cl.nights) : 0);
+    }
+    return out;
   }
   // hard: Uplisting's listings, account and webhooks read again (not the server's 5-minute copy): the Refresh button
   var uplHard = false;
@@ -3285,6 +3444,8 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     if (!d.configured.webhook_secret) out.push('no webhook secret');
     else if (d.hooks && !hooksOk()) out.push('webhooks not connected');
     if (d.last_sync && d.last_sync.result && num(d.last_sync.result.errors)) out.push('the last sync had errors');
+    if (d.r7 && d.push === 'on' && d.last_push && d.last_push.result && num(d.last_push.result.errors)) out.push('the last push had errors');
+    if (d.r7 && autoSync(d).late) out.push('the automatic sync is late');
     return out;
   }
   function statsText(s){
@@ -3294,6 +3455,12 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     if (num(s.clashes)) t += ' · ' + plural(num(s.clashes), 'clash', 'clashes');
     if (num(s.unmapped)) t += ' · ' + num(s.unmapped) + ' not mapped';
     if (num(s.errors)) t += ' · ' + plural(num(s.errors), 'error');
+    // round 7: nights closed in Uplisting brought in, and the push at the end of a sync (when it is on)
+    var c = s.closures && typeof s.closures === 'object' ? s.closures : s.closed && typeof s.closed === 'object' ? s.closed : null;
+    var cn = c ? num(c.created) : num(s.closed_created), cu = c ? num(c.updated) : num(s.closed_updated), cx = c ? num(c.cancelled) : num(s.closed_cancelled);
+    if (cn || cu || cx) t += ' · closed nights: ' + cn + ' new, ' + cu + ' changed, ' + cx + ' reopened';
+    var pu = s.push && typeof s.push === 'object' ? s.push : null;
+    if (pu && (pushN(pu, 'closed') || pushN(pu, 'reopened') || num(pu.errors))) t += ' · pushed: ' + pushStatsText(pu);
     return t;
   }
 
@@ -3348,6 +3515,8 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     var rooms = upl.d.rooms;
     if (r.u) return umGuess(r.u.name, rooms);
     var s = umGuess(r.p.nickname, rooms);
+    // a nickname with a room code that isn't ours ("4E - Alchemy Cottage"): no guess from the public name either
+    if (!s.length && /(^|[^0-9A-Z])\d+[A-Z](?![A-Z0-9])/.test(String(r.p.nickname || '').toUpperCase())) return [];
     return s.length ? s : umGuess(r.p.name, rooms);
   }
   // which rows show: the filter (a row stays while its filter is on, even once it's mapped) and the search
@@ -3429,7 +3598,9 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
   /* ---------------------------------------------------------------- sync (a loop of slices) */
   function syncCls(){ var s = usync; return !s || s.running ? '' : s.err ? ' err' : s.stopped ? ' warn' : s.done ? (num((s.stats || {}).clashes) || num((s.stats || {}).errors) ? ' warn' : ' ok') : ''; }
   function syncWhere(s){ var p = s && s.progress; return p && p.total ? 'listing ' + Math.min(p.total, p.done + 1) + ' of ' + p.total : ''; }
-  function syncNow(s){ var p = s.progress; return s.stop ? 'Stopping after this step…' : !p ? 'Starting the sync…' : p.total ? 'Listing ' + Math.min(p.total, p.done + 1) + ' of ' + p.total + '…' : 'Finishing…'; }
+  // round 7: a sync also reads the nights closed in Uplisting, then pushes (when push is on); the server may say which part it is in
+  var SYNC_PHASES = { bookings: 'bookings', closures: 'closed nights', closed: 'closed nights', calendar: 'closed nights', push: 'push to Uplisting', reconcile: 'push to Uplisting' };
+  function syncNow(s){ var p = s.progress, ph = SYNC_PHASES[s.phase] ? ' (' + SYNC_PHASES[s.phase] + ')' : ''; return s.stop ? 'Stopping after this step…' : !p ? 'Starting the sync…' : p.total ? 'Listing ' + Math.min(p.total, p.done + 1) + ' of ' + p.total + ph + '…' : 'Finishing' + ph + '…'; }
   function waitText(s){ return s.wait && !s.stop ? ' Uplisting asked us to slow down: going on in about ' + (s.waitSec >= 90 ? Math.round(s.waitSec / 60) + ' min' : Math.max(1, s.waitSec) + ' s') + '.' : ''; }
   function syncInner(){
     var s = usync; if (!s) return '';
@@ -3473,8 +3644,11 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
       if (usync !== s || !s.running) return;
       var before = s.cursor;
       s.cursor = typeof d.cursor === 'string' && d.cursor ? d.cursor : null;
-      if (d.progress && typeof d.progress === 'object') s.progress = { done: num(d.progress.listings_done), total: num(d.progress.listings_total) };
+      if (d.progress && typeof d.progress === 'object') { s.progress = { done: num(d.progress.listings_done), total: num(d.progress.listings_total) }; s.phase = String(d.progress.phase || d.phase || ''); }
       if (d.stats && typeof d.stats === 'object') s.stats = d.stats;
+      // the closed nights and the push at the end of a sync come next to `stats`, not in it
+      if (s.stats && d.closures && typeof d.closures === 'object') s.stats.closures = d.closures;
+      if (s.stats && d.push && typeof d.push === 'object') s.stats.push = d.push;
       if (d.done || !s.cursor) { syncDone(s); return; }
       // paused: Uplisting's rate limit (or it was busy); the server says how long to wait
       s.same = s.cursor === before ? s.same + 1 : 0; s.busy = 0;
@@ -3526,6 +3700,295 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     toast('Uplisting sync done: ' + esc(statsText(st)) + '.', bad ? 'warn' : 'ok');
     if (token) { if (route.tab === 'setup') ensure('setup', true); else loadUpl(true).then(null, function(){}); }
   }
+
+  /* ---------------------------------------------------------------- push to Uplisting (round 7)
+     Off by default. On: every room night taken here (guests placed in rooms, manual bookings, team blocks) is
+     closed in Uplisting, for every listing that holds that room (1B also closes 1 (Full)), and reopened when
+     it frees up; nights Uplisting already had closed are left alone, and only nights we closed are reopened.
+     The main admin switches it (POST uplisting_push { mode }); the team can preview it (GET
+     ?uplisting_push_preview=1) and push now (POST uplisting_push_run { cursor? }: slices, like the sync). */
+  var upush = null, upHowtoOpen = null, upBusy = {};
+  function pushOn(){ return !!upl.d && !!upl.d.r7 && upl.d.push === 'on'; }
+  // a push count, whatever the server calls it (nights or ranges)
+  function pushN(s, k){ return num(firstOf(s, [k, k + '_nights', 'nights_' + k, k + '_ranges'])); }
+  function pushStatsText(s){
+    s = s || {};
+    var nights = firstOf(s, ['closed_nights', 'nights_closed', 'reopened_nights', 'nights_reopened']) != null;
+    var t = pushN(s, 'closed') + (nights ? ' nights closed, ' : ' closed, ') + pushN(s, 'reopened') + ' reopened';
+    var sk = num(firstOf(s, ['skipped_closed', 'already_closed', 'skipped'])); if (sk) t += ' · ' + sk + ' already closed (left alone)';
+    var rf = num(firstOf(s, ['refused', 'overflow', 'full'])); if (rf) t += ' · ' + rf + ' refused';
+    var e = num(firstOf(s, ['errors', 'failed'])); if (e) t += ' · ' + plural(e, 'error');
+    return t;
+  }
+  function progOf(p){ if (!p || typeof p !== 'object') return null; var d = firstOf(p, ['listings_done', 'done']), t = firstOf(p, ['listings_total', 'total']); return d == null && t == null ? null : { done: num(d), total: num(t) }; }
+  function pushCls(){ var s = upush; return !s || s.running ? '' : s.err ? ' err' : s.stopped ? ' warn' : s.done ? (num((s.stats || {}).errors) || s.limited || s.warnings.length ? ' warn' : ' ok') : ''; }
+  function pushWhere(s){ var p = s && s.progress; return p && p.total ? 'listing ' + Math.min(p.total, p.done + 1) + ' of ' + p.total : ''; }
+  function pushNowText(s){ var p = s.progress; return s.stop ? 'Stopping after this step…' : !p ? 'Starting the push…' : p.total ? 'Listing ' + Math.min(p.total, p.done + 1) + ' of ' + p.total + '…' : 'Pushing…'; }
+  function warnsHtml(l){ return l && l.length ? '<ul class="warns">' + l.map(function(w){ return '<li>' + esc(w) + '</li>'; }).join('') + '</ul>' : ''; }
+  function pushInner(){
+    var s = upush; if (!s) return '';
+    var p = s.progress, pct = p && p.total ? Math.round(Math.min(p.done, p.total) / p.total * 100) : 0, wh = pushWhere(s);
+    var cont = canWrite() && s.cursor && pushOn() ? '<button type="button" class="btn btn-sm" id="upPCont">Continue push</button>' : '';
+    if (s.running) return '<div class="row"><p class="msg"><span class="spin" aria-hidden="true"></span><span>' + esc(pushNowText(s)) + esc(waitText(s)) + '</span></p>' +
+      '<button type="button" class="btn btn-ghost btn-sm" id="upPStop"' + (s.stop ? ' aria-disabled="true">Stopping…' : '>Stop') + '</button></div>' +
+      '<div class="upprog" role="progressbar" aria-label="Push progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + pct + '"><i style="width:' + pct + '%"></i></div>';
+    var so = s.stats ? ' So far: ' + pushStatsText(s.stats) + '.' : '';
+    if (s.err) return '<div class="row"><p class="msg">' + (s.progress ? 'Push stopped' + (wh ? ' at ' + esc(wh) : '') + ': ' : 'The push didn\'t start: ') + esc(bare(s.err)) + '.' + esc(so) + '</p>' + cont + '</div>' + warnsHtml(s.warnings);
+    if (s.stopped) return '<div class="row"><p class="msg">Push stopped' + (wh ? ' at ' + esc(wh) : '') + '. Nothing is lost: continue now, or the next sync finishes it.' + esc(so) + '</p>' + cont + '</div>' + warnsHtml(s.warnings);
+    if (s.done) return '<div class="row"><p class="msg">Push done at ' + esc(clock(s.at)) + ': ' + esc(pushStatsText(s.stats)) + '.' + (s.limited ? ' Uplisting asked us to slow down before the end: the rest goes with the next sync or Push now.' : ' Uplisting shows it on every channel within about a minute.') + '</p></div>' + warnsHtml(s.warnings);
+    return '';
+  }
+  function pushLive(){ var s = upush; return !s ? '' : s.running ? pushNowText(s) + waitText(s) : s.err ? 'Push stopped: ' + s.err : s.stopped ? 'Push stopped.' : s.done ? 'Push done: ' + pushStatsText(s.stats) + '.' : ''; }
+  function pushBtnHtml(){ if (!canWrite() || !pushOn()) return ''; var run = !!(upush && upush.running); return '<button type="button" class="btn btn-sm' + (upl.d.last_push ? ' btn-ghost' : '') + '" id="upPush"' + (run ? ' disabled' : '') + '>' + (run ? 'Pushing…' : 'Push now') + '</button>'; }
+  function paintPush(want){
+    var box = $('upPushBox'), a = document.activeElement, had = !!a && a !== document.body && ((box && box.contains(a)) || a.id === 'upPush');
+    if ($('upPushBtnW')) $('upPushBtnW').innerHTML = pushBtnHtml();
+    if (box) { box.className = 'upsync' + pushCls(); box.innerHTML = pushInner(); }
+    var live = $('upPushLive'), t = pushLive(); if (live && live.textContent !== t) live.textContent = t;
+    var now = document.activeElement;
+    if (had && (!now || now === document.body || !document.body.contains(a) || a.disabled)) { var n = (want && $(want)) || $('upPStop') || $('upPCont') || $('upPush') || $('upPrev'); if (n && !n.disabled) n.focus(); }
+  }
+  function startPush(cont){
+    if (!canWrite() || !pushOn() || (upush && upush.running)) return;
+    if (usync && usync.running) { toast('A sync is running: it pushes at the end when push is on. Wait for it, then push if you still need to.', 'warn'); return; }
+    var old = cont && upush && upush.cursor ? upush : null;
+    upush = { running: true, stop: false, cursor: old ? old.cursor : null, progress: old ? old.progress : null, stats: old ? old.stats : null, warnings: old ? old.warnings : [], err: '', done: false, stopped: false, limited: false, same: 0, wait: false, timer: null, at: 0 };
+    paintPush('upPStop');
+    pushStep(upush);
+  }
+  /* One slice per request, with the cursor it hands back. Uplisting's rate limit (429): the server pauses
+     (paused / retry_after, or the same cursor back) and we wait, longer each time, then give up with Continue. */
+  function pushStep(s){
+    s.timer = null;
+    if (upush !== s || !s.running) return;
+    if (!token) { s.running = false; return; }
+    if (s.stop) { pushHalt(s); return; }
+    var body = { action: 'uplisting_push_run' }; if (s.cursor) body.cursor = s.cursor;
+    post(body).then(function(d){
+      if (upush !== s || !s.running) return;
+      var before = s.cursor, pr = progOf(d.progress), st = firstOf(d, ['stats', 'result']);
+      s.cursor = typeof d.cursor === 'string' && d.cursor ? d.cursor : null;
+      if (pr) s.progress = pr;
+      if (st && typeof st === 'object') s.stats = st;
+      s.warnings = uniq(s.warnings.concat(warnList(d.warnings)));
+      if (d.done || !s.cursor) { s.limited = !!(d.paused || d.rate_limited); pushDone(s); return; }
+      s.same = s.cursor === before ? s.same + 1 : 0; s.busy = 0;
+      s.pauses = d.paused || d.rate_limited ? (s.pauses || 0) + 1 : 0;
+      if (s.same >= 5 || s.pauses >= 6) {
+        s.running = false; s.wait = false; s.err = 'Uplisting keeps asking us to slow down. Wait a minute, then continue';
+        paintPush('upPCont'); toast('Push paused' + (pushWhere(s) ? ' at ' + esc(pushWhere(s)) : '') + ': Uplisting keeps asking us to slow down. Continue in a minute.', 'warn');
+        return;
+      }
+      if (s.stop) { pushHalt(s); return; }
+      var wait = s.same ? Math.min(30000, 3000 * Math.pow(2, s.same - 1)) : 200;
+      if (num(d.retry_after) > 0) wait = Math.max(wait, Math.min(300, num(d.retry_after)) * 1000);
+      s.wait = s.same > 0 || !!(d.paused || d.rate_limited); s.waitSec = Math.round(wait / 1000);
+      paintPush();
+      s.timer = setTimeout(function(){ pushStep(s); }, wait);
+    }, function(e){
+      if (upush !== s || !s.running) return;
+      var code = e && e.code, ra = e && e.data ? num(e.data.retry_after) : 0;
+      if ((code === 'uplisting_busy' || code === 'rate_limited' || (e && e.status === 429)) && !s.stop && (s.busy = (s.busy || 0) + 1) <= 3) {
+        s.wait = true; s.waitSec = Math.min(300, ra || 15);
+        paintPush(); s.timer = setTimeout(function(){ pushStep(s); }, s.waitSec * 1000);
+        return;
+      }
+      s.running = false; s.wait = false; s.err = why(e);
+      if (/^(bad_cursor|too_big|no_mapping|uplisting_off|push_off)$/.test(code || '')) s.cursor = null;
+      if (code === 'push_off' && upl.d) { upl.d.push = 'off'; renderUp(); }
+      if (authFail(e)) { if (token) paintPush('upPCont'); return; }
+      paintPush('upPCont');
+      toast('Push stopped' + (pushWhere(s) ? ' at ' + esc(pushWhere(s)) : '') + ': ' + esc(why(e)), 'err');
+    });
+  }
+  function pushHalt(s){
+    s.running = false; s.stopped = true; s.wait = false;
+    paintPush('upPCont');
+    toast('Push stopped' + (pushWhere(s) ? ' at ' + esc(pushWhere(s)) : '') + '. Nothing is lost: continue it any time.', 'warn');
+  }
+  function stopPush(){
+    var s = upush; if (!s || !s.running || s.stop) return;
+    s.stop = true;
+    if (s.timer) { clearTimeout(s.timer); s.timer = null; pushHalt(s); } else paintPush('upPStop');
+  }
+  function pushDone(s){
+    s.running = false; s.done = true; s.wait = false; s.at = Date.now(); s.cursor = null;
+    var bad = num((s.stats || {}).errors) || s.limited;
+    paintPush('upPush');
+    toast('Pushed to Uplisting: ' + esc(pushStatsText(s.stats)) + '.' + (s.limited ? ' Uplisting asked us to slow down: the rest goes with the next sync.' : ''), bad ? 'warn' : 'ok');
+    upl.at = 0;
+    if (token) loadUpl(true).then(function(){ if (route.tab === 'setup') { renderUp(); updateBadges(); } }, function(){});
+  }
+
+  /* ---------------------------------------------------------------- the switches (main admin) */
+  function upFocus(id){ var n = $(id); if (n) n.focus(); }
+  function setPush(mode, btn){
+    if (!isOwner() || !uplOn() || !upl.d.r7 || upBusy.push) return;
+    var send = function(){
+      upBusy.push = true; renderUp();
+      post({ action: 'uplisting_push', mode: mode }).then(function(d){
+        upBusy.push = false;
+        var v = onOff(firstOf(d, ['push', 'mode', 'aob_push'])) || mode;
+        if (upl.d) upl.d.push = v;
+        upl.at = 0; renderUp(); upFocus('upPushSw'); updateBadges();
+        toast(v === 'on' ? 'Push to Uplisting is on: bookings, room changes, cancellations and blocks close or reopen their nights in Uplisting from now on.' + (canWrite() ? ' <b>Push now</b> does it for the bookings already made.' : '')
+          : 'Push to Uplisting is off: nothing more is written to Uplisting. Nights it already closed stay closed (turn it on again to reopen the ones no longer booked, or open them in Uplisting).', 'ok');
+      }, function(e){
+        upBusy.push = false; renderUp(); upFocus('upPushSw');
+        if (authFail(e)) return;
+        toast('Could not turn push ' + mode + ': ' + esc(why(e)), 'err');
+      });
+    };
+    if (mode !== 'on') { send(); return; }
+    confirmBox({ title: 'Turn on Push to Uplisting?', ok: 'Turn on push', cancel: 'Not now', safe: true, ret: btn,
+      html: '<p>This closes nights on Airbnb, Booking.com and every channel for rooms booked here: guests placed in rooms, manual bookings and team blocks. When a room frees up here, its nights open again.</p>' +
+        '<ul style="margin:0 0 10px;padding-left:18px"><li>A room closes every listing that holds it: 1B also closes "1 (Full)".</li><li>Nights already closed in Uplisting are left alone; only nights this system closed are ever reopened.</li><li>It runs after each booking, room change, cancellation and block, and at the end of every sync.</li></ul>' +
+        '<p>Not sure? Choose <b>Not now</b> and press <b>Preview</b> to see what it would change.</p>' }).then(function(yes){ if (yes) send(); });
+  }
+  // the action's name: uplisting_autoplace { mode }; an API that names it otherwise answers "Unknown action" (400)
+  var AUTO_ACTIONS = [['uplisting_autoplace', 'mode'], ['autoplace', 'mode'], ['uplisting_settings', 'autoplace']];
+  function postAutoplace(mode, i){
+    i = i || 0;
+    var a = AUTO_ACTIONS[i], body = { action: a[0] }; body[a[1]] = mode;
+    return post(body).then(null, function(e){ if (e && e.status === 400 && /unknown action/i.test(e.message || '') && i + 1 < AUTO_ACTIONS.length) return postAutoplace(mode, i + 1); throw e; });
+  }
+  function setAutoplace(mode){
+    if (!isOwner() || !uplOn() || !upl.d.r7 || upBusy.auto) return;
+    upBusy.auto = true; renderUp();
+    postAutoplace(mode).then(function(d){
+      upBusy.auto = false;
+      var v = onOff(firstOf(d, ['autoplace', 'aob_autoplace', 'mode'])) || mode;
+      if (upl.d) upl.d.autoplace = v;
+      upl.at = 0; renderUp(); upFocus('upAutoSw');
+      toast(v === 'on' ? 'Auto-place is on: guests of new paid bookings go straight into free rooms of the type they booked.' : 'Auto-place is off: place the guests of new bookings by hand on the week\'s rooming board.', 'ok');
+    }, function(e){
+      upBusy.auto = false; renderUp(); upFocus('upAutoSw');
+      if (authFail(e)) return;
+      toast('Could not turn auto-place ' + mode + ': ' + esc(why(e)), 'err');
+    });
+  }
+
+  /* ---------------------------------------------------------------- push preview (computed by the server, nothing written) */
+  function pvRange(x, kind){
+    if (!x || typeof x !== 'object') return null;
+    var from = String(x.from || x.start || ''), to = String(x.to || x.end || '');
+    if (!ISO.test(from) || !ISO.test(to) || to <= from) return null;
+    var l = firstOf(x, ['listing_id', 'property_id', 'listing']); if (l && typeof l === 'object') l = l.id;
+    var bc = firstOf(x, ['because', 'refs', 'reasons']); bc = Array.isArray(bc) ? bc : typeof bc === 'string' ? bc.split(/[\s,|]+/) : [];
+    return { kind: kind, listing: l == null ? '' : String(l), nickname: String(x.nickname || x.listing_name || x.name || ''), from: from, to: to, nights: num(x.nights) || nightsOf(from, to),
+      because: uniq(bc.map(function(r){ return r && typeof r === 'object' ? String(r.ref || r.id || '') : String(r == null ? '' : r); }).filter(Boolean)) };
+  }
+  function pvGroups(p){
+    var by = {}, order = [];
+    [['close', ['close']], ['reopen', ['reopen']], ['skip', ['skipped_closed', 'already_closed', 'skipped']]].forEach(function(k){
+      var list = firstOf(p, k[1]);
+      (Array.isArray(list) ? list : []).forEach(function(x){
+        var r = pvRange(x, k[0]); if (!r) return;
+        var key = r.listing || r.nickname || '?';
+        if (!by[key]) { by[key] = { id: r.listing, name: '', rows: [] }; order.push(key); }
+        if (!by[key].name && r.nickname) by[key].name = r.nickname;
+        by[key].rows.push(r);
+      });
+    });
+    var rank = { close: 0, reopen: 1, skip: 2 };
+    var gs = order.map(function(k){ var g = by[k]; g.name = g.name || upListingName({ property_id: g.id }) || (g.id ? 'Listing ' + g.id : 'Listing'); g.rows.sort(function(a, b){ return a.from < b.from ? -1 : a.from > b.from ? 1 : rank[a.kind] - rank[b.kind]; }); return g; });
+    return gs.sort(function(a, b){ return natural(a.name, b.name); });
+  }
+  function pvRef(r){
+    if (isBookingRef(r) || (/^(BL|UP|UC)-/.test(r) && blkReg[r])) return '<button type="button" class="refbtn" data-pref="' + esc(r) + '" title="' + esc(isBookingRef(r) ? 'Open booking ' + r : 'Block details') + '">' + esc(r) + '</button>';
+    return '<code>' + esc(r) + '</code>';
+  }
+  function showPreview(p, btn){
+    var on = (onOff(p.push) || (upl.d && upl.d.push) || 'off') === 'on';
+    if (upl.d && onOff(p.push) && upl.d.push !== onOff(p.push)) { upl.d.push = onOff(p.push); renderUp(); btn = $('upPrev') || btn; }
+    var gs = pvGroups(p), warns = warnList(p.warnings), t = { close: [0, 0], reopen: [0, 0], skip: [0, 0] };
+    gs.forEach(function(g){ var seen = {}; g.rows.forEach(function(r){ t[r.kind][0] += r.nights; if (!seen[r.kind]) { seen[r.kind] = 1; t[r.kind][1]++; } }); });
+    var parts = [];
+    if (t.close[0]) parts.push('<b>Close ' + esc(plural(t.close[0], 'night')) + '</b> in ' + esc(plural(t.close[1], 'listing')));
+    if (t.reopen[0]) parts.push('<b>reopen ' + esc(plural(t.reopen[0], 'night')) + '</b> in ' + esc(plural(t.reopen[1], 'listing')));
+    if (t.skip[0]) parts.push(esc(plural(t.skip[0], 'night')) + ' already closed in Uplisting (left alone)');
+    var sum = t.close[0] || t.reopen[0] ? parts.join(' · ') + '.' : 'Nothing to change: Uplisting already shows every night taken here as closed.' + (t.skip[0] ? ' ' + parts.join('') + '.' : '');
+    var mp = (upl.d && upl.d.mapping) || {};
+    var html = '<h2 id="mTitle">Push preview</h2>' +
+      '<p class="muted" style="margin:0 0 10px">' + (on ? 'Push is on. This is what <b>Push now</b> would change in Uplisting right now.' : 'Push is off, so nothing has been sent. This is what turning it on and pushing would change in Uplisting right now.') + '</p>' +
+      '<p class="pvsum" id="pvSum">' + sum + '</p>' + warnsHtml(warns) +
+      gs.map(function(g){
+        var rooms = g.id && mp[g.id] ? mp[g.id] : [];
+        return '<section class="pvg"><h3>' + esc(g.name) + '</h3><p class="pvm">' + (g.id ? 'Listing ' + esc(g.id) : '') + (rooms.length ? (g.id ? ' · ' : '') + esc(rooms.length > 1 ? 'holds ' + roomsText(rooms) + ': it closes when any of them is taken' : rooms[0]) : '') + '</p>' +
+          '<div class="tw"><table class="tbl stack pvt"><thead><tr><th>Change</th><th>Nights</th><th>Because of</th></tr></thead><tbody>' + g.rows.map(function(r){
+            var pill = r.kind === 'close' ? '<span class="pill chk">Close</span>' : r.kind === 'reopen' ? '<span class="pill ok">Reopen</span>' : '<span class="pill can">Already closed</span>';
+            return '<tr><td class="main">' + pill + '</td><td data-l="Nights">' + esc(stayLabel(r.from, r.to)) + '<span class="sub">' + esc(plural(r.nights, 'night')) + '</span></td><td data-l="Because of">' +
+              (r.because.length ? '<span class="refs">' + r.because.map(pvRef).join('') + '</span>' : '<span class="muted">' + (r.kind === 'reopen' ? 'not taken here any more' : '–') + '</span>') + '</td></tr>';
+          }).join('') + '</tbody></table></div></section>';
+      }).join('') +
+      '<div class="mact"><button type="button" class="btn btn-ghost" data-close>Close</button>' +
+        (on && canWrite() && (t.close[0] || t.reopen[0]) ? '<button type="button" class="btn" id="pvPush">Push now</button>' : '') +
+        (!on && isOwner() ? '<button type="button" class="btn" id="pvOn">Turn on push…</button>' : '') + '</div>';
+    var box = openModal(html, { wide: true, ret: btn });
+    each(box.querySelectorAll('[data-pref]'), function(b){ b.onclick = function(){
+      var r = b.getAttribute('data-pref'); closeModal();
+      if (isBookingRef(r)) openBooking(r, ''); else if (blkReg[r]) openBlock(r, $('upPrev'));
+    }; });
+    if ($('pvPush')) $('pvPush').onclick = function(){ closeModal(); startPush(false); };
+    if ($('pvOn')) $('pvOn').onclick = function(){ closeModal(); setPush('on', $('upPushSw') || $('upPrev')); };
+  }
+  function openPreview(btn){
+    if (!canWrite() || !uplOn()) return;
+    var done = busyBtn(btn, 'Checking…');
+    api('GET', '/api/booking/admin?uplisting_push_preview=1').then(function(d){
+      done();
+      showPreview(d || {}, btn);
+    }, function(e){ done(); if (authFail(e)) return; toast('Could not preview the push: ' + esc(why(e)), 'err'); });
+  }
+
+  /* ---------------------------------------------------------------- the cards */
+  var GH_REPO = 'https://github.com/Alchemy-of-Breath/website', SYNC_SECRET = 'AOB_UPLISTING_SYNC_URL', KEY_HOLE = 'PASTE-THE-SECRET-HERE';
+  var SYNC_URL = 'https://website-5h3.pages.dev/api/booking/uplisting?key=' + KEY_HOLE + '&action=sync';
+  // the twice-daily GitHub run: the last one we know of, and whether it is late (it should run every 12 hours)
+  function autoSync(d){
+    var ls = d.last_sync, sc = d.last_scheduled || (ls && ls.by && ls.by.scheduled ? ls : null), t = sc ? Date.parse(sc.at) : NaN;
+    return { sc: sc, t: t, late: isFinite(t) && Date.now() - t > 26 * 3600000 };
+  }
+  function fullWhen(t){ return new Date(t).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }); }
+  function tglHtml(id, on, label, busy){
+    return '<button type="button" class="tgl" role="switch" id="' + id + '" aria-checked="' + (on ? 'true' : 'false') + '" aria-label="' + esc(label) + '"' + (busy ? ' aria-disabled="true"' : '') + '><span class="tr" aria-hidden="true"></span><span>' + (busy ? 'Saving…' : on ? 'On' : 'Off') + '</span></button>';
+  }
+  function statePill(on){ return '<span class="pill ' + (on ? 'ok' : 'can') + '">' + (on ? 'On' : 'Off') + '</span>'; }
+  function pushCardHtml(d){
+    var on = d.push === 'on', lp = d.last_push, lt = lp ? Date.parse(lp.at) : NaN, own = isOwner();
+    return '<section class="upcard wide' + (on ? ' on' : '') + '" id="upPushCard" aria-labelledby="upPushH"><div class="uch"><h3 id="upPushH">Push to Uplisting</h3>' + (own ? tglHtml('upPushSw', on, 'Push to Uplisting', upBusy.push) : statePill(on)) + '</div>' +
+      '<p class="ucd">Uplisting sells the rooms on Airbnb, Booking.com and the other channels. With push on, every room night taken here (guests placed in rooms, manual bookings, team blocks) is closed in Uplisting, and opened again when it frees up. Nights Uplisting already has closed are left alone; only nights this system closed are ever reopened.</p>' +
+      '<p class="ust" id="upPushSt">' + (on ? '<b>On.</b> It runs after each booking, room change, cancellation and block, and at the end of every sync.' : '<b>Off.</b> Nothing is written to Uplisting.' + (canWrite() ? ' <b>Preview</b> shows what pushing would change.' : '')) + '</p>' +
+      (lp && isFinite(lt) ? '<p class="ust' + (num(lp.result && lp.result.errors) ? ' bad' : '') + '">Last push: ' + esc(fullWhen(lt)) + ' (' + esc(ago(Math.floor(lt / 1000))) + ')' + (lp.by ? ' by ' + esc(lp.by.name) : '') + (lp.result ? ': ' + esc(pushStatsText(lp.result)) : '') + '.</p>'
+        : on ? '<p class="ust">Not pushed yet: <b>Push now</b> closes the nights of the bookings already made.</p>' : '') +
+      warnsHtml(d.push_warnings) +
+      (canWrite() ? '<div class="tools"><button type="button" class="btn btn-ghost btn-sm" id="upPrev">Preview</button><span id="upPushBtnW">' + pushBtnHtml() + '</span></div>' : '') +
+      (!own && !on ? '<p class="muted" style="font-size:.8rem;margin:8px 0 0">The main admin turns it on.</p>' : '') +
+      '<div class="upsync' + pushCls() + '" id="upPushBox">' + pushInner() + '</div><span class="vh" id="upPushLive" aria-live="polite">' + esc(pushLive()) + '</span></section>';
+  }
+  function autoCardHtml(d){
+    var on = d.autoplace !== 'off';
+    return '<section class="upcard" aria-labelledby="upAutoH"><div class="uch"><h3 id="upAutoH">Auto-place new bookings</h3>' + (isOwner() ? tglHtml('upAutoSw', on, 'Auto-place new bookings', upBusy.auto) : statePill(on)) + '</div>' +
+      '<p class="ucd">When an online booking is paid, its guests go straight into free rooms of the type they booked for that week: women and men apart in shared rooms, partly used rooms first, one booking\'s guests together, never a blocked room or one taken in Uplisting.</p>' +
+      '<p class="ust">' + (on ? '<b>On.</b> Guests who don\'t fit stay under <b>Not placed yet</b> on the week\'s rooming board.' : '<b>Off.</b> New guests are placed by hand on the week\'s rooming board.') + '</p></section>';
+  }
+  function autoSyncCardHtml(d){
+    var a = autoSync(d), ls = d.last_sync, own = isOwner(), open = upHowtoOpen == null ? !a.sc : upHowtoOpen;
+    var pill = !a.sc ? '<span class="pill can">Not seen yet</span>' : a.late ? '<span class="pill chk">Late</span>' : '<span class="pill ok">Running</span>';
+    var line = a.sc ? '<p class="ust' + (a.late ? ' bad' : '') + '" id="upAutoSt">Last automatic sync: <b>' + esc(fullWhen(a.t)) + '</b> (GitHub, ' + esc(ago(Math.floor(a.t / 1000))) + ')' + (a.sc.result ? ': ' + esc(statsText(a.sc.result)) : '') + '.' +
+        (a.late ? ' It should run twice a day: open the latest <b>Uplisting sync</b> run in GitHub → Actions to see why it stopped.' : '') + '</p>'
+      : '<p class="ust" id="upAutoSt">No automatic sync has run yet' + (ls && ls.by && !ls.by.scheduled ? ' (the last sync was run by ' + esc(ls.by.name) + ')' : '') + '.</p>';
+    var howto = '<details class="howto" id="upHowto"' + (open ? ' open' : '') + '><summary>' + (a.sc ? 'How it is set up' : 'Set it up in GitHub (once)') + '</summary><ol class="upsteps">' +
+      '<li>On GitHub, open the website repository\'s <a href="' + GH_REPO + '/settings/secrets/actions" target="_blank" rel="noopener">Settings → Secrets and variables → Actions</a> and press <b>New repository secret</b>.</li>' +
+      '<li>Name:<div class="cprow"><code>' + SYNC_SECRET + '</code><button type="button" class="btn btn-ghost btn-sm" data-copy="' + SYNC_SECRET + '" data-what="The secret\'s name">Copy</button></div></li>' +
+      '<li>Secret: this address, with <mark>' + KEY_HOLE + '</mark> replaced by the value of <code>UPLISTING_WEBHOOK_SECRET</code> (Cloudflare → Pages → Settings → Variables and secrets). This page never shows that key: paste it in yourself.' +
+        '<div class="cprow"><code>' + esc(SYNC_URL).replace(KEY_HOLE, '<mark>' + KEY_HOLE + '</mark>') + '</code><button type="button" class="btn btn-ghost btn-sm" data-copy="' + esc(SYNC_URL) + '" data-what="The address">Copy</button></div></li>' +
+      '<li>Press <b>Add secret</b>. To try it now: <a href="' + GH_REPO + '/actions" target="_blank" rel="noopener">Actions</a> → <b>Uplisting sync</b> → <b>Run workflow</b>. Its time shows here once it is done.</li></ol></details>';
+    return '<section class="upcard" aria-labelledby="upAutoSyncH"><div class="uch"><h3 id="upAutoSyncH">Automatic sync</h3>' + pill + '</div>' +
+      '<p class="ucd">GitHub runs the sync at 05:00 and 17:00 UTC, after the RetreatGuru ↔ Uplisting routine: bookings, nights closed in Uplisting, then the push when it is on. When a run fails, GitHub emails the main admin.</p>' + line +
+      (own ? howto : !a.sc ? '<p class="muted" style="font-size:.8rem;margin:0">The main admin sets it up in GitHub.</p>' : '') + '</section>';
+  }
+  function upCardsHtml(d){ return d.r7 ? '<div class="upcards">' + pushCardHtml(d) + autoCardHtml(d) + autoSyncCardHtml(d) + '</div>' : ''; }
 
   /* ---------------------------------------------------------------- webhooks, save */
   function connectHooks(btn){
@@ -3641,7 +4104,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     if (!uplOn()) return { text: 'Not connected', bad: false };
     var pr = uplProblems(), c = umCounts(), ls = d.last_sync, t = ls ? Date.parse(ls.at) : NaN;
     if (pr.length) return { text: 'Needs attention: ' + pr.join(' · '), bad: true };
-    return { text: (d.account && d.account.name ? 'Connected as ' + d.account.name : 'Connected') + ' · ' + c.mapped + ' of ' + plural(c.all, 'listing') + ' mapped · ' + (isFinite(t) ? 'last sync ' + ago(Math.floor(t / 1000)) : 'not synced yet'), bad: false };
+    return { text: (d.account && d.account.name ? 'Connected as ' + d.account.name : 'Connected') + ' · ' + c.mapped + ' of ' + plural(c.all, 'listing') + ' mapped · ' + (isFinite(t) ? 'last sync ' + ago(Math.floor(t / 1000)) : 'not synced yet') + (d.r7 ? ' · push ' + d.push : ''), bad: false };
   }
   function upPanel(){
     var d = upl.d, own = isOwner();
@@ -3668,15 +4131,17 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
           h ? '<ul class="hooks">' + UP_EVENTS.map(function(e){ return '<li><i class="' + (h[e[0]] ? 'y' : 'n') + '" aria-hidden="true">' + (h[e[0]] ? '✓' : '✗') + '</i>' + esc(e[1]) + '<span class="vh">: ' + (h[e[0]] ? 'connected' : 'not connected') + '</span></li>'; }).join('') + '</ul>' : (sec ? 'Uplisting didn\'t say just now' : 'UPLISTING_WEBHOOK_SECRET'),
           sec && hk === UP_EVENTS.length ? 'good' : 'bad') +
         upCheck('Last sync', isFinite(lt) ? esc(ago(Math.floor(lt / 1000))) : 'Never',
-          isFinite(lt) ? esc(new Date(lt).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })) + (lr ? ' · ' + esc(statsText(lr)) : '') : 'Sync once to bring in the bookings already made', isFinite(lt) && !(lr && num(lr.errors)) ? 'good' : lr && num(lr.errors) ? 'bad' : '') +
-        upCheck('Imported', im ? esc(plural(im.active, 'booking')) : '–', im ? esc(im.upcoming + ' upcoming · in the rooming calendar') : '') +
+          isFinite(lt) ? esc(new Date(lt).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })) + (ls.by ? ' · ' + esc(ls.by.scheduled ? 'automatic (GitHub)' : 'by ' + ls.by.name) : '') + (lr ? ' · ' + esc(statsText(lr)) : '') : 'Sync once to bring in the bookings already made', isFinite(lt) && !(lr && num(lr.errors)) ? 'good' : lr && num(lr.errors) ? 'bad' : '') +
+        upCheck('Imported', im ? esc(plural(im.active, 'booking')) : '–', im ? esc(im.upcoming + ' upcoming · in the rooming calendar') +
+          (im.has_closed ? '<span id="upClosedCt">Closed in Uplisting: ' + (im.closed ? esc(plural(im.closed, 'range') + (im.closed_nights ? ' · ' + plural(im.closed_nights, 'night') : '')) : 'none') + '</span>' : '') : '') +
         '</div>' +
         (d.hint ? '<p class="uphint">Uplisting sends new bookings, changes and cancellations to <code>' + esc(d.hint) + '</code> (with the secret key, not shown here).</p>' : '') +
         (d.other_hosts.length ? '<p class="uphint">Uplisting also has webhooks of ours for ' + d.other_hosts.map(function(h){ return '<code>' + esc(h) + '</code>'; }).join(', ') + ' (another address of this booking system): bookings come in through those as well.</p>' : '') +
         ((own && sec) || canWrite() ? '<div class="tools">' + (own && sec ? '<button type="button" class="btn btn-sm' + (hk === UP_EVENTS.length ? ' btn-ghost' : '') + '" id="upHooks" title="Registers the three webhooks in Uplisting (and removes ours with an old secret)">Connect webhooks</button>' : '') +
           '<span id="upSyncBtnW">' + syncBtnHtml() + '</span></div>' : '') +
         (!own && sec && hk !== UP_EVENTS.length ? '<p class="muted" style="font-size:.8rem;margin:8px 0 0">The main admin connects the webhooks.</p>' : '') +
-        '<div class="upsync' + syncCls() + '" id="upSyncBox">' + syncInner() + '</div><span class="vh" id="upLive" aria-live="polite">' + esc(syncLive()) + '</span>';
+        '<div class="upsync' + syncCls() + '" id="upSyncBox">' + syncInner() + '</div><span class="vh" id="upLive" aria-live="polite">' + esc(syncLive()) + '</span>' +
+        upCardsHtml(d);
       html += '<div class="uph"><h3>Listings and rooms</h3><small id="umCount">' + umCountHtml() + '</small></div>' +
         '<p class="upintro">A booking of a listing takes every room you add here (a whole-cottage listing: all of its rooms) for its nights, and is ignored while a listing has none. A unit\'s own rooms take the place of its listing\'s.' + (own ? ' Nicknames and IDs tell listings with the same public name apart.' : ' Only the main admin changes this.') + '</p>' +
         (own && umap.theirs && dirty ? '<p class="note warn">The mapping was saved by someone else while you were editing. <b>Save mapping</b> puts yours in its place; <b>Discard changes</b> shows theirs.</p>' : '') +
@@ -3709,8 +4174,18 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     root.addEventListener('click', function(e){
       var t = e.target, el = t.closest && t.closest('button, summary');
       if (!el || !(t.closest('#upBox'))) return;
-      if (el.tagName === 'SUMMARY') { setTimeout(function(){ var b = $('upBox'); if (b && b.tagName === 'DETAILS') upOpenChoice = b.open; }, 0); return; }
+      if (el.tagName === 'SUMMARY') {
+        var dt = el.parentNode;
+        setTimeout(function(){ if (dt && dt.id === 'upHowto') upHowtoOpen = dt.open; else { var b = $('upBox'); if (b && b.tagName === 'DETAILS') upOpenChoice = b.open; } }, 0);
+        return;
+      }
       if (el.id === 'upHooks') connectHooks(el);
+      else if (el.id === 'upPushSw') setPush(el.getAttribute('aria-checked') === 'true' ? 'off' : 'on', el);
+      else if (el.id === 'upAutoSw') setAutoplace(el.getAttribute('aria-checked') === 'true' ? 'off' : 'on');
+      else if (el.id === 'upPrev') openPreview(el);
+      else if (el.id === 'upPush') startPush(false);
+      else if (el.id === 'upPCont') startPush(true);
+      else if (el.id === 'upPStop') stopPush();
       else if (el.id === 'upSync') startSync(false);
       else if (el.id === 'upCont') startSync(true);
       else if (el.id === 'upStop') stopSync();
@@ -3754,15 +4229,22 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     seed_demo: ['setup', 'Added demo bookings'], place_demo: ['setup', 'Placed demo guests'], clear_demo: ['setup', 'Removed demo bookings'],
     register_domains: ['setup', 'Registered payment domains'], repair_plans: ['setup', 'Repaired payment plans'],
     uplisting_booking: ['uplisting', 'Uplisting booking'], uplisting_cancel: ['uplisting', 'Cancelled in Uplisting'], uplisting_sync: ['uplisting', 'Synced with Uplisting'],
-    uplisting_map: ['uplisting', 'Changed the Uplisting mapping'], uplisting_hooks: ['uplisting', 'Connected Uplisting webhooks']
+    uplisting_map: ['uplisting', 'Changed the Uplisting mapping'], uplisting_hooks: ['uplisting', 'Connected Uplisting webhooks'],
+    // round 7: nights closed in Uplisting coming in, the push out, the switches, guests placed automatically
+    uplisting_closed: ['uplisting', 'Closed in Uplisting'], uplisting_reopened: ['uplisting', 'Reopened in Uplisting'], uplisting_closed_cancel: ['uplisting', 'Reopened in Uplisting'],
+    uplisting_push: ['uplisting', 'Switched Push to Uplisting'], uplisting_push_on: ['uplisting', 'Turned on Push to Uplisting'], uplisting_push_off: ['uplisting', 'Turned off Push to Uplisting'],
+    uplisting_push_run: ['uplisting', 'Pushed to Uplisting'], uplisting_push_close: ['uplisting', 'Closed nights in Uplisting'], uplisting_push_closed: ['uplisting', 'Closed nights in Uplisting'],
+    uplisting_push_reopen: ['uplisting', 'Reopened nights in Uplisting'], uplisting_push_reopened: ['uplisting', 'Reopened nights in Uplisting'],
+    uplisting_push_error: ['uplisting', 'Push to Uplisting failed'], uplisting_push_failed: ['uplisting', 'Push to Uplisting failed'], uplisting_notify: ['uplisting', 'Uplisting push result'],
+    uplisting_autoplace: ['uplisting', 'Switched auto-place'], autoplace: ['bookings', 'Placed guests automatically'], auto_place: ['bookings', 'Placed guests automatically']
   };
   var ACT_GROUPS = [['bookings', 'Bookings'], ['rooms', 'Rooms & blocks'], ['payments', 'Payments'], ['uplisting', 'Uplisting'], ['users', 'Users & sign-ins'], ['setup', 'Setup']];
-  function actGroup(a){ var x = ACTIONS[a]; return x ? x[0] : /^manual_/.test(a) ? 'rooms' : /^user_/.test(a) ? 'users' : /^uplisting_/.test(a) ? 'uplisting' : ''; }
+  function actGroup(a){ var x = ACTIONS[a]; return x ? x[0] : /^manual_/.test(a) ? 'rooms' : /^user_/.test(a) ? 'users' : /^uplisting_/.test(a) ? 'uplisting' : /^autoplace/.test(a) ? 'bookings' : ''; }
   function actLabel(a){ var x = ACTIONS[a]; if (x) return x[1]; var t = String(a || 'change').replace(/_/g, ' '); return t.charAt(0).toUpperCase() + t.slice(1); }
   function rolePill(r){ return ROLES[r] ? '<span class="pill ' + (r === 'owner' ? 'adm' : r === 'team' ? 'ok' : 'can') + '">' + esc(ROLES[r]) + '</span>' : ''; }
   // who, in words: a role, or a system that wrote to the log itself (Uplisting)
   function roleName(a){ return ROLES[a.role] || (a.role === 'system' ? 'System' : a.role || ''); }
-  function isBookingRef(r){ return /^[A-Z0-9]{2,8}-[A-Z0-9]{4,10}$/.test(r || '') && !/^(BL|UP)-/.test(r); }
+  function isBookingRef(r){ return /^[A-Z0-9]{2,8}-[A-Z0-9]{4,10}$/.test(r || '') && !/^(BL|UP|UC)-/.test(r); }
 
   /* ---------------------------------------------------------------- loading */
   function normUser(u){
@@ -4118,7 +4600,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
   function actWhen(t){ var d = new Date(t); return d.toLocaleString('en-GB', { day: 'numeric', month: 'short', year: d.getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined, hour: '2-digit', minute: '2-digit' }); }
   function actRef(x){
     if (!x.ref || /^cus_/.test(x.ref)) return '';
-    if (/^(BL|UP)-/.test(x.ref)) return blkReg[x.ref] ? '<button type="button" class="refbtn" data-block="' + esc(x.ref) + '" title="' + (/^UP-/.test(x.ref) ? 'Uplisting booking details' : 'Block details') + '">' + esc(x.ref) + '</button>' : '<code>' + esc(x.ref) + '</code>';
+    if (/^(BL|UP|UC)-/.test(x.ref)) return blkReg[x.ref] ? '<button type="button" class="refbtn" data-block="' + esc(x.ref) + '" title="' + (/^UP-/.test(x.ref) ? 'Uplisting booking details' : /^UC-/.test(x.ref) ? 'Closed in Uplisting: details' : 'Block details') + '">' + esc(x.ref) + '</button>' : '<code>' + esc(x.ref) + '</code>';
     if (isBookingRef(x.ref)) return '<button type="button" class="refbtn" data-open="' + esc(x.ref) + '" data-w="' + esc(PBY[x.program] ? x.program : '') + '" title="Open booking ' + esc(x.ref) + '">' + esc(x.ref) + '</button>';
     return '<code>' + esc(x.ref) + '</code>';
   }
@@ -4242,7 +4724,8 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     drawerRef = null; drawerPushed = false;
     $('drawer').hidden = true; $('drawer').innerHTML = ''; $('scrim').hidden = true;
     if (!modal) document.body.classList.remove('noscroll');
-    var ret = drawerRet && document.body.contains(drawerRet) ? drawerRet : ref && $('view').querySelector('[data-open="' + ref + '"] .refbtn, button[data-open="' + ref + '"]');
+    // the control it was opened from, or (re-rendered meanwhile) the one with its id, or a link to the booking
+    var ret = drawerRet && document.body.contains(drawerRet) ? drawerRet : drawerRet && drawerRet.id && $(drawerRet.id) ? $(drawerRet.id) : ref && $('view').querySelector('[data-open="' + ref + '"] .refbtn, button[data-open="' + ref + '"]');
     if (ret && ret.focus) ret.focus();
     drawerRet = null;
   }
@@ -4276,7 +4759,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     if (b.plan && active(b) && b.plan.status === 'past_due') out.push(['err', 'The last plan payment failed. Stripe is retrying it automatically.']);
     if (b.plan && b.plan.ended && num(b.balance_cents) && active(b)) out.push(['err', 'The payment plan has ended with ' + eur(b.balance_cents) + ' unpaid: send a balance link.']);
     if (unverified(b)) out.push(['err', 'Room only: no earlier programme fee payment from this email was found in Stripe. Match it to their GHL or RetreatGuru payment.']);
-    if (rm && active(b)) rm.order.forEach(function(n){ var x = rm.byName[n]; if (x.conflict && x.guests.some(function(g){ return g.ref === b.ref; })) out.push(['err', n + ': ' + (x.conflict === 'blocked' ? (isExt(x.blocked) ? 'this room is booked on Uplisting (' + upLabel(x.blocked) + ', ' + stayLabel(x.blocked.from, x.blocked.to) + '). Move the guest, or change that booking in Uplisting.' : 'this room is blocked (' + reasonLabel(x.blocked.reason).toLowerCase() + ', ' + stayLabel(x.blocked.from, x.blocked.to) + '). Move the guest, or delete the block.') : x.conflict === 'mixed' ? 'women and men in a same-gender room.' : x.guests.length + ' guests for ' + plural(x.beds, 'bed') + '.')]); });
+    if (rm && active(b)) rm.order.forEach(function(n){ var x = rm.byName[n]; if (x.conflict && x.guests.some(function(g){ return g.ref === b.ref; })) out.push(['err', n + ': ' + (x.conflict === 'blocked' ? (isClosed(x.blocked) ? 'this room is closed in Uplisting (' + stayLabel(x.blocked.from, x.blocked.to) + '). Move the guest, or reopen those nights in Uplisting.' : isExt(x.blocked) ? 'this room is booked on Uplisting (' + upLabel(x.blocked) + ', ' + stayLabel(x.blocked.from, x.blocked.to) + '). Move the guest, or change that booking in Uplisting.' : 'this room is blocked (' + reasonLabel(x.blocked.reason).toLowerCase() + ', ' + stayLabel(x.blocked.from, x.blocked.to) + '). Move the guest, or delete the block.') : x.conflict === 'mixed' ? 'women and men in a same-gender room.' : x.guests.length + ' guests for ' + plural(x.beds, 'bed') + '.')]); });
     return out;
   }
   function drawerHtml(b){

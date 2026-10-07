@@ -6,10 +6,15 @@
 // Delivery to GHL is awaited (5 s); if GHL fails we answer 500 so Stripe retries. Paid bookings and
 // paid wellbeing sessions are forwarded once: after a successful forward the PaymentIntent /
 // subscription gets aob_ghl=<event id>.
+// A paid booking (a guest's checkout or an admin booking link) is auto-placed first: its guests go into free
+// physical rooms of their type (with the Uplisting integration and the auto-place setting on, see autoPlace in
+// booking-lib/uplisting.js; idempotent on retries, never failing the webhook), and with the push to Uplisting on
+// those rooms are closed there after the answer (waitUntil).
 import {
   verifyStripeSignature, parseBooking, parseAddons, sessionLabel, getProgram, ensurePlanEnds, planDates, stripe, paidOnSub, liveMode,
   siteOrigin, findBooking, forgetBooking, currentBookingMeta, str, isBusy, logError, nowSec, openBookingSessions, programPayments,
 } from '../../../booking-lib/core.js';
+import { autoPlace } from '../../../booking-lib/uplisting.js';
 
 const done = (t = 'ok', status = 200) => new Response(t, { status });
 const money = c => (c == null || c === '' || Number.isNaN(+c)) ? '' : ((+c) / 100).toFixed(2);
@@ -104,8 +109,20 @@ async function recordTerms(env, event, s, md, program, sub) {
   return sub ? updated : null;
 }
 
+/* A paid booking's guests into free rooms (never failing the webhook); the push to Uplisting after the answer. */
+async function placeBooking(context, env, md, program) {
+  try {
+    const r = await autoPlace(env, program, md, { host: hostOf(context && context.request) });
+    if (r && r.push) {
+      if (context && typeof context.waitUntil === 'function') { try { context.waitUntil(r.push); return; } catch {} }
+      await r.push;
+    }
+  } catch (e) { logError('webhook.autoplace', e, { ref: md.aob_ref || null }); }
+}
+const hostOf = request => { try { return new URL(request.url).host; } catch { return ''; } };
+
 /* checkout.session.completed / async_payment_succeeded */
-async function onCompleted(env, event, s, asyncSucceeded) {
+async function onCompleted(env, event, s, asyncSucceeded, context = null) {
   const md = s.metadata || {};
   if (!md.aob_program || !['booking', 'balance', 'addon'].includes(md.aob_kind)) return done('not a booking');
   const program = getProgram(md.aob_program);
@@ -128,8 +145,9 @@ async function onCompleted(env, event, s, asyncSucceeded) {
       if (isBusy(e)) return done('could not record the terms acceptance', 500); // Stripe retries
     }
   }
-  if (!env.GHL_WEBHOOK_URL) return done();
   const paid = asyncSucceeded || s.payment_status === 'paid' || s.payment_status === 'no_payment_required';
+  if (paid && md.aob_kind === 'booking' && program) await placeBooking(context, env, md, program);
+  if (!env.GHL_WEBHOOK_URL) return done();
   const kind = md.aob_kind === 'balance' ? 'booking_balance' : 'booking';
   // forward a paid booking once: the PaymentIntent / subscription remembers the event that did it
   let mark = null;
@@ -236,7 +254,8 @@ async function onSubDeleted(env, event, sub) {
   return done();
 }
 
-export async function onRequestPost({ request, env }) {
+export async function onRequestPost(context) {
+  const { request, env } = context;
   const payload = await request.text();
   if (!env.STRIPE_WEBHOOK_SECRET) return done('webhook secret not configured', 503);
   if (!(await verifyStripeSignature(payload, request.headers.get('Stripe-Signature'), env.STRIPE_WEBHOOK_SECRET))) return done('invalid signature', 400);
@@ -246,8 +265,8 @@ export async function onRequestPost({ request, env }) {
   const obj = (event.data && event.data.object) || {};
   try {
     switch (event.type) {
-      case 'checkout.session.completed': return await onCompleted(env, event, obj, false);
-      case 'checkout.session.async_payment_succeeded': return await onCompleted(env, event, obj, true);
+      case 'checkout.session.completed': return await onCompleted(env, event, obj, false, context);
+      case 'checkout.session.async_payment_succeeded': return await onCompleted(env, event, obj, true, context);
       case 'checkout.session.async_payment_failed': return await onAsyncFailed(env, event, obj);
       case 'checkout.session.expired': return await onExpired(env, event, obj);
       case 'invoice.paid': return await onInvoice(env, event, obj, true);

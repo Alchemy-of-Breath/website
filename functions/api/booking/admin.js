@@ -27,8 +27,13 @@
 //                   { booking_created, booking_updated, booking_removed } (true: registered for this host with the
 //                   current secret) | null, hooks_other_hosts: [hosts], webhook_url_hint (no key), last_sync: { at,
 //                   result: { created, updated, cancelled, unchanged, unmapped, clashes, errors } } | null, imported:
-//                   { active, upcoming }, max_keys: 47, error? (Uplisting unreachable / refused: still 200) }. No API
-//                   key: no Uplisting call (account null, properties [], hooks null). Stripe unreadable → 502.
+//                   { active, upcoming, closed, closed_upcoming, closed_nights } (bookings; ranges and nights closed in
+//                   Uplisting), max_keys (47 minus the settings flags set), push: 'on'|'off', autoplace: 'on'|'off',
+//                   last_sync.by: 'scheduled' | { id, name } | null, last_scheduled_sync: { at, result } | null, last_push:
+//                   { at, result: { closed, reopened, skipped_closed, refused, listings, errors }, by } | null, push_warnings:
+//                   [text] (the last push run's), pushed: { listings, nights } (what we hold closed in Uplisting now),
+//                   sync_url_hint (no key), error? (Uplisting unreachable / refused: still 200) }. No API key: no Uplisting
+//                   call (account null, properties [], hooks null). Stripe unreadable → 502.
 // Others than the owner: GET ?users / ?activity and the owner-only actions → 403 { error: 'Only the main admin
 // can do this.', code: 'owner_only' }; any POST by a viewer → 403 { error: 'View-only access: you can look but
 // not change anything.', code: 'read_only' }.
@@ -54,11 +59,25 @@
 // Uplisting (see booking-lib/uplisting.js; 503 { code: 'uplisting_off' } without UPLISTING_API_KEY):
 //   uplisting_map { mapping } (owner) → { ok, mapping }; 422 { error, fields: { 'mapping.<key>' | mapping: text } }.
 //   uplisting_hooks {} (owner) → { ok, hooks, created, removed }; 409 code no_webhook_secret | bad_host.
-//   uplisting_sync { cursor? } (owner, team) → { ok, done, cursor | null, progress: { listings_done, listings_total },
-//     stats: { created, updated, cancelled, unchanged, unmapped, clashes, errors }, paused?: 'rate_limited' | 'busy',
-//     retry_after? (seconds to wait before calling again) }; 409 no_mapping, 400 bad_cursor, 503 too_big.
+//   uplisting_sync { cursor? } (owner, team) → { ok, done, cursor | null, progress: { listings_done, listings_total, phase:
+//     'bookings'|'closures'|'push'|'done', closures_done, closures_total, push_done?, push_total? }, stats: { created, updated,
+//     cancelled, unchanged, unmapped, clashes, errors } (bookings), closures: { created, updated, cancelled, unchanged, listings,
+//     errors } (closed nights), push?: { closed, reopened, skipped_closed, refused, listings, errors } (nights; with the push on),
+//     warnings?, paused?: 'rate_limited' | 'busy', retry_after? (seconds to wait before calling again) }; 409 no_mapping,
+//     400 bad_cursor, 503 too_big.
+//   uplisting_push { mode: 'on'|'off' } (owner) → { ok, push } (unchanged: true when it already was); 409 settings_full.
+//   uplisting_push_run { cursor? } (owner, team) → { ok, done, cursor | null, progress: { listings_done, listings_total, phase },
+//     stats: { closed, reopened, skipped_closed, refused, listings, errors } (nights; refused: listings whose ledger is full),
+//     warnings?, paused?: 'rate_limited' | 'busy', retry_after? }; 409 push_off, 400 bad_cursor.
+//   uplisting_autoplace { mode: 'on'|'off' } (owner; works without UPLISTING_API_KEY, but auto-place only runs with it)
+//     → { ok, autoplace }.
 //   Uplisting refusing or unreachable → 502 / 503 { error, code: 'uplisting_auth' | 'uplisting' | 'uplisting_busy', retry_after? }.
-//   block_delete of an Uplisting booking → 409 { error, code: 'external' }.
+//   block_delete of an Uplisting booking or of nights closed there → 409 { error, code: 'external' }.
+// GET ?uplisting_push_preview=1 (owner, team) → { push: 'on'|'off', close: [{ listing_id, nickname, from, to, nights, because:
+//   [refs], unchecked? }], reopen: [{ listing_id, nickname, from, to, nights }], skipped_closed: [{ listing_id, nickname, from, to,
+//   nights, because }], warnings: [text], listings, checked } — nothing written. 503 uplisting_off without the API key.
+// With the push on, assign, cancel, restore, manual_create / manual_update / manual_cancel / manual_restore and block_create /
+// block_delete reconcile the listings of the rooms they touch after answering (waitUntil; never failing the action).
 // Every action that answers 2xx is written to the activity log with who did it (never failing the action); an
 // unfinished sync slice is not (one uplisting_sync entry when it is done).
 import {
@@ -68,12 +87,12 @@ import {
   planEndCheck, planEndCheckRecord, keyMode, publishableStatus, turnstileSiteKey, turnstileStatus, remindEnabled, listDomains, ensurePaymentMethodDomain,
   clearAvailabilityMemo, quote, publicQuote, bookingMetadata, bookingCheckoutParams, safeCreateSession, newRef, cleanNote, str, parseAssign,
   assignToString, parseSvc, svcToString, SVC_STATUS, saveAdminMeta, currentBookingMeta, logError, eur, nowSec, PROD_HOSTS,
-  liveMode, listRecords, listOffline, calendarRooms, weekConflicts, nameConflicts, manualBooking, blockOut, blockInput, manualInput,
+  liveMode, isBusy, listRecords, listOffline, calendarRooms, weekConflicts, nameConflicts, manualBooking, blockOut, blockInput, manualInput,
   manualUpdateInput, offlineInput, createOfflinePayment, recordsChanged, rememberWrite, parseRecord, isManualRef, isBlockId, homeProgram,
   overlaps, weekRange, validDay, addDays, nightsBetween, todayIso, rangeLabel, OFFLINE_METHODS, REC_MAX_NIGHTS, BUSY, cut,
-  isExternal, externalLabel,
+  isExternal, externalText, isClosure,
 } from '../../../booking-lib/core.js';
-import { uplistingPanel, saveMapping, connectHooks, syncSlice } from '../../../booking-lib/uplisting.js';
+import { uplistingPanel, saveMapping, connectHooks, syncSlice, pushPreview, saveFlag, pushAfter, syncSummary, pushRunSummary } from '../../../booking-lib/uplisting.js';
 import { seedDemo, clearDemo, placeDemo } from '../../../booking-lib/demo.js';
 import {
   resolveAdmin, meOut, listUsers, readUser, userInput, userOut, createUser, updateUser, generatePassword, passwordMin,
@@ -133,9 +152,12 @@ function overviewOf(weeks, recentBookings, stay = { totals: ZERO_TOTALS() }) {
 
 /* ------------------------------------------------------------------ who */
 const READ_ONLY = { error: 'View-only access: you can look but not change anything.', code: 'read_only' };
+/* Actions after which the push to Uplisting (when on) reconciles the rooms they touched */
+const PUSH_ACTIONS = new Set(['assign', 'cancel', 'restore', 'manual_create', 'manual_update', 'manual_cancel', 'manual_restore', 'block_create', 'block_delete']);
+const hostOf = request => { try { return new URL(request.url).host; } catch { return ''; } };
 const OWNER_ONLY = { error: 'Only the main admin can do this.', code: 'owner_only' };
 const OWNER_ACTIONS = new Set(['user_create', 'user_update', 'test_users_create', 'seed_demo', 'place_demo', 'clear_demo', 'register_domains', 'repair_plans',
-  'uplisting_map', 'uplisting_hooks']);
+  'uplisting_map', 'uplisting_hooks', 'uplisting_push', 'uplisting_autoplace']);
 /* → { me } or { res: the 401 / 503 answer } */
 async function whoIs(request, env) {
   let who;
@@ -155,6 +177,14 @@ export async function onRequestGet({ request, env }) {
   if (params.get('users') || params.get('activity')) {
     if (me.role !== 'owner') return send(OWNER_ONLY, 403);
     return params.get('users') ? usersGet(env, send) : activityGet(env, params, send);
+  }
+  if (params.get('uplisting_push_preview')) {
+    if (me.role === 'viewer') return send(READ_ONLY, 403);
+    try { const r = await pushPreview(env); return send(r.data, r.status); }
+    catch (e) {
+      logError('admin.push_preview', e);
+      return e.type === 'uplisting_error' ? send({ error: e.message, code: 'uplisting' }, 502) : send({ error: 'Could not work out the preview: ' + e.message }, 502);
+    }
   }
   if (params.get('uplisting')) {
     try { return send(await uplistingPanel(env, request, { refresh: params.get('refresh') === '1' && me.role !== 'viewer' })); }
@@ -332,7 +362,7 @@ function notifyGhl(env, context, payload) {
 }
 const money = c => ((c || 0) / 100).toFixed(2);
 
-async function blockCreate(env, body, send) {
+async function blockCreate(env, body, send, hint = null) {
   const v = blockInput(body);
   if (Object.keys(v.errors).length) return fieldsError(send, v.errors);
   if (body.force !== true) {
@@ -341,9 +371,11 @@ async function blockCreate(env, body, send) {
   }
   const c = await stripe(env, 'POST', '/customers', { name: v.name, description: v.description, metadata: v.metadata });
   recordsChanged(c);
-  return send({ ok: true, block: blockOut(parseRecord(c)), forced: body.force === true });
+  const block = blockOut(parseRecord(c));
+  if (hint) hint.push = { rooms: block.rooms.slice(), from: block.from, to: block.to, ref: block.id };
+  return send({ ok: true, block, forced: body.force === true });
 }
-async function blockDelete(env, body, send) {
+async function blockDelete(env, body, send, hint = null) {
   const id = str(body.id, 80);
   let rec = null;
   if (/^cus_[A-Za-z0-9]{6,}$/.test(id)) rec = await readRecord(env, id);
@@ -351,15 +383,17 @@ async function blockDelete(env, body, send) {
     const found = (await listRecords(env, { recent: true })).find(r => r.type === 'block' && r.id === id);
     rec = found ? await readRecord(env, found.customer) : null;
   }
-  else if (/^UP-[A-Za-z0-9-]{1,24}$/.test(id)) rec = (await listRecords(env, { recent: true })).find(r => r.type === 'block' && r.id === id) || null;
+  else if (/^U[PC]-[A-Za-z0-9-]{1,40}$/.test(id)) rec = (await listRecords(env, { recent: true })).find(r => r.type === 'block' && r.id === id) || null;
   if (!rec || rec.type !== 'block') return send({ error: 'Block not found (it may have been removed already).' }, 404);
-  // a booking imported from Uplisting only changes there (the sync would bring it back anyway)
+  // a booking imported from Uplisting (or nights closed there) only changes there (the sync would bring it back anyway)
+  if (isClosure(rec)) return send({ error: 'These nights are closed in Uplisting: open them there and they will update here.', code: 'external' }, 409);
   if (isExternal(rec)) return send({ error: 'This booking comes from Uplisting: change or cancel it there and it will update here.', code: 'external' }, 409);
   await stripe(env, 'DELETE', `/customers/${rec.customer}`);
   recordsChanged({ id: rec.customer }, true);
+  if (hint) hint.push = { rooms: rec.rooms.slice(), from: rec.from, to: rec.to, ref: rec.id };
   return send({ ok: true, id: rec.id, customer: rec.customer });
 }
-async function manualCreate(env, body, send) {
+async function manualCreate(env, body, send, hint = null) {
   const v = manualInput(body);
   if (Object.keys(v.errors).length) return fieldsError(send, v.errors);
   if (body.force !== true) {
@@ -368,7 +402,9 @@ async function manualCreate(env, body, send) {
   }
   const c = await stripe(env, 'POST', '/customers', { name: v.name, description: v.description, metadata: v.metadata });
   recordsChanged(c);
-  return send({ ok: true, booking: manualBooking(parseRecord(c), []), forced: body.force === true });
+  const rec = parseRecord(c);
+  if (hint) hint.push = { rooms: [...new Set(rec.guests.map(g => g.room_name))], from: rec.from, to: rec.to, ref: rec.ref };
+  return send({ ok: true, booking: manualBooking(rec, []), forced: body.force === true });
 }
 /* manual_cancel / manual_restore / manual_update (and note, as the comment) / offline_payment on a manual booking */
 async function manualAction(context, env, body, ref, send, hint = {}) {
@@ -394,6 +430,7 @@ async function manualAction(context, env, body, ref, send, hint = {}) {
   } else return send({ error: 'This is a manual booking: it can be cancelled, restored, edited (comment, price) or paid offline.' }, 400);
   const [c, offline] = await Promise.all([stripe(env, 'POST', `/customers/${rec.customer}`, { metadata: fields }), listOffline(env, { ref, recent: true })]);
   recordsChanged(c);
+  if (body.action !== 'note') hint.push = { rooms: [...new Set(rec.guests.map(g => g.room_name))], from: rec.from, to: rec.to, ref };
   const booking = manualBooking(parseRecord(c), offline);
   return send({ ok: true, ref, status: booking.status, booking });
 }
@@ -475,7 +512,7 @@ function assignWarnings(program, bookings, booking, records = []) {
   for (const name of mine) {
     const slot = rooming[name];
     if (!slot) continue;
-    if (slot.conflict === 'blocked') out.push(slot.blocked.ext ? `${name} has an Uplisting booking ${rangeLabel(slot.blocked.from, slot.blocked.to)} (${externalLabel(slot.blocked)}).`
+    if (slot.conflict === 'blocked') out.push(slot.blocked.ext ? externalText(name, slot.blocked)
       : `${name} is blocked ${rangeLabel(slot.blocked.from, slot.blocked.to)} (${slot.blocked.reason}).`);
     else if (slot.conflict === 'mixed') out.push(`${name}: women and men are in the same room.`);
     else if (slot.conflict === 'over') out.push(`${name}: ${slot.guests.length} guests for ${slot.capacity} ${slot.capacity === 1 ? 'place' : 'beds'}.`);
@@ -702,12 +739,10 @@ function activityOf(body, d, hint) {
       const on = Object.values(d.hooks || {}).filter(Boolean).length;
       return entry(`Uplisting webhooks: ${on} of 3 connected (${d.created || 0} added, ${d.removed || 0} removed)`);
     }
-    case 'uplisting_sync': {
-      if (!d.done) return null; // one entry per sync, when it is done
-      const x = d.stats || {};
-      return entry(`Uplisting sync: ${x.created || 0} new, ${x.updated || 0} changed, ${x.cancelled || 0} cancelled, ${count(x.clashes || 0, 'clash', 'clashes')}`
-        + `${x.unmapped ? `, ${x.unmapped} not mapped` : ''}${x.errors ? `, ${count(x.errors, 'error')}` : ''}`);
-    }
+    case 'uplisting_sync': return d.done ? entry(syncSummary(d.stats || {})) : null; // one entry per sync, when it is done
+    case 'uplisting_push_run': return d.done ? entry(pushRunSummary(d.stats || {})) : null;
+    case 'uplisting_push': return entry(`Push to Uplisting turned ${d.push}`);
+    case 'uplisting_autoplace': return entry(`Auto-place of new bookings turned ${d.autoplace}`);
     case 'repair_plans': return entry(`Repaired payment plans${(d.repaired || []).length || (d.failed || []).length ? ` · ${count((d.repaired || []).length, 'plan')} fixed${(d.failed || []).length ? `, ${(d.failed || []).length} failed` : ''}` : ''}`);
     default: return entry(cut(`${action} ${ref || ''}`.trim(), 120) || 'action');
   }
@@ -726,13 +761,20 @@ export async function onRequestPost(context) {
   if (me.role !== 'owner' && OWNER_ACTIONS.has(body.action)) return json(request, OWNER_ONLY, 403, env);
   let sent = null;
   const send = (d, s = 200) => { sent = { d, s }; return json(request, d, s, env); };
-  const hint = {};
+  const hint = { me };
   const res = await runAction(context, env, body, send, hint);
+  const ok = res.status >= 200 && res.status < 300 && sent && sent.s === res.status && env.STRIPE_SECRET_KEY;
   // the activity log: every action that answered 2xx (not a no-op), with who did it; never fails the action
-  if (res.status >= 200 && res.status < 300 && sent && sent.s === res.status && env.STRIPE_SECRET_KEY && !(sent.d && sent.d.unchanged)) {
+  if (ok && hint.activity) for (const info of hint.activity) await recordActivity(context, env, me, info);
+  if (ok && !(sent.d && sent.d.unchanged)) {
     let info = null;
     try { info = activityOf(body, sent.d || {}, hint); } catch (e) { logError('admin.activity_entry', e, { action: String(body.action || '').slice(0, 30) }); }
     if (info) await recordActivity(context, env, me, info);
+  }
+  // the push to Uplisting (when it is on) after a change of rooms: after the answer, never failing the action
+  if (ok && hint.push && hint.push.rooms && hint.push.rooms.length && PUSH_ACTIONS.has(body.action)) {
+    const p = pushAfter(env, { actor: me, host: hostOf(request), ...hint.push });
+    if (typeof context.waitUntil === 'function') { try { context.waitUntil(p); } catch { await p; } } else await p;
   }
   return res;
 }
@@ -785,18 +827,30 @@ async function runAction(context, env, body, send, hint) {
       }
       return send({ ok: failed.length === 0, repaired, failed, short });
     }
-    // Uplisting: which rooms each listing is, its webhooks, a full sync in slices
-    if (body.action === 'uplisting_map' || body.action === 'uplisting_hooks' || body.action === 'uplisting_sync') {
+    // auto-place of paid online bookings (a setting of its own: it doesn't need the API key to be changed)
+    if (body.action === 'uplisting_autoplace') { const r = await saveFlag(env, 'autoplace', body.mode); return send(r.data, r.status); }
+    // Uplisting: which rooms each listing is, its webhooks, a full sync in slices, the push (setting, a run in slices)
+    if (['uplisting_map', 'uplisting_hooks', 'uplisting_sync', 'uplisting_push', 'uplisting_push_run'].includes(body.action)) {
       if (!env.UPLISTING_API_KEY || !String(env.UPLISTING_API_KEY).trim()) return send({ error: 'Uplisting is not connected: set UPLISTING_API_KEY in Cloudflare first.', code: 'uplisting_off' }, 503);
-      const r = body.action === 'uplisting_map' ? await saveMapping(env, body)
-        : body.action === 'uplisting_hooks' ? await connectHooks(env, context.request)
-        : await syncSlice(env, { cursor: typeof body.cursor === 'string' ? body.cursor : null });
+      const cursor = typeof body.cursor === 'string' ? body.cursor : null, host = hostOf(context.request);
+      let r;
+      try {
+        r = body.action === 'uplisting_map' ? await saveMapping(env, body)
+          : body.action === 'uplisting_hooks' ? await connectHooks(env, context.request)
+          : body.action === 'uplisting_push' ? await saveFlag(env, 'push', body.mode)
+          : await syncSlice(env, { cursor, mode: body.action === 'uplisting_push_run' ? 'push' : 'sync', host, actor: hint.me });
+      } catch (e) {
+        if (!isBusy(e) || (body.action !== 'uplisting_sync' && body.action !== 'uplisting_push_run')) throw e;
+        logError('admin.uplisting_slice', e);
+        return send({ error: 'Stripe is busy for a moment. Call again (the sync goes on from where it was).', code: 'uplisting_busy', retry_after: 5 }, 503);
+      }
+      if (r.activity && r.activity.length) hint.activity = r.activity;
       return send(r.data, r.status);
     }
     // the team's records: room blocks and manual bookings; offline payments
-    if (body.action === 'block_create') return await blockCreate(env, body, send);
-    if (body.action === 'block_delete') return await blockDelete(env, body, send);
-    if (body.action === 'manual_create') return await manualCreate(env, body, send);
+    if (body.action === 'block_create') return await blockCreate(env, body, send, hint);
+    if (body.action === 'block_delete') return await blockDelete(env, body, send, hint);
+    if (body.action === 'manual_create') return await manualCreate(env, body, send, hint);
     if (body.action === 'offline_void') return await offlineVoid(env, body, send);
 
     const ref = String(body.ref || '').trim().toUpperCase();
@@ -817,7 +871,7 @@ async function runAction(context, env, body, send, hint) {
     }
     if (body.action === 'assign') {
       if (!body.assign || typeof body.assign !== 'object' || Array.isArray(body.assign)) return send({ error: 'Nothing to assign.' }, 400);
-      const next = parseAssign((await currentMeta(env, booking)).aob_assign), fields = {};
+      const next = parseAssign((await currentMeta(env, booking)).aob_assign), fields = {}, before = Object.values(next);
       for (const [k, v] of Object.entries(body.assign)) {
         const i = /^\d{1,2}$/.test(k) ? parseInt(k, 10) : -1, g = booking.guests[i];
         if (!g) { fields[`assign.${k}`] = 'There is no such guest on this booking.'; continue; }
@@ -834,6 +888,7 @@ async function runAction(context, env, body, send, hint) {
       await saveOnBooking(env, booking, { aob_assign: s });
       forgetBooking(ref);
       const assign = parseAssign(s);
+      hint.push = { rooms: [...new Set([...before, ...Object.values(assign)])], from: program.dates.start, to: program.dates.end, override: { ref, assign }, ref };
       // warnings over the whole week (other bookings' guests may share the room)
       let warnings = [];
       try {
@@ -890,6 +945,7 @@ async function runAction(context, env, body, send, hint) {
       }
       forgetBooking(ref);
       clearAvailabilityMemo(program.id);
+      hint.push = { rooms: [...new Set(Object.values(booking.assign || {}))], from: program.dates.start, to: program.dates.end, override: { ref, status }, ref };
       return send({ ok: true, ref, status, balance_links_closed: closed, addon_checkouts_closed: closedExtras });
     }
     if (body.action === 'balance_link') {

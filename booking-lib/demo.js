@@ -9,7 +9,7 @@
 import {
   quote, checkAvailability, availability, buildOccupancy, programPayments, openBookingSessions,
   bookingMetadata, newRef, stripe, searchAll, clearAvailabilityMemo, liveMode, serviceItems, logError,
-  parseAssign, assignToString, nameCapacity, listRecords, recordsFor,
+  parseAssign, assignToString, listRecords, physicalRooms as physicalRoomsOf, placeGuests,
 } from './core.js';
 
 const FEMALE = ['Anna', 'Sofia', 'Clara', 'Maja', 'Lucia', 'Emma', 'Ingrid', 'Nadia', 'Hannah', 'Chiara', 'Elena', 'Freya', 'Lea', 'Amara', 'Julia', 'Marta', 'Noor', 'Isla', 'Greta', 'Rosa'];
@@ -25,53 +25,18 @@ function rng(seed) { // small deterministic PRNG, seeded per request
   return () => { h = Math.imul(h ^ (h >>> 15), 2246822507) >>> 0; h = Math.imul(h ^ (h >>> 13), 3266489909) >>> 0; return ((h ^= h >>> 16) >>> 0) / 4294967296; };
 }
 
-/* ---- random room placement (same rules as the Rooming board: one gender per shared room, never more
-   guests than a room sleeps, the cottage for two only for the guests of one booking) ---- */
-const gk = g => (String(g || '').toLowerCase() === 'male' ? 'male' : 'female');
+/* ---- random room placement: the Rooming board's rules (physicalRooms / placeGuests in core.js, shared with
+   auto-place of paid bookings): one gender per shared room, never more guests than a room sleeps, the cottage
+   for two only for the guests of one booking, never a blocked room ---- */
 const guestsOf = md => { const out = []; for (let i = 1; i <= 12; i++) { const v = md[`aob_g${i}`]; if (!v) continue; const p = v.split(' | '); out.push({ i: i - 1, gender: p[2], room: p[3] }); } return out; };
 // physical rooms of the week and what is already in them, from every active booking's aob_assign
 // and the team's records overlapping the week (a blocked room is full; manual guests are in theirs)
 function physicalRooms(program, mds, records = []) {
-  const phys = {};
-  for (const r of program.rooms) for (const name of r.names || []) phys[name] = { room: r.id, cap: nameCapacity(r), shared: !!r.same_gender, unit: r.unit !== 'person', used: 0, gender: null, refs: new Set() };
-  for (const md of mds) {
-    if (md.aob_kind !== 'booking' || md.aob_status === 'cancelled' || md.aob_program !== program.id) continue;
-    const a = parseAssign(md.aob_assign), gs = guestsOf(md);
-    for (const g of gs) { const slot = phys[a[g.i]]; if (!slot) continue; slot.used++; slot.gender = slot.gender || gk(g.gender); slot.refs.add(md.aob_ref); }
-  }
-  for (const rec of recordsFor(program, records)) {
-    if (rec.type === 'block') { rec.rooms.forEach(n => { if (phys[n]) { phys[n].used = phys[n].cap; phys[n].blocked = true; } }); continue; }
-    for (const g of rec.guests) { const slot = phys[g.room_name]; if (!slot) continue; slot.used++; slot.gender = slot.gender || gk(g.gender); slot.refs.add(rec.ref); }
-  }
-  return phys;
+  const bookings = mds.filter(md => md.aob_kind === 'booking' && md.aob_status !== 'cancelled' && md.aob_program === program.id)
+    .map(md => { const guests = []; guestsOf(md).forEach(g => { guests[g.i] = { gender: g.gender }; }); return { ref: md.aob_ref, status: 'active', guests, assign: parseAssign(md.aob_assign) }; });
+  return physicalRoomsOf(program, bookings, records);
 }
-// a random valid room for each guest of one booking; guests of the same gender and room type stay together where they fit
-export function placeGuests(program, phys, guests, rnd, ref = '') {
-  const assign = {}, shuffle = a => { for (let k = a.length - 1; k > 0; k--) { const j = Math.floor(rnd() * (k + 1)); const t = a[k]; a[k] = a[j]; a[j] = t; } return a; };
-  const groups = {};
-  for (const g of guests) { const r = program.rooms.find(x => x.id === g.room); if (!r || !(r.names || []).length) continue; const key = g.room + (r.same_gender ? ':' + gk(g.gender) : ''); (groups[key] = groups[key] || []).push(g); }
-  for (const list of Object.values(groups)) {
-    const room = list[0].room, gender = gk(list[0].gender);
-    let left = list.slice();
-    while (left.length) {
-      const free = shuffle(Object.keys(phys).filter(n => {
-        const p = phys[n];
-        if (p.room !== room || p.blocked || p.used >= p.cap) return false;
-        if (p.unit && p.used && !p.refs.has(ref)) return false;         // a whole cottage belongs to one booking
-        if (p.shared && p.used && p.gender !== gender) return false;      // shared rooms stay single-gender
-        return true;
-      }));
-      if (!free.length) break;                                           // no physical room left: stays unplaced
-      // prefer the room where the most of this group fit at once, so friends share
-      // …and, like the availability count, fill a half-used room of this gender before opening an empty one
-      free.sort((a, b) => (Math.min(phys[b].cap - phys[b].used, left.length) - Math.min(phys[a].cap - phys[a].used, left.length)) ||
-        ((phys[b].used > 0) - (phys[a].used > 0)));
-      const name = free[0], p = phys[name], take = Math.min(p.cap - p.used, left.length);
-      for (const g of left.splice(0, take)) { assign[g.i] = name; p.used++; p.gender = p.gender || gk(g.gender); p.refs.add(ref); }
-    }
-  }
-  return assign;
-}
+export { placeGuests };
 
 export async function seedDemo(env, program, { percent = 40, now = new Date() } = {}) {
   if (liveMode(env)) { const e = new Error('Demo bookings can only be added in Stripe test mode.'); e.status = 403; throw e; }

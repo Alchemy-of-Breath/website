@@ -1,0 +1,86 @@
+# Uplisting → booking system, twice a day (after the RetreatGuru ↔ Uplisting routine), and on demand
+# (Actions → Uplisting sync → Run workflow).
+#
+# It calls POST /api/booking/uplisting?key=…&action=sync, one slice at a time, with the cursor each answer gives,
+# until the sync is done (bookings, nights closed in Uplisting, then — with "Push to Uplisting" on — the push).
+# Each answer stays within Cloudflare's free-plan limits; this job only loops.
+#
+# Setup (once): GitHub → this repository → Settings → Secrets and variables → Actions → New repository secret
+#   Name:  AOB_UPLISTING_SYNC_URL
+#   Value: https://website-5h3.pages.dev/api/booking/uplisting?key=<UPLISTING_WEBHOOK_SECRET>
+# (the booking system's address — alchemyofbreath.com once /api/booking is routed there — with the same key as in Cloudflare; it is never written in this repository). Without the
+# secret the job fails and says so. A failed run (an error answer, or not done after 60 calls) fails the job, and
+# GitHub emails the repository's owner.
+name: Uplisting sync
+
+on:
+  schedule:
+    - cron: '0 5,17 * * *' # 05:00 and 17:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: uplisting-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Sync Uplisting (cursor loop)
+        env:
+          SYNC_URL: ${{ secrets.AOB_UPLISTING_SYNC_URL }}
+        run: |
+          set -euo pipefail
+          if [ -z "${SYNC_URL:-}" ]; then
+            echo "::error::The repository secret AOB_UPLISTING_SYNC_URL is not set (see the comment at the top of this workflow)."
+            exit 1
+          fi
+          case "$SYNC_URL" in
+            https://*) ;;
+            *) echo "::error::AOB_UPLISTING_SYNC_URL must start with https://"; exit 1 ;;
+          esac
+          case "$SYNC_URL" in
+            *action=sync*) URL="$SYNC_URL" ;;
+            *\?*) URL="${SYNC_URL}&action=sync" ;;
+            *) URL="${SYNC_URL}?action=sync" ;;
+          esac
+          CURSOR=""
+          MAX_CALLS=60
+          for i in $(seq 1 "$MAX_CALLS"); do
+            BODY=$(jq -cn --arg c "$CURSOR" 'if $c == "" then {} else {cursor: $c} end')
+            CODE=$(curl -sS -o answer.json -w '%{http_code}' --max-time 60 -X POST \
+              -H 'Content-Type: application/json' -H 'User-Agent: aob-uplisting-sync (GitHub Actions)' \
+              --data "$BODY" "$URL") || CODE=000
+            if [ "$CODE" = "503" ] && jq -e '.retry_after' answer.json >/dev/null 2>&1; then
+              WAIT=$(jq -r '.retry_after | tonumber | if . > 300 then 300 elif . < 3 then 3 else . end' answer.json)
+              echo "Call $i: busy (503), waiting ${WAIT}s"
+              sleep "$WAIT"
+              continue
+            fi
+            if [ "$CODE" != "200" ] || ! jq -e '.ok == true' answer.json >/dev/null 2>&1; then
+              echo "::error::Call $i answered HTTP $CODE: $(jq -r '[.code // empty, .error // empty] | join(" · ")' answer.json 2>/dev/null || echo 'no readable answer')"
+              exit 1
+            fi
+            DONE=$(jq -r '.done' answer.json)
+            echo "Call $i: $(jq -c '{done, progress, stats, closures, push, paused, retry_after}' answer.json)"
+            if [ "$DONE" = "true" ]; then
+              if jq -e '(.warnings // []) | length > 0' answer.json >/dev/null; then
+                jq -r '.warnings[]' answer.json | while read -r w; do echo "::warning::$w"; done
+              fi
+              echo "Sync done in $i calls."
+              exit 0
+            fi
+            CURSOR=$(jq -r '.cursor // empty' answer.json)
+            if [ -z "$CURSOR" ]; then
+              echo "::error::The answer was not done but carried no cursor."
+              exit 1
+            fi
+            WAIT=$(jq -r '(.retry_after // 3) | tonumber | if . > 300 then 300 elif . < 3 then 3 else . end' answer.json)
+            sleep "$WAIT"
+          done
+          echo "::error::The sync was not done after $MAX_CALLS calls."
+          exit 1

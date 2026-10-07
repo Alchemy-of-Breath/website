@@ -19,10 +19,11 @@ import {
   quote, groupBookings, roomingMap, parseBooking, parseAddons, parseSvc, parseAssign, bookingCheckoutParams, bookingMetadata,
   formEncode, str, cleanNote, saveAdminMeta, findBooking, forgetBooking,
   availability, programWithRecords, calendarRooms, areaOf, blockInput, parseRecord, rangeLabel, overbooked, addDays, forgetWrites, listRecords, forgetRateLimits,
-  nightsBetween, channelLabel, guestShort, REC_REASONS, BLOCK_REASONS,
+  nightsBetween, channelLabel, guestShort, REC_REASONS, BLOCK_REASONS, validDay,
 } from '../../booking-lib/core.js';
 import {
   forgetUplisting, uplistingConfig, parseProperties, normBooking, roomSets, chooseRooms, authHeader, mergeSettings, MAP_MAX_KEYS,
+  parseLedger, encodeLedger, nextLedger, rangesOf, planListing, closureListings, pushListings, aobOccupancy, pushSummary,
 } from '../../booking-lib/uplisting.js';
 import {
   forgetTeam, adminIdentity, generatePassword, PASSWORD_WORDS, activityEntry, logActivity, scrubText, hashPassword, verifyPassword, LOGBOOK_MAX,
@@ -381,10 +382,47 @@ globalThis.fetch = async (url, init = {}) => {
 };
 const fault = (method, path, opts) => store.faults.push({ method, path, times: 1, status: 500, ...opts });
 
-/* ---------- Uplisting mock (https://connect.uplisting.io): properties (JSON:API), bookings with pages, hooks ---------- */
+/* ---------- Uplisting mock (https://connect.uplisting.io): properties (JSON:API), bookings with pages, hooks, calendar ----------
+   Calendar: a night is unavailable when a booking (not cancelled) of the listing — or of a linked listing (up.links:
+   parent → children, both ways, like Uplisting's cascade) — covers it, or when it is closed (up.closed: pid → Set of
+   nights; closures of a parent cascade to its children). POST /calendar is applied later (upApply), like Uplisting's
+   async processing, and then answers its notification_url. */
 const UPK = 'upl_test_key_0001';
-const up = { props: [], included: [], bookings: new Map(), hooks: [], seq: 5000, calls: [], faults: [], account: { name: 'ASHA Tuscany', uid: 'u7005dd' }, hideWide: new Set() };
-function upReset() { up.props = []; up.included = []; up.bookings = new Map(); up.hooks = []; up.calls.length = 0; up.faults.length = 0; up.hideWide.clear(); }
+const up = { props: [], included: [], bookings: new Map(), hooks: [], seq: 5000, calls: [], faults: [], account: { name: 'ASHA Tuscany', uid: 'u7005dd' }, hideWide: new Set(),
+  closed: new Map(), links: new Map(), pending: [], notices: [], reqSeq: 0 };
+function upReset() { up.props = []; up.included = []; up.bookings = new Map(); up.hooks = []; up.calls.length = 0; up.faults.length = 0; up.hideWide.clear(); up.closed = new Map(); up.links = new Map(); up.pending = []; up.notices = []; }
+const upClosed = pid => { pid = String(pid); if (!up.closed.has(pid)) up.closed.set(pid, new Set()); return up.closed.get(pid); };
+const linkedTo = pid => { pid = String(pid); const out = new Set([pid]); for (const [p, kids] of up.links) { if (p === pid) kids.forEach(k => out.add(k)); if (kids.includes(pid)) out.add(p); } return out; };
+const parentsOf = pid => [...up.links].filter(([, kids]) => kids.includes(String(pid))).map(([p]) => p);
+function upAvailable(pid, d) {
+  pid = String(pid);
+  for (const lp of linkedTo(pid)) for (const b of up.bookings.get(lp) || []) if (b.status !== 'cancelled' && b.check_in <= d && d < b.check_out) return false;
+  if (upClosed(pid).has(d)) return false;
+  for (const p of parentsOf(pid)) if (upClosed(p).has(d)) return false; // a closed parent cascades to its children
+  return true;
+}
+const mockToday = () => new Date(Date.now()).toISOString().slice(0, 10);
+/* Uplisting applies the calendar changes it accepted, then answers each notification_url (auth: its Authorization
+   header; fail: report a failure instead). → the notification answers */
+async function upApply({ notify = true, auth = 'Basic ' + Buffer.from(UPK).toString('base64'), fail = false } = {}) {
+  const out = [];
+  for (const job of up.pending.splice(0)) {
+    const today = mockToday(), set = upClosed(job.pid);
+    for (const day of job.days) {
+      const nights = day.date ? [day.date] : (() => { const a = []; for (let d = day.from; d < day.to; d = addDays(d, 1)) a.push(d); return a; })();
+      for (const d of nights) { if (d < today) continue; if (day.available) set.delete(d); else set.add(d); }
+    }
+    if (notify && job.url) {
+      const body = fail ? { request_id: job.request_id, errors: ['Calendar update failed for this property'] } : { request_id: job.request_id, calendar: { days: job.days } };
+      const res = await uplistingApi.onRequestPost({ request: new Request(job.url, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: auth }, body: JSON.stringify(body) }), env: job.env || UPL_ENV(), waitUntil: p => store.waits.push(p) });
+      await Promise.all(store.waits.splice(0));
+      up.notices.push({ pid: job.pid, status: res.status });
+      out.push(res.status);
+    }
+  }
+  return out;
+}
+let UPL_ENV = () => ({});
 const upJ = (d, s = 200, h = {}) => new Response(JSON.stringify(d), { status: s, headers: { 'Content-Type': 'application/json', ...h } });
 async function upMock(url, init) {
   const u = new URL(url), method = init.method || 'GET', h = init.headers || {};
@@ -403,6 +441,31 @@ async function upMock(url, init) {
       .sort((a, b) => (a.check_in < b.check_in ? -1 : a.check_in > b.check_in ? 1 : a.id - b.id));
     const per = Math.min(50, +(u.searchParams.get('per_page') || 50)), pg = +(u.searchParams.get('page') || 0);
     return upJ({ bookings: rows.slice(pg * per, pg * per + per).map(b => ({ ...b })), meta: { total_pages: Math.ceil(rows.length / per), total: rows.length } });
+  }
+  if ((m = u.pathname.match(/^\/calendar\/([^/]+)$/))) {
+    const pid = decodeURIComponent(m[1]);
+    if (!up.bookings.has(pid)) return upJ({ error: 'Not found' }, 404);
+    if (method === 'GET') {
+      const from = u.searchParams.get('from'), to = u.searchParams.get('to');
+      if (!validDay(from) || !validDay(to) || to < from) return upJ({ errors: ['from and to must be dates'] }, 400);
+      if (nightsBetween(from, to) + 1 > 366) return upJ({ errors: ['The calendar is limited to 12 months at a time'] }, 400);
+      const days = [];
+      for (let d = from; d <= to; d = addDays(d, 1)) { const a = upAvailable(pid, d); days.push({ available: a, available_count: a ? 1 : 0, date: d, day_rate: 131.0, minimum_length_of_stay: 2, closed_for_arrival: false, closed_for_departure: false }); }
+      return upJ({ calendar: { days } });
+    }
+    if (method === 'POST') {
+      let b; try { b = JSON.parse(init.body || '{}'); } catch { return upJ({ errors: ['invalid JSON'] }, 400); }
+      const days = b && b.calendar && b.calendar.days, max = addDays(mockToday(), 3 * 365);
+      if (!Array.isArray(days) || !days.length) return upJ({ errors: ['calendar.days is required'] }, 400);
+      for (const d of days) {
+        if (typeof d.available !== 'boolean') return upJ({ errors: ['available must be true or false'] }, 400);
+        if (d.date ? !validDay(d.date) || d.date > max : !validDay(d.from) || !validDay(d.to) || d.from >= d.to || d.to > max) return upJ({ errors: ['date, or from before to (within 3 years)'] }, 400);
+      }
+      if (b.notification_url != null && !/^https:\/\//.test(b.notification_url)) return upJ({ errors: ['notification_url must be HTTPS'] }, 400);
+      const request_id = `req-${++up.reqSeq}`;
+      up.pending.push({ pid, days, url: b.notification_url || null, request_id });
+      return upJ({ request_id }, 202);
+    }
   }
   if (u.pathname === '/hooks' && method === 'GET') return upJ({ data: up.hooks.map(x => ({ id: String(x.id), type: 'webhooks', attributes: { target_url: x.target_url, event: x.event, created_at: '2026-06-01T00:00:00Z', updated_at: '2026-06-01T00:00:00Z' } })) });
   if (u.pathname === '/hooks' && method === 'POST') {
@@ -3539,7 +3602,7 @@ let tT, tV;
   const blB = r.data.blocks.find(x => x.id === `UP-${b1.id}`);
   ok(blB && blB.reason === 'uplisting' && blB.rooms.join() === RN.b1 && blB.status === 'active' && blB.ext && blB.ext.source === 'uplisting' && blB.ext.id === String(b1.id) && blB.ext.property_id === UP.b1
     && blB.ext.property_name === b1.property_name && blB.ext.channel === 'airbnb_official' && blB.ext.guest === 'Jon Snow' && blB.ext.guests === 2 && blB.ext.status === 'confirmed' && blB.ext.unit === '' && blB.ext.synced_at === blB.created_at
-    && Object.keys(blB.ext).sort().join() === 'channel,guest,guests,id,property_id,property_name,source,status,synced_at,unit', 'week GET: blocks[] with ext');
+    && blB.ext.kind === 'booking' && Object.keys(blB.ext).sort().join() === 'channel,guest,guests,id,kind,property_id,property_name,source,status,synced_at,unit', 'week GET: blocks[] with ext');
   ok(r.data.rooming[RN.b1].blocked.id === `UP-${b1.id}` && r.data.rooming[RN.b1].blocked.ext.guest === 'Jon Snow' && r.data.rooming[RN.a2].blocked === undefined, 'rooming: blocked with ext');
   ok(r.data.availability.rooms['twin-ensuite'].empty_units === 4, 'week 1 admin availability: one twin room less');
   r = await call(admin, 'GET', '/api/booking/admin?calendar=1&from=2027-07-11&to=2027-08-08', null, UPL, AUTH);
@@ -3831,6 +3894,554 @@ reset(); upFixtures();
   ok(store.customers.every(c => !c.metadata || (Object.keys(c.metadata).length <= 50 && Object.values(c.metadata).every(v => String(v).length <= 500))), 'every customer within Stripe\'s metadata limits after the syncs');
   const blob = JSON.stringify(store.customers) + JSON.stringify(entries()) + logs.join('\n');
   ok(!/castleblack|7978978|HMXQ7ZZ9|dragon/.test(blob), 'no guest email or phone stored or logged by the sync');
+}
+
+/* ================================================================== round 7: closed nights in, the push out, auto-place, scheduled sync */
+const L7 = { a1: '251801', c1: '251802', b1: '251803', full: '251814', a2: '251804', b2: '251805', c2: '251806', d2: '251807', d4: '251809', a4: '251811',
+  c4: '251813', comb: '259474', ark: '259138', gs1: '268707', gs2: '268708', gt1: '268712', solo: '251812', gtm: '270100' };
+const MAP7 = { [L7.a1]: [RN.a1], [L7.c1]: [PEACE_1C], [L7.b1]: [RN.b1], [L7.full]: [RN.a1, RN.b1, PEACE_1C], [L7.a2]: [RN.a2], [L7.b2]: [RN.b2], [L7.c2]: [RN.c2], [L7.d2]: [RN.d2],
+  [L7.c4]: [RN.cottage2], [L7.d4]: [RN.cottage2], [L7.comb]: [RN.cottage2], [L7.ark]: [RN.ark('A')], [L7.gs1]: [RN.gs(1)], [L7.gs2]: [RN.gs(2)], [L7.gt1]: [RN.gt(1)], [L7.solo]: [RN.solitude],
+  [`${L7.gtm}_9101`]: [RN.gt(2)], [`${L7.gtm}_9102`]: [RN.gt(3)] };
+const NICK7 = { [L7.a1]: '1A - Peace Cottage', [L7.c1]: '1C - Peace Cottage', [L7.b1]: '1B - Peace Cottage', [L7.full]: '1 (Full) - Peace Cottage', [L7.a2]: '2A - Temple Cottage',
+  [L7.b2]: '2B - Temple Cottage', [L7.c2]: '2C - Temple Cottage', [L7.d2]: '2D - Temple Cottage', [L7.d4]: '4D - Alchemy Cottage', [L7.a4]: '4A - Alchemy Cottage', [L7.c4]: '4C - Alchemy Cottage',
+  [L7.comb]: '4C + 4D (Combined) - Alchemy Cottage', [L7.ark]: '5A - The Ark', [L7.gs1]: 'Glamping Single (1)', [L7.gs2]: 'Glamping Single (2)', [L7.gt1]: 'Glamping Twin (1)',
+  [L7.solo]: '3 - Solitude Cottage', [L7.gtm]: 'Glamping Twins (units)' };
+function upFixtures7() {
+  up.props = Object.entries(NICK7).map(([id, nick]) => upProp(id, 'ASHA Tuscany • ' + nick.split(' - ')[0], nick, id === L7.gtm ? [9101, 9102] : []));
+  up.included = [{ id: '9101', type: 'multi_units', attributes: { name: 'GT 2' } }, { id: '9102', type: 'multi_units', attributes: { name: 'GT 3' } }];
+  for (const p of up.props) up.bookings.set(p.id, []);
+  up.links = new Map([[L7.full, [L7.a1, L7.b1, L7.c1]], [L7.comb, [L7.c4, L7.d4]]]);
+}
+UPL_ENV = () => UPL;
+const closeNights = (pid, from, to) => { for (let d = from; d < to; d = addDays(d, 1)) upClosed(pid).add(d); };
+const openNights = (pid, from, to) => { for (let d = from; d < to; d = addDays(d, 1)) upClosed(pid).delete(d); };
+const ucRecs = () => store.customers.filter(c => !c.deleted && c.metadata && c.metadata.aob_ext_kind === 'closed');
+const ucOf = id => ucRecs().find(c => c.metadata.aob_id === id);
+const ucActive = () => ucRecs().filter(c => c.metadata.aob_status === 'active').map(c => `${c.metadata.aob_id}>${c.metadata.aob_to}`).sort();
+const pushCus = () => store.customers.filter(c => !c.deleted && c.metadata && c.metadata.aob_settings === 'uplisting_push');
+const ledgerOf = pid => (pushCus()[0] || { metadata: {} }).metadata[`p${pid}`] || '';
+const calPosts = () => up.calls.filter(c => c.method === 'POST' && /^\/calendar\//.test(c.path));
+const calGets = () => up.calls.filter(c => c.method === 'GET' && /^\/calendar\//.test(c.path));
+const bodyDays = c => JSON.parse(c.body).calendar.days.map(d => `${d.available ? 'open' : 'close'} ${d.from}..${d.to}`).join(', ');
+/* a sync, or a push run, to the end (each call's subrequests: Stripe + Uplisting, the activity log and the after-answer work included) */
+async function runAll(action, env = UPL, { headers = AUTH, max = 120 } = {}) {
+  const slices = []; let r, cursor = null;
+  for (let i = 0; i < max; i++) {
+    const k = await kCalls(() => call(admin, 'POST', '/api/booking/admin', { action, ...(cursor ? { cursor } : {}) }, env, headers));
+    r = k.res; slices.push({ status: r.status, total: k.total, data: r.data });
+    if (r.status !== 200 || r.data.done) break;
+    cursor = r.data.cursor;
+    if (r.data.paused) tick(r.data.retry_after + 1);
+  }
+  return { r, slices, max: Math.max(...slices.map(x => x.total)) };
+}
+const schedReq = (q, body = null, key = UPL.UPLISTING_WEBHOOK_SECRET) => new Request(`https://${HOST}/api/booking/uplisting?key=${encodeURIComponent(key)}&action=sync${q || ''}`,
+  { method: 'POST', headers: { 'Content-Type': 'application/json', 'User-Agent': 'aob-uplisting-sync (GitHub Actions)' }, body: body == null ? undefined : JSON.stringify(body) });
+async function sched(q = '', body = null, { env = UPL, key } = {}) {
+  const res = await uplistingApi.onRequestPost({ request: schedReq(q, body, key), env, waitUntil: p => store.waits.push(p) });
+  const text = await res.text(); let data; try { data = JSON.parse(text); } catch { data = text; }
+  await Promise.all(store.waits.splice(0));
+  return { status: res.status, data };
+}
+async function schedAll({ env = UPL, max = 80, viaQuery = false } = {}) {
+  const slices = []; let r, cursor = null;
+  for (let i = 0; i < max; i++) {
+    const k = await kCalls(() => sched(viaQuery && cursor ? `&cursor=${encodeURIComponent(cursor)}` : '', !viaQuery && cursor ? { cursor } : null, { env }));
+    r = k.res; slices.push({ status: r.status, total: k.total, data: r.data });
+    if (r.status !== 200 || r.data.done) break;
+    cursor = r.data.cursor;
+    tick(r.data.paused ? r.data.retry_after + 1 : 3);
+  }
+  return { r, slices, max: Math.max(...slices.map(x => x.total)) };
+}
+const pushOn = () => upAdm({ action: 'uplisting_push', mode: 'on' });
+const notifyReq = (url, body, auth) => new Request(url, { method: 'POST', headers: { 'Content-Type': 'application/json', ...(auth != null ? { Authorization: auth } : {}) }, body: JSON.stringify(body) });
+async function notify(url, body, auth = 'Basic ' + Buffer.from(UPK).toString('base64')) {
+  const res = await uplistingApi.onRequestPost({ request: notifyReq(url, body, auth), env: UPL, waitUntil: p => store.waits.push(p) });
+  await Promise.all(store.waits.splice(0));
+  return { status: res.status, data: await res.json() };
+}
+
+/* closed nights in: single-room listings, minus bookings and the push ledger, ranges merged, one group per room */
+reset(); store.idem.clear(); upFixtures7();
+{
+  r = await upAdm({ action: 'uplisting_map', mapping: MAP7 });
+  ok(r.status === 200 && Object.keys(r.data.mapping).length === 18, 'round 7 mapping saved (real listing ids)');
+  // the RetreatGuru routine's blocks, an owner's block, a season closure
+  closeNights(L7.b1, '2026-09-01', '2026-09-05');                     // RG sync — 1B
+  closeNights(L7.a2, '2027-03-10', '2027-03-15'); closeNights(L7.a2, '2027-03-15', '2027-03-17'); // two blocks back to back: one range
+  closeNights(L7.a2, '2027-06-01', '2027-06-03');
+  closeNights(L7.full, '2027-04-01', '2027-04-04');                    // a parent's closure cascades to 1A, 1B, 1C (they are closed too)
+  closeNights(L7.c4, '2027-02-01', '2027-02-03'); closeNights(L7.comb, '2027-02-02', '2027-02-05'); // the combined cottage: one group
+  closeNights(L7.gs1, '2026-06-20', '2026-06-26');                     // before the window (yesterday on): ignored
+  closeNights(L7.gs2, '2026-06-25', '2026-07-05');                     // across the window's first night
+  closeNights(L7.gt1, '2027-12-01', '2028-02-01');                     // past the window's end (today + 540)
+  closeNights(L7.gtm, '2027-01-10', '2027-01-12');                     // a listing mapped by units: never imported
+  // bookings: their nights are bookings, not closures (also through a linked listing)
+  const bk = addUb(L7.b1, '2026-10-10', '2026-10-12', { guest_name: 'Ana Lee' });
+  const bf = addUb(L7.full, '2026-11-01', '2026-11-03', { guest_name: 'Bo Ek', channel: 'booking_dot_com' });
+  tick(61);
+  const s1 = await runAll('uplisting_sync');
+  const d = s1.r.data;
+  ok(s1.r.status === 200 && d.done && d.stats.created === 2 && JSON.stringify(Object.keys(d.stats)) === JSON.stringify(['created', 'updated', 'cancelled', 'unchanged', 'unmapped', 'clashes', 'errors']), 'sync: the two bookings imported, stats as before');
+  ok(d.closures && d.closures.created === 9 && d.closures.cancelled === 0 && d.closures.errors === 0 && d.closures.listings === 13 && !('push' in d) && d.progress.phase === 'done', `closures: 9 ranges imported (${JSON.stringify(d.closures)}), no push while it is off`);
+  ok(JSON.stringify(ucActive()) === JSON.stringify(['UC-251801-2027-04-01>2027-04-04', 'UC-251802-2027-04-01>2027-04-04', 'UC-251803-2026-09-01>2026-09-05', 'UC-251803-2027-04-01>2027-04-04',
+    'UC-251804-2027-03-10>2027-03-17', 'UC-251804-2027-06-01>2027-06-03', 'UC-251809-2027-02-01>2027-02-05', 'UC-268708-2026-06-30>2026-07-05', 'UC-268712-2027-12-01>2027-12-23']),
+  `closed ranges: merged, clipped to the window, the combined cottage once (${ucActive().join(' ')})`);
+  const u1 = ucOf('UC-251803-2026-09-01'), m1 = u1.metadata;
+  ok(m1.aob_rec === 'block' && m1.aob_rec_any === '1' && m1.aob_reason === 'uplisting' && m1.aob_status === 'active' && m1.aob_ext === 'uplisting' && m1.aob_ext_kind === 'closed' && m1.aob_ext_id === 'UC-251803-2026-09-01'
+    && m1.aob_ext_prop === L7.b1 && m1.aob_rooms === RN.b1 && m1.aob_comment === 'Closed in Uplisting' && m1.aob_ext_pname === '1B - Peace Cottage' && u1.name === 'Uplisting · closed · 1B - Peace Cottage' && u1.email === null,
+    'a closure record: a block of the listing\'s room, ext kind closed, UC-<listing>-<first night>, "Closed in Uplisting"');
+  ok(!ucRecs().some(c => [L7.full, L7.a1, L7.c1].includes(c.metadata.aob_ext_prop) && c.metadata.aob_from === '2027-04-01') || ucRecs().filter(c => c.metadata.aob_from === '2027-04-01').every(c => c.metadata.aob_ext_prop !== L7.full), 'a listing of several rooms (1 (Full)) is never imported itself');
+  ok(ucRecs().filter(c => c.metadata.aob_from === '2027-04-01').map(c => c.metadata.aob_rooms).sort().join('|') === [RN.a1, RN.b1, PEACE_1C].sort().join('|'), '… its cascade shows on 1A, 1B and 1C (their own calendars are closed)');
+  ok(!ucRecs().some(c => c.metadata.aob_from <= '2026-10-11' && c.metadata.aob_to >= '2026-10-11') && !ucRecs().some(c => c.metadata.aob_from <= '2026-11-01' && c.metadata.aob_to > '2026-11-01'), 'booked nights (also a linked listing\'s booking) are never closures');
+  ok(!ucRecs().some(c => c.metadata.aob_ext_prop === L7.gtm || c.metadata.aob_ext_prop === L7.gs1), 'a listing mapped by units, and nights before yesterday: nothing');
+  const g1 = calGets().filter(c => c.path === `/calendar/${L7.b1}`);
+  ok(g1.length === 2 && /from=2026-06-30&to=2027-06-29/.test(g1[0].search) && /from=2027-06-30&to=2027-12-22/.test(g1[1].search), 'GET /calendar: yesterday to today + 540, in two calls of at most 12 months');
+  ok(!calGets().some(c => c.path === `/calendar/${L7.full}` || c.path === `/calendar/${L7.gtm}`) && calGets().filter(c => [L7.c4, L7.d4, L7.comb].includes(c.path.split('/')[2])).length === 6, 'calendars read: not the several-rooms or units listings; the 3 listings of the combined cottage');
+  ok(s1.max <= 45 && s1.slices.every(x => x.status === 200), `every sync call ≤ 45 subrequests (largest ${s1.max}, ${s1.slices.length} calls)`);
+  ok(s1.slices.some(x => x.data.progress.phase === 'closures') && s1.slices.every(x => x.data.progress.listings_total === 17 && x.data.progress.closures_total === 13), 'progress: phase, closures done of total (one per room)');
+  ok(lastEntry('uplisting_closed') && lastEntry('uplisting_closed').s === 'Closed in Uplisting (sync): 9 new, 0 changed, 0 removed' && lastEntry('uplisting_closed').u === 'owner', 'activity: uplisting_closed once for the sync');
+  r = await upGet();
+  ok(r.data.imported.active === 2 && r.data.imported.closed === 9 && r.data.imported.closed_upcoming === 9 && r.data.imported.closed_nights > 50 && r.data.push === 'off' && r.data.autoplace === 'on', `panel: bookings and closed nights counted apart (${JSON.stringify(r.data.imported)})`);
+  ok(r.data.last_sync.by && r.data.last_sync.by.id === 'owner' && r.data.last_sync.by.name === 'Main admin' && r.data.last_scheduled_sync === null && r.data.last_push === null && r.data.push_warnings.length === 0, 'panel: who ran the last sync; no scheduled sync or push yet');
+  // seen as blocks with ext.kind closed
+  r = await call(admin, 'GET', '/api/booking/admin?calendar=1&from=2027-01-25&to=2027-03-20', null, UPL, AUTH);
+  const cb = r.data.blocks.find(x => x.id === 'UC-251804-2027-03-10');
+  ok(cb && cb.ext.kind === 'closed' && cb.ext.source === 'uplisting' && cb.reason === 'uplisting' && cb.comment === 'Closed in Uplisting' && cb.rooms.join() === RN.a2 && cb.ext.property_id === L7.a2 && cb.ext.property_name === '2A - Temple Cottage', 'calendar: closures are blocks with ext.kind closed');
+  ok(r.data.blocks.filter(x => x.ext && x.ext.kind === 'booking').length === 0 || r.data.blocks.every(x => !x.ext || ['booking', 'closed'].includes(x.ext.kind)), 'every Uplisting record has ext.kind');
+  r = await upAdm({ action: 'block_delete', id: 'UC-251804-2027-03-10' });
+  ok(r.status === 409 && r.data.code === 'external' && /closed in Uplisting/.test(r.data.error), 'block_delete of a closure → 409 external');
+  r = await upAdm({ action: 'manual_create', from: '2027-03-12', to: '2027-03-13', guests: [mg('Ida', 'Female', RN.a2)] });
+  ok(r.status === 409 && r.data.conflicts[0] === '2A · Temple Cottage is closed in Uplisting 10–17 Mar 2027 (2A - Temple Cottage · UC-251804-2027-03-10).', `manual_create in a room closed in Uplisting → 409 conflict (${r.data.conflicts && r.data.conflicts[0]})`);
+  r = await upAdm({ action: 'block_create', rooms: [RN.a2], from: '2027-03-12', to: '2027-03-13', reason: 'maintenance' });
+  ok(r.status === 200 && r.data.block, 'a team block over nights closed in Uplisting: no clash (both mean out of use)');
+  await upAdm({ action: 'block_delete', id: r.data.block.id });
+  // reconcile: extended, gone, moved, at both ends of the window
+  closeNights(L7.a2, '2027-03-17', '2027-03-19');            // longer
+  openNights(L7.b1, '2026-09-01', '2026-09-05');             // opened again
+  openNights(L7.a2, '2027-06-01', '2027-06-03'); closeNights(L7.a2, '2027-06-02', '2027-06-04'); // moved a night later
+  tick(2 * 86400);                                            // two days later: the window starts on 2 July
+  const nPost = stripeCalls('POST', /^\/customers/);
+  const s2 = await runAll('uplisting_sync');
+  ok(s2.r.data.done && s2.r.data.closures.created === 1 && s2.r.data.closures.updated === 2 && s2.r.data.closures.cancelled === 2, `reconciled: 1 new, 2 changed, 2 removed (${JSON.stringify(s2.r.data.closures)})`);
+  ok(JSON.stringify(ucActive().filter(x => /251803|251804|268708|268712/.test(x))) === JSON.stringify(['UC-251803-2027-04-01>2027-04-04', 'UC-251804-2027-03-10>2027-03-19', 'UC-251804-2027-06-02>2027-06-04', 'UC-268708-2026-06-30>2026-07-05', 'UC-268712-2027-12-01>2027-12-25']),
+    `… the longer one keeps its record, the moved one is a new record, one across the window\'s start keeps its first night, one at its end grows with it (${ucActive().join(' ')})`);
+  ok(ucOf('UC-251803-2026-09-01').metadata.aob_status === 'cancelled' && ucOf('UC-251804-2027-06-01').metadata.aob_status === 'cancelled' && /^\d+$/.test(ucOf('UC-251803-2026-09-01').metadata.aob_status_at), 'opened in Uplisting: the record is cancelled (kept for history)');
+  tick(61);
+  const snap = JSON.stringify(ucRecs());
+  const s3 = await runAll('uplisting_sync');
+  ok(s3.r.data.done && s3.r.data.closures.created === 0 && s3.r.data.closures.updated === 0 && s3.r.data.closures.cancelled === 0 && s3.r.data.closures.unchanged === 8 && JSON.stringify(ucRecs()) === snap && !entries().filter(e => e.a === 'uplisting_closed').slice(2).length,
+    'nothing changed: all unchanged, no writes, no uplisting_closed entry');
+  // a listing no longer one room: its closures go
+  r = await upAdm({ action: 'uplisting_map', mapping: { ...MAP7, [L7.a2]: [RN.a2, RN.b2] } });
+  tick(61);
+  const s4 = await runAll('uplisting_sync');
+  ok(s4.r.data.done && ucRecs().filter(c => c.metadata.aob_ext_prop === L7.a2 && c.metadata.aob_status === 'active').length === 0 && s4.r.data.closures.cancelled === 2, 'a listing mapped to two rooms now: its closures are cancelled');
+  r = await upAdm({ action: 'uplisting_map', mapping: MAP7 });
+  // closures count for availability
+  closeNights(L7.c2, '2027-07-18', '2027-07-24');
+  tick(61);
+  await runAll('uplisting_sync');
+  r = await availJ(UPL);
+  ok(ucOf('UC-251806-2027-07-18') && r.data.rooms['twin-ensuite'].empty_units === 4, 'a room closed in Uplisting over BreathCamp 1 is off sale on the booking page');
+}
+
+/* the push: off by default, settings and permissions, preview, triggers, the ledger, loop prevention, reopen, 429, notify */
+reset(); store.idem.clear(); upFixtures7();
+let tT7, tV7;
+{
+  r = await upAdm({ action: 'uplisting_map', mapping: MAP7 });
+  await adm({ action: 'user_create', username: 'tess', name: 'Tess', role: 'team', password: 'tess-pass' });
+  await adm({ action: 'user_create', username: 'val', name: 'Val', role: 'viewer', password: 'val-pass' });
+  secrets.push('tess-pass', 'val-pass');
+  tT7 = (await loginAs('tess', 'tess-pass')).data.token; tV7 = (await loginAs('val', 'val-pass')).data.token;
+  r = await upGet();
+  ok(r.data.push === 'off' && r.data.autoplace === 'on' && r.data.max_keys === 47, 'the push is off and auto-place on by default');
+  r = await asUser(tT7, { action: 'uplisting_push', mode: 'on' }, UPL);
+  ok(r.status === 403 && r.data.code === 'owner_only', 'uplisting_push by a team member → 403 owner_only');
+  r = await asUser(tV7, { action: 'uplisting_push', mode: 'on' }, UPL);
+  ok(r.status === 403 && r.data.code === 'read_only', 'uplisting_push by a viewer → 403 read_only');
+  r = await asUser(tT7, { action: 'uplisting_autoplace', mode: 'off' }, UPL);
+  ok(r.status === 403 && r.data.code === 'owner_only', 'uplisting_autoplace by a team member → 403 owner_only');
+  r = await asUser(tT7, { action: 'uplisting_push_run' }, UPL);
+  ok(r.status === 409 && r.data.code === 'push_off' && calPosts().length === 0, 'uplisting_push_run while the push is off → 409 push_off (nothing written)');
+  r = await asUser(tV7, { action: 'uplisting_push_run' }, UPL);
+  ok(r.status === 403 && r.data.code === 'read_only', 'uplisting_push_run by a viewer → 403');
+  r = await upAdm({ action: 'uplisting_push', mode: 'maybe' });
+  ok(r.status === 422 && r.data.fields.mode, 'uplisting_push: on or off only');
+  r = await upAdm({ action: 'uplisting_push', mode: 'on' }, LIVE);
+  ok(r.status === 503 && r.data.code === 'uplisting_off', 'uplisting_push without the API key → 503');
+  // an online guest of BreathCamp 1 placed in 2A while the push is off: nothing goes to Uplisting
+  closeNights(L7.a2, '2027-07-20', '2027-07-21');            // the RetreatGuru routine closed 2A for one night
+  r = await call(checkout, 'POST', '/api/booking/checkout', jBooking([guest(1, 'twin-ensuite')]), UPL);
+  const ref7 = r.data.ref; complete(r.data.session_id);
+  const u0 = up.calls.length;
+  r = await upAdm({ action: 'assign', ref: ref7, assign: { 0: RN.a2 } });
+  ok(r.status === 200 && up.calls.length === u0, 'push off: assign makes no Uplisting call');
+  // the preview (team): what a push would do, nothing written
+  const w0 = stripeCalls('POST', /./) + stripeCalls('DELETE', /./), p0 = up.calls.filter(c => c.method !== 'GET').length;
+  let k = await kCalls(() => getAs(tT7, 'uplisting_push_preview=1', UPL));
+  r = k.res;
+  ok(r.status === 200 && r.data.push === 'off' && stripeCalls('POST', /./) + stripeCalls('DELETE', /./) === w0 && up.calls.filter(c => c.method !== 'GET').length === p0 && k.total <= 45, `preview: nothing written (${k.total} subrequests)`);
+  ok(JSON.stringify(r.data.close) === JSON.stringify([{ listing_id: L7.a2, nickname: '2A - Temple Cottage', from: '2027-07-18', to: '2027-07-20', nights: 2, because: [ref7] }, { listing_id: L7.a2, nickname: '2A - Temple Cottage', from: '2027-07-21', to: '2027-07-24', nights: 3, because: [ref7] }]),
+    `preview close: the nights of 2A around the night already closed (${JSON.stringify(r.data.close)})`);
+  ok(JSON.stringify(r.data.skipped_closed) === JSON.stringify([{ listing_id: L7.a2, nickname: '2A - Temple Cottage', from: '2027-07-20', to: '2027-07-21', nights: 1, because: [ref7] }]) && r.data.reopen.length === 0
+    && r.data.warnings.some(w => /Glamping Twins \(units\) is mapped by units/.test(w)) && r.data.listings === 16, 'preview: the night already closed there is left alone; a units listing is never pushed');
+  r = await getAs(tV7, 'uplisting_push_preview=1', UPL);
+  ok(r.status === 403 && r.data.code === 'read_only', 'preview by a viewer → 403');
+  r = await call(admin, 'GET', '/api/booking/admin?uplisting_push_preview=1', null, LIVE, AUTH);
+  ok(r.status === 503 && r.data.code === 'uplisting_off', 'preview without the API key → 503');
+  // turned on
+  r = await pushOn();
+  ok(r.status === 200 && r.data.ok && r.data.push === 'on' && settingsCus()[0].metadata.aob_push === 'on' && lastEntry('uplisting_push').s === 'Push to Uplisting turned on', 'uplisting_push on (owner): saved, logged');
+  r = await pushOn();
+  ok(r.status === 200 && r.data.unchanged === true && entries().filter(e => e.a === 'uplisting_push').length === 1, 'on again: unchanged, not logged');
+  r = await upGet();
+  ok(r.data.push === 'on' && r.data.max_keys === 46, 'panel: push on (one key less for the mapping)');
+  // a trigger: the guest moves to 1B → 1B and 1 (Full) close (2A had nothing of ours: nothing to reopen)
+  k = await kCalls(() => upAdm({ action: 'assign', ref: ref7, assign: { 0: RN.b1 } }));
+  const posts = calPosts();
+  ok(k.res.status === 200 && posts.length === 2 && posts.map(c => c.path).join() === `/calendar/${L7.b1},/calendar/${L7.full}` && posts.every(c => bodyDays(c) === 'close 2027-07-18..2027-07-24'),
+    `assign with the push on: 1B and 1 (Full) closed for the week (${posts.map(c => c.path + ' ' + bodyDays(c)).join(' | ')})`);
+  const nu = new URL(JSON.parse(posts[0].body).notification_url);
+  ok(nu.origin === `https://${HOST}` && nu.pathname === '/api/booking/uplisting' && nu.searchParams.get('key') === UPL.UPLISTING_WEBHOOK_SECRET && nu.searchParams.get('notify') === '1' && nu.searchParams.get('listing') === L7.b1, 'notification_url: this host, the key, notify=1, the listing');
+  ok(k.total <= 45, `assign + its push: ${k.total} subrequests (≤ 45)`);
+  ok(ledgerOf(L7.b1) === '20270718+6' && ledgerOf(L7.full) === '20270718+6' && pushCus().length === 1 && pushCus()[0].name === 'AoB booking settings · Uplisting push (do not delete)' && pushCus()[0].email === null,
+    'the ledger: what we closed, per listing (YYYYMMDD+N)');
+  let e7 = lastEntry('uplisting_push_close');
+  ok(e7 && e7.s === `Closed in Uplisting: 1B · Peace Cottage (+ 1 (Full)) 18–24 Jul 2027 · ${ref7}` && e7.u === 'owner' && e7.f === ref7 && e7.p === J1, `activity: ${e7 && e7.s}`);
+  // Uplisting applies it and answers
+  const answers = await upApply();
+  ok(answers.length === 2 && answers.every(x => x === 200) && !entries().some(e => e.a === 'uplisting_push_error'), 'Uplisting\'s answers (Authorization Basic base64(key)) are accepted, nothing logged on success');
+  ok(!upAvailable(L7.b1, '2027-07-18') && !upAvailable(L7.a1, '2027-07-18') && upAvailable(L7.a1, '2027-07-24'), '(the mock: 1 (Full) closed cascades to 1A and 1C)');
+  // loop prevention: the sync doesn't bring our own closures back (also not the cascade on 1A / 1C)
+  tick(61);
+  const n0 = calPosts().length;
+  let sy = await runAll('uplisting_sync');
+  ok(sy.r.data.done && !ucRecs().some(c => c.metadata.aob_from <= '2027-07-23' && c.metadata.aob_to >= '2027-07-19' && [RN.a1, RN.b1, PEACE_1C].includes(c.metadata.aob_rooms)), 'loop prevention: our pushed nights (and their cascade) never come back as closures');
+  ok(ucOf('UC-251804-2027-07-20') && ucOf('UC-251804-2027-07-20').metadata.aob_to === '2027-07-21', '… while the night RetreatGuru closed on 2A does');
+  ok(sy.r.data.push && sy.r.data.push.closed === 0 && sy.r.data.push.reopened === 0 && calPosts().length === n0 && sy.r.data.progress.push_total === 16 && sy.max <= 45, `the sync ends with a full reconcile: nothing to change (${JSON.stringify(sy.r.data.push)}, largest ${sy.max})`);
+  // cancelled → reopened (only what we closed)
+  k = await kCalls(() => upAdm({ action: 'cancel', ref: ref7 }));
+  let p2 = calPosts().slice(n0);
+  ok(k.res.status === 200 && p2.length === 2 && p2.every(c => bodyDays(c) === 'open 2027-07-18..2027-07-24') && ledgerOf(L7.b1) === '' && ledgerOf(L7.full) === '' && k.total <= 45, `cancel: both reopened, the ledger empty (${k.total} subrequests)`);
+  e7 = lastEntry('uplisting_push_reopen');
+  ok(e7 && e7.s === `Reopened in Uplisting: 1B · Peace Cottage (+ 1 (Full)) 18–24 Jul 2027 · ${ref7}`, `activity: ${e7 && e7.s}`);
+  await upApply();
+  // nights already closed there (RetreatGuru) are never added to the ledger, never reopened by us
+  closeNights(L7.b1, '2027-07-20', '2027-07-21');
+  r = await upAdm({ action: 'restore', ref: ref7 });
+  p2 = calPosts().slice(n0 + 2);
+  ok(r.status === 200 && p2.length === 2 && bodyDays(p2[0]) === 'close 2027-07-18..2027-07-20, close 2027-07-21..2027-07-24' && bodyDays(p2[1]) === 'close 2027-07-18..2027-07-24'
+    && ledgerOf(L7.b1) === '20270718+2,20270721+3', 'restore: closed again around the night RetreatGuru closed (not ours: not in the ledger)');
+  await upApply();
+  r = await upAdm({ action: 'cancel', ref: ref7 });
+  p2 = calPosts().slice(n0 + 4);
+  await upApply();
+  ok(p2.length === 2 && bodyDays(p2[0]) === 'open 2027-07-18..2027-07-20, open 2027-07-21..2027-07-24' && !upAvailable(L7.b1, '2027-07-20') && upAvailable(L7.b1, '2027-07-19'), '… and on cancel only our nights reopen: RetreatGuru\'s stays closed');
+  // a manual booking, a block, the combined cottage (4C, 4D and the combined listing)
+  r = await upAdm({ action: 'manual_create', from: '2027-08-02', to: '2027-08-05', guests: [mg('Ola', 'Female', RN.c2)] });
+  const mRef7 = r.data.booking.ref;
+  ok(r.status === 200 && ledgerOf(L7.c2) === '20270802+3' && lastEntry('uplisting_push_close').s === `Closed in Uplisting: 2C · Temple Cottage 2–5 Aug 2027 · ${mRef7}`, 'manual_create: its room closed');
+  k = await kCalls(() => upAdm({ action: 'block_create', rooms: [RN.cottage2], from: '2027-09-10', to: '2027-09-12', reason: 'maintenance' }));
+  const blk = k.res.data.block;
+  ok(k.res.status === 200 && ledgerOf(L7.c4) === '20270910+2' && ledgerOf(L7.d4) === '20270910+2' && ledgerOf(L7.comb) === '20270910+2' && k.total <= 45, `block_create on the combined cottage: 4C, 4D and the combined listing closed (${k.total} subrequests)`);
+  ok(lastEntry('uplisting_push_close').s === `Closed in Uplisting: 4C + 4D · Alchemy Cottage (combined) (+ 4C, 4C + 4D (Combined)) 10–12 Sep 2027 · ${blk.id}`, `activity: ${lastEntry('uplisting_push_close').s}`);
+  r = await upAdm({ action: 'block_delete', id: blk.id });
+  ok(r.status === 200 && ledgerOf(L7.c4) === '' && ledgerOf(L7.comb) === '' && lastEntry('uplisting_push_reopen').s.startsWith('Reopened in Uplisting: 4C + 4D · Alchemy Cottage (combined)'), 'block_delete: reopened');
+  r = await upAdm({ action: 'manual_update', ref: mRef7, comment: 'late arrival' });
+  ok(r.status === 200 && ledgerOf(L7.c2) === '20270802+3', 'manual_update: nothing to change');
+  await upApply();
+  // the full push run (team): nothing to do; then a night we closed was opened in Uplisting by hand: closed again
+  let pr = await runAll('uplisting_push_run', UPL, { headers: bearer(tT7) });
+  ok(pr.r.status === 200 && pr.r.data.done && pr.r.data.stats.closed === 0 && pr.r.data.stats.reopened === 0 && pr.r.data.progress.listings_total === 16 && pr.max <= 45, `push run: done, nothing to change (${pr.slices.length} calls, largest ${pr.max})`);
+  ok(lastEntry('uplisting_push_run').s === 'Push to Uplisting: closed 0 nights, reopened 0 nights on 0 listings' && lastEntry('uplisting_push_run').n === 'Tess', 'activity: uplisting_push_run once, when done, by who ran it');
+  openNights(L7.c2, '2027-08-03', '2027-08-04');
+  pr = await runAll('uplisting_push_run');
+  ok(pr.r.data.done && pr.r.data.stats.closed === 1 && bodyDays(calPosts().at(-1)) === 'close 2027-08-03..2027-08-04' && ledgerOf(L7.c2) === '20270802+3', 'push run: one of our nights open in Uplisting again is closed again (the ledger already had it)');
+  r = await upGet();
+  ok(r.data.last_push && r.data.last_push.result.closed === 1 && r.data.last_push.by.id === 'owner' && Array.isArray(r.data.push_warnings) && r.data.pushed.nights === 3, `panel: the last push (${JSON.stringify(r.data.last_push)})`);
+  await upApply();
+  // 429: stop, report, the next call goes on; the ledger only changes after a 202
+  await upAdm({ action: 'uplisting_push', mode: 'off' });
+  r = await upAdm({ action: 'manual_create', from: '2027-08-20', to: '2027-08-22', guests: [mg('Pia', 'Female', RN.d2)] });
+  ok(r.status === 200 && ledgerOf(L7.d2) === '' && lastEntry('uplisting_push').s === 'Push to Uplisting turned off', 'push off again: a new manual booking is not pushed');
+  await pushOn();
+  upFault(/^\/calendar\/251807$/, { method: 'POST', status: 429, retryAfter: 25 });
+  r = await upAdm({ action: 'uplisting_push_run' });
+  ok(r.status === 200 && r.data.done === false && r.data.paused === 'rate_limited' && r.data.retry_after === 25 && ledgerOf(L7.d2) === '', '429 on the POST: paused (retry_after 25), the ledger unchanged');
+  tick(26);
+  r = await upAdm({ action: 'uplisting_push_run', cursor: r.data.cursor });
+  while (r.status === 200 && !r.data.done) { if (r.data.paused) tick(r.data.retry_after + 1); r = await upAdm({ action: 'uplisting_push_run', cursor: r.data.cursor }); }
+  ok(r.status === 200 && r.data.done && ledgerOf(L7.d2) === '20270820+2', '… the next call closes it');
+  r = await upAdm({ action: 'uplisting_push_run', cursor: 'nope.nope' });
+  ok(r.status === 400 && r.data.code === 'bad_cursor', 'push run: a bad cursor → 400');
+  // the notification callback
+  const nurl = JSON.parse(calPosts().at(-1).body).notification_url;
+  let nr = await notify(nurl, { request_id: 'req-x', calendar: { days: [] } }, Buffer.from(UPK).toString('base64'));
+  ok(nr.status === 200 && nr.data.ok, 'notify: the bare base64 key is accepted too');
+  const pe0 = entries().filter(e => e.a === 'uplisting_push_error').length;
+  nr = await notify(nurl, { request_id: 'req-x' }, 'Basic ' + Buffer.from('someone-else').toString('base64'));
+  ok(nr.status === 401 && entries().filter(e => e.a === 'uplisting_push_error').length === pe0 + 1 && lastEntry('uplisting_push_error').s === 'Refused an answer to a calendar change (listing 251807): its Authorization header is not Uplisting\'s.', 'notify with another Authorization → 401, logged');
+  nr = await notify(nurl, { request_id: 'req-x' }, null);
+  ok(nr.status === 401 && entries().filter(e => e.a === 'uplisting_push_error').length === pe0 + 1, '… no header → 401 (logged at most once a minute)');
+  nr = await notify(nurl.replace(/key=[^&]+/, 'key=wrong-key-0123456789'), { request_id: 'req-x' });
+  ok(nr.status === 401 && nr.data.error === 'Not authorised.' && entries().filter(e => e.a === 'uplisting_push_error').length === pe0 + 1, 'notify with a wrong key → 401, not logged');
+  await upApply({ fail: true });
+  e7 = lastEntry('uplisting_push_error');
+  ok(/^Uplisting could not apply a calendar change for listing 251807 \(request req-\d+\): Calendar update failed for this property\. The next sync tries again\.$/.test(e7.s) && e7.r === 'system', `a failure Uplisting reports is logged (${e7.s})`);
+  // triggers only when on: a units listing is never written
+  r = await call(checkout, 'POST', '/api/booking/checkout', jBooking([guest(2, 'glamping-twin')]), UPL);
+  const refG = r.data.ref; complete(r.data.session_id);
+  r = await upAdm({ action: 'assign', ref: refG, assign: { 0: RN.gt(2) } });
+  ok(r.status === 200 && !calPosts().some(c => c.path === `/calendar/${L7.gtm}`), 'a room only a units listing has: never pushed');
+  // ledger overflow: 45 separate nights remembered on 5A; one more range is refused (and reported)
+  const arkNights = Array.from({ length: 45 }, (_, i) => addDays('2027-01-02', i * 2));
+  for (const d of arkNights) store.customers.push({ id: 'cus_arkblk' + d.replace(/-/g, ''), object: 'customer', name: 'Block', email: null, description: null, created: nowS() - 3600,
+    metadata: { aob_rec: 'block', aob_rec_any: '1', aob_id: 'BL-A' + d.replace(/-/g, '').slice(2), aob_from: d, aob_to: addDays(d, 1), aob_rooms: RN.ark('A'), aob_reason: 'staff', aob_status: 'active' } });
+  pushCus()[0].metadata[`p${L7.ark}`] = encodeLedger(new Set(arkNights));
+  arkNights.forEach(d => upClosed(L7.ark).add(d)); // (closed in Uplisting by us earlier)
+  ok(ledgerOf(L7.ark).length === 494, `(a ledger of 45 ranges: ${ledgerOf(L7.ark).length} characters)`);
+  forgetWrites(); clearAvailabilityMemo();
+  const a0 = calPosts().length;
+  r = await upAdm({ action: 'manual_create', from: '2027-08-10', to: '2027-08-12', guests: [mg('Rae', 'Female', RN.ark('A'))], force: true });
+  ok(r.status === 200 && calPosts().length === a0 && ledgerOf(L7.ark).length === 494, 'a full ledger: the new nights are not closed (never more than we can remember)');
+  pr = await runAll('uplisting_push_run');
+  ok(pr.r.data.done && pr.r.data.stats.refused === 1 && pr.r.data.warnings.some(w => /^5A: too many separate closed ranges/.test(w)) && !calPosts().slice(a0).some(c => c.path === `/calendar/${L7.ark}`), 'push run: refused counted, a warning');
+  r = await upGet();
+  ok(r.data.last_push.result.refused === 1 && r.data.push_warnings.some(w => /5A: too many/.test(w)), 'panel: the last push\'s warnings');
+  // the push customer and every record stay within Stripe's limits; nothing personal in what went to Uplisting
+  ok(store.customers.every(c => !c.metadata || (Object.keys(c.metadata).length <= 50 && Object.values(c.metadata).every(v => String(v).length <= 500))), 'every customer within Stripe\'s metadata limits');
+  ok(calPosts().every(c => !/@|Test\d|Ola|Pia|Rae|Guest/.test(c.body)), 'calendar changes carry dates only (no guest names, emails or phones)');
+}
+
+/* the ledger and the plan, as functions */
+{
+  const L = parseLedger('20270718+6,20270801+2,junk,20271301+1,20270901+0');
+  ok(L.size === 8 && L.has('2027-07-23') && !L.has('2027-07-24') && L.has('2027-08-02') && encodeLedger(L) === '20270718+6,20270801+2', 'parseLedger / encodeLedger: ranges, junk ignored');
+  ok(encodeLedger(new Set(['2027-01-03', '2027-01-01', '2027-01-02', '2027-01-05'])) === '20270101+3,20270105+1', 'encodeLedger: sorted, merged');
+  ok(encodeLedger(nextLedger(new Set(['2027-01-01', '2027-01-02', '2027-01-04', '2027-01-08']), ['2027-01-09'], ['2027-01-08'], '2027-01-03')) === '20270102+1,20270104+1,20270109+1', 'nextLedger: nights before yesterday dropped, reopened out, closed in');
+  ok(JSON.stringify(rangesOf(['2027-01-02', '2027-01-01', '2027-01-04'])) === JSON.stringify([{ from: '2027-01-01', to: '2027-01-03' }, { from: '2027-01-04', to: '2027-01-05' }]), 'rangesOf');
+  const occ = aobOccupancy([], [{ type: 'booking', status: 'active', from: '2027-07-18', to: '2027-07-21', ref: 'MB2707-AAAAAA', guests: [{ room_name: 'R1' }] },
+    { type: 'block', status: 'active', from: '2027-07-20', to: '2027-07-22', id: 'BL-BBBBBB', rooms: ['R2'], reason: 'staff', ext: null },
+    { type: 'block', status: 'active', from: '2027-07-18', to: '2027-07-30', id: 'UP-1', rooms: ['R1'], reason: 'uplisting', ext: { source: 'uplisting', kind: 'booking' } }]);
+  const cal = new Map([['2027-07-18', true], ['2027-07-19', false], ['2027-07-20', true], ['2027-07-21', true]]);
+  const pl = planListing({ rooms: ['R1', 'R2'], occ, ledger: new Set(['2027-07-20', '2027-07-25', '2027-06-01']), cal, from: '2027-07-01', to: '2027-08-01', verify: true });
+  ok(pl.close.join() === '2027-07-18,2027-07-21' && pl.skipped.join() === '2027-07-19' && pl.reclose.join() === '2027-07-20' && pl.unknown.join() === '' && pl.reopen.join() === '2027-07-25'
+    && [...pl.desired.get('2027-07-20')].sort().join() === 'BL-BBBBBB,MB2707-AAAAAA' && !pl.desired.has('2027-07-22'), 'planListing: close, already closed, ours open again, reopen (never Uplisting\'s own records)');
+  const groups = closureListings({ 1: ['A'], 2: ['B'], 3: ['A', 'B'], 4: ['B'], '5_1': ['C'], '5_2': ['D'], '6_1': ['E'] });
+  ok(JSON.stringify(groups) === JSON.stringify([{ pid: '1', room: 'A', pids: ['1'] }, { pid: '2', room: 'B', pids: ['2', '4'] }, { pid: '6', room: 'E', pids: ['6'] }]), 'closureListings: one room each, grouped by room');
+  ok([...pushListings({ 1: ['A'], '5_1': ['C'], 3: ['A', 'B'] }).keys()].join() === '1,3', 'pushListings: whole listings only');
+  const sum = pushSummary('close', [{ pid: '2', from: '2027-07-18', to: '2027-07-24', refs: ['BC2707-AAAAAA'] }, { pid: '9', from: '2027-07-18', to: '2027-07-24', refs: ['BC2707-AAAAAA'] }],
+    { listings: new Map([['2', ['1B · Peace Cottage']], ['9', ['1A', '1B', '1C']]]), props: new Map([['9', { nickname: '1 (Full) - Peace Cottage' }]]) });
+  ok(sum.summary === 'Closed in Uplisting: 1B · Peace Cottage (+ 1 (Full)) 18–24 Jul 2027 · BC2707-AAAAAA' && sum.action === 'uplisting_push_close' && sum.program === J1, 'pushSummary: the room, the other listings, the dates, the bookings');
+}
+
+/* auto-place: a paid online booking's guests go into free rooms of their type (same rules as the Rooming board) */
+reset(); store.idem.clear(); upFixtures7();
+{
+  r = await upAdm({ action: 'uplisting_map', mapping: MAP7 });
+  const paidBooking = async (guests, env = UPL, extra = {}) => {
+    const c = await call(checkout, 'POST', '/api/booking/checkout', jBooking(guests, 'deposit', extra), env);
+    const pi = complete(c.data.session_id);
+    return { ref: c.data.ref, cs: c.data.session_id, pi };
+  };
+  const assignOf = pi => store.pis.get(pi).metadata.aob_assign || '';
+  const NM = ['Ada', 'Bea', 'Cleo', 'Dag', 'Eli', 'Fay', 'Gus', 'Hal', 'Ivy', 'Jo', 'Kai', 'Lia', 'Mo', 'Nia', 'Ode', 'Pim', 'Quin', 'Ros', 'Sol', 'Tia', 'Uli', 'Vi', 'Wyn', 'Xan'];
+  const gx = (n, room, extra = {}) => ({ first: NM[n - 70], last: 'Guest', email: `${NM[n - 70].toLowerCase()}@example.com`, gender: 'Female', room, ...extra });
+  const women = n => Array.from({ length: n }, (_, i) => gx(70 + i, 'twin-ensuite'));
+  // two women of one booking: together, in the first free twin room
+  const A = await paidBooking(women(2));
+  let wr7 = await hook(sessionEvent('checkout.session.completed', A.cs), UPL);
+  ok(wr7.status === 200 && assignOf(A.pi) === `0=${RN.b1}|1=${RN.b1}`, `a booking's two women share one room (${assignOf(A.pi)})`);
+  let ea = lastEntry('autoplace');
+  ok(ea && ea.s === `Placed ${A.ref} guests in 1B automatically` && ea.u === 'system' && ea.n === 'Booking system' && ea.r === 'system' && ea.f === A.ref && ea.p === J1, `activity: ${ea && ea.s}`);
+  // shared twin filling: a woman alone goes to a room with a woman before an empty one
+  const B = await paidBooking([gx(80, 'twin-ensuite')]);
+  await hook(sessionEvent('checkout.session.completed', B.cs), UPL);
+  const C = await paidBooking([gx(81, 'twin-ensuite')]);
+  await hook(sessionEvent('checkout.session.completed', C.cs), UPL);
+  ok(assignOf(B.pi) === `0=${RN.a2}` && assignOf(C.pi) === `0=${RN.a2}`, `the next woman opens 2A, the one after fills it (${assignOf(B.pi)} / ${assignOf(C.pi)})`);
+  // gender separation, blocked rooms, rooms taken through Uplisting (both after these two paid)
+  const D = await paidBooking([gx(82, 'twin-ensuite', { gender: 'Male' })]);
+  const E = await paidBooking([gx(83, 'twin-ensuite', { gender: 'Male' }), gx(84, 'twin-ensuite')], UPL);
+  r = await upAdm({ action: 'block_create', rooms: [RN.b2], from: '2027-07-17', to: '2027-07-25', reason: 'maintenance', force: true });
+  const upB = addUb(L7.c2, '2027-07-19', '2027-07-21', { guest_name: 'Uma Ray' });
+  r = await upHook(upB, { event: 'booking_created' });
+  ok(r.result.action === 'created', '(2B blocked, 2C booked on Airbnb for two nights of the week)');
+  await hook(sessionEvent('checkout.session.completed', D.cs), UPL);
+  ok(assignOf(D.pi) === `0=${RN.d2}`, `a man: never with women, never in a blocked room or one taken through Uplisting (${assignOf(D.pi)})`);
+  await hook(sessionEvent('checkout.session.completed', E.cs), UPL);
+  ok(assignOf(E.pi) === `0=${RN.d2}` && lastEntry('autoplace').s === `Placed ${E.ref} guest in 2D automatically · 1 not placed (no free room)`, `no room fits the woman: she stays unplaced (${assignOf(E.pi)})`);
+  r = await call(admin, 'GET', `/api/booking/admin?program=${J1}`, null, UPL, AUTH);
+  ok(r.data.unassigned.some(g => g.ref === E.ref && g.index === 1) && r.data.rooming[RN.d2].guests.length === 2 && r.data.rooming[RN.d2].conflict === null && r.data.rooming[RN.b1].guests.length === 2, 'the rooming board: placed guests in their rooms, the one not placed listed (the existing warning)');
+  // idempotent on Stripe's retries
+  const posts0 = stripeCalls('POST', new RegExp(`^/payment_intents/${A.pi}$`)), n0 = entries().filter(e => e.a === 'autoplace').length;
+  wr7 = await hook(sessionEvent('checkout.session.completed', A.cs), UPL);
+  ok(wr7.status === 200 && stripeCalls('POST', new RegExp(`^/payment_intents/${A.pi}$`)) === posts0 && assignOf(A.pi) === `0=${RN.b1}|1=${RN.b1}` && entries().filter(e => e.a === 'autoplace').length === n0, 'a webhook delivered again: nothing changes');
+  // a team placement is kept; only the guests without a room are placed
+  const F = await paidBooking([gx(85, 'glamping-single'), gx(86, 'glamping-single')]);
+  r = await upAdm({ action: 'assign', ref: F.ref, assign: { 1: RN.gs(3) } });
+  await hook(sessionEvent('checkout.session.completed', F.cs), UPL);
+  ok(assignOf(F.pi) === `0=${RN.gs(1)}|1=${RN.gs(3)}`, `only guests not yet placed (${assignOf(F.pi)})`);
+  // not paid yet (a bank debit processing): not placed until it is
+  const G = await call(checkout, 'POST', '/api/booking/checkout', jBooking([gx(87, 'glamping-single')]), UPL);
+  const gPi = complete(G.data.session_id, { pi: 'processing' });
+  await hook(sessionEvent('checkout.session.completed', G.data.session_id), UPL);
+  ok(!assignOf(gPi), 'payment still processing: not placed');
+  await hook(sessionEvent('checkout.session.async_payment_succeeded', G.data.session_id, { payment_status: 'paid' }), UPL);
+  ok(assignOf(gPi) === `0=${RN.gs(2)}`, '… placed once the payment succeeds');
+  // a plan: the room on its subscription
+  const H = await call(checkout, 'POST', '/api/booking/checkout', jBooking([gx(88, 'glamping-single')], 'plan'), UPL);
+  const hSub = complete(H.data.session_id);
+  await hook(sessionEvent('checkout.session.completed', H.data.session_id), UPL);
+  ok(store.subs.get(hSub).metadata.aob_assign === `0=${RN.gs(4)}`, 'a payment plan: placed on its subscription');
+  // an admin booking link, once paid
+  r = await upAdm({ action: 'create_link', program: J1, payment: 'deposit', programme: 'included', whatsapp: '+447700900123', guests: [gx(89, 'single-ensuite')] });
+  const lPi = complete(r.data.session_id);
+  await hook(sessionEvent('checkout.session.completed', r.data.session_id), UPL);
+  ok(assignOf(lPi) === `0=${RN.ark('A')}`, 'an admin booking link: placed when paid');
+  // the setting (owner): off → not placed; it never runs without the Uplisting integration
+  r = await upAdm({ action: 'uplisting_autoplace', mode: 'off' });
+  ok(r.status === 200 && r.data.ok && r.data.autoplace === 'off' && settingsCus()[0].metadata.aob_autoplace === 'off' && lastEntry('uplisting_autoplace').s === 'Auto-place of new bookings turned off', 'uplisting_autoplace off: saved, logged');
+  r = await upGet();
+  ok(r.data.autoplace === 'off' && r.data.max_keys === 46, 'panel: auto-place off');
+  const I = await paidBooking([gx(90, 'single-ensuite')]);
+  await hook(sessionEvent('checkout.session.completed', I.cs), UPL);
+  ok(!assignOf(I.pi), 'auto-place off: not placed');
+  r = await upAdm({ action: 'uplisting_autoplace', mode: 'on' });
+  ok(r.data.autoplace === 'on' && !settingsCus()[0].metadata.aob_autoplace, 'on again (the default: no key)');
+  r = await upAdm({ action: 'uplisting_autoplace', mode: 'on' }, LIVE);
+  ok(r.status === 200 && r.data.unchanged === true, 'the setting can be changed without the API key');
+  const Jx = await paidBooking([gx(91, 'single-ensuite')], LIVE);
+  await hook(sessionEvent('checkout.session.completed', Jx.cs), LIVE);
+  ok(!assignOf(Jx.pi), 'without the Uplisting integration (no API key): no auto-place');
+  // with the push on: placed, then its room closed in Uplisting — within the subrequest budget
+  await pushOn();
+  const K = await paidBooking([gx(92, 'cottage-one')]);
+  const kw = await kCalls(() => hook(sessionEvent('checkout.session.completed', K.cs), UPL));
+  ok(assignOf(K.pi) === `0=${RN.solitude}` && calPosts().length === 1 && calPosts()[0].path === `/calendar/${L7.solo}` && bodyDays(calPosts()[0]) === 'close 2027-07-18..2027-07-24' && ledgerOf(L7.solo) === '20270718+6',
+    'push on: the placed room is closed in Uplisting after the booking is paid');
+  ok(kw.total <= 45, `the Stripe webhook with auto-place and the push: ${kw.total} subrequests (Stripe ${kw.stripe}, Uplisting ${kw.upl})`);
+  ok(lastEntry('uplisting_push_close').s === `Closed in Uplisting: 3 · Solitude Cottage 18–24 Jul 2027 · ${K.ref}` && lastEntry('uplisting_push_close').u === 'system', 'activity: closed by the booking system');
+  const blob = JSON.stringify(entries()) + JSON.stringify(calPosts());
+  ok(!/@example\.com|\+44/.test(blob), 'no guest email or phone in the log or in what went to Uplisting');
+}
+
+/* the scheduled sync: POST /api/booking/uplisting?key=…&action=sync, one slice per call, with a cursor */
+reset(); store.idem.clear(); upFixtures7();
+{
+  let sr = await sched();
+  ok(sr.status === 409 && sr.data.code === 'no_mapping', 'scheduled: without a mapping → 409 no_mapping');
+  r = await upAdm({ action: 'uplisting_map', mapping: MAP7 });
+  sr = await sched('', null, { key: 'wrong-key-0123456789' });
+  ok(sr.status === 401 && sr.data.error === 'Not authorised.', 'scheduled: a wrong key → 401');
+  sr = await sched('', null, { key: '' });
+  ok(sr.status === 401, 'scheduled: no key → 401');
+  sr = await sched('', null, { env: { ...UPL, UPLISTING_WEBHOOK_SECRET: '' } });
+  ok(sr.status === 503, 'scheduled: no webhook secret → 503 (off)');
+  for (let i = 0; i < 60; i++) addUb([L7.b1, L7.a2, L7.solo][i % 3], addDays('2026-08-01', i * 4), addDays('2026-08-01', i * 4 + 2));
+  closeNights(L7.gs1, '2026-12-24', '2026-12-27');
+  await pushOn();
+  r = await call(checkout, 'POST', '/api/booking/checkout', jBooking([guest(1, 'single-ensuite')]), UPL);
+  const sRef = r.data.ref; complete(r.data.session_id);
+  await upAdm({ action: 'assign', ref: sRef, assign: { 0: RN.ark('B') } }); // 5B: not mapped, nothing to push
+  await upAdm({ action: 'manual_create', from: '2027-05-03', to: '2027-05-05', guests: [mg('Lu', 'Female', RN.gs(2))] });
+  await upApply();
+  // an unpushed occupancy the full reconcile catches up: a block written directly (no trigger)
+  store.customers.push({ id: 'cus_schedblk01', object: 'customer', name: 'Block', email: null, description: null, created: nowS() - 600,
+    metadata: { aob_rec: 'block', aob_rec_any: '1', aob_id: 'BL-SCHED1', aob_from: '2027-06-10', aob_to: '2027-06-12', aob_rooms: RN.gt(1), aob_reason: 'staff', aob_status: 'active' } });
+  tick(61);
+  const sa = await schedAll();
+  ok(sa.r.status === 200 && sa.r.data.ok && sa.r.data.done && sa.r.data.cursor === null && sa.slices.length >= 3 && sa.slices.every(x => x.status === 200), `scheduled: done in ${sa.slices.length} calls, the cursor in the JSON body`);
+  ok(sa.max <= 45, `every scheduled call ≤ 45 subrequests (largest ${sa.max})`);
+  ok(sa.r.data.stats.created === 60 && sa.r.data.closures.created === 1 && sa.r.data.push.closed === 2 && ledgerOf(L7.gt1) === '20270610+2', `bookings, closed nights, then the push (${JSON.stringify(sa.r.data.push)})`);
+  ok(sa.slices.map(x => x.data.progress.phase).join().includes('closures') && sa.slices.some(x => x.data.progress.phase === 'push' || x.data.push), 'progress: bookings → closures → push');
+  const es = lastEntry('uplisting_sync');
+  ok(es && es.u === 'scheduled' && es.n === 'Automatic sync' && es.r === 'system' && es.s === 'Uplisting sync: 60 new, 0 changed, 0 cancelled, 0 clashes', `activity: the scheduled sync by "Automatic sync" (${es && es.s})`);
+  ok(lastEntry('uplisting_closed').u === 'scheduled' && lastEntry('uplisting_push_close').u === 'scheduled' && lastEntry('uplisting_push_close').s === 'Closed in Uplisting: Glamping Twin 1 10–12 Jun 2027 · BL-SCHED1', 'activity: its closures and push by the same actor');
+  r = await upGet();
+  ok(r.data.last_sync.by === 'scheduled' && r.data.last_scheduled_sync && r.data.last_scheduled_sync.at === r.data.last_sync.at && r.data.last_scheduled_sync.result.created === 60, `panel: the last sync was the scheduled one (${JSON.stringify(r.data.last_scheduled_sync)})`);
+  ok(r.data.last_push && r.data.last_push.by === 'scheduled' && r.data.last_push.result.closed === 2 && r.data.sync_url_hint === `https://${HOST}/api/booking/uplisting?key=…&action=sync` && !JSON.stringify(r.data).includes(UPL.UPLISTING_WEBHOOK_SECRET), 'panel: the last push by the scheduled sync; the URL hint without the key');
+  // the owner syncs afterwards: the last sync is theirs, the scheduled one still shown
+  const schedAt = r.data.last_scheduled_sync.at;
+  tick(61);
+  await runAll('uplisting_sync');
+  r = await upGet();
+  ok(r.data.last_sync.by.id === 'owner' && r.data.last_sync.by.name === 'Main admin' && r.data.last_sync.at !== schedAt && r.data.last_scheduled_sync.at === schedAt && r.data.last_scheduled_sync.result.created === 60,
+    'a later sync by the owner: last_sync.by { id, name }, last_scheduled_sync kept');
+  // the cursor in the query works too; a bad cursor → 400
+  tick(61);
+  const sq = await schedAll({ viaQuery: true });
+  ok(sq.r.status === 200 && sq.r.data.done && sq.r.data.stats.unchanged === 60, 'scheduled: the cursor in the query string works too');
+  sr = await sched('', { cursor: 'not.a.cursor' });
+  ok(sr.status === 400 && sr.data.code === 'bad_cursor', 'scheduled: a bad cursor → 400');
+  // Uplisting rate-limits a slice: paused with retry_after, the next call goes on
+  upFault(/^\/bookings\/251803/, { status: 429, retryAfter: 12 });
+  tick(61);
+  sr = await sched();
+  ok(sr.status === 200 && sr.data.paused === 'rate_limited' && sr.data.retry_after === 12 && sr.data.cursor && !sr.data.done, 'scheduled: 429 → paused, retry_after 12, a cursor');
+  // a refused API key fails the call (GitHub then fails the job)
+  sr = await sched('', null, { env: { ...UPL, UPLISTING_API_KEY: 'bad-key' } });
+  ok(sr.status === 502 && sr.data.code === 'uplisting_auth', 'scheduled: a key Uplisting refuses → 502');
+}
+
+/* subrequests on a cold isolate (nothing cached): the actions that push, the webhook that places and pushes */
+reset(); store.idem.clear(); upFixtures7();
+{
+  r = await upAdm({ action: 'uplisting_map', mapping: MAP7 });
+  await pushOn();
+  await adm({ action: 'user_create', username: 'tom7', name: 'Tom', role: 'team', password: 'tom7-pass' }); secrets.push('tom7-pass');
+  const tTom7 = (await loginAs('tom7', 'tom7-pass')).data.token;
+  const cold = () => { forgetTeam(); forgetUplisting(); forgetWrites(); clearAvailabilityMemo(); };
+  const totals = {};
+  r = await call(checkout, 'POST', '/api/booking/checkout', jBooking([guest(1, 'twin-ensuite'), guest(2, 'twin-ensuite')], 'plan'), UPL);
+  const cRef = r.data.ref, cCs = r.data.session_id; complete(cCs);
+  cold();
+  let k = await kCalls(() => hook(sessionEvent('checkout.session.completed', cCs), UPL));
+  totals.webhook = k.total;
+  ok(calPosts().length === 2 && ledgerOf(L7.b1) === '20270718+6' && ledgerOf(L7.full) === '20270718+6', '(a paid plan booking placed in 1B: 1B and 1 (Full) closed)');
+  cold();
+  k = await kCalls(() => asUser(tTom7, { action: 'assign', ref: cRef, assign: { 0: RN.a2, 1: RN.a2 } }, UPL));
+  totals.assign = k.total;
+  ok(k.res.status === 200 && ledgerOf(L7.a2) === '20270718+6' && ledgerOf(L7.b1) === '' && ledgerOf(L7.full) === '', '(moved to 2A by a team member: 2A closed, 1B and 1 (Full) reopened)');
+  cold();
+  k = await kCalls(() => asUser(tTom7, { action: 'block_create', rooms: [RN.cottage2], from: '2027-07-18', to: '2027-07-24', reason: 'staff' }, UPL));
+  totals.block = k.total;
+  ok(k.res.status === 200 && ledgerOf(L7.comb) === '20270718+6' && ledgerOf(L7.c4) === '20270718+6' && ledgerOf(L7.d4) === '20270718+6', '(a block on the combined cottage: 3 listings closed)');
+  cold();
+  k = await kCalls(() => asUser(tTom7, { action: 'cancel', ref: cRef }, UPL));
+  totals.cancel = k.total;
+  cold();
+  k = await kCalls(() => asUser(tTom7, { action: 'manual_create', from: '2027-07-25', to: '2027-07-31', guests: [mg('Ana', 'Female', RN.a1), mg('Bo', 'Female', RN.a1)] }, UPL));
+  totals.manual = k.total;
+  ok(ledgerOf(L7.a1) === '20270725+6' && ledgerOf(L7.full) === '20270725+6', '(a manual booking in 1A: 1A and 1 (Full) closed)');
+  cold();
+  const sAll = await runAll('uplisting_sync');
+  totals.sync = sAll.max;
+  cold();
+  const pAll = await runAll('uplisting_push_run');
+  totals.push_run = pAll.max;
+  cold();
+  k = await kCalls(() => getAs(tTom7, 'uplisting_push_preview=1', UPL));
+  totals.preview = k.total;
+  ok(Object.values(totals).every(n => n <= 45), `≤ 45 subrequests per call on a cold isolate, Stripe + Uplisting + the activity log + the work after the answer (${JSON.stringify(totals)})`);
+}
+
+/* round 7: nothing personal stored, logged or sent to Uplisting */
+{
+  const blob = JSON.stringify(store.customers) + JSON.stringify(entries()) + logs.join('\n') + JSON.stringify(up.calls.filter(c => c.method !== 'GET'));
+  ok(!/castleblack|7978978|HMXQ7ZZ9|dragon|King of the North/.test(blob) && !up.calls.some(c => /@/.test(c.body || '')), 'round 7: no guest email, phone or note in Stripe, the log, the failure logs or anything sent to Uplisting');
+}
+
+/* the GitHub workflow: twice a day and on demand, a cursor loop, no secret in the repository */
+{
+  const yml = readFileSync(new URL('../../.github/workflows/uplisting-sync.yml', import.meta.url), 'utf8');
+  ok(/cron: '0 5,17 \* \* \*'/.test(yml) && /workflow_dispatch:/.test(yml), 'workflow: 05:00 and 17:00 UTC, and manual dispatch');
+  ok(/\$\{\{ secrets\.AOB_UPLISTING_SYNC_URL \}\}/.test(yml) && [...yml.matchAll(/key=(\S*)/g)].every(m => m[1] === '<UPLISTING_WEBHOOK_SECRET>' || m[1].startsWith('…&')) && !yml.includes(UPK) && !yml.includes(UPL.UPLISTING_WEBHOOK_SECRET), 'workflow: the URL only from the repository secret, no key in the file');
+  ok(/MAX_CALLS=60/.test(yml) && /action=sync/.test(yml) && /retry_after/.test(yml) && /sleep/.test(yml) && /cursor/.test(yml) && /exit 1/.test(yml) && /\.done/.test(yml), 'workflow: loops with the cursor (max 60 calls, 3 s apart, honouring retry_after), fails the job on an error');
+  ok(/permissions:\s*\n\s*contents: read/.test(yml) && /concurrency:/.test(yml), 'workflow: read-only token, one run at a time');
 }
 
 /* nothing personal in the logs */

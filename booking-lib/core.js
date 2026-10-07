@@ -1283,6 +1283,67 @@ export function roomingMap(program, bookings, records = []) {
   return { rooming, unassigned };
 }
 
+/* ------------------------------------------------- placing guests in physical rooms
+   The Rooming board's rules: one gender per shared room, never more guests than a room sleeps, a room sold
+   by the unit (the cottage for two) only for the guests of one booking, never a room blocked for the week (a
+   team block, a booking or nights closed in Uplisting). Shared by the demo bookings (random order) and by
+   auto-place of paid online bookings (booking-lib/uplisting.js: deterministic, the week's room order). */
+const pgk = g => (String(g || '').toLowerCase() === 'male' ? 'male' : 'female');
+/* The week's physical rooms and who is in them: { name: { room, cap, shared, unit, used, gender, refs, blocked } }.
+   bookings: [{ ref, status, source, guests: [{ gender }], assign: { index: name } }] (online ones: groupBookings, or
+   read from metadata); records: listRecords() (blocks and manual bookings overlapping the week count). */
+export function physicalRooms(program, bookings, records = []) {
+  const phys = {};
+  for (const r of program.rooms) for (const name of r.names || []) phys[name] = { room: r.id, cap: nameCapacity(r), shared: !!r.same_gender, unit: byUnit(r), used: 0, gender: null, refs: new Set() };
+  for (const b of bookings || []) {
+    if (b.status === 'cancelled' || b.source === 'manual') continue;
+    for (const [i, name] of Object.entries(b.assign || {})) {
+      const slot = phys[name], g = (b.guests || [])[i];
+      if (!slot || !g) continue;
+      slot.used++; slot.gender = slot.gender || pgk(g.gender); slot.refs.add(b.ref);
+    }
+  }
+  for (const rec of recordsFor(program, records)) {
+    if (rec.type === 'block') { rec.rooms.forEach(n => { if (phys[n]) { phys[n].used = phys[n].cap; phys[n].blocked = true; } }); continue; }
+    for (const g of rec.guests) { const slot = phys[g.room_name]; if (!slot) continue; slot.used++; slot.gender = slot.gender || pgk(g.gender); slot.refs.add(rec.ref); }
+  }
+  return phys;
+}
+/* A room for each guest of one booking (guests: [{ i, gender, room (type id) }]) → { i: physical room name };
+   guests that don't fit anywhere are left out. Guests of one booking with the same gender and room type stay
+   together where they fit (the room where most of them fit first), and a partly used room of their gender is
+   filled before an empty one. rnd: a random source (demo: rooms tried in a random order among equals), or
+   null (the rooms in the week's order: the same answer every time). phys is updated (physicalRooms()). */
+export function placeGuests(program, phys, guests, rnd = null, ref = '') {
+  const assign = {}, groups = {};
+  const shuffle = a => { if (!rnd) return a; for (let k = a.length - 1; k > 0; k--) { const j = Math.floor(rnd() * (k + 1)); const t = a[k]; a[k] = a[j]; a[j] = t; } return a; };
+  for (const g of guests) {
+    const r = program.rooms.find(x => x.id === g.room);
+    if (!r || !(r.names || []).length) continue;
+    const key = g.room + (r.same_gender ? ':' + pgk(g.gender) : '');
+    (groups[key] = groups[key] || []).push(g);
+  }
+  for (const list of Object.values(groups)) {
+    const room = list[0].room, gender = pgk(list[0].gender);
+    let left = list.slice();
+    while (left.length) {
+      const free = shuffle(Object.keys(phys).filter(n => {
+        const p = phys[n];
+        if (p.room !== room || p.blocked || p.used >= p.cap) return false;
+        if (p.unit && p.used && !p.refs.has(ref)) return false;         // a whole cottage belongs to one booking
+        if (p.shared && p.used && p.gender !== gender) return false;      // shared rooms stay single-gender
+        return true;
+      }));
+      if (!free.length) break;                                           // no physical room left: stays unplaced
+      free.sort((a, b) => (Math.min(phys[b].cap - phys[b].used, left.length) - Math.min(phys[a].cap - phys[a].used, left.length)) ||
+        ((phys[b].used > 0) - (phys[a].used > 0)));
+      const name = free[0], p = phys[name], take = Math.min(p.cap - p.used, left.length);
+      for (const g of left.splice(0, take)) { assign[g.i] = name; p.used++; p.gender = p.gender || pgk(g.gender); p.refs.add(ref); }
+    }
+  }
+  return assign;
+}
+
 /* One booking (and its balance and offline payments) by reference. cached: answer from a 30 s
    per-isolate memo when there is one (lookups only; anything that takes money reads fresh). Unknown
    references are refused before any Stripe call. */
@@ -1365,7 +1426,8 @@ export function calendarRooms(programs = listPrograms()) {
    Everywhere availability is computed they are applied to a copy of the week (programWithRecords).
    Bookings imported from Uplisting (booking-lib/uplisting.js) are blocks with aob_reason 'uplisting'
    and aob_ext 'uplisting' + aob_ext_* keys (see extOf); only the sync changes them (aob_status
-   'cancelled' when cancelled there), the team never deletes them. */
+   'cancelled' when cancelled there), the team never deletes them. Nights closed in Uplisting without a
+   booking come in the same way (aob_ext_kind 'closed', aob_id UC-<listing>-<first night>). */
 export const REC_REASONS = ['maintenance', 'staff', 'owner', 'other', 'uplisting'];
 /* The reasons the team can choose for a block ('uplisting' is set by the import only). */
 export const BLOCK_REASONS = REC_REASONS.filter(r => r !== 'uplisting');
@@ -1390,17 +1452,25 @@ export function guestShort(name) {
   const last = parts.length > 1 ? Array.from(parts[parts.length - 1])[0] : '';
   return cut(parts[0], 40) + (last && /\p{L}/u.test(last) ? ` ${last.toUpperCase()}.` : '');
 }
-/* An imported Uplisting booking's details (aob_ext_*), or null. */
+/* An imported Uplisting record's details (aob_ext_*), or null. kind: 'booking' (a booking made there: UP-<id>)
+   | 'closed' (nights closed there without a booking, aob_ext_kind 'closed': a RetreatGuru block, an iCal
+   import, an admin block or a season closure; UC-<listing>-<first night>). */
 export function extOf(md, created_at) {
   if (!md || md.aob_ext !== 'uplisting') return null;
   const n = parseInt(md.aob_ext_n || '', 10);
-  return { source: 'uplisting', id: md.aob_ext_id || '', property_id: md.aob_ext_prop || '', property_name: md.aob_ext_pname || '', unit: md.aob_ext_unit || '',
+  return { source: 'uplisting', kind: md.aob_ext_kind === 'closed' ? 'closed' : 'booking', id: md.aob_ext_id || '', property_id: md.aob_ext_prop || '', property_name: md.aob_ext_pname || '', unit: md.aob_ext_unit || '',
     channel: md.aob_ext_channel || '', guest: md.aob_ext_guest || '', guests: Number.isInteger(n) && n > 0 ? n : null, status: md.aob_ext_ustatus || '',
     synced_at: md.aob_ext_sync || created_at || null };
 }
 export const isExternal = rec => !!(rec && rec.ext && rec.ext.source === 'uplisting');
-/* 'Airbnb · Jon S. · UP-123' for messages about an imported booking */
-export const externalLabel = rec => [channelLabel(rec.ext.channel), guestShort(rec.ext.guest), rec.id].filter(Boolean).join(' · ');
+export const isClosure = rec => isExternal(rec) && rec.ext.kind === 'closed';
+/* 'Airbnb · Jon S. · UP-123' for messages about an imported booking; 'listing 251803 · UC-251803-2027-07-18'
+   for nights closed there */
+export const externalLabel = rec => isClosure(rec) ? [rec.ext.property_name || (rec.ext.property_id ? `listing ${rec.ext.property_id}` : ''), rec.id].filter(Boolean).join(' · ')
+  : [channelLabel(rec.ext.channel), guestShort(rec.ext.guest), rec.id].filter(Boolean).join(' · ');
+/* '1B · Peace Cottage has an Uplisting booking 12–15 Jul 2027 (Airbnb · Jon S. · UP-123).' /
+   '1B · Peace Cottage is closed in Uplisting 12–15 Jul 2027 (listing 251803 · UC-…).' */
+export const externalText = (room, rec) => `${room} ${isClosure(rec) ? 'is closed in Uplisting' : 'has an Uplisting booking'} ${rangeLabel(rec.from, rec.to)} (${externalLabel(rec)}).`;
 
 /* A record customer, read back (null when it isn't one, or is unreadable). */
 export function parseRecord(c) {
@@ -1567,6 +1637,7 @@ export function weekConflicts(program, occ, cand) {
    people in a room (more than it holds, women and men in a one-gender room, a room sold by the unit
    used by another booking). Two of the team's blocks on one room don't clash; a booking imported from
    Uplisting (a block with ext) is a guest in its rooms: the team's blocks and manual bookings clash with it.
+   Nights closed in Uplisting (ext.kind 'closed') clash with manual bookings, not with the team's blocks.
    others: the other active records; weeks: [{ program, bookings }] (groupBookings) of the weeks the
    candidate overlaps. → [human text] */
 export function nameConflicts(cand, others, weeks, rooms = calendarRooms().rooms) {
@@ -1594,14 +1665,15 @@ export function nameConflicts(cand, others, weeks, rooms = calendarRooms().rooms
         say(`${n}|${o.who}`, `${n}: ${o.who} is there ${rangeLabel(o.from > cand.from ? o.from : cand.from, o.to < cand.to ? o.to : cand.to)}.`);
       }
       // a guest booked through Uplisting is someone in the room too (two of the team's blocks don't clash)
-      if (!isExternal(cand)) for (const b of blocks.get(n) || []) if (isExternal(b)) say(`b|${n}|${b.id}`, `${n} has an Uplisting booking ${rangeLabel(b.from, b.to)} (${externalLabel(b)}).`);
+      // (nights closed in Uplisting are a room out of use, like another block: no clash)
+      if (!isExternal(cand)) for (const b of blocks.get(n) || []) if (isExternal(b) && !isClosure(b)) say(`b|${n}|${b.id}`, externalText(n, b));
     }
     return out;
   }
   const mine = new Map();
   cand.guests.forEach(g => push(mine, g.room_name, g));
   for (const [n, gs] of mine) {
-    for (const b of blocks.get(n) || []) say(`b|${n}|${b.id}`, isExternal(b) ? `${n} has an Uplisting booking ${rangeLabel(b.from, b.to)} (${externalLabel(b)}).`
+    for (const b of blocks.get(n) || []) say(`b|${n}|${b.id}`, isExternal(b) ? externalText(n, b)
       : `${n} is blocked ${rangeLabel(b.from, b.to)} (${b.reason}${b.comment ? `: ${cut(b.comment, 80)}` : ''}).`);
     const r = info.get(n), list = (people.get(n) || []).filter(o => overlaps(o, cand));
     if (!r || !list.length) continue;

@@ -26,7 +26,7 @@
    The activity log ("who did what, when") lives in "logbook" Customers: name 'AoB dashboard activity
    log', description '(do not delete)', metadata aob_logbook '1' plus up to 48 entries. Entry key:
    'e' + Date.now() in base 36 + 2 random base-36 characters; value: compact JSON
-   { t: unix ms, u: actor id ('owner' | customer id | 'uplisting' | '-'), n: actor name, r: role ('owner' | 'team' |
+   { t: unix ms, u: actor id ('owner' | customer id | 'uplisting' | 'system' | 'scheduled' | '-'), n: actor name, r: role ('owner' | 'team' |
      'viewer' | 'system' | '-'), a: action,
      f: booking reference or record id (optional), p: program id (optional), s: summary }
    (never more than 500 characters: the summary is cut). One entry is one metadata merge on the current
@@ -40,6 +40,10 @@ export const ROLE_LABELS = { owner: 'Main admin', team: 'Team', viewer: 'View on
 export const OWNER = Object.freeze({ kind: 'owner', id: 'owner', name: 'Main admin', role: 'owner' });
 /* Changes nobody on the team made (the Uplisting webhook): logged with this actor, role 'system'. */
 export const UPLISTING_ACTOR = Object.freeze({ kind: 'system', id: 'uplisting', name: 'Uplisting', role: 'system' });
+/* The booking system itself (auto-place of a paid booking, Uplisting's answer to a calendar change). */
+export const SYSTEM_ACTOR = Object.freeze({ kind: 'system', id: 'system', name: 'Booking system', role: 'system' });
+/* The scheduled Uplisting sync (GitHub Actions → /api/booking/uplisting?action=sync). */
+export const SCHEDULE_ACTOR = Object.freeze({ kind: 'system', id: 'scheduled', name: 'Automatic sync', role: 'system' });
 export const SESSION_HOURS = 12;
 export const USERNAME_RE = /^[a-z0-9._-]{3,32}$/;
 export const PASSWORD_MAX = 100;
