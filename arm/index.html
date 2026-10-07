@@ -91,7 +91,6 @@
 <link rel="icon" type="image/png" href="https://alchemyofbreath.com/wp-content/uploads/AOB-Gold-Black-Transparant-symbol.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preconnect" href="https://player.vimeo.com">
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Roboto:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Roboto:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" media="print" onload="this.media='all'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Roboto:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap"></noscript>
@@ -476,13 +475,29 @@ main p em,main li em{color:var(--gold-text)}
 .author-photo{border-radius:280px 280px 18px 18px;aspect-ratio:4/4.4}
 
 
+/* holding page: header + Coming 2027 stamp only */
+.hero-hold{min-height:100vh;min-height:100svh;display:flex;align-items:center;padding:150px 0 110px}
+.hero-hold .wrap{width:100%}
+.hero-hold .hero-sub{max-width:34em}
+.soon-wrap{margin-top:44px}
+.soon{width:164px;height:164px;margin:0 auto;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+  background:linear-gradient(150deg,rgba(255,255,255,.95) 0%,rgba(247,235,210,.75) 100%);border:1px solid rgba(225,182,104,.6);
+  box-shadow:0 0 0 9px rgba(255,255,255,.7),0 0 0 10px rgba(225,182,104,.35),var(--shadow-soft);transform:rotate(-6deg)}
+.soon-k{font-family:var(--sans);font-size:.7rem;font-weight:500;letter-spacing:.3em;text-transform:uppercase;color:var(--slate);padding-left:.3em}
+.soon-y{font-family:var(--serif);font-size:2.7rem;line-height:1;color:var(--gold-text-lg)}
+.hero-hold .hero-actions{margin-top:46px}
+@media (max-width:600px){
+  .hero-hold{padding:130px 0 80px}
+  .soon{width:140px;height:140px}
+  .soon-y{font-size:2.3rem}
+}
 </style>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "Course",
   "name": "Alchemy Regulation Method — Coach Certification",
-  "description": "A seven-day residential coach certification at ASHA in Tuscany: 60 hours of training across six stages of nervous system regulation, completed by a 10-hour online post-study. GPBA ethically compliant.",
+  "description": "A seven-day residential coach certification at ASHA in Tuscany, across six stages of functional breathing and nervous system regulation. The next cohort is coming in 2027.",
   "url": "https://alchemyofbreath.com/alchemy-regulation-method/",
   "provider": {
     "@type": "Organization",
@@ -513,70 +528,6 @@ main p em,main li em{color:var(--gold-text)}
       }
     ]
   }
-}
-</script>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  "mainEntity": [
-    {
-      "@type": "Question",
-      "name": "Do I need prior breathwork experience?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "No. The Alchemy Regulation Method is built for practitioners who already work with the body and the nervous system — coaches, therapists, physiotherapists, yoga teachers, healthcare professionals — and for anyone who has spent too long running dysregulated. What matters is the intention to use breath as a tool, in your own life or in your work."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "What does the 10-hour online post-ASHA study involve?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "A 10-hour self-paced module you complete after the residential week. It deepens the foundations — respiratory anatomy, breath physiology, and the six stages of regulation — and is what completes your training and readies you for full certification. The week at ASHA gets it into your body. The post-study gets it into your understanding."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "Can I continue to the full facilitator training afterward?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Yes. The Alchemy Regulation Method counts as Level 1 of the facilitator training. From here you can continue with us into the full facilitator pathway."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "What is included in the all-inclusive pricing?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "The full 60 hours of training (online and on-land), all meals at ASHA, and your chosen accommodation are bundled into a single price. Nothing is charged separately on arrival. Pay your deposit to secure your spot, balance due before arrival."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "Is this appropriate for healthcare professionals?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Yes. Everything taught is gentle, safe, and appropriate to integrate into existing professional practice. The Alchemy Regulation Method doesn't prescribe, diagnose or treat medical conditions. It builds your felt understanding of breath and the nervous system, which you can then bring into the work you already do, within your own scope."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "How is this different from conscious connected breathwork?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Conscious connected breathwork tends to lean into cathartic or expanded-state experiences. That work is real and we love it. The Alchemy Regulation Method is something complementary: the everyday physiology of breathing and regulation, taught simply enough that you can use it tomorrow morning. If you want to learn to deliver conscious connected breathwork yourself, you continue from here into the full facilitator training."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "How large is the founding cohort?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Intentionally small. The residential format and hands-on practice need a participant-to-instructor ratio that supports real skill development, not lecture-hall pacing. Places are limited and will not be extended beyond capacity."
-      }
-    }
-  ]
 }
 </script>
 <script type="application/ld+json">
@@ -657,7 +608,7 @@ main p em,main li em{color:var(--gold-text)}
       </ul>
     </nav>
     <div class="nav-right">
-      <a class="nav-cta" href="#pricing">What&rsquo;s included</a>
+      <a class="nav-cta" href="https://go.alchemyofbreath.com/book-842709">Book a call</a>
       <button class="nav-burger" type="button" aria-expanded="false" aria-controls="mnav" aria-label="Open menu"><span></span><span></span><span></span></button>
     </div>
   </div>
@@ -707,7 +658,7 @@ main p em,main li em{color:var(--gold-text)}
     <div class="mg"><a class="mg-h" href="/events/">Events</a></div>
     <div class="mg"><a class="mg-h" href="/blog/">Blog</a></div>
     <div class="mnav-cta">
-      <a class="mnav-btn" href="#pricing">What&rsquo;s included <span aria-hidden="true">&rarr;</span></a>
+      <a class="mnav-btn" href="https://go.alchemyofbreath.com/book-842709">Book a call <span aria-hidden="true">&rarr;</span></a>
       <p class="mnav-note">Free live breathwork every Sunday — no experience needed.</p>
       <div class="mnav-social">
         <a href="https://www.facebook.com/AOB.Breathwork/" aria-label="Alchemy of Breath on Facebook"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 21v-7h2.4l.4-3h-2.8V9.1c0-.9.3-1.5 1.6-1.5h1.3V4.9c-.2 0-1-.1-1.9-.1-1.9 0-3.2 1.2-3.2 3.3V11H8.9v3h2.4v7h2.2z"/></svg></a>
@@ -719,309 +670,18 @@ main p em,main li em{color:var(--gold-text)}
 
 <main id="main">
 
-  <!-- HERO -->
-  <section class="hero">
+  <!-- HERO — holding page until the 2027 cohort opens -->
+  <section class="hero hero-hold">
     <div class="wrap">
-      <span class="eyebrow reveal" style="justify-content:center">Coach Certification Training &middot; ASHA, Tuscany &middot; Coming 2027</span>
-      <h1 class="reveal d1">Become a certified Alchemy Regulation Method <em>Coach</em>.</h1>
-      <p class="kicker reveal d1">For yourself first. For the people you guide after.</p>
-      <p class="hero-sub reveal d2">A seven-day residential certification at ASHA in Tuscany. You walk in to feel regulation in your own body. You walk out as a coach who can guide it in others, with the credential to offer it professionally.</p>
-      <div class="stat-row reveal d2">
-        <span class="stat-chip"><b>7</b> days residential</span>
-        <span class="stat-chip"><b>60</b> hours &middot; online + on-land</span>
-        <span class="stat-chip"><b>6</b> stages of regulation</span>
-        <span class="stat-chip"><b>14</b> years of lineage</span>
-      </div>
-      <div class="vid-frame reveal d3">
-        <iframe src="https://player.vimeo.com/video/1199846965?h=9f23deedcd&amp;autopause=0&amp;loop=0&amp;muted=0&amp;title=0&amp;portrait=0&amp;byline=0"
-                title="Alchemy Regulation Method" loading="lazy"
-                allow="autoplay; fullscreen; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+      <span class="eyebrow reveal" style="justify-content:center">Coach Certification &middot; ASHA, Tuscany</span>
+      <h1 class="reveal d1">Alchemy Regulation <em>Method</em></h1>
+      <p class="hero-sub reveal d2">A seven-day residential coach certification at ASHA in Tuscany. You learn to feel regulation in your own body first, then to guide it in others, through six stages of functional breathing and nervous system regulation.</p>
+      <div class="soon-wrap reveal d2">
+        <p class="soon"><span class="soon-k">Coming</span><span class="soon-y">2027</span></p>
       </div>
       <div class="hero-actions reveal d3">
-        <a class="btn btn-primary" href="#pricing">See rooms &amp; what&rsquo;s included <span class="arr">&rarr;</span></a>
-        <a class="btn btn-ghost" href="https://go.alchemyofbreath.com/book-842709">Book a discovery call</a>
+        <a class="btn btn-ghost" href="https://go.alchemyofbreath.com/book-842709">Ask about 2027 &middot; book a call</a>
       </div>
-    </div>
-  </section>
-
-  <!-- FOUNDER PULL-QUOTE -->
-  <section class="pull cv">
-    <div class="ph" aria-hidden="true"></div>
-    <div class="wrap reveal">
-      <span class="mark">&ldquo;</span>
-      <blockquote>I was once sitting with a high-level client who was mid-panic attack, withdrawing from medication. No technique. No protocol. Just breathing together, with simple counting. That was enough. It started with one breath.</blockquote>
-      <cite>Anthony Abbagnano &middot; Founder, Alchemy of Breath</cite>
-    </div>
-  </section>
-
-  <!-- PROBLEM + PILLARS -->
-  <section class="alt cv">
-    <div class="wrap">
-      <div class="sec-intro" style="max-width:42em">
-        <span class="eyebrow reveal" style="justify-content:center">Survival was never the plan</span>
-        <h2 class="reveal d1">Most of us have been running dysregulated for so long, it just feels like who we are. <em>It isn't.</em></h2>
-      </div>
-      <div class="prose reveal d1">
-        <p>So many of us have spent years, lifetimes even, stuck in survival. Fight, flight, freeze, as a way of being. Not as an emergency response. As a long-time way of being. You know the feeling.</p>
-        <p>Regulation doesn't mean life stops being complicated. It doesn't mean nothing will ever get under your skin again. It means when things do, and they will, you have a way back. A more available breath. The one that helps you not say the thing you'll spend days wishing you hadn't.</p>
-      </div>
-      <p class="credo reveal d2">Breathe first. Everything else second. <em>Regulation kicks in from there.</em></p>
-      <div class="pillars">
-        <div class="pillar reveal"><h3>Science-informed</h3><p>Grounded in respiratory physiology and nervous system understanding.</p></div>
-        <div class="pillar reveal d1"><h3>Experiential</h3><p>You learn by practicing with fellow participants, not sitting in lectures.</p></div>
-        <div class="pillar reveal d2"><h3>Spacious</h3><p>Designed for real integration, not information overload.</p></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- THE SIX STAGES -->
-  <section class="cv" id="methodology" style="scroll-margin-top:90px">
-    <div class="orb g" style="width:420px;height:420px;top:60px;right:-180px" aria-hidden="true"></div>
-    <div class="wrap">
-      <div class="sec-intro" style="max-width:42em">
-        <span class="eyebrow reveal" style="justify-content:center">The methodology</span>
-        <h2 class="reveal d1">Your nervous system is trainable. This is the architecture <em>you'll teach</em>.</h2>
-        <p class="reveal d2" style="margin-top:16px;font-size:1.02rem">For 14 years, we've been teaching people to consciously breathe. Now we're giving it the structure it deserves. Six stages of regulation, received in your own body across the week. The same six stages you'll guide others through as a certified Coach. Tap any stage to see what it builds.</p>
-      </div>
-      <div class="stages reveal d1">
-        <details class="stage">
-          <summary><span class="n">01</span><span class="s-head"><h3>Remember</h3><span class="tease">Marry your breath.</span></span><span class="pm">+</span></summary>
-          <div class="s-body"><p>You come back to your own breath. Before any technique, before any protocol, you sit with what has always been there.</p><p>This is what Anthony calls marrying your breath. A return to what the body already knew. Quieter than you remembered. More available than you knew.</p></div>
-        </details>
-        <details class="stage">
-          <summary><span class="n">02</span><span class="s-head"><h3>Reframe</h3><span class="tease">Breath as a nervous-system intervention.</span></span><span class="pm">+</span></summary>
-          <div class="s-body"><p>You stop thinking of breath as relaxation or deep breathing. You start understanding it as a three-dimensional, nervous-system intervention.</p><p>The body work lands here, and so does the history. What you've been carrying becomes visible, and there's room to set some of it down.</p></div>
-        </details>
-        <details class="stage">
-          <summary><span class="n">03</span><span class="s-head"><h3>Resource</h3><span class="tease">A working vocabulary for the felt sense.</span></span><span class="pm">+</span></summary>
-          <div class="s-body"><p>The felt sense becomes something you can draw on. Window of tolerance, pendulation, titration, co-regulation. They stop being terminology and start being how you read what's happening inside you.</p><p>You stop being lost when things get charged. You always have somewhere to come back to.</p></div>
-        </details>
-        <details class="stage">
-          <summary><span class="n">04</span><span class="s-head"><h3>Regulate</h3><span class="tease">The 90-second protocol.</span></span><span class="pm">+</span></summary>
-          <div class="s-body"><p>The 90-second protocol arrives. You can settle yourself on demand. In a meeting, in traffic, in the middle of the thing you used to lose yourself inside of.</p><p>A tool you didn't have seven days ago. One that will be yours for every week after.</p></div>
-        </details>
-        <details class="stage">
-          <summary><span class="n">05</span><span class="s-head"><h3>Realign</h3><span class="tease">The 12-minute protocol.</span></span><span class="pm">+</span></summary>
-          <div class="s-body"><p>The three-dimensional breath and the 12-minute protocol arrive together. Two practices that meet the nervous system where it actually lives.</p><p>You stop using breath only for yourself. You start using it for others. Your calm nervous system becomes someone else's anchor. A signal of safety.</p></div>
-        </details>
-        <details class="stage">
-          <summary><span class="n">06</span><span class="s-head"><h3>Rise<span class="summit">The summit</span></h3><span class="tease">Deliver your own session.</span></span><span class="pm">+</span></summary>
-          <div class="s-body"><p>The practicum. You deliver your own session, in your own voice, with your own hands.</p><p>You graduate as the person who can do this when it matters. For yourself first. And if you choose, for the people you serve.</p></div>
-        </details>
-      </div>
-      <div class="post-study reveal d2">
-        <h3>After you leave</h3>
-        <p>A 10-hour online post-ASHA study completes your training. This is what makes you ready for full certification. The residential week gets you in the practice; this brings the foundations home with you.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- WHAT YOU LEAVE WITH -->
-  <section class="alt cv">
-    <div class="wrap">
-      <div class="sec-intro" style="max-width:42em">
-        <span class="eyebrow reveal" style="justify-content:center">What you leave with</span>
-        <h2 class="reveal d1">Confidence you can feel. <em>Practices you can use.</em></h2>
-        <p class="reveal d2" style="margin-top:16px;font-size:1.02rem">You're not coming to learn about regulation. You're coming to feel it, day after day, in your own body, until it stays. By the end of the week these tools live in you, not in your notebook.</p>
-      </div>
-      <ul class="incl reveal d1">
-        <li><strong>A 12-minute daily breathing practice you will do hands-on all week</strong><span>A complete morning regulation practice. For your own nervous system first, then for the people you work with.</span></li>
-        <li><strong>A 90-second reset you practice until it becomes second nature</strong><span>For acute stress, yours or someone else's. Simple enough to remember when it matters most.</span></li>
-        <li><strong>A hands-on introduction to the session framework</strong><span>Practiced with partners: landing, assessing, guiding, and closing a 10 to 15 minute breath session.</span></li>
-        <li><strong>The ability to recognize common dysfunctional breathing patterns</strong><span>Chest breathing, over-breathing, breath holding, paradoxical breathing. Learned through observation and partner practice.</span></li>
-        <li><strong>Your certification as an Alchemy Regulation Method Coach</strong><span>GPBA ethically compliant. The credential to offer the work professionally, and the first step into the full AoB facilitator pathway.</span></li>
-      </ul>
-    </div>
-  </section>
-
-  <!-- CERTIFICATION -->
-  <section class="cv">
-    <div class="wrap">
-      <div class="sec-intro">
-        <span class="eyebrow reveal" style="justify-content:center">Your coach certification</span>
-        <h2 class="reveal d1">What does certification <em>mean for you</em>?</h2>
-        <p class="reveal d2" style="margin-top:14px;font-size:1rem">You leave ASHA as a certified Alchemy Regulation Method Coach. Here's what that opens.</p>
-      </div>
-      <div class="cert-grid">
-        <div class="cert reveal"><h3>Earn an income</h3><p>Charge for the work. Build a paying practice around what you've learned, on your own terms.</p></div>
-        <div class="cert reveal d1"><h3>Offer accredited services</h3><p>Work professionally as a certified Alchemy Regulation Method Coach &mdash; one-on-ones, group sessions, teaching, holding space for others.</p></div>
-        <div class="cert reveal d2"><h3>GPBA ethically compliant</h3><p>Your certification sits within the Global Professional Breathwork Alliance ethical framework. A recognised standard you and your clients can stand on.</p></div>
-        <div class="cert reveal"><h3>Augment or build new</h3><p>Add the Method to the work you already do, or build a new practice around it. The certification works either way.</p></div>
-        <div class="cert reveal d1"><h3>First step in the AoB Learner-to-Earner pathway</h3><p>Continue from here into the full facilitator training and, in time, open your own Alchemy of Breath school if you choose. This is where that journey begins.</p></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ASHA SETTING -->
-  <section class="alt cv">
-    <div class="wrap">
-      <div class="setting-grid">
-        <div class="setting-photo reveal">
-          <img src="https://alchemyofbreath.com/wp-content/uploads/asha-campus-7.jpg" alt="The ASHA campus in the Tuscan hills" width="900" height="600" loading="lazy" decoding="async">
-        </div>
-        <div class="setting-copy reveal d1">
-          <span class="eyebrow">The setting</span>
-          <h2 style="margin-bottom:18px">ASHA Retreat Centre. <em>Tuscany, Italy.</em></h2>
-          <p style="font-family:var(--serif);font-size:1.2rem;color:var(--gold-deep)">Welcome home.</p>
-          <p>Founded in 2020 by Anthony Abbagnano and Amy Rachelle, ASHA &mdash; the Alchemy School of Healing Arts &mdash; sits on ancient Etruscan land near Castell'Azzara in southern Tuscany. Seven days on the land, three meals a day, and a centre built for exactly this work.</p>
-          <a class="btn btn-ghost" href="https://www.asha.global/">Explore ASHA <span class="arr">&rarr;</span></a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- INSTRUCTORS -->
-  <section class="cv" id="instructors" style="scroll-margin-top:90px">
-    <div class="orb t" style="width:400px;height:400px;top:60px;left:-180px" aria-hidden="true"></div>
-    <div class="wrap">
-      <div class="sec-intro">
-        <span class="eyebrow reveal" style="justify-content:center">Your team</span>
-        <h2 class="reveal d1">Led by the founders &amp; <em>our senior trainers</em>.</h2>
-      </div>
-      <div class="inst-grid">
-        <div class="inst reveal">
-          <div class="photo"><img src="https://alchemyofbreath.com/wp-content/uploads/anthony-abbagnano-2-1.jpg" alt="Anthony Abbagnano" width="500" height="500" loading="lazy" decoding="async"></div>
-          <h3>Anthony Abbagnano</h3>
-          <div class="role">Founder &amp; Lead Instructor</div>
-          <p>Founder of Alchemy of Breath and ASHA. Author of <em>Outer Chaos, Inner Calm</em>. Architect of the Alchemy Regulation Method.</p>
-        </div>
-        <div class="inst reveal d1">
-          <div class="photo"><img src="https://alchemyofbreath.com/wp-content/uploads/Amy-cropped-photo-2.png" alt="Amy Rachelle" width="720" height="913" loading="lazy" decoding="async"></div>
-          <h3>Amy Rachelle</h3>
-          <div class="role">Co-Founder &amp; Co-Instructor</div>
-          <p>Co-founder of Alchemy of Breath. Master facilitator with 15+ years in breathwork, somatic practice, and practitioner training.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- WHO IT'S FOR -->
-  <section class="alt cv">
-    <div class="wrap">
-      <div class="sec-intro" style="max-width:42em">
-        <span class="eyebrow reveal" style="justify-content:center">Who this is for</span>
-        <h2 class="reveal d1">For personal use, and for <em>professional practice</em>.</h2>
-        <p class="reveal d2" style="margin-top:14px;font-size:1.02rem">The architecture beneath everything we do. No prior breathwork training required.</p>
-      </div>
-      <div class="aud reveal d1">
-        <span>Yoga teachers</span><span>Life and performance coaches</span><span>Therapists and psychologists</span><span>Physiotherapists</span><span>Doctors and nurses</span><span>Occupational therapists</span><span>Personal trainers</span><span>Somatic practitioners</span><span>Corporate wellbeing leads</span>
-      </div>
-      <div class="scope reveal d2">
-        <h3>This training does not cover</h3>
-        <p>Conscious connected breathwork delivery, trauma catharsis, somatic release, or altered-state practices. You will experience a conscious connected breathwork session during the week. If you want to learn to deliver it, you continue from here into the full <a href="/breathwork-training/">facilitator training</a>.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- PRICING -->
-  <section class="cv" id="pricing" style="scroll-margin-top:80px">
-    <div class="wrap">
-      <div class="sec-intro" style="max-width:44em">
-        <span class="founding reveal">Coming 2027 &middot; dates to be announced</span>
-        <h2 class="reveal d1" style="margin-top:22px">One week. <em>Everything included.</em></h2>
-        <p class="reveal d2" style="margin-top:16px;font-size:1.02rem">Your place covers the full 60-hour training (online and on-land), 7 days at ASHA, and three meals a day. The only thing not included is your flight to Tuscany. All-inclusive across 6 nights &mdash; the only difference between options is where you sleep.</p>
-      </div>
-      <div class="rooms">
-        <div class="room reveal">
-          <img src="https://alchemyofbreath.com/wp-content/uploads/Private-Cottage-1-1-1-768x512.jpg" alt="Private cottage at ASHA" width="768" height="512" loading="lazy" decoding="async">
-          <div class="room-body"><h3>Private Cottage</h3><div class="desc">Premium private accommodation</div></div>
-        </div>
-        <div class="room reveal d1">
-          <img src="https://alchemyofbreath.com/wp-content/uploads/single-ensuite-1-1-1-768x512.jpg" alt="Private single ensuite room at ASHA" width="768" height="512" loading="lazy" decoding="async">
-          <div class="room-body"><h3>Private Single Room, Ensuite</h3><div class="desc">Your own room and bathroom</div></div>
-        </div>
-        <div class="room reveal d2">
-          <img src="https://alchemyofbreath.com/wp-content/uploads/twin-ensuite-1-1-1-768x512.jpg" alt="Shared twin ensuite room at ASHA" width="768" height="512" loading="lazy" decoding="async">
-          <div class="room-body"><h3>Shared Room (2), Ensuite</h3><div class="desc">Shared with one other</div></div>
-        </div>
-        <div class="room reveal">
-          <img src="https://alchemyofbreath.com/wp-content/uploads/twin-non-ensuite-1-1-1-768x512.jpg" alt="Shared twin room with shared bathroom at ASHA" width="768" height="512" loading="lazy" decoding="async">
-          <div class="room-body"><h3>Shared Room (2), Shared Bath</h3><div class="desc">Shared bathroom</div></div>
-        </div>
-        <div class="room reveal d1">
-          <img src="https://alchemyofbreath.com/wp-content/uploads/triple-ensuite-1-1-1-1-768x512.jpg" alt="Shared triple room at ASHA" width="768" height="512" loading="lazy" decoding="async">
-          <div class="room-body"><h3>Shared Room (3), Private Bath</h3><div class="desc">Shared with two others</div></div>
-        </div>
-        <div class="room reveal d2">
-          <img src="https://alchemyofbreath.com/wp-content/uploads/asha-glamping-1-1-1-768x512.jpg" alt="Glamping bell tent at ASHA" width="768" height="512" loading="lazy" decoding="async">
-          <div class="room-body"><h3>Glamping, Solo</h3><div class="desc">Solo tent</div></div>
-        </div>
-        <div class="room reveal">
-          <img src="https://alchemyofbreath.com/wp-content/uploads/asha-glamping-5-1-1-768x512.jpg" alt="Shared glamping tent at ASHA" width="768" height="512" loading="lazy" decoding="async">
-          <div class="room-body"><h3>Glamping, Shared</h3><div class="desc">Shared tent</div></div>
-        </div>
-        <div class="room reveal d1">
-          <img src="https://alchemyofbreath.com/wp-content/uploads/accommodation-camper-1-1-1-1-1-768x492.jpg" alt="Camper van pitch at ASHA" width="768" height="492" loading="lazy" decoding="async">
-          <div class="room-body"><h3>Camper Van</h3><div class="desc">Bring your own</div></div>
-        </div>
-        <div class="room reveal d2">
-          <img src="https://alchemyofbreath.com/wp-content/uploads/accommodation-tent-1-1-1-1-1-768x453.jpg" alt="Tent pitch in the woods at ASHA" width="768" height="453" loading="lazy" decoding="async">
-          <div class="room-body"><h3>Bring Your Own Tent</h3><div class="desc">Personal tent</div></div>
-        </div>
-      </div>
-      <div class="bonus reveal">
-        <span class="tag">Bonus &middot; included free</span>
-        <h3>The Inner Journey, self-paced course</h3>
-        <p>A foundation in breath, presence and inner work. Yours to keep, the moment you reserve your place.</p>
-        <div class="val">Free</div>
-      </div>
-      <p class="booking-note reveal">Dates and prices for 2027 will be announced soon. Book a call to ask about the next cohort and be among the first to hear.</p>
-      <div class="price-ctas reveal">
-        <a class="btn btn-primary" href="https://go.alchemyofbreath.com/book-842709">Ask about 2027 &middot; book a call <span class="arr">&rarr;</span></a>
-      </div>
-    </div>
-  </section>
-
-  <!-- FAQ -->
-  <section class="alt cv" id="faq" style="scroll-margin-top:90px">
-    <div class="wrap">
-      <div class="sec-intro">
-        <span class="eyebrow reveal" style="justify-content:center">Questions</span>
-        <h2 class="reveal d1">Frequently <em>asked</em>.</h2>
-      </div>
-      <div class="faq-list reveal d1">
-        <details>
-          <summary>Do I need prior breathwork experience?<span class="pm">+</span></summary>
-          <div class="faq-a"><p>No. The Alchemy Regulation Method is built for practitioners who already work with the body and the nervous system &mdash; coaches, therapists, physiotherapists, yoga teachers, healthcare professionals &mdash; and for anyone who has spent too long running dysregulated. What matters is the intention to use breath as a tool, in your own life or in your work.</p></div>
-        </details>
-        <details>
-          <summary>What does the 10-hour online post-ASHA study involve?<span class="pm">+</span></summary>
-          <div class="faq-a"><p>A 10-hour self-paced module you complete after the residential week. It deepens the foundations &mdash; respiratory anatomy, breath physiology, and the six stages of regulation &mdash; and is what completes your training and readies you for full certification. The week at ASHA gets it into your body. The post-study gets it into your understanding.</p></div>
-        </details>
-        <details>
-          <summary>Can I continue to the full facilitator training afterward?<span class="pm">+</span></summary>
-          <div class="faq-a"><p>Yes. The Alchemy Regulation Method counts as Level 1 of the facilitator training. From here you can continue with us into the full facilitator pathway.</p></div>
-        </details>
-        <details>
-          <summary>What is included in the all-inclusive pricing?<span class="pm">+</span></summary>
-          <div class="faq-a"><p>The full 60 hours of training (online and on-land), all meals at ASHA, and your chosen accommodation are bundled into a single price. Nothing is charged separately on arrival. Pay your deposit to secure your spot, balance due before arrival.</p></div>
-        </details>
-        <details>
-          <summary>Is this appropriate for healthcare professionals?<span class="pm">+</span></summary>
-          <div class="faq-a"><p>Yes. Everything taught is gentle, safe, and appropriate to integrate into existing professional practice. The Alchemy Regulation Method doesn't prescribe, diagnose or treat medical conditions. It builds your felt understanding of breath and the nervous system, which you can then bring into the work you already do, within your own scope.</p></div>
-        </details>
-        <details>
-          <summary>How is this different from conscious connected breathwork?<span class="pm">+</span></summary>
-          <div class="faq-a"><p>Conscious connected breathwork tends to lean into cathartic or expanded-state experiences. That work is real and we love it. The Alchemy Regulation Method is something complementary: the everyday physiology of breathing and regulation, taught simply enough that you can use it tomorrow morning. If you want to learn to deliver conscious connected breathwork yourself, you continue from here into the full facilitator training.</p></div>
-        </details>
-        <details>
-          <summary>How large is the founding cohort?<span class="pm">+</span></summary>
-          <div class="faq-a"><p>Intentionally small. The residential format and hands-on practice need a participant-to-instructor ratio that supports real skill development, not lecture-hall pacing. Places are limited and will not be extended beyond capacity.</p></div>
-        </details>
-      </div>
-    </div>
-  </section>
-
-  <!-- CLOSING -->
-  <section class="closing cv">
-    <div class="wrap">
-      <span class="eyebrow reveal" style="justify-content:center">Coming 2027 &middot; ASHA Retreat Centre, Tuscany</span>
-      <h2 class="reveal d1">Come feel the <em>difference</em>.</h2>
-      <p class="reveal d2">Seven days in Tuscany. Six stages of regulation. Practices that live in your body, not your notebook. Come and let's train it together, for the peace you really want.</p>
-      <div class="reveal d2" style="display:flex;gap:18px;justify-content:center;flex-wrap:wrap">
-        <a class="btn btn-primary" href="https://go.alchemyofbreath.com/book-842709">Ask about 2027 &middot; book a call <span class="arr">&rarr;</span></a>
-      </div>
-      <p class="disclaimer reveal" style="margin-top:48px">The Alchemy Regulation Method is an educational program that introduces functional breathing and nervous system regulation. It does not cover conscious connected breathwork delivery, trauma catharsis, altered-state practices, or clinical diagnosis. Participants are encouraged to integrate what they learn within their own existing scope of practice.</p>
     </div>
   </section>
 
@@ -1105,11 +765,6 @@ main p em,main li em{color:var(--gold-text)}
       history.pushState(null,'','#'+id);
     });
   });
-
-  // swap the dark-band photo wash to the full-resolution image once it loads
-  var hq=new Image();
-  hq.onload=function(){ document.querySelectorAll('.pull .ph').forEach(function(p){ p.classList.add('hq'); }); };
-  hq.src='https://alchemyofbreath.com/wp-content/uploads/DSCF5832.jpg';
 })();
 </script>
 <script>
