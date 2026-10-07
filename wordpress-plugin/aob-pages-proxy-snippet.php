@@ -53,6 +53,7 @@ function aob_pages_proxy_serve() {
 		'breathwork-fundamentals' => '/breathwork-fundamentals/',
 		'shop'                 => '/shop/',
 		'3-ways-to-reduce-anxiety' => '/3-ways-to-reduce-anxiety/',
+		'free-breathwork-sessions' => '/free-breathwork-sessions/',
 	);
 
 	// Old URLs that now live somewhere else. Redirected so search engines and
