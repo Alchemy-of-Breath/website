@@ -85,6 +85,7 @@
   --teal:#00A5B2;--teal-text:#00737C;--teal-wash:#EEF8F8;--teal-line:#BFE3E5;--slate:#4E6A7B;--ink:#221F20;
   --line:rgba(225,182,104,.34);--rule:rgba(225,182,104,.2);--field:rgba(34,31,32,.18);
   --err:#7A2E16;--err-wash:#FFF4F0;--err-line:#F1C7B8;--err-strong:#C9502A;--warn:#7A4A10;--warn-wash:#FFF6EA;--warn-line:#F3D3A8;
+  --up:#7A5BB5;--up-ink:#3B2A5E;--up-wash:#EEE8F7;--up-line:#CFC2E8;
   --grad-gold:linear-gradient(135deg,#E1B668 0%,#D6A652 100%);
   --shadow-soft:0 1px 2px rgba(34,31,32,.04),0 6px 18px rgba(34,31,32,.05);
   --shadow-lift:0 2px 4px rgba(34,31,32,.05),0 14px 34px rgba(34,31,32,.12),0 34px 80px rgba(34,31,32,.10);
@@ -470,6 +471,11 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
 .bed.blkd{background:transparent;border:1px dashed rgba(34,31,32,.3);color:var(--slate);cursor:default;font-size:.76rem}
 .mtag{flex:none;font-size:.6rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:#2F4A5A;background:#DCE6EC;border-radius:999px;padding:1px 6px}
 .pill.man{background:#EEF2F5;color:#22394A;border-color:#C9D6DE}
+/* a room booked on Uplisting during the week */
+.rcard.upb{background:linear-gradient(180deg,var(--up-wash),#fff 75%)}
+.rcard.upb:not(.conf){border-color:var(--up-line)}
+.rcard.upb .rb b{color:var(--up-ink)}
+.bed.upd{background:transparent;border:1px dashed var(--up-line);color:var(--up-ink);cursor:default;font-size:.76rem}
 
 /* ---------- calendar (rooming, all weeks) */
 .cal-tb{margin-bottom:10px}
@@ -546,7 +552,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
 .cb.on{background:#fff;cursor:default;box-shadow:0 1px 2px rgba(34,31,32,.1),inset 0 0 0 1px rgba(34,31,32,.06)}
 .sg{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:5px;flex:1 1 0;min-width:0;padding:0 7px;cursor:pointer;border-left:3px solid;white-space:nowrap;overflow:hidden}
 .sg+.sg{box-shadow:inset 1px 0 0 rgba(255,255,255,.9)}
-.sg:hover,.cb.man:hover,.cb.unp:hover{filter:brightness(.97)}
+.sg:hover,.cb.man:hover,.cb.unp:hover,.cb.up:hover{filter:brightness(.97)}
 .sg.paid,.sw.paid{background:#D6EFF1;color:#0B5157;border-left-color:var(--teal)}
 .sg.deposit,.sw.deposit{background:#F5E0B3;color:#5d4316;border-left-color:#C99539}
 .sg.plan,.sw.plan{background:#fff;color:var(--gold-text);border-left-color:#C99539;box-shadow:inset 0 0 0 1px #E5C88E}
@@ -564,6 +570,8 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
 .sw.blk{border-left-width:1px}
 .cb.blk em{color:var(--ink)}
 .cb.blk .t span{color:#4b4446}
+.cb.up,.sw.up{background:var(--up-wash);color:var(--up-ink);border-left:3px solid var(--up)}
+.cb.up em{color:#5E4596}
 .cb.unp{background:#fff;color:var(--err);border:1px dashed var(--err-line);box-shadow:none}
 .cb.clash{box-shadow:0 0 0 2px var(--err-strong);z-index:2}
 .sw.wk{background:var(--gold-wash);border-left:0;border:1px solid var(--gold-soft)}
@@ -644,6 +652,72 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
 .facts dd{margin:0}
 .names{font-size:.76rem;color:var(--slate);line-height:1.45}
 @media (max-width:640px){.copyrow .lb{flex-basis:100%}}
+
+/* ---------- Uplisting (setup) */
+.upsteps{margin:0 0 12px;padding-left:20px;font-size:.88rem;line-height:1.55}
+.upsteps li{margin:0 0 6px}
+.check .hooks{list-style:none;margin:5px 0 0;padding:0;display:grid;gap:2px;font-size:.78rem;color:var(--slate)}
+.check .hooks li{display:flex;align-items:center;gap:6px}
+.check .hooks i{font-style:normal;font-weight:500;width:12px;text-align:center}
+.check .hooks .y{color:var(--teal-text)}
+.check .hooks .n{color:var(--err)}
+.uphint{font-size:.8rem;color:var(--slate);margin:0 0 4px}
+.upsync{margin:14px 0 0;padding:12px 14px;border:1px solid var(--rule);border-radius:12px;background:var(--cream)}
+.upsync:empty{display:none}
+.upsync.err{background:var(--err-wash);border-color:var(--err-line)}
+.upsync.ok{background:var(--teal-wash);border-color:var(--teal-line)}
+.upsync.warn{background:var(--warn-wash);border-color:var(--warn-line)}
+.upsync .row{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px}
+.upsync .msg{flex:1 1 220px;min-width:0;margin:0;font-size:.85rem;line-height:1.5;display:flex;align-items:center;gap:8px}
+.upsync.err .msg{color:var(--err)}
+.upsync.ok .msg{color:#0B5157}
+.upsync.warn .msg{color:var(--warn)}
+.upprog{height:6px;border-radius:3px;background:rgba(122,91,181,.15);overflow:hidden;margin-top:9px}
+.upprog i{display:block;height:100%;background:var(--up);transition:width .3s}
+.uph{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;margin:22px 0 4px;padding-top:16px;border-top:1px solid var(--rule)}
+.uph h3{font-family:var(--serif);font-size:1.12rem}
+.uph small{font-size:.8rem;color:var(--slate)}
+.uph small b{color:var(--ink);font-weight:500}
+.upintro{font-size:.82rem;color:var(--slate);margin:0 0 12px}
+.umtb{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;margin:0 0 6px}
+.umtb .grow{flex:1 1 200px;min-width:0}
+.umtb input[type="search"]{width:100%}
+.umap{list-style:none;margin:0;padding:0;border-top:1px solid var(--rule)}
+.umr{display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:6px 18px;padding:11px 2px;border-bottom:1px solid var(--rule);align-items:start}
+.umr.unit{position:relative;padding-left:26px}
+.umr.unit::before{content:"";position:absolute;left:10px;top:0;height:22px;width:10px;border-left:1px solid var(--line);border-bottom:1px solid var(--line);border-bottom-left-radius:6px}
+.umr .ln{min-width:0;overflow-wrap:anywhere}
+.umr .ln b{font-weight:500;font-size:.9rem}
+.umr .ln small{display:block;font-size:.74rem;color:var(--slate);line-height:1.4;margin-top:1px}
+.umr .ln code{font-size:.7rem;padding:0 5px;background:#F3F0EA;color:var(--slate)}
+.umr.bad .ln b{color:var(--err)}
+.rchips{display:flex;flex-wrap:wrap;gap:6px;align-items:center;min-width:0}
+.rchip{display:inline-flex;align-items:center;gap:2px;padding:2px 3px 2px 10px;min-height:28px;border-radius:999px;background:var(--up-wash);border:1px solid var(--up-line);color:var(--up-ink);font-size:.78rem;max-width:100%}
+.rchip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.rchip.ro{padding-right:10px}
+.rchip.bad{background:var(--err-wash);border-color:var(--err-line);color:var(--err)}
+.rchip button{all:unset;box-sizing:border-box;cursor:pointer;display:grid;place-items:center;width:24px;height:24px;border-radius:50%;flex:none}
+.rchip button:hover{background:rgba(255,255,255,.75)}
+.rchip button:focus-visible{outline:2px solid var(--teal);outline-offset:0}
+.rchip svg.i{width:12px;height:12px}
+.umr select{min-height:32px;font-size:.8rem;padding:4px 30px 4px 10px;max-width:220px}
+.umr .inh{font-size:.78rem;color:var(--slate)}
+.umr .err{display:block;font-size:.76rem;color:var(--err);margin-top:5px}
+.usug{font-size:.78rem;color:var(--slate);display:flex;flex-wrap:wrap;align-items:center;gap:2px 8px;margin:6px 0 0}
+.usug b{font-weight:500;color:var(--ink)}
+.usug .lnk{font-size:.78rem}
+.upbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin:14px 0 0;padding:8px 0}
+.upbar .st{flex:1 1 160px;font-size:.82rem;color:var(--slate);border-radius:4px}
+/* unsaved: the bar stays in view at the bottom while the list scrolls (sticky on its wrapper: a child of the tall panel) */
+.upbarw.on{position:sticky;bottom:12px;z-index:4}
+.upbar.dirty{background:#fff;border:1px solid var(--warn-line);border-radius:14px;padding:8px 10px 8px 14px;box-shadow:var(--shadow-lift)}
+.upbar.dirty .st{color:var(--warn);font-weight:500}
+.pill.sys{background:var(--up-wash);color:var(--up-ink);border-color:var(--up-line)}
+@media (max-width:640px){
+  .umr{grid-template-columns:minmax(0,1fr)}
+  .umr select{max-width:none;width:100%}
+  .upbarw.on{bottom:8px}
+}
 
 /* ---------- view only, team users, activity log */
 .robar{margin:0 0 14px;padding:6px 12px;border-radius:10px;font-size:.8rem;line-height:1.45;background:var(--teal-wash);border:1px solid var(--teal-line);color:#0B5157}
@@ -889,7 +963,20 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
   var METHODS = [['bank_transfer', 'Bank transfer'], ['cash', 'Cash'], ['other', 'Other']];
   function methodLabel(m){ var o = findBy(METHODS, function(x){ return x[0] === m; }); return o ? o[1] : (m ? String(m) : 'Recorded payment'); }
   var REASONS = [['maintenance', 'Maintenance'], ['staff', 'Staff'], ['owner', 'Owner'], ['other', 'Other']];
-  function reasonLabel(r){ var o = findBy(REASONS, function(x){ return x[0] === r; }); return o ? o[1] : (r ? String(r) : 'Blocked'); }
+  function reasonLabel(r){ var o = findBy(REASONS, function(x){ return x[0] === r; }); return o ? o[1] : r === 'uplisting' ? 'Uplisting' : (r ? String(r) : 'Blocked'); }
+  /* Bookings made on Uplisting (Airbnb, Booking.com…) arrive as records the server keeps like blocks:
+     id UP-<Uplisting booking id>, reason 'uplisting', ext { source, id, property_id, property_name, unit,
+     channel, guest, guests, status, synced_at }. They are changed or cancelled in Uplisting only. */
+  var CHANNELS = { airbnb_official: 'Airbnb', airbnb: 'Airbnb', booking_dot_com: 'Booking.com', booking_com: 'Booking.com', bookingcom: 'Booking.com',
+    home_away: 'Vrbo', homeaway: 'Vrbo', vrbo: 'Vrbo', google: 'Google', uplisting: 'Direct (Uplisting)', direct: 'Direct (Uplisting)' };
+  var USTATUS = { confirmed: 'Confirmed', checked_in: 'Checked in', checked_out: 'Checked out', needs_check_in: 'Needs check-in', needs_check_out: 'Needs check-out', cancelled: 'Cancelled' };
+  function channelLabel(c){ c = String(c || '').trim(); return CHANNELS[c.toLowerCase()] || c || 'Uplisting'; }
+  function uStatusLabel(s){ s = String(s || ''); if (USTATUS[s]) return USTATUS[s]; s = s.replace(/_/g, ' '); return s ? s.charAt(0).toUpperCase() + s.slice(1) : '–'; }
+  // "Jon Smith" → "Jon S." (how Uplisting guests show in the calendar and on the boards)
+  function shortGuest(n){ var p = String(n || '').trim().split(/\s+/).filter(Boolean); return p.length > 1 ? p[0] + ' ' + p[p.length - 1].charAt(0) + '.' : p[0] || 'Guest'; }
+  function isExt(bl){ return !!bl && ((!!bl.ext && typeof bl.ext === 'object') || bl.reason === 'uplisting' || /^UP-/.test(String(bl.id || ''))); }
+  function extOf(bl){ return bl && bl.ext && typeof bl.ext === 'object' ? bl.ext : {}; }
+  function upLabel(bl){ var x = extOf(bl); return channelLabel(x.channel) + ' · ' + shortGuest(x.guest); }
 
   /* ================================================================ API
      The Bearer is the main admin's ADMIN_TOKEN, or a team member's session token (aobu.…, from
@@ -1118,7 +1205,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
   function regBlock(bl, name){
     if (!bl || !bl.id) return null;
     var r = blkReg[bl.id] || (blkReg[bl.id] = { id: bl.id, rooms: [] });
-    ['from', 'to', 'reason', 'comment', 'created_at', 'created'].forEach(function(k){ if (bl[k] != null && bl[k] !== '') r[k] = bl[k]; });
+    ['from', 'to', 'reason', 'comment', 'created_at', 'created', 'ext'].forEach(function(k){ if (bl[k] != null && bl[k] !== '') r[k] = bl[k]; });
     (Array.isArray(bl.rooms) ? bl.rooms : []).concat(name ? [name] : []).forEach(function(n){ if (n && r.rooms.indexOf(n) < 0) r.rooms.push(n); });
     return r;
   }
@@ -1183,14 +1270,14 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     });
     return { byName: byName, order: order, unassigned: unassigned, noRoom: noRoom, conflicts: conflicts, rooms: rooms };
   }
-  function conflictText(x){ return x.conflict === 'blocked' ? 'Guests placed in a blocked room' : x.conflict === 'mixed' ? 'Women and men in a same-gender room' : x.guests.length + ' guests for ' + plural(x.beds, 'bed'); }
+  function conflictText(x){ return x.conflict === 'blocked' ? (isExt(x.blocked) ? 'Guests placed in a room booked on Uplisting' : 'Guests placed in a blocked room') :x.conflict === 'mixed' ? 'Women and men in a same-gender room' : x.guests.length + ' guests for ' + plural(x.beds, 'bed'); }
   function areaOf(name){ var p = String(name).split(' · '); return p.length > 1 ? p.slice(1).join(' · ').replace(/\s*\([^)]*\)\s*$/, '') : (String(name).replace(/\s*\d+$/, '') || String(name)); }
   function codeOf(name){ var p = String(name).split(' · '); return p.length > 1 ? p[0] : String(name); }
   // how each room is right now: "· 1/2 women", "· free", "· full" ("full" only for rooms this guest isn't in)
   function occHint(rm, name, ref, idx){
     var x = rm && rm.byName[name]; if (!x) return '';
     var n = x.guests.length, mine = x.guests.some(function(g){ return g.ref === ref && g.index === idx; });
-    if (x.blocked) return ' · blocked (' + reasonLabel(x.blocked.reason).toLowerCase() + ')';
+    if (x.blocked) return isExt(x.blocked) ? ' · booked on Uplisting (' + channelLabel(extOf(x.blocked).channel) + ')' : ' · blocked (' + reasonLabel(x.blocked.reason).toLowerCase() + ')';
     if (!n) return ' · free';
     var ks = uniq(x.guests.map(function(g){ return gWord(g.gender); }));
     return ' · ' + n + '/' + x.beds + (ks.length === 1 && ks[0] && x.room.same_gender ? ' ' + ks[0] : ks.length > 1 && x.room.same_gender ? ' mixed' : '') + (!mine && n >= x.beds ? ' · full' : '');
@@ -1353,7 +1440,17 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
 
   function onRoute(){
     if (!token) return;
-    route = parseHash();
+    // leaving Setup with unsaved changes to the Uplisting mapping: ask first (the address goes back meanwhile)
+    var next = parseHash();
+    if (route.tab === 'setup' && next.tab !== 'setup' && mounted.indexOf('setup|') === 0 && mapDirty()) {
+      var to = location.hash;
+      try { history.replaceState(history.state, '', hashFor(route.tab, route.q)); } catch (x) {}
+      confirmBox({ title: 'Leave without saving?', danger: true, ok: 'Leave without saving', cancel: 'Stay and save',
+        html: '<p>Your changes to the Uplisting mapping aren\'t saved yet. Leaving drops them.</p>' })
+        .then(function(yes){ if (!yes) return; umap.draft = copyMap(upl.d ? upl.d.mapping : {}); umap.errs = {}; umap.err = ''; location.hash = to; });
+      return;
+    }
+    route = next;
     // the Team tab is the main admin's only
     if (route.tab === 'team' && !isOwner()) { route = { tab: 'overview', q: {} }; try { history.replaceState(null, '', '#overview'); } catch (e) {} }
     if (route.q.w && route.q.w !== week) setWeek(route.q.w, true);
@@ -1376,6 +1473,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
   function ensure(tab, force){
     var p = tab === 'overview' ? loadOverview(force) : tab === 'team' ? loadTeam(force) : loadScope(force), v0 = dataVer;
     if (tab === 'rooming' && calOn()) p = Promise.all([p, loadCal(force).then(null, function(e){ return e && e.message === 'auth' ? Promise.reject(e) : null; })]);
+    if (tab === 'setup') p = Promise.all([p, loadUpl(force).then(null, function(e){ return e && e.message === 'auth' ? Promise.reject(e) : null; })]);
     loadingN++; updateStamp();
     return p.then(function(){ return null; }, function(e){ return e; }).then(function(e){
       loadingN--;
@@ -1393,7 +1491,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
   // re-rendering a view replaces its buttons and fields: put focus back on the same control
   function focusKey(el){
     if (!el || el === document.body) return null;
-    var attrs = ['data-open', 'data-sort', 'data-svc', 'data-when', 'data-qa', 'data-bal', 'data-week', 'data-copy', 'data-retry', 'data-cell', 'data-block', 'data-jump', 'data-cal', 'data-act', 'data-board', 'data-pay', 'data-void', 'data-uact', 'data-urole'];
+    var attrs = ['data-open', 'data-sort', 'data-svc', 'data-when', 'data-qa', 'data-bal', 'data-week', 'data-copy', 'data-retry', 'data-cell', 'data-block', 'data-jump', 'data-cal', 'data-act', 'data-board', 'data-pay', 'data-void', 'data-uact', 'data-urole', 'data-uadd', 'data-urm', 'data-usug', 'data-umf'];
     for (var i = 0; i < attrs.length; i++) {
       var v = el.getAttribute(attrs[i]); if (v == null) continue;
       var q = function(x){ return '"' + String(x).replace(/["\\]/g, '\\$&') + '"'; }, r = el.getAttribute('data-ref');
@@ -1412,6 +1510,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     var t = Infinity;
     scopeIds().forEach(function(id){ t = Math.min(t, (cache[id] && cache[id].d) ? cache[id].at : 0); });
     if (route.tab === 'rooming' && calOn()) { var c = calc[calKey(calWin())]; t = Math.min(t, c && c.d ? c.at : 0); }
+    if (route.tab === 'setup' && upl.d) t = Math.min(t, upl.at);
     return t === Infinity ? 0 : t;
   }
   function updateStamp(){
@@ -1432,7 +1531,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     var n = 0; each(PROGS, function(p){ var d = D(p.id); if (d) n += sum(d.bookings.filter(active), function(b){ return liveSessions(b).filter(function(a){ return (a.status || 'todo') === 'todo'; }).length; }); });
     $('ct-sessions').textContent = week === 'all' ? (n ? String(n) : '') : String(sum(list.filter(active), function(b){ return liveSessions(b).filter(function(a){ return (a.status || 'todo') === 'todo'; }).length; }) || '');
     $('ct-sessions').title = 'Sessions still to arrange';
-    setCt('setup', sd && setupProblems(sd).length ? '!' : 0);
+    setCt('setup', (sd && setupProblems(sd).length) || uplProblems().length ? '!' : 0);
   }
   function editingIn(root){
     var a = document.activeElement;
@@ -1441,7 +1540,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     return false;
   }
   function isEditing(){ return editingIn($('view')) || editingIn($('drawer')); }
-  function refreshNow(){ if (!token) return; ensure(route.tab, true); }
+  function refreshNow(){ if (!token) return; if (route.tab === 'setup') uplHard = true; ensure(route.tab, true); }
   $('refresh').onclick = refreshNow;
   // every 60 s while the tab is visible and nobody is typing
   setInterval(function(){
@@ -1750,12 +1849,13 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
       var gm = g.manual ? (g.b && g.b.manual) || g : null;
       return '<button type="button" class="bed' + (g.manual ? ' man' : '') + '" data-open="' + esc(g.ref) + '" data-w="' + esc(id) + '" title="' + esc(g.name + ' · ' + g.ref + (gm ? ' · manual booking' + (gm.from ? ' · ' + stayLabel(gm.from, gm.to) : '') : '')) + '">' + gBadge(g.gender) + '<span class="bn">' + esc(g.name) + '</span>' + (g.manual ? '<span class="mtag">Manual</span>' : '<span class="br">' + esc(g.ref) + '</span>') + '</button>';
     }).join('');
-    for (var i = x.guests.length; i < x.beds; i++) slots += x.blocked ? '<div class="bed blkd">Blocked</div>' : '<div class="bed free">Free bed</div>';
+    var bl = x.blocked, up = isExt(bl), ux = extOf(bl);
+    for (var i = x.guests.length; i < x.beds; i++) slots += bl ? (up ? '<div class="bed upd">Uplisting</div>' : '<div class="bed blkd">Blocked</div>') : '<div class="bed free">Free bed</div>';
     var gw = x.gender && x.room.same_gender && x.beds > 1 ? (gKey(x.gender) === 'f' ? 'Women\'s room' : gKey(x.gender) === 'm' ? 'Men\'s room' : '') : '';
-    var bl = x.blocked;
-    return '<article class="rcard' + (x.conflict ? ' conf' : '') + (bl ? ' blk' : '') + '"><div class="rn"><b>' + esc(codeOf(x.name)) + '</b>' + (oneType ? '' : '<span>' + esc(shortType(x.room)) + '</span>') + '</div>' +
+    return '<article class="rcard' + (x.conflict ? ' conf' : '') + (bl ? (up ? ' upb' : ' blk') : '') + '"><div class="rn"><b>' + esc(codeOf(x.name)) + '</b>' + (oneType ? '' : '<span>' + esc(shortType(x.room)) + '</span>') + '</div>' +
       (gw ? '<p class="rg">' + gw + '</p>' : '') +
-      (bl ? '<button type="button" class="rb" data-block="' + esc(bl.id) + '" title="Block details"><b>Blocked · ' + esc(reasonLabel(bl.reason)) + '</b><br>' + esc(stayLabel(bl.from, bl.to) || '') + (bl.comment ? ' · ' + esc(bl.comment) : '') + '</button>' : '') +
+      (bl && up ? '<button type="button" class="rb" data-block="' + esc(bl.id) + '" title="Uplisting booking details" aria-label="' + esc('Uplisting booking: ' + upLabel(bl) + ', ' + stayLabel(bl.from, bl.to) + '. Details') + '"><b>' + esc(upLabel(bl)) + '</b><br>' + esc(stayLabel(bl.from, bl.to) || '') + (num(ux.guests) ? ' · ' + esc(plural(num(ux.guests), 'guest')) : '') + '</button>' : '') +
+      (bl && !up ? '<button type="button" class="rb" data-block="' + esc(bl.id) + '" title="Block details"><b>Blocked · ' + esc(reasonLabel(bl.reason)) + '</b><br>' + esc(stayLabel(bl.from, bl.to) || '') + (bl.comment ? ' · ' + esc(bl.comment) : '') + '</button>' : '') +
       (x.conflict ? '<p class="cf">' + esc(conflictText(x)) + '</p>' : '') +
       '<div class="beds">' + slots + '</div></article>';
   }
@@ -1824,10 +1924,10 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
       var wait = notReady(); if (wait) { box.innerHTML = wait; $('rmSum').textContent = ''; return; }
       if (route.q.view === 'kitchen') return kitchenView(box);
       var rm = rooming(week), id = week, d = D(id);
-      var guests = sum(weekBookings(id).filter(active), function(b){ return b.guests.length; }), placed = 0, blocked = 0;
-      rm.order.forEach(function(n){ var x = rm.byName[n]; placed += x.guests.filter(function(g){ return !!g.b; }).length; if (x.blocked) blocked++; });
+      var guests = sum(weekBookings(id).filter(active), function(b){ return b.guests.length; }), placed = 0, blocked = 0, upn = 0;
+      rm.order.forEach(function(n){ var x = rm.byName[n]; placed += x.guests.filter(function(g){ return !!g.b; }).length; if (x.blocked) { if (isExt(x.blocked)) upn++; else blocked++; } });
       navList = uniq(rm.unassigned.map(function(g){ return g.ref; }));
-      $('rmSum').innerHTML = '<b>' + placed + '</b> of ' + esc(plural(guests - rm.noRoom.length, 'guest')) + ' placed' + (blocked ? ' · ' + esc(plural(blocked, 'room')) + ' blocked' : '') + (rm.conflicts ? ' · <b class="refund">' + esc(plural(rm.conflicts, 'conflict')) + '</b>' : '');
+      $('rmSum').innerHTML = '<b>' + placed + '</b> of ' + esc(plural(guests - rm.noRoom.length, 'guest')) + ' placed' + (blocked ? ' · ' + esc(plural(blocked, 'room')) + ' blocked' : '') + (upn ? ' · ' + esc(plural(upn, 'room')) + ' booked on Uplisting' : '') + (rm.conflicts ? ' · <b class="refund">' + esc(plural(rm.conflicts, 'conflict')) + '</b>' : '');
       var html = (d.demo ? demoNote() : '') + errorNote(scopeErrors());
       if (!rm.order.length) html += '<p class="note">This week\'s room types have no physical room names yet (<code>names</code> in the program file), so guests can\'t be placed here.</p>';
       if (rm.unassigned.length) {
@@ -1840,10 +1940,11 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
           }).join('') + '</tbody></table></div></section>';
       } else if (rm.order.length && guests) html += '<p class="note ok">Everyone with a room is placed.</p>';
       html += '<div class="areas">' + areas(rm).map(function(a){
-        var beds = sum(a.rooms, function(x){ return x.blocked ? 0 : x.beds; }), used = sum(a.rooms, function(x){ return x.blocked ? 0 : x.guests.length; }), nb = a.rooms.filter(function(x){ return x.blocked; }).length;
+        var beds = sum(a.rooms, function(x){ return x.blocked ? 0 : x.beds; }), used = sum(a.rooms, function(x){ return x.blocked ? 0 : x.guests.length; });
+        var nb = a.rooms.filter(function(x){ return x.blocked && !isExt(x.blocked); }).length, nu = a.rooms.filter(function(x){ return isExt(x.blocked); }).length;
         var types = uniq(a.rooms.map(function(x){ return x.room.id; })), real = a.rooms.some(function(x){ return x.name.indexOf(' · ') > 0; });
         var oneType = types.length === 1 && !real;
-        return '<section class="area"><h3>' + esc(a.name) + ' <small>' + (oneType ? esc(a.rooms[0].room.name) + ' · ' : real ? esc(plural(a.rooms.length, 'room')) + ' · ' : '') + used + ' of ' + beds + ' taken' + (nb ? ' · ' + nb + ' blocked' : '') + '</small></h3><div class="rgrid">' +
+        return '<section class="area"><h3>' + esc(a.name) + ' <small>' + (oneType ? esc(a.rooms[0].room.name) + ' · ' : real ? esc(plural(a.rooms.length, 'room')) + ' · ' : '') + used + ' of ' + beds + ' taken' + (nb ? ' · ' + nb + ' blocked' : '') + (nu ? ' · ' + nu + ' on Uplisting' : '') + '</small></h3><div class="rgrid">' +
           a.rooms.map(function(x){ return rcard(x, id, oneType); }).join('') + '</div></section>';
       }).join('') + '</div>';
       if (rm.noRoom.length) {
@@ -1863,8 +1964,8 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     var body = areas(rm).map(function(a){
       return '<h2>' + esc(a.name) + '</h2><table><thead><tr><th style="width:22%">Room</th><th style="width:22%">Type</th><th>Guests</th><th style="width:10%">Free</th></tr></thead><tbody>' + a.rooms.map(function(x){
         var bl = x.blocked;
-        return '<tr><td>' + esc(x.name) + (x.conflict ? '<div class="warn">' + esc(x.conflict === 'blocked' ? 'Guests in a blocked room' : x.conflict === 'mixed' ? 'Mixed genders' : 'Over capacity') + '</div>' : '') + '</td><td>' + esc(x.room.name) + '</td><td>' +
-          (bl ? '<div class="warn">Blocked · ' + esc(reasonLabel(bl.reason)) + ' · ' + esc(stayLabel(bl.from, bl.to)) + (bl.comment ? ' · ' + esc(bl.comment) : '') + '</div>' : '') +
+        return '<tr><td>' + esc(x.name) + (x.conflict ? '<div class="warn">' + esc(x.conflict === 'blocked' ? (isExt(bl) ? 'Guests in a room booked on Uplisting' : 'Guests in a blocked room') : x.conflict === 'mixed' ? 'Mixed genders' : 'Over capacity') + '</div>' : '') + '</td><td>' + esc(x.room.name) + '</td><td>' +
+          (bl ? '<div class="warn">' + (isExt(bl) ? 'Uplisting · ' + esc(upLabel(bl)) : 'Blocked · ' + esc(reasonLabel(bl.reason))) + ' · ' + esc(stayLabel(bl.from, bl.to)) + (bl.comment && !isExt(bl) ? ' · ' + esc(bl.comment) : '') + '</div>' : '') +
           (x.guests.length ? x.guests.map(function(g){ return esc(g.name) + ' (' + esc((g.gender || '?').charAt(0)) + ') · ' + esc(g.ref) + (g.manual ? ' · manual' : ''); }).join('<br>') : bl ? '' : '–') + '</td><td class="r">' + (bl ? 0 : Math.max(0, x.beds - x.guests.length)) + '</td></tr>';
       }).join('') + '</tbody></table>';
     }).join('');
@@ -1877,7 +1978,8 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     var rows = [];
     var lead = function(g){ return g.b && g.b.lead ? g.b.lead.name || '' : ''; };
     areas(rm).forEach(function(a){ a.rooms.forEach(function(x){
-      var bl = x.blocked, bt = bl ? reasonLabel(bl.reason) + ' ' + (bl.from || '') + ' to ' + (bl.to || '') + (bl.comment ? ' (' + bl.comment + ')' : '') : '';
+      var bl = x.blocked, bt = !bl ? '' : isExt(bl) ? 'Uplisting ' + upLabel(bl) + ' ' + (bl.from || '') + ' to ' + (bl.to || '')
+        : reasonLabel(bl.reason) + ' ' + (bl.from || '') + ' to ' + (bl.to || '') + (bl.comment ? ' (' + bl.comment + ')' : '');
       if (!x.guests.length) rows.push([a.name, x.name, x.room.name, x.beds, '', '', '', '', '', '', bt]);
       x.guests.forEach(function(g){ rows.push([a.name, x.name, x.room.name, x.beds, g.name, g.gender, g.ref, g.manual ? 'manual' : 'online', lead(g), x.conflict || '', bt]); });
     }); });
@@ -2071,7 +2173,9 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     });
     blocks.forEach(function(bl){
       if (!ISO.test(bl.from || '') || !ISO.test(bl.to || '')) return;
-      (bl.rooms || []).forEach(function(n){ var r = byName[n]; if (r) r.items.push({ type: 'blk', id: bl.id, from: bl.from, to: bl.to, reason: bl.reason, comment: bl.comment || '' }); });
+      // an Uplisting booking takes every room its listing is mapped to: a stay bar in each
+      var up = isExt(bl);
+      (bl.rooms || []).forEach(function(n){ var r = byName[n]; if (r) r.items.push({ type: up ? 'up' : 'blk', id: bl.id, from: bl.from, to: bl.to, reason: bl.reason, comment: bl.comment || '', ext: up ? extOf(bl) : null, rooms: bl.rooms }); });
     });
     // nights in view: who is in each room, blocked or not, clashes, and the lines bars sit on
     var days = [], cls = [], dl = [], t = todayIso();
@@ -2081,13 +2185,14 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
       days.push(dd); cls.push(cc); dl.push(dayLong(dd));
     }
     rooms.forEach(function(r){
-      r.guests = []; r.blocked = []; r.gens = [];
-      for (var i = 0; i < w.n; i++) { r.guests.push(0); r.blocked.push(null); r.gens.push(0); }
+      // recs / ups: team blocks and Uplisting bookings on each night (an Uplisting booking beside any other one is a clash)
+      r.guests = []; r.blocked = []; r.gens = []; r.recs = []; r.ups = [];
+      for (var i = 0; i < w.n; i++) { r.guests.push(0); r.blocked.push(null); r.gens.push(0); r.recs.push(0); r.ups.push(0); }
       var span = function(it){ return [Math.max(0, nightsOf(w.from, it.from)), Math.min(w.n, nightsOf(w.from, it.to))]; };
       r.items.forEach(function(it){
         var s = span(it);
         for (var i = s[0]; i < s[1]; i++) {
-          if (it.type === 'blk') { r.blocked[i] = it; continue; }
+          if (it.type === 'blk' || it.type === 'up') { r.blocked[i] = it; r.recs[i]++; if (it.type === 'up') r.ups[i]++; continue; }
           r.guests[i] += it.guests.length;
           it.guests.forEach(function(g){ var k = gKey(g.gender); r.gens[i] |= k === 'f' ? 1 : k === 'm' ? 2 : 0; });
         }
@@ -2095,9 +2200,9 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
       r.clash = false;
       r.items.forEach(function(it){
         var s = span(it);
-        for (var i = s[0]; i < s[1]; i++) if ((r.blocked[i] && r.guests[i]) || r.guests[i] > r.capacity || (r.same_gender && r.gens[i] === 3)) { it.clash = true; r.clash = true; break; }
+        for (var i = s[0]; i < s[1]; i++) if ((r.blocked[i] && r.guests[i]) || r.guests[i] > r.capacity || (r.same_gender && r.gens[i] === 3) || (r.ups[i] && r.recs[i] > 1)) { it.clash = true; r.clash = true; break; }
       });
-      var rank = { blk: 0, man: 1, on: 2 }, ends = [];
+      var rank = { blk: 0, up: 1, man: 1, on: 2 }, ends = [];
       r.vis = r.items.filter(function(it){ return overlaps(it.from, it.to, w.from, w.to); });
       r.vis.sort(function(x, y){ return x.from < y.from ? -1 : x.from > y.from ? 1 : rank[x.type] - rank[y.type]; });
       r.vis.forEach(function(it){ var l = 0; while (l < ends.length && ends[l] > it.from) l++; ends[l] = it.to; it.lane = l; });
@@ -2136,6 +2241,12 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     if (it.type === 'blk') {
       var tb = 'Blocked · ' + reasonLabel(it.reason) + ' · ' + r.name + ' · ' + when + (it.comment ? ' · ' + it.comment : '') + (it.clash ? ' · guests are booked in this room on these nights' : '');
       return '<button type="button" class="cb blk' + cls + '"' + pos + ' data-block="' + esc(it.id) + '" title="' + esc(tb) + '" aria-label="' + esc(tb) + '"><span class="t"><em>' + esc(reasonLabel(it.reason)) + '</em><span>' + esc(it.comment || 'Blocked') + '</span></span></button>';
+    }
+    if (it.type === 'up') {
+      var ux = it.ext || {}, ch = channelLabel(ux.channel), nm = shortGuest(ux.guest);
+      var tu = 'Uplisting booking · ' + ch + ' · ' + nm + (num(ux.guests) ? ' · ' + plural(num(ux.guests), 'guest') : '') + ' · ' + r.name + ' · ' + when +
+        (ux.property_name ? ' · listing ' + ux.property_name : '') + (it.clash ? ' · clashes with another booking or a block in this room' : '');
+      return '<button type="button" class="cb up' + cls + '"' + pos + ' data-block="' + esc(it.id) + '" title="' + esc(tu) + '" aria-label="' + esc(tu) + '"><span class="t"><em>' + esc(ch) + '</em><span>' + esc(nm) + '</span></span></button>';
     }
     if (it.type === 'man') {
       var tm = 'Manual booking ' + it.ref + ' · ' + fullNames(it.guests) + ' · ' + r.name + ' · ' + when + (it.programme === 'yes' ? ' · attends the programme' : '') + (MAN_PAY[it.pay_state] ? ' · ' + MAN_PAY[it.pay_state] : '') + (it.comment ? ' · ' + it.comment : '') + (it.clash ? ' · clashes with a block or another booking' : '');
@@ -2197,14 +2308,15 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
       return;
     }
     var old = $('calSc'), keep = old && calKeep === k ? { l: old.scrollLeft, t: old.scrollTop } : null;
-    var guests = 0, man = {}, blk = {}, unpl = 0;
-    m.rooms.forEach(function(r){ r.vis.forEach(function(it){ if (it.type === 'blk') blk[it.id] = 1; else { guests += it.guests.length; if (it.type === 'man') man[it.ref] = 1; } }); });
+    var guests = 0, man = {}, blk = {}, ups = {}, unpl = 0;
+    m.rooms.forEach(function(r){ r.vis.forEach(function(it){ if (it.type === 'blk') blk[it.id] = 1; else if (it.type === 'up') ups[it.id] = 1; else { guests += it.guests.length; if (it.type === 'man') man[it.ref] = 1; } }); });
+    var nUp = Object.keys(ups).length;
     Object.keys(m.unplaced).forEach(function(rid){ m.unplaced[rid].forEach(function(u){ var p = findBy(m.programs, function(x){ return x.id === u.program; }); if (p && overlaps(p.dates.start, p.dates.end, w.from, w.to) && findBy(m.rooms, function(r){ return r.room_id === rid; })) unpl += num(u.count); }); });
     var clashes = m.rooms.filter(function(r){ return r.clash; }).length, ri = 0;
-    var legend = '<ul class="calleg" aria-label="Colours"><li><i class="sw paid"></i>Paid</li><li><i class="sw deposit"></i>Deposit</li><li><i class="sw plan"></i>Plan</li><li><i class="sw processing"></i>Processing</li><li><i class="sw demo"></i>Demo</li><li><i class="sw man"></i>Manual</li><li><i class="sw blk"></i>Blocked</li><li><i class="sw wk"></i>BreathCamp week</li></ul>';
+    var legend = '<ul class="calleg" aria-label="Colours"><li><i class="sw paid"></i>Paid</li><li><i class="sw deposit"></i>Deposit</li><li><i class="sw plan"></i>Plan</li><li><i class="sw processing"></i>Processing</li><li><i class="sw demo"></i>Demo</li><li><i class="sw man"></i>Manual</li><li><i class="sw up"></i>Uplisting</li><li><i class="sw blk"></i>Blocked</li><li><i class="sw wk"></i>BreathCamp week</li></ul>';
     var html = (m.demo ? demoNote() : '') + (m.err && !m.provisional ? '<p class="note err">Could not refresh the calendar: ' + esc(why(m.err)) + ' <button type="button" class="lnk" data-retry>Try again</button></p>' : '') +
       (m.legacy ? '<p class="note">The booking system doesn\'t send the calendar yet, so this shows the BreathCamp weeks\' guests only (no blocks or manual stays).</p>' : '') +
-      '<div class="calinfo"><span><b>' + esc(plural(guests, 'guest')) + '</b> in rooms · ' + esc(plural(Object.keys(man).length, 'manual booking')) + ' · ' + esc(plural(Object.keys(blk).length, 'block')) +
+      '<div class="calinfo"><span><b>' + esc(plural(guests, 'guest')) + '</b> in rooms · ' + esc(plural(Object.keys(man).length, 'manual booking')) + (nUp ? ' · ' + esc(plural(nUp, 'Uplisting booking')) : '') + ' · ' + esc(plural(Object.keys(blk).length, 'block')) +
         (unpl ? ' · <b class="refund">' + esc(unpl + ' not placed') + '</b>' : '') + (clashes ? ' · <b class="refund">' + esc(plural(clashes, 'room')) + ' with a clash</b>' : '') + '</span>' + legend + '</div>' +
       '<div class="calwrap' + (m.provisional ? ' busy' : '') + '"' + (m.provisional ? ' aria-busy="true"' : '') + '><div class="calsc" id="calSc" role="region" aria-label="' + esc('Room calendar, ' + stayLabel(w.from, last)) + '">' +
         '<div class="cal" style="--n:' + w.n + '">' + calHead(m) + calUnplaced(m) +
@@ -2289,6 +2401,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     m.rooms.forEach(function(r){ r.vis.forEach(function(it){
       var base = [r.area, r.name, r.room_name, it.from, it.to, nightsOf(it.from, it.to)];
       if (it.type === 'blk') rows.push(['block', it.id].concat(base, ['', reasonLabel(it.reason), '', '', it.comment || '']));
+      else if (it.type === 'up') { var ux = it.ext || {}; rows.push(['uplisting', it.id].concat(base, [(ux.guest || '') + (num(ux.guests) ? ' (' + plural(num(ux.guests), 'guest') + ')' : ''), '', ux.property_name || '', channelLabel(ux.channel), 'Uplisting ' + uStatusLabel(ux.status).toLowerCase() + (ux.id ? ', booking ' + ux.id : '')])); }
       else if (it.type === 'man') rows.push(['manual', it.ref].concat(base, [fullNames(it.guests), '', it.programme === 'yes' ? 'attends the programme' : 'stay only', '', it.comment || '']));
       else it.segs.forEach(function(sg){ rows.push(['online', sg.ref].concat(base, [fullNames(sg.guests), '', wkName(sg.program), PAY_STATE[sg.pay_state] + (sg.demo ? ' (demo)' : ''), ''])); });
     }); });
@@ -2329,7 +2442,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
       return '<fieldset><legend>' + esc(a) + '</legend><div class="rp">' + rooms.filter(function(r){ return r.area === a; }).map(function(r){
         var i = rooms.indexOf(r), s = nameState(r.name, f.from, f.to), h = ['', ''];
         if (!s) unknown = true;
-        else if (s.blocked) h = ['blocked', 'busy'];
+        else if (s.blocked) h = [s.blocked.type === 'up' ? 'Uplisting booking' : 'blocked', 'busy'];
         else if (!s.guests) h = ['free', 'ok'];
         else h = [s.guests >= s.cap ? 'full' : s.guests + ' of ' + s.cap, 'busy'];
         return '<label><input type="checkbox" id="rfR' + i + '" data-room="' + esc(r.name) + '"' + (f.rooms.indexOf(r.name) >= 0 ? ' checked' : '') + '><span>' + esc(shortRoom(r)) + ' <small class="' + h[1] + '">' + esc([shortTypeName(r.room_name), h[0]].filter(Boolean).join(' · ')) + '</small></span></label>';
@@ -2344,7 +2457,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
       var s = nameState(r.name, f.from, f.to), mates = f.guests.filter(function(x, j){ return j !== i && x.room === r.name; });
       var used = (s ? s.guests : 0) + mates.length, gens = s ? s.gens : 0;
       mates.forEach(function(x){ var k = gKey(x.gender); gens |= k === 'f' ? 1 : k === 'm' ? 2 : 0; });
-      var bad = s && s.blocked ? 'blocked' : used >= r.capacity ? 'full' : r.same_gender && mine && gens && (gens | mine) === 3 ? (gens === 1 ? 'women\'s room' : gens === 2 ? 'men\'s room' : 'mixed') : '';
+      var bad = s && s.blocked ? (s.blocked.type === 'up' ? 'Uplisting booking' : 'blocked') : used >= r.capacity ? 'full' : r.same_gender && mine && gens && (gens | mine) === 3 ? (gens === 1 ? 'women\'s room' : gens === 2 ? 'men\'s room' : 'mixed') : '';
       var label = shortRoom(r) + (shortRoom(r) !== r.name ? ' · ' + r.area : '') + ' · ' + shortTypeName(r.room_name) + (s || mates.length ? ' (' + (bad || (used ? used + ' of ' + r.capacity : 'free')) + ')' : '');
       (bad ? busy : s ? free : other).push(opt(r.name, label, g.room));
     });
@@ -2582,7 +2695,8 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
   /* ---------------------------------------------------------------- a block's details */
   function openBlock(id, ret){
     var bl = blkReg[id] || (recOv.blocks[id] && recOv.blocks[id].v);
-    if (!bl) { toast('That block isn\'t loaded any more. Press Refresh and try again.', 'err'); return; }
+    if (!bl) { toast((/^UP-/.test(id) ? 'That Uplisting booking' : 'That block') + ' isn\'t loaded any more. Press Refresh and try again.', 'err'); return; }
+    if (isExt(bl)) { openUpBooking(bl, ret); return; }
     var n = ISO.test(bl.from || '') && ISO.test(bl.to || '') ? nightsOf(bl.from, bl.to) : 0;
     var wks = n ? PROGS.filter(function(p){ return p.dates && overlaps(bl.from, bl.to, p.dates.start, p.dates.end); }) : [];
     var made = bl.created_at ? new Date(bl.created_at) : bl.created ? new Date(bl.created * 1000) : null;
@@ -2607,9 +2721,70 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
             if (!a || a === document.body || !document.body.contains(a)) { if (!focusCell(cell)) { var h = $('rmSum') || $('calRange'); if (h) { h.setAttribute('tabindex', '-1'); h.focus(); } } }
             toast('Block deleted: ' + esc(roomsText(bl.rooms)) + ' can be booked again for ' + esc(stayLabel(bl.from, bl.to)) + '.', 'ok');
             setTimeout(function(){ if (token) ensure(route.tab, true); }, 1500);
-          }, function(e){ if (authFail(e)) return; toast('Could not delete the block: ' + esc(why(e)), 'err'); });
+          }, function(e){
+            if (authFail(e)) return;
+            // it is an Uplisting booking (data from before it was known as one): the server says so, and it shows as one from now on
+            if (e.status === 409 && e.code === 'external') {
+              bl.ext = bl.ext && typeof bl.ext === 'object' ? bl.ext : { source: 'uplisting' };
+              toast(esc(e.message), 'err');
+              staleWeeks(bl.from, bl.to); keepFocus(function(){ VIEWS[route.tab].update(); });
+              setTimeout(function(){ if (token) ensure(route.tab, true); }, 300);
+              return;
+            }
+            toast('Could not delete the block: ' + esc(why(e)), 'err');
+          });
         });
     };
+  }
+  // what an Uplisting booking shares its rooms with on its nights: the calendar in view, and the week boards held
+  function upClashes(bl){
+    var out = [], seen = {}, m = calModel();
+    var add = function(k, t){ if (!seen[k]) { seen[k] = 1; out.push(t); } };
+    var on = function(it){ var a = it.from > bl.from ? it.from : bl.from, z = it.to < bl.to ? it.to : bl.to; return stayLabel(a, z); };
+    (bl.rooms || []).forEach(function(n){
+      var r = m && m.byName[n];
+      if (r) r.items.forEach(function(it){
+        if ((it.type === 'up' || it.type === 'blk') && it.id === bl.id) return;
+        if (!overlaps(it.from, it.to, bl.from, bl.to)) return;
+        if (it.type === 'up') add(it.id + '|' + n, n + ': Uplisting booking ' + it.id + ' (' + channelLabel((it.ext || {}).channel) + ' · ' + shortGuest((it.ext || {}).guest) + '), ' + on(it));
+        else if (it.type === 'blk') add(it.id + '|' + n, n + ': block ' + it.id + ' (' + reasonLabel(it.reason).toLowerCase() + '), ' + on(it));
+        else if (it.type === 'man') add(it.ref + '|' + n, n + ': manual booking ' + it.ref + ' (' + shortNames(it.guests) + '), ' + on(it));
+        else it.segs.forEach(function(sg){ add(sg.ref + '|' + n, n + ': ' + sg.ref + ' (' + shortNames(sg.guests) + '), ' + wkName(sg.program)); });
+      });
+      PROGS.forEach(function(p){
+        if (!p.dates || !overlaps(p.dates.start, p.dates.end, bl.from, bl.to) || !D(p.id)) return;
+        var x = rooming(p.id).byName[n]; if (!x) return;
+        x.guests.forEach(function(g){ add(g.ref + '|' + n, n + ': ' + (g.manual ? 'manual booking ' : '') + g.ref + ' (' + shortNames([g]) + '), ' + wkName(p.id)); });
+      });
+    });
+    return out;
+  }
+  // an Uplisting booking: details only (it is changed or cancelled in Uplisting, never here)
+  function openUpBooking(bl, ret){
+    var x = extOf(bl), n = ISO.test(bl.from || '') && ISO.test(bl.to || '') ? nightsOf(bl.from, bl.to) : 0, rooms = bl.rooms || [];
+    var wks = n ? PROGS.filter(function(p){ return p.dates && overlaps(bl.from, bl.to, p.dates.start, p.dates.end); }) : [];
+    var synced = x.synced_at ? Date.parse(x.synced_at) : NaN, clash = n ? upClashes(bl) : [];
+    // the listing's nickname (what tells listings with the same public name apart) comes with the Setup data
+    var listingHtml = function(){
+      var prop = upl.d && upl.d.properties ? findBy(upl.d.properties, function(p){ return p.id === String(x.property_id || ''); }) : null;
+      var unit = prop && x.unit ? findBy(prop.units, function(u){ return u.id === String(x.unit); }) : null;
+      var l = (prop && prop.nickname && prop.nickname !== (x.property_name || prop.name) ? prop.nickname + ' · ' : '') + (x.property_name || (prop && prop.name) || '') + (x.unit ? ' · ' + (unit ? unit.name : 'unit ' + x.unit) : '');
+      return (l ? esc(l) : '<span class="muted">–</span>') + (x.property_id ? '<span class="sub">Uplisting listing ' + esc(x.property_id) + '</span>' : '');
+    };
+    if (!upl.d && x.property_id) loadUpl().then(function(){ var dd = $('upListing'); if (dd && modal) dd.innerHTML = listingHtml(); }, function(){});
+    openModal('<h2 id="mTitle">' + esc(channelLabel(x.channel)) + ' booking · ' + esc(x.guest || 'Guest') + '</h2><p class="muted" style="margin:0 0 12px">From Uplisting' + (x.status ? ' · ' + esc(uStatusLabel(x.status)) : '') + '</p>' +
+      (clash.length ? '<div class="note err" role="alert"><b>Clash.</b> On these nights ' + (rooms.length === 1 ? 'this room is' : 'these rooms are') + ' also taken by:<ul style="margin:6px 0 0;padding-left:18px">' + clash.map(function(c){ return '<li>' + esc(c) + '</li>'; }).join('') + '</ul></div>' : '') +
+      '<dl class="kv"><dt>Guest</dt><dd class="l">' + esc(x.guest || '–') + (num(x.guests) ? '<span class="sub">' + esc(plural(num(x.guests), 'guest')) + '</span>' : '') + '</dd>' +
+        '<dt>Channel</dt><dd class="l">' + esc(channelLabel(x.channel)) + '</dd>' +
+        '<dt>' + (rooms.length === 1 ? 'Room' : 'Rooms') + '</dt><dd class="l">' + (rooms.length ? rooms.map(esc).join('<br>') : '<span class="muted">–</span>') + '</dd>' +
+        '<dt>Nights</dt><dd class="l">' + esc(stayLabel(bl.from, bl.to)) + ' · ' + esc(plural(n, 'night')) + '<span class="sub">check-in ' + esc(dayLong(bl.from)) + ', check-out ' + esc(dayLong(bl.to)) + '</span></dd>' +
+        (wks.length ? '<dt>Weeks</dt><dd class="l">' + esc(wks.map(function(p){ return wkName(p.id); }).join(', ')) + '<span class="sub">' + (rooms.length === 1 ? 'the room is' : 'the rooms are') + ' off sale for the whole week online</span></dd>' : '') +
+        '<dt>Listing</dt><dd class="l" id="upListing">' + listingHtml() + '</dd>' +
+        '<dt>Uplisting status</dt><dd class="l">' + esc(uStatusLabel(x.status)) + '</dd>' +
+        '<dt>Booking ID</dt><dd class="l">' + (x.id ? '<code>' + esc(x.id) + '</code>' : '–') + '<span class="sub">here ' + esc(bl.id) + '</span></dd>' +
+        '<dt>Last synced</dt><dd class="l">' + (isFinite(synced) ? esc(new Date(synced).toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })) + '<span class="sub">' + esc(ago(Math.floor(synced / 1000))) + '</span>' : '<span class="muted">–</span>') + '</dd></dl>' +
+      '<p class="note" style="margin:16px 0 0">Change or cancel it in Uplisting — it updates here automatically.</p>' +
+      '<div class="mact"><button type="button" class="btn btn-ghost" data-close>Close</button></div>', { ret: ret });
   }
 
   /* ================================================================ sessions */
@@ -2942,13 +3117,17 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
   VIEWS.setup = {
     mount: function(el){
       el.innerHTML = '<div id="stBody"></div>';
-      el.addEventListener('toggle', function(e){ if (e.target && e.target.id === 'setupBox') setupOpenChoice = e.target.open; }, true);
-      el.addEventListener('click', function(e){ var c = e.target.closest && e.target.closest('[data-copy]'); if (c) copyAndTell(c.getAttribute('data-copy'), c.getAttribute('data-what') || 'Link'); });
+      // on the view's own body: #view outlives the tab, so listeners there would add up on every visit
+      var sb = $('stBody');
+      sb.addEventListener('toggle', function(e){ if (e.target && e.target.id === 'setupBox') setupOpenChoice = e.target.open; }, true);
+      sb.addEventListener('click', function(e){ var c = e.target.closest && e.target.closest('[data-copy]'); if (c) copyAndTell(c.getAttribute('data-copy'), c.getAttribute('data-what') || 'Link'); });
+      bindUp(sb);
     },
     update: function(){
       var box = $('stBody'); if (!box) return;
       var d = setupData(), ids = scopeIds();
       if (!d && scopeMissing().length) { var w = notReady(); if (w) { box.innerHTML = w; return; } }
+      var qa = document.activeElement && document.activeElement.id === 'upQ' ? [document.activeElement.selectionStart, document.activeElement.selectionEnd] : null;
       var links = '<section class="panel"><div class="ph"><h2>Booking page links</h2></div>' +
         copyRow('All weeks', 'the hub page', SITE + '/book/') +
         PROGS.map(function(p){ return copyRow(wkFull(p.id), 'booking page', SITE + '/book/' + p.id + '/'); }).join('') +
@@ -2960,7 +3139,8 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
       var demo = demoOn ? '<section class="panel"><div class="ph"><h2>Demo bookings <small style="font-family:var(--sans);font-size:.78rem;color:var(--slate)">Stripe test mode only</small></h2></div>' +
         '<p class="muted">Fills ' + (week === 'all' ? 'each week' : 'this week') + ' to about 40% with made-up bookings (deposits, paid in full, some wellbeing sessions and balances), paid with Stripe\'s test card, and places every guest in a physical room at random (one gender per shared room, never over its beds). They show with a "Demo" label, count towards availability like real bookings, and can be removed at any time. New bookings can take a minute to appear here.</p>' +
         '<div class="mact" style="justify-content:flex-start;margin-top:10px"><button type="button" class="btn" id="demoFill">Fill with demo bookings (about 40%)</button><button type="button" class="btn btn-ghost" id="demoPlace">Place demo guests in rooms</button><button type="button" class="btn btn-ghost" id="demoClear">Remove demo bookings</button></div></section>' : '';
-      box.innerHTML = (d ? setupPanel(d) : '') + demo + roomOnly + links + '<section><div class="ph" style="margin-top:6px"><h2 style="font-family:var(--serif);font-size:1.22rem">Week settings <small style="font-family:var(--sans);font-size:.78rem;color:var(--slate)">read only · from the program files</small></h2></div><div class="cfg">' + ids.map(configCard).join('') + '</div></section>';
+      box.innerHTML = (d ? setupPanel(d) : '') + '<div id="upWrap">' + upPanel() + '</div>' + demo + roomOnly + links + '<section><div class="ph" style="margin-top:6px"><h2 style="font-family:var(--serif);font-size:1.22rem">Week settings <small style="font-family:var(--sans);font-size:.78rem;color:var(--slate)">read only · from the program files</small></h2></div><div class="cfg">' + ids.map(configCard).join('') + '</div></section>';
+      if (qa && $('upQ')) { $('upQ').focus(); try { $('upQ').setSelectionRange(qa[0], qa[1]); } catch (x) {} }
       var rb = $('regDomains'), pb = $('repairPlans');
       if (rb) rb.onclick = function(){ registerDomains(rb); };
       if (pb) pb.onclick = function(){ repairPlans(pb); };
@@ -3016,6 +3196,545 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     }, function(e){ done(); if (authFail(e)) return; toast('Could not check the payment plans: ' + esc(why(e)), 'err'); });
   }
 
+  /* ================================================================ Uplisting (Setup)
+     GET ?uplisting=1: the connection (configured, account), the listings (with their units), the mapping
+     (listing or unit → physical rooms), the webhooks, the last sync and how many bookings came in. The main
+     admin edits the mapping and connects the webhooks; the team can sync too; View only looks. The mapping
+     is edited as a draft kept here (re-renders and refreshes keep it) until Save mapping. */
+  var upl = { d: null, at: 0, err: null }, upOpenChoice = null, usync = null;
+  var umap = freshUmap(), umFilter = 'all', umShown = null, umQ = '';
+  var UP_EVENTS = [['booking_created', 'New bookings'], ['booking_updated', 'Changes'], ['booking_removed', 'Cancellations']];
+  var UP_MAX_KEYS = 47;   // the server says (max_keys)
+  function freshUmap(){ return { base: '', draft: null, errs: {}, err: '', theirs: false, saved: 0 }; }
+  function resultObj(r){ if (typeof r === 'string') { try { r = JSON.parse(r); } catch (e) { r = null; } } return r && typeof r === 'object' ? r : null; }
+  function knownProps(){ var k = {}; ((upl.d && upl.d.properties) || []).forEach(function(p){ k[p.id] = p; }); return k; }
+  // mapping keys: '<listing id>' or '<listing id>_<unit id>' (the 'm' in front, as Stripe keeps them, is taken off)
+  function umKey(k, known){
+    k = String(k).replace(/^mapping[.[]/, '').replace(/\]$/, '');
+    var base = function(x){ return x.split('_')[0]; };
+    if (!known[base(k)] && /^m./.test(k) && known[base(k.slice(1))]) k = k.slice(1);
+    return k;
+  }
+  function normMapping(m, known){
+    var out = {};
+    if (!m || typeof m !== 'object') return out;
+    Object.keys(m).forEach(function(k){
+      var v = m[k], list = Array.isArray(v) ? v : typeof v === 'string' ? v.split('|') : [];
+      list = uniq(list.map(function(x){ return String(x == null ? '' : x).trim(); }).filter(Boolean));
+      if (list.length) out[umKey(k, known || {})] = list;
+    });
+    return out;
+  }
+  function mapJSON(m){ var o = {}; Object.keys(m || {}).sort().forEach(function(k){ if (m[k] && m[k].length) o[k] = m[k]; }); return JSON.stringify(o); }
+  function copyMap(m){ var o = {}; Object.keys(m || {}).forEach(function(k){ o[k] = m[k].slice(); }); return o; }
+  function normUpl(d){
+    var props = (Array.isArray(d.properties) ? d.properties : []).filter(function(p){ return p && p.id != null && p.id !== ''; }).map(function(p){
+      return { id: String(p.id), name: String(p.name || ''), nickname: String(p.nickname || ''),
+        units: (Array.isArray(p.units) ? p.units : []).filter(function(u){ return u && u.id != null && u.id !== ''; }).map(function(u){ return { id: String(u.id), name: String(u.name || '') || 'Unit ' + u.id }; }) };
+    });
+    var known = {}; props.forEach(function(p){ known[p.id] = p; });
+    var cfg = d.configured && typeof d.configured === 'object' ? d.configured : {}, hooks = null;
+    if (d.hooks && typeof d.hooks === 'object') { hooks = {}; UP_EVENTS.forEach(function(e){ hooks[e[0]] = !!d.hooks[e[0]]; }); }
+    var ls = d.last_sync && typeof d.last_sync === 'object' && d.last_sync.at ? { at: String(d.last_sync.at), result: resultObj(d.last_sync.result) } : null;
+    return {
+      configured: { api_key: !!cfg.api_key, webhook_secret: !!cfg.webhook_secret },
+      account: d.account && typeof d.account === 'object' ? { name: String(d.account.name || '') } : null,
+      properties: props, mapping: normMapping(d.mapping, known),
+      rooms: uniq((Array.isArray(d.rooms) ? d.rooms : []).map(function(r){ return typeof r === 'string' ? r : r && r.name ? String(r.name) : ''; }).filter(Boolean)),
+      groups: (Array.isArray(d.room_groups) ? d.room_groups : []).filter(function(g){ return g && g.area && Array.isArray(g.rooms); }).map(function(g){ return { area: String(g.area), rooms: g.rooms.map(String) }; }),
+      max_keys: num(d.max_keys) > 0 ? num(d.max_keys) : UP_MAX_KEYS,
+      other_hosts: (Array.isArray(d.hooks_other_hosts) ? d.hooks_other_hosts : []).map(String).filter(Boolean),
+      hooks: hooks, hint: typeof d.webhook_url_hint === 'string' ? d.webhook_url_hint : '', last_sync: ls,
+      imported: d.imported && typeof d.imported === 'object' ? { active: num(d.imported.active), upcoming: num(d.imported.upcoming) } : null,
+      error: typeof d.error === 'string' ? d.error : ''
+    };
+  }
+  // hard: Uplisting's listings, account and webhooks read again (not the server's 5-minute copy): the Refresh button
+  var uplHard = false;
+  function loadUpl(force){
+    if (!force && upl.d && Date.now() - upl.at < FRESH) return Promise.resolve(upl.d);
+    if (inflight._upl) return inflight._upl;
+    var hard = uplHard && me.role !== 'viewer'; uplHard = false;
+    var p = api('GET', '/api/booking/admin?uplisting=1' + (hard ? '&refresh=1' : '')).then(function(d){
+      delete inflight._upl;
+      // an API without the integration answers with a week
+      upl = { d: d && d.uplisting === true ? normUpl(d) : { legacy: true }, at: Date.now(), err: null }; dataVer++;
+      umSync();
+      return upl.d;
+    }, function(e){
+      delete inflight._upl; upl = { d: upl.d, at: upl.at, err: e }; dataVer++;
+      throw e;
+    });
+    inflight._upl = p;
+    return p;
+  }
+  // the saved mapping came in: the draft follows it, unless the main admin is changing it
+  function umSync(){
+    var d = upl.d; if (!d || d.legacy) return;
+    var j = mapJSON(d.mapping);
+    if (umap.draft && umDirty()) { if (j !== umap.base) umap.theirs = true; umap.base = j; return; }
+    umap.base = j; umap.draft = copyMap(d.mapping); umap.theirs = false;
+  }
+  function umDirty(){ return !!umap.draft && mapJSON(umap.draft) !== umap.base; }
+  function mapDirty(){ return isOwner() && !!upl.d && !upl.d.legacy && umDirty(); }
+  function uplOn(){ return !!upl.d && !upl.d.legacy && upl.d.configured.api_key; }
+  function hooksOk(){ var h = upl.d && upl.d.hooks; return !!h && UP_EVENTS.every(function(e){ return h[e[0]]; }); }
+  function uplProblems(){
+    var d = upl.d, out = []; if (!uplOn()) return out;
+    if (d.error) out.push('Uplisting answered with an error');
+    if (!d.configured.webhook_secret) out.push('no webhook secret');
+    else if (d.hooks && !hooksOk()) out.push('webhooks not connected');
+    if (d.last_sync && d.last_sync.result && num(d.last_sync.result.errors)) out.push('the last sync had errors');
+    return out;
+  }
+  function statsText(s){
+    s = s || {};
+    var t = num(s.created) + ' new, ' + num(s.updated) + ' changed, ' + num(s.cancelled) + ' cancelled';
+    if (num(s.unchanged)) t += ', ' + num(s.unchanged) + ' unchanged';
+    if (num(s.clashes)) t += ' · ' + plural(num(s.clashes), 'clash', 'clashes');
+    if (num(s.unmapped)) t += ' · ' + num(s.unmapped) + ' not mapped';
+    if (num(s.errors)) t += ' · ' + plural(num(s.errors), 'error');
+    return t;
+  }
+
+  /* ---------------------------------------------------------------- the mapping: rows, suggestions */
+  function upArea(n){
+    var g = upl.d && upl.d.groups ? findBy(upl.d.groups, function(x){ return x.rooms.indexOf(n) >= 0; }) : null;
+    return g ? g.area : areaOf(n);
+  }
+  function umHas(key){ var l = umap.draft && umap.draft[key]; return !!(l && l.length); }
+  function propMapped(p){ return umHas(p.id) || p.units.some(function(u){ return umHas(p.id + '_' + u.id); }); }
+  // one row per listing, then its units; then mapped listings Uplisting no longer has
+  function umRows(){
+    var d = upl.d, rows = [], known = {};
+    d.properties.forEach(function(p){
+      rows.push({ key: p.id, p: p, u: null }); known[p.id] = 1;
+      p.units.forEach(function(u){ rows.push({ key: p.id + '_' + u.id, p: p, u: u }); known[p.id + '_' + u.id] = 1; });
+    });
+    Object.keys(umap.draft || {}).sort(natural).forEach(function(k){ if (!known[k] && umap.draft[k].length) rows.push({ key: k, p: null, u: null, gone: true }); });
+    return rows;
+  }
+  function rowLabel(r){ return r.gone ? 'listing ' + r.key.replace('_', ', unit ') : r.u ? r.u.name + ' (' + (r.p.nickname || r.p.name) + ')' : r.p.nickname || r.p.name || 'Listing ' + r.p.id; }
+  var UM_STOP = { cottage: 1, the: 1, room: 1, rooms: 1, spot: 1, of: 1, and: 1, combined: 1, a: 1 };
+  function umWords(s){ return String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim().split(' ').filter(Boolean); }
+  // "1B · Peace Cottage" → ['1B']; "4C + 4D · Alchemy Cottage (combined)" → ['4C', '4D']; "3 · Solitude Cottage" → [] (a bare number is too loose)
+  function umCodes(n){ var p = String(n).split(' · '); return p.length < 2 ? [] : p[0].split('+').map(function(c){ return c.replace(/\s+/g, '').toUpperCase(); }).filter(function(c){ return /^\d+[A-Z]$/.test(c); }); }
+  /* The rooms a listing's (or unit's) name points to: room codes in it ("1B", "4C+4D"); else an area named in
+     it ("Solitude", "Glamping Single", "Campervan") and, for numbered rooms, its number ("Glamping Single (3)" →
+     Glamping Single 3); an area of lettered rooms named without a code → all of them (a whole cottage). */
+  function umGuess(text, rooms){
+    var T = String(text || '').toUpperCase(), t = ' ' + umWords(text).join(' ') + ' ';
+    if (!rooms.length || !t.trim()) return [];
+    var byCode = rooms.filter(function(n){ return umCodes(n).some(function(c){ return new RegExp('(^|[^0-9])' + c + '(?![A-Z0-9])').test(T); }); });
+    if (byCode.length) return byCode;
+    // a room code that isn't one of ours ("4E Alchemy"): no guess, rather than the whole cottage
+    if (/(^|[^0-9A-Z])\d+[A-Z](?![A-Z0-9])/.test(T)) return [];
+    var best = null, bestN = 0;
+    uniq(rooms.map(upArea)).forEach(function(a){
+      var ws = umWords(a).filter(function(w){ return !UM_STOP[w]; });
+      if (!ws.length || !ws.every(function(w){ return t.indexOf(' ' + w) >= 0; })) return;
+      if (ws.length > bestN) { best = a; bestN = ws.length; }
+    });
+    if (!best) return [];
+    var inArea = rooms.filter(function(n){ return upArea(n) === best; });
+    if (inArea.length === 1) return inArea;
+    var numbered = inArea.filter(function(n){ return /\d+$/.test(n); });
+    if (!numbered.length) return inArea;
+    var nums = t.match(/ \d+(?= )/g) || [];
+    return numbered.filter(function(n){ var m = /(\d+)$/.exec(n); return nums.some(function(x){ return +x === +m[1]; }); });
+  }
+  function umSuggestion(r){
+    if (r.gone || !upl.d) return [];
+    var rooms = upl.d.rooms;
+    if (r.u) return umGuess(r.u.name, rooms);
+    var s = umGuess(r.p.nickname, rooms);
+    return s.length ? s : umGuess(r.p.name, rooms);
+  }
+  // which rows show: the filter (a row stays while its filter is on, even once it's mapped) and the search
+  function umVisible(rows){
+    var q = umQ.toLowerCase().split(/\s+/).filter(Boolean), out = [];
+    rows.forEach(function(r){
+      var pid = r.p ? r.p.id : r.key, mapped = r.p ? propMapped(r.p) : true;
+      if (umFilter !== 'all' && !(umShown && umShown[pid]) && (umFilter === 'mapped') !== mapped) return;
+      if (q.length) {
+        var hay = (r.p ? [r.p.nickname, r.p.name, r.p.id].concat(r.p.units.map(function(u){ return u.name + ' ' + u.id; })) : [r.key]).concat(umap.draft[r.key] || []).join(' ').toLowerCase();
+        for (var i = 0; i < q.length; i++) if (hay.indexOf(q[i]) < 0) return;
+      }
+      out.push(r);
+    });
+    // a unit shows with its listing
+    var keep = {}; out.forEach(function(r){ keep[r.p ? r.p.id : r.key] = 1; });
+    return rows.filter(function(r){ return keep[r.p ? r.p.id : r.key]; });
+  }
+  function umSetFilter(f){
+    umFilter = f; umShown = null;
+    if (f !== 'all' && upl.d) { umShown = {}; upl.d.properties.forEach(function(p){ if ((f === 'mapped') === propMapped(p)) umShown[p.id] = 1; }); }
+  }
+  function umCounts(){ var ps = upl.d.properties; var m = ps.filter(propMapped).length; return { all: ps.length, mapped: m, unmapped: ps.length - m }; }
+  // room → the listings using it (in the draft), for the room picker
+  function umUsage(){
+    var by = {}, rows = umRows();
+    rows.forEach(function(r){ (umap.draft[r.key] || []).forEach(function(n){ (by[n] = by[n] || []).push(r.u ? r.u.name : r.p ? r.p.nickname || r.p.name || r.p.id : r.key); }); });
+    return by;
+  }
+  function umSelect(key, list, label, errId, usage){
+    var by = {}, order = [];
+    upl.d.rooms.forEach(function(n){ if (list.indexOf(n) >= 0) return; var a = upArea(n); if (!by[a]) { by[a] = []; order.push(a); } by[a].push(n); });
+    if (!order.length) return '';
+    return '<select data-uadd="' + esc(key) + '" aria-label="' + esc('Add a room to ' + label) + '"' + (errId ? ' aria-invalid="true" aria-describedby="' + errId + '"' : '') + '><option value="">Add room…</option>' +
+      order.map(function(a){ return '<optgroup label="' + esc(a) + '">' + by[a].map(function(n){ var u = usage[n] || []; return '<option value="' + esc(n) + '">' + esc(n + (u.length ? ' (in ' + u[0] + (u.length > 1 ? ' +' + (u.length - 1) : '') + ')' : '')) + '</option>'; }).join('') + '</optgroup>'; }).join('') + '</select>';
+  }
+  function umRowHtml(r, i, ro, usage){
+    var key = r.key, list = umap.draft[key] || [], err = umap.errs[key], d = upl.d, p = r.p, u = r.u, label = rowLabel(r);
+    var head = r.gone ? '<b>Listing ' + esc(key.split('_')[0]) + '</b><small>' + (key.indexOf('_') > 0 ? 'Unit ' + esc(key.split('_').slice(1).join('_')) + ' · ' : '') + 'not in Uplisting any more</small>'
+      : u ? '<b>' + esc(u.name) + '</b><small>Unit of ' + esc(p.nickname || p.name) + ' · <code>' + esc(u.id) + '</code></small>'
+      : '<b>' + esc(p.nickname || p.name || 'Listing ' + p.id) + '</b>' + (p.nickname && p.name && p.name !== p.nickname ? '<small>' + esc(p.name) + '</small>' : '') + '<small><code>' + esc(p.id) + '</code>' + (p.units.length ? ' · ' + esc(plural(p.units.length, 'unit')) : '') + '</small>';
+    var chips = list.map(function(n){
+      var bad = d.rooms.indexOf(n) < 0;
+      return '<span class="rchip' + (bad ? ' bad' : '') + (ro ? ' ro' : '') + '"' + (bad ? ' title="Not a room here any more"' : '') + '><span>' + esc(n) + '</span>' +
+        (ro ? '' : '<button type="button" data-urm="' + esc(key + '|' + n) + '" aria-label="' + esc('Remove ' + n + ' from ' + label) + '" title="Remove">' + IC.x + '</button>') + '</span>';
+    }).join('');
+    var none = list.length || r.gone ? '' : '<span class="inh">' + (u && umHas(p.id) ? 'Uses the listing\'s rooms' : 'No rooms: its bookings are ignored') + '</span>';
+    var errId = err ? 'umErr' + i : '';
+    var sg = !ro && !r.gone && !list.length ? umSuggestion(r) : [];
+    return '<li class="umr' + (u ? ' unit' : '') + (err ? ' bad' : '') + '"><div class="ln">' + head + '</div><div><div class="rchips">' + chips + none + (ro || r.gone ? '' : umSelect(key, list, label, errId, usage)) + '</div>' +
+      (sg.length ? '<p class="usug">Suggested: <b>' + esc(roomsText(sg)) + '</b><button type="button" class="lnk" data-usug="' + esc(key) + '" aria-label="' + esc('Use the suggestion for ' + label + ': ' + sg.join(', ')) + '">Use</button></p>' : '') +
+      (err ? '<span class="err" id="' + errId + '">' + esc(err) + '</span>' : '') + '</div></li>';
+  }
+  function umSugCount(){ var n = 0; umRows().forEach(function(r){ if (r.p && !propMapped(r.p) && !umHas(r.key) && umSuggestion(r).length) n++; }); return n; }
+  function umSegHtml(){
+    var c = umCounts();
+    return [['all', 'All', c.all], ['unmapped', 'Unmapped', c.unmapped], ['mapped', 'Mapped', c.mapped]].map(function(x){
+      return '<button type="button" data-umf="' + x[0] + '" aria-pressed="' + (umFilter === x[0]) + '">' + esc(x[1]) + ' (' + x[2] + ')</button>';
+    }).join('');
+  }
+  function umCountHtml(){ var c = umCounts(); return '<b>' + c.mapped + '</b> of ' + esc(plural(c.all, 'listing')) + ' mapped'; }
+  function umListHtml(){
+    var d = upl.d, ro = !isOwner(), rows = umRows(), vis = umVisible(rows), usage = ro ? {} : umUsage();
+    if (!rows.length) return '<p class="muted" style="margin:12px 0 0">' + (d.error ? 'The listings couldn\'t be read from Uplisting just now.' : 'No listings in this Uplisting account yet.') + '</p>';
+    if (!d.rooms.length && !ro) return '<p class="note warn" style="margin:12px 0 0">The program files have no physical room names, so there is nothing to map to yet.</p>';
+    var shown = vis.filter(function(r){ return !r.u; }).length, total = rows.filter(function(r){ return !r.u; }).length;
+    return (vis.length < rows.length ? '<p class="sumline" style="margin:4px 0 8px">Showing ' + shown + ' of ' + total + ' listings' + (umQ || umFilter !== 'all' ? ' <button type="button" class="lnk" id="umAll">Show all</button>' : '') + '</p>' : '') +
+      (vis.length ? '<ul class="umap" aria-label="Uplisting listings and their rooms">' + vis.map(function(r, i){ return umRowHtml(r, i, ro, usage); }).join('') + '</ul>' : '<p class="muted" style="margin:12px 0 0">No listings match.</p>');
+  }
+  function umBarHtml(){
+    if (!isOwner()) return '';
+    var dirty = umDirty();
+    return (umap.err ? '<p class="merr" role="alert" id="umMsg">' + esc(umap.err) + '</p>' : '') +
+      '<div class="upbar' + (dirty ? ' dirty' : '') + '"><span class="st" id="upSaveSt" tabindex="-1">' + (dirty ? 'Unsaved changes' : umap.saved && Date.now() - umap.saved < 90000 ? 'Mapping saved' : 'No unsaved changes') + '</span>' +
+      (dirty ? '<button type="button" class="lnk" id="upDiscard">Discard changes</button>' : '') + '<button type="button" class="btn btn-sm" id="upSave"' + (dirty ? '' : ' disabled') + '>Save mapping</button></div>';
+  }
+  function umSugAllHtml(){ var n = isOwner() ? umSugCount() : 0; return n ? '<button type="button" class="btn btn-ghost btn-sm" id="umSugAll" title="Fills only listings without rooms">Use all suggestions (' + n + ')</button>' : ''; }
+
+  /* ---------------------------------------------------------------- sync (a loop of slices) */
+  function syncCls(){ var s = usync; return !s || s.running ? '' : s.err ? ' err' : s.stopped ? ' warn' : s.done ? (num((s.stats || {}).clashes) || num((s.stats || {}).errors) ? ' warn' : ' ok') : ''; }
+  function syncWhere(s){ var p = s && s.progress; return p && p.total ? 'listing ' + Math.min(p.total, p.done + 1) + ' of ' + p.total : ''; }
+  function syncNow(s){ var p = s.progress; return s.stop ? 'Stopping after this step…' : !p ? 'Starting the sync…' : p.total ? 'Listing ' + Math.min(p.total, p.done + 1) + ' of ' + p.total + '…' : 'Finishing…'; }
+  function waitText(s){ return s.wait && !s.stop ? ' Uplisting asked us to slow down: going on in about ' + (s.waitSec >= 90 ? Math.round(s.waitSec / 60) + ' min' : Math.max(1, s.waitSec) + ' s') + '.' : ''; }
+  function syncInner(){
+    var s = usync; if (!s) return '';
+    var p = s.progress, pct = p && p.total ? Math.round(Math.min(p.done, p.total) / p.total * 100) : 0, cont = canWrite() && s.cursor ? '<button type="button" class="btn btn-sm" id="upCont">Continue sync</button>' : '';
+    if (s.running) return '<div class="row"><p class="msg"><span class="spin" aria-hidden="true"></span><span>' + esc(syncNow(s)) + waitText(s) + '</span></p>' +
+      '<button type="button" class="btn btn-ghost btn-sm" id="upStop"' + (s.stop ? ' aria-disabled="true">Stopping…' : '>Stop') + '</button></div>' +
+      '<div class="upprog" role="progressbar" aria-label="Sync progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + pct + '"><i style="width:' + pct + '%"></i></div>';
+    var so = s.stats ? ' So far: ' + statsText(s.stats) + '.' : '';
+    if (s.err) return '<div class="row"><p class="msg">' + (s.progress ? 'Sync stopped' + (syncWhere(s) ? ' at ' + esc(syncWhere(s)) : '') + ': ' : 'The sync didn\'t start: ') + esc(bare(s.err)) + '.' + esc(so) + '</p>' + cont + '</div>';
+    if (s.stopped) return '<div class="row"><p class="msg">Sync stopped' + (syncWhere(s) ? ' at ' + esc(syncWhere(s)) : '') + '. Nothing is lost: continue now or later.' + esc(so) + '</p>' + cont + '</div>';
+    if (s.done) return '<div class="row"><p class="msg">Sync done at ' + esc(clock(s.at)) + ': ' + esc(statsText(s.stats)) + '.' + (num((s.stats || {}).clashes) ? ' Clashes show with a red outline in the rooming calendar.' : '') + '</p></div>';
+    return '';
+  }
+  function syncLive(){ var s = usync; return !s ? '' : s.running ? syncNow(s) + waitText(s) : s.err ? 'Sync stopped: ' + s.err : s.stopped ? 'Sync stopped.' : s.done ? 'Sync done: ' + statsText(s.stats) + '.' : ''; }
+  function syncBtnHtml(){ if (!canWrite() || !uplOn()) return ''; var run = !!(usync && usync.running); return '<button type="button" class="btn btn-sm' + (upl.d.last_sync ? ' btn-ghost' : '') + '" id="upSync"' + (run ? ' disabled' : '') + '>' + (run ? 'Syncing…' : 'Sync now') + '</button>'; }
+  // redraw the sync parts only; focus that was on a sync control goes to the one that replaces it
+  function paintSync(want){
+    var box = $('upSyncBox'), a = document.activeElement, had = !!a && a !== document.body && ((box && box.contains(a)) || a.id === 'upSync');
+    if ($('upSyncBtnW')) $('upSyncBtnW').innerHTML = syncBtnHtml();
+    if (box) { box.className = 'upsync' + syncCls(); box.innerHTML = syncInner(); }
+    var live = $('upLive'), t = syncLive(); if (live && live.textContent !== t) live.textContent = t;
+    var now = document.activeElement;
+    if (had && (!now || now === document.body || !document.body.contains(a) || a.disabled)) { var n = (want && $(want)) || $('upStop') || $('upCont') || $('upSync'); if (n && !n.disabled) n.focus(); }
+  }
+  function startSync(cont){
+    if (!canWrite() || !uplOn() || (usync && usync.running)) return;
+    var old = cont && usync && usync.cursor ? usync : null;
+    usync = { running: true, stop: false, cursor: old ? old.cursor : null, progress: old ? old.progress : null, stats: old ? old.stats : null, err: '', done: false, stopped: false, same: 0, wait: false, timer: null, at: 0 };
+    paintSync('upStop');
+    syncStep(usync);
+  }
+  /* One slice per request (the server stays under Cloudflare's subrequest limit and hands back a cursor).
+     The same cursor back means Uplisting asked to slow down (429 / 5xx): wait longer each time, then give up. */
+  function syncStep(s){
+    s.timer = null;
+    if (usync !== s || !s.running) return;
+    if (!token) { s.running = false; return; }
+    if (s.stop) { syncHalt(s); return; }
+    var body = { action: 'uplisting_sync' }; if (s.cursor) body.cursor = s.cursor;
+    post(body).then(function(d){
+      if (usync !== s || !s.running) return;
+      var before = s.cursor;
+      s.cursor = typeof d.cursor === 'string' && d.cursor ? d.cursor : null;
+      if (d.progress && typeof d.progress === 'object') s.progress = { done: num(d.progress.listings_done), total: num(d.progress.listings_total) };
+      if (d.stats && typeof d.stats === 'object') s.stats = d.stats;
+      if (d.done || !s.cursor) { syncDone(s); return; }
+      // paused: Uplisting's rate limit (or it was busy); the server says how long to wait
+      s.same = s.cursor === before ? s.same + 1 : 0; s.busy = 0;
+      s.pauses = d.paused ? (s.pauses || 0) + 1 : 0;
+      if (s.same >= 5 || s.pauses >= 6) {
+        s.running = false; s.wait = false; s.err = 'Uplisting keeps asking us to slow down. Wait a minute, then continue';
+        paintSync('upCont'); toast('Uplisting sync paused' + (syncWhere(s) ? ' at ' + esc(syncWhere(s)) : '') + ': Uplisting keeps asking us to slow down. Continue in a minute.', 'warn');
+        return;
+      }
+      if (s.stop) { syncHalt(s); return; }
+      var wait = s.same ? Math.min(30000, 3000 * Math.pow(2, s.same - 1)) : 200;
+      if (num(d.retry_after) > 0) wait = Math.max(wait, Math.min(300, num(d.retry_after)) * 1000);
+      s.wait = s.same > 0 || !!d.paused; s.waitSec = Math.round(wait / 1000);
+      paintSync();
+      s.timer = setTimeout(function(){ syncStep(s); }, wait);
+    }, function(e){
+      if (usync !== s || !s.running) return;
+      var code = e && e.code, ra = e && e.data ? num(e.data.retry_after) : 0;
+      // Uplisting busy: wait as long as it asks, a few times, then stop with Continue
+      if (code === 'uplisting_busy' && !s.stop && (s.busy = (s.busy || 0) + 1) <= 3) {
+        s.wait = true; s.waitSec = Math.min(300, ra || 15);
+        paintSync(); s.timer = setTimeout(function(){ syncStep(s); }, s.waitSec * 1000);
+        return;
+      }
+      s.running = false; s.wait = false; s.err = why(e);
+      // a cursor that is too old (or a sync that can't go on): only a new sync helps
+      if (code === 'bad_cursor' || code === 'too_big' || code === 'no_mapping' || code === 'uplisting_off') s.cursor = null;
+      if (authFail(e)) { if (token) paintSync('upCont'); return; }
+      paintSync('upCont');
+      toast('Uplisting sync stopped' + (syncWhere(s) ? ' at ' + esc(syncWhere(s)) : '') + ': ' + esc(why(e)), 'err');
+    });
+  }
+  function syncHalt(s){
+    s.running = false; s.stopped = true; s.wait = false;
+    paintSync('upCont');
+    toast('Uplisting sync stopped' + (syncWhere(s) ? ' at ' + esc(syncWhere(s)) : '') + '. Nothing is lost: continue it any time.', 'warn');
+  }
+  function stopSync(){
+    var s = usync; if (!s || !s.running || s.stop) return;
+    s.stop = true;
+    if (s.timer) { clearTimeout(s.timer); s.timer = null; syncHalt(s); } else paintSync('upStop');
+  }
+  function syncDone(s){
+    s.running = false; s.done = true; s.wait = false; s.at = Date.now(); s.cursor = null;
+    var st = s.stats || {}, bad = num(st.clashes) || num(st.errors);
+    // records were made, moved or cancelled: the weeks, the calendar and the panel's counts are stale
+    staleWeeks(); upl.at = 0;
+    paintSync('upSync');
+    toast('Uplisting sync done: ' + esc(statsText(st)) + '.', bad ? 'warn' : 'ok');
+    if (token) { if (route.tab === 'setup') ensure('setup', true); else loadUpl(true).then(null, function(){}); }
+  }
+
+  /* ---------------------------------------------------------------- webhooks, save */
+  function connectHooks(btn){
+    if (!isOwner() || !uplOn()) return;
+    var done = busyBtn(btn, 'Connecting…');
+    post({ action: 'uplisting_hooks' }).then(function(d){
+      done();
+      var cnt = function(x){ return Array.isArray(x) ? x.length : num(x); }, c = cnt(d.created), r = cnt(d.removed);
+      if (upl.d && d.hooks && typeof d.hooks === 'object') { var h = {}; UP_EVENTS.forEach(function(e){ h[e[0]] = !!d.hooks[e[0]]; }); upl.d.hooks = h; }
+      var all = hooksOk();
+      toast((all ? 'Webhooks connected: Uplisting sends new bookings, changes and cancellations here.' : 'Webhooks updated, but not all of them are connected yet.') +
+        (c ? ' ' + esc(plural(c, 'new webhook')) + '.' : all ? ' They were already in place.' : '') + (r ? ' ' + esc(plural(r, 'old webhook')) + ' removed.' : ''), all ? 'ok' : 'warn');
+      renderUp(); var b = $('upHooks'); if (b) b.focus();
+      setTimeout(function(){ if (token && route.tab === 'setup') ensure('setup', true); }, 1500);
+    }, function(e){ done(); if (authFail(e)) return; toast('Could not connect the webhooks: ' + esc(why(e)), 'err'); });
+  }
+  function umCheck(){
+    var d = upl.d, errs = {}, known = {}, msg = '';
+    umRows().forEach(function(r){ if (!r.gone) known[r.key] = 1; });
+    var keys = Object.keys(umap.draft).filter(function(k){ return umap.draft[k].length; });
+    keys.forEach(function(k){
+      var l = umap.draft[k], bad = l.filter(function(n){ return d.rooms.indexOf(n) < 0; });
+      if (!known[k]) errs[k] = 'This listing isn\'t in Uplisting any more: remove its rooms.';
+      else if (bad.length) errs[k] = bad.length === 1 ? bad[0] + ' isn\'t a room here any more: remove it.' : bad.length + ' of these aren\'t rooms here any more: remove them.';
+      else if (l.join('|').length > 500) errs[k] = 'Too many rooms for one listing (their names may take up to 500 characters).';
+    });
+    if (keys.length > d.max_keys) msg = 'At most ' + d.max_keys + ' listings and units can have rooms (now ' + keys.length + ').';
+    return { errs: errs, msg: msg };
+  }
+  function umFocusErr(){
+    var f = $('upWrap') && $('upWrap').querySelector('.umr.bad select, .umr.bad [data-urm]');
+    if (f) f.focus(); else if ($('umMsg')) { $('umMsg').setAttribute('tabindex', '-1'); $('umMsg').focus(); }
+  }
+  function saveMap(btn){
+    if (!isOwner() || !umDirty()) return;
+    var c = umCheck();
+    umap.errs = c.errs; umap.err = c.msg || (Object.keys(c.errs).length ? 'Please check the highlighted listings.' : '');
+    // the rows with problems show whatever the filter
+    if (umap.err) { if (Object.keys(c.errs).length) { umSetFilter('all'); umQ = ''; if ($('upQ')) $('upQ').value = ''; } renderUm(); umFocusErr(); return; }
+    var out = {}; Object.keys(umap.draft).forEach(function(k){ if (umap.draft[k].length) out[k] = umap.draft[k].slice(); });
+    var sent = mapJSON(out), done = busyBtn(btn, 'Saving…');
+    post({ action: 'uplisting_map', mapping: out }).then(function(d){
+      done();
+      var saved = d && d.mapping && typeof d.mapping === 'object' ? normMapping(d.mapping, knownProps()) : out;
+      if (upl.d) upl.d.mapping = saved;
+      umap.base = mapJSON(saved);
+      // edits made while it was saving stay edits
+      if (mapJSON(umap.draft) === sent) umap.draft = copyMap(saved);
+      umap.errs = {}; umap.err = ''; umap.theirs = false; umap.saved = Date.now();
+      var n = upl.d ? upl.d.properties.filter(propMapped).length : Object.keys(saved).length;
+      renderUm();
+      var st = $('upSaveSt'); if (st && (!document.activeElement || document.activeElement === document.body || document.activeElement.disabled)) st.focus();
+      toast('Uplisting mapping saved: ' + esc(n + ' of ' + plural(upl.d ? upl.d.properties.length : n, 'listing')) + ' mapped.' + (canWrite() && uplOn() ? ' <b>Sync now</b> brings in the bookings of newly mapped listings.' : ''), 'ok');
+      upl.at = 0;
+    }, function(e){
+      done();
+      if (authFail(e)) return;
+      var fl = e.data && e.data.fields, rest = [], known = {};
+      umRows().forEach(function(r){ known[r.key] = 1; });
+      umap.errs = {};
+      if (fl && typeof fl === 'object') Object.keys(fl).forEach(function(k){ var kk = umKey(k, knownProps()); if (known[kk]) umap.errs[kk] = String(fl[k]); else rest.push(String(fl[k])); });
+      umap.err = Object.keys(umap.errs).length ? 'Please check the highlighted listings.' + (rest.length ? ' ' + rest.join(' ') : '') : rest.length ? rest.join(' ') : 'Could not save the mapping: ' + why(e);
+      if (Object.keys(umap.errs).length) { umSetFilter('all'); umQ = ''; }
+      renderUp(); umFocusErr();
+    });
+  }
+  function umFocusRow(key, sel){ var w = $('upWrap'); if (!w) return; var n = w.querySelector('[' + sel + '=' + cssq(key) + ']'); if (n) n.focus(); }
+  function umChanged(key){ if (key) delete umap.errs[key]; if (!Object.keys(umap.errs).length) umap.err = ''; renderUm(); }
+  function umAdd(key, name){
+    if (!isOwner() || !name) return;
+    var l = umap.draft[key] || (umap.draft[key] = []);
+    if (l.indexOf(name) < 0) l.push(name);
+    umChanged(key);
+  }
+  function umRemove(v){
+    if (!isOwner()) return;
+    var i = v.indexOf('|'), key = v.slice(0, i), name = v.slice(i + 1), l = umap.draft[key] || [], at = l.indexOf(name);
+    if (at < 0) return;
+    l.splice(at, 1); if (!l.length) delete umap.draft[key];
+    umChanged(key);
+    // focus the next room's remove button in that row, else the row's room picker
+    var nx = l[at] || l[at - 1];
+    if (nx) umFocusRow(key + '|' + nx, 'data-urm'); else umFocusRow(key, 'data-uadd');
+  }
+  function umUse(key){
+    var r = findBy(umRows(), function(x){ return x.key === key; }), s = r ? umSuggestion(r) : [];
+    if (!isOwner() || !s.length) return;
+    umap.draft[key] = s.slice();
+    umChanged(key);
+    umFocusRow(key, 'data-uadd');
+  }
+  function umUseAll(){
+    if (!isOwner()) return;
+    var todo = umRows().filter(function(r){ return r.p && !propMapped(r.p) && !umHas(r.key); }), n = 0;
+    todo.forEach(function(r){ var s = umSuggestion(r); if (s.length) { umap.draft[r.key] = s.slice(); n++; } });
+    umChanged();
+    toast(n ? esc(plural(n, 'suggestion')) + ' used for listings without rooms. Check them, then <b>Save mapping</b>.' : 'No suggestions left to use.', n ? 'ok' : 'warn');
+    var f = $('umAll') || $('upSaveSt'); if (f && (!document.activeElement || document.activeElement === document.body)) f.focus();
+  }
+  function umDiscard(){
+    confirmBox({ title: 'Discard your changes?', danger: true, ok: 'Discard changes', cancel: 'Keep editing', ret: $('upDiscard'),
+      html: '<p>The Uplisting mapping goes back to how it was last saved.</p>' }).then(function(yes){
+        if (!yes) return;
+        umap.draft = copyMap(upl.d ? upl.d.mapping : {}); umap.errs = {}; umap.err = ''; umap.theirs = false;
+        renderUm(); var st = $('upSaveSt'); if (st) st.focus();
+      });
+  }
+
+  /* ---------------------------------------------------------------- the panel */
+  function upCheck(label, value, sub, state){ return '<div class="check ' + (state || '') + '"><small>' + esc(label) + '</small><b>' + value + '</b>' + (sub ? '<span>' + sub + '</span>' : '') + '</div>'; }
+  function upSumLine(){
+    var d = upl.d;
+    if (!uplOn()) return { text: 'Not connected', bad: false };
+    var pr = uplProblems(), c = umCounts(), ls = d.last_sync, t = ls ? Date.parse(ls.at) : NaN;
+    if (pr.length) return { text: 'Needs attention: ' + pr.join(' · '), bad: true };
+    return { text: (d.account && d.account.name ? 'Connected as ' + d.account.name : 'Connected') + ' · ' + c.mapped + ' of ' + plural(c.all, 'listing') + ' mapped · ' + (isFinite(t) ? 'last sync ' + ago(Math.floor(t / 1000)) : 'not synced yet'), bad: false };
+  }
+  function upPanel(){
+    var d = upl.d, own = isOwner();
+    if (!d) return '<section class="panel" id="upBox"' + (upl.err && !inflight._upl ? '' : ' aria-busy="true"') + '><div class="ph"><h2>Uplisting</h2></div>' +
+      (upl.err && !inflight._upl ? '<p class="note err">Could not load the Uplisting settings: ' + esc(why(upl.err)) + ' <button type="button" class="lnk" data-retry>Try again</button></p>' : '<span class="vh">Loading…</span><span class="sk" style="width:62%"></span><span class="sk" style="width:41%"></span>') + '</section>';
+    if (d.legacy) return '<section class="panel" id="upBox"><div class="ph"><h2>Uplisting</h2></div><p class="note">The booking system doesn\'t take bookings from Uplisting yet: that comes with the next deployment of the booking functions.</p></section>';
+    var on = uplOn(), sl = upSumLine(), dirty = mapDirty(), pr = uplProblems();
+    var open = dirty || (upOpenChoice == null ? !on || pr.length > 0 || !d.last_sync || umCounts().unmapped > 0 : upOpenChoice);
+    var html = '';
+    if (!on) {
+      html = '<p>Bookings made on Uplisting (Airbnb, Booking.com, Vrbo, direct…) can take their rooms here: off sale for BreathCamp online booking, in the rooming calendar and on the week boards, with clashes flagged.</p>' +
+        '<ol class="upsteps"><li>In Uplisting, open <b>Connect → API</b> (<a href="https://app.uplisting.io/connect/api" target="_blank" rel="noopener">app.uplisting.io/connect/api</a>) and copy the API key.</li>' +
+        '<li>In Cloudflare, open the website\'s <b>Pages → Settings → Variables and secrets</b> (Production) and add <code>UPLISTING_API_KEY</code> (the key) and <code>UPLISTING_WEBHOOK_SECRET</code> (16 or more random characters: it becomes part of the address Uplisting sends bookings to).</li>' +
+        '<li>Redeploy: variables apply after the next deployment. Then come back here to choose the rooms of each listing, connect the webhooks and sync.</li></ol>' +
+        (own ? '' : '<p class="muted" style="font-size:.8rem">The main admin sets these in Cloudflare.</p>');
+    } else {
+      var h = d.hooks, hk = h ? UP_EVENTS.filter(function(e){ return h[e[0]]; }).length : null, sec = d.configured.webhook_secret;
+      var ls = d.last_sync, lt = ls ? Date.parse(ls.at) : NaN, lr = ls && ls.result, im = d.imported;
+      html += (d.error ? '<p class="note err">Uplisting: ' + esc(d.error) + (d.account ? '' : ' Check <code>UPLISTING_API_KEY</code> in Cloudflare.') + '</p>' : '') +
+        (!sec ? '<p class="note warn">Add <code>UPLISTING_WEBHOOK_SECRET</code> (16 or more random characters) in Cloudflare and redeploy. Until then Uplisting can\'t send bookings here: they only come in with <b>Sync now</b>.</p>' : '') +
+        '<div class="checks">' +
+        upCheck('Account', d.account ? esc(d.account.name || 'Connected') : d.error ? 'Not reachable' : '–', d.account ? 'Uplisting API key works' : 'UPLISTING_API_KEY', d.account ? 'good' : d.error ? 'bad' : '') +
+        upCheck('Webhooks', !sec ? 'No secret yet' : hk == null ? 'Unknown' : hk === UP_EVENTS.length ? 'Connected' : hk ? hk + ' of ' + UP_EVENTS.length + ' connected' : 'Not connected',
+          h ? '<ul class="hooks">' + UP_EVENTS.map(function(e){ return '<li><i class="' + (h[e[0]] ? 'y' : 'n') + '" aria-hidden="true">' + (h[e[0]] ? '✓' : '✗') + '</i>' + esc(e[1]) + '<span class="vh">: ' + (h[e[0]] ? 'connected' : 'not connected') + '</span></li>'; }).join('') + '</ul>' : (sec ? 'Uplisting didn\'t say just now' : 'UPLISTING_WEBHOOK_SECRET'),
+          sec && hk === UP_EVENTS.length ? 'good' : 'bad') +
+        upCheck('Last sync', isFinite(lt) ? esc(ago(Math.floor(lt / 1000))) : 'Never',
+          isFinite(lt) ? esc(new Date(lt).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })) + (lr ? ' · ' + esc(statsText(lr)) : '') : 'Sync once to bring in the bookings already made', isFinite(lt) && !(lr && num(lr.errors)) ? 'good' : lr && num(lr.errors) ? 'bad' : '') +
+        upCheck('Imported', im ? esc(plural(im.active, 'booking')) : '–', im ? esc(im.upcoming + ' upcoming · in the rooming calendar') : '') +
+        '</div>' +
+        (d.hint ? '<p class="uphint">Uplisting sends new bookings, changes and cancellations to <code>' + esc(d.hint) + '</code> (with the secret key, not shown here).</p>' : '') +
+        (d.other_hosts.length ? '<p class="uphint">Uplisting also has webhooks of ours for ' + d.other_hosts.map(function(h){ return '<code>' + esc(h) + '</code>'; }).join(', ') + ' (another address of this booking system): bookings come in through those as well.</p>' : '') +
+        ((own && sec) || canWrite() ? '<div class="tools">' + (own && sec ? '<button type="button" class="btn btn-sm' + (hk === UP_EVENTS.length ? ' btn-ghost' : '') + '" id="upHooks" title="Registers the three webhooks in Uplisting (and removes ours with an old secret)">Connect webhooks</button>' : '') +
+          '<span id="upSyncBtnW">' + syncBtnHtml() + '</span></div>' : '') +
+        (!own && sec && hk !== UP_EVENTS.length ? '<p class="muted" style="font-size:.8rem;margin:8px 0 0">The main admin connects the webhooks.</p>' : '') +
+        '<div class="upsync' + syncCls() + '" id="upSyncBox">' + syncInner() + '</div><span class="vh" id="upLive" aria-live="polite">' + esc(syncLive()) + '</span>';
+      html += '<div class="uph"><h3>Listings and rooms</h3><small id="umCount">' + umCountHtml() + '</small></div>' +
+        '<p class="upintro">A booking of a listing takes every room you add here (a whole-cottage listing: all of its rooms) for its nights, and is ignored while a listing has none. A unit\'s own rooms take the place of its listing\'s.' + (own ? ' Nicknames and IDs tell listings with the same public name apart.' : ' Only the main admin changes this.') + '</p>' +
+        (own && umap.theirs && dirty ? '<p class="note warn">The mapping was saved by someone else while you were editing. <b>Save mapping</b> puts yours in its place; <b>Discard changes</b> shows theirs.</p>' : '') +
+        (d.properties.length ? '<div class="umtb"><div class="seg" role="group" aria-label="Show listings" id="umSeg">' + umSegHtml() + '</div>' +
+          '<div class="grow"><input type="search" id="upQ" placeholder="Find a listing: nickname, name, ID, room" aria-label="Find a listing" autocomplete="off" value="' + esc(umQ) + '"></div><span id="umSugW">' + umSugAllHtml() + '</span></div>' : '') +
+        '<div id="umList">' + umListHtml() + '</div><div id="upBarW" class="upbarw' + (dirty ? ' on' : '') + '">' + umBarHtml() + '</div>';
+    }
+    return '<details class="panel" id="upBox"' + (open ? ' open' : '') + '><summary><h2>Uplisting</h2><span class="sum-line' + (sl.bad ? ' bad' : '') + '" id="upSum">' + esc(sl.text) + '</span></summary>' + html + '</details>';
+  }
+  // the whole panel again (keeping focus, and the caret in the search field)
+  function renderUp(){
+    var w = $('upWrap'); if (!w) return;
+    var a = document.activeElement, q = a && a.id === 'upQ' ? [a.selectionStart, a.selectionEnd] : null;
+    keepFocus(function(){ w.innerHTML = upPanel(); });
+    if (q && $('upQ')) { $('upQ').focus(); try { $('upQ').setSelectionRange(q[0], q[1]); } catch (x) {} }
+  }
+  // the mapping parts only (the search field stays as it is)
+  function renderUm(){
+    if (!$('umList')) { renderUp(); return; }
+    keepFocus(function(){
+      $('umList').innerHTML = umListHtml(); $('upBarW').innerHTML = umBarHtml(); $('upBarW').className = 'upbarw' + (mapDirty() ? ' on' : '');
+      if ($('umCount')) $('umCount').innerHTML = umCountHtml();
+      if ($('umSeg')) $('umSeg').innerHTML = umSegHtml();
+      if ($('umSugW')) $('umSugW').innerHTML = umSugAllHtml();
+      if ($('upSum')) { var sl = upSumLine(); $('upSum').textContent = sl.text; $('upSum').className = 'sum-line' + (sl.bad ? ' bad' : ''); }
+    });
+  }
+  // Setup's events for the panel (delegated from the Setup view's body)
+  function bindUp(root){
+    root.addEventListener('click', function(e){
+      var t = e.target, el = t.closest && t.closest('button, summary');
+      if (!el || !(t.closest('#upBox'))) return;
+      if (el.tagName === 'SUMMARY') { setTimeout(function(){ var b = $('upBox'); if (b && b.tagName === 'DETAILS') upOpenChoice = b.open; }, 0); return; }
+      if (el.id === 'upHooks') connectHooks(el);
+      else if (el.id === 'upSync') startSync(false);
+      else if (el.id === 'upCont') startSync(true);
+      else if (el.id === 'upStop') stopSync();
+      else if (el.id === 'upSave') saveMap(el);
+      else if (el.id === 'upDiscard') umDiscard();
+      else if (el.id === 'umSugAll') umUseAll();
+      else if (el.id === 'umAll') { umSetFilter('all'); umQ = ''; if ($('upQ')) $('upQ').value = ''; renderUm(); var s = $('umSeg') && $('umSeg').querySelector('[data-umf="all"]'); if (s) s.focus(); }
+      else if (el.hasAttribute('data-urm')) umRemove(el.getAttribute('data-urm'));
+      else if (el.hasAttribute('data-usug')) umUse(el.getAttribute('data-usug'));
+      else if (el.hasAttribute('data-umf')) { umSetFilter(el.getAttribute('data-umf')); renderUm(); }
+    });
+    root.addEventListener('change', function(e){
+      var s = e.target; if (!s.hasAttribute || !s.hasAttribute('data-uadd')) return;
+      var v = s.value; s.value = '';
+      umAdd(s.getAttribute('data-uadd'), v);
+    });
+    var qt = null;
+    root.addEventListener('input', function(e){
+      if (e.target.id !== 'upQ') return;
+      var v = e.target.value; clearTimeout(qt);
+      qt = setTimeout(function(){ umQ = v.trim(); if ($('umList')) keepFocus(function(){ $('umList').innerHTML = umListHtml(); }); }, 120);
+    });
+  }
+
   /* ================================================================ team: users + activity log (main admin only)
      Team members are Stripe customers with a username, a role (team: every booking action; viewer: look
      only) and a password the server keeps hashed. A new or reset password comes back once, in the answer
@@ -3033,13 +3752,17 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     offline_payment: ['payments', 'Recorded a payment'], offline_void: ['payments', 'Undid a payment'],
     login: ['users', 'Signed in'], login_failed: ['users', 'Failed sign-in'], user_create: ['users', 'Added a user'], user_update: ['users', 'Changed a user'], test_users_create: ['users', 'Created test users'],
     seed_demo: ['setup', 'Added demo bookings'], place_demo: ['setup', 'Placed demo guests'], clear_demo: ['setup', 'Removed demo bookings'],
-    register_domains: ['setup', 'Registered payment domains'], repair_plans: ['setup', 'Repaired payment plans']
+    register_domains: ['setup', 'Registered payment domains'], repair_plans: ['setup', 'Repaired payment plans'],
+    uplisting_booking: ['uplisting', 'Uplisting booking'], uplisting_cancel: ['uplisting', 'Cancelled in Uplisting'], uplisting_sync: ['uplisting', 'Synced with Uplisting'],
+    uplisting_map: ['uplisting', 'Changed the Uplisting mapping'], uplisting_hooks: ['uplisting', 'Connected Uplisting webhooks']
   };
-  var ACT_GROUPS = [['bookings', 'Bookings'], ['rooms', 'Rooms & blocks'], ['payments', 'Payments'], ['users', 'Users & sign-ins'], ['setup', 'Setup']];
-  function actGroup(a){ var x = ACTIONS[a]; return x ? x[0] : /^manual_/.test(a) ? 'rooms' : /^user_/.test(a) ? 'users' : ''; }
+  var ACT_GROUPS = [['bookings', 'Bookings'], ['rooms', 'Rooms & blocks'], ['payments', 'Payments'], ['uplisting', 'Uplisting'], ['users', 'Users & sign-ins'], ['setup', 'Setup']];
+  function actGroup(a){ var x = ACTIONS[a]; return x ? x[0] : /^manual_/.test(a) ? 'rooms' : /^user_/.test(a) ? 'users' : /^uplisting_/.test(a) ? 'uplisting' : ''; }
   function actLabel(a){ var x = ACTIONS[a]; if (x) return x[1]; var t = String(a || 'change').replace(/_/g, ' '); return t.charAt(0).toUpperCase() + t.slice(1); }
   function rolePill(r){ return ROLES[r] ? '<span class="pill ' + (r === 'owner' ? 'adm' : r === 'team' ? 'ok' : 'can') + '">' + esc(ROLES[r]) + '</span>' : ''; }
-  function isBookingRef(r){ return /^[A-Z0-9]{2,8}-[A-Z0-9]{4,10}$/.test(r || '') && !/^BL-/.test(r); }
+  // who, in words: a role, or a system that wrote to the log itself (Uplisting)
+  function roleName(a){ return ROLES[a.role] || (a.role === 'system' ? 'System' : a.role || ''); }
+  function isBookingRef(r){ return /^[A-Z0-9]{2,8}-[A-Z0-9]{4,10}$/.test(r || '') && !/^(BL|UP)-/.test(r); }
 
   /* ---------------------------------------------------------------- loading */
   function normUser(u){
@@ -3379,7 +4102,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     return acts.list.filter(function(x){
       if (f.grp && actGroup(x.action) !== f.grp) return false;
       if (!terms.length) return true;
-      var hay = [x.actor.name, ROLES[x.actor.role] || '', actLabel(x.action), x.action, x.ref, x.summary, x.program && PBY[x.program] ? wkName(x.program) : x.program].join(' ').toLowerCase();
+      var hay = [x.actor.name, roleName(x.actor), actLabel(x.action), x.action, x.ref, x.summary, x.program && PBY[x.program] ? wkName(x.program) : x.program].join(' ').toLowerCase();
       for (var i = 0; i < terms.length; i++) if (hay.indexOf(terms[i]) < 0) return false;
       return true;
     });
@@ -3395,14 +4118,15 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
   function actWhen(t){ var d = new Date(t); return d.toLocaleString('en-GB', { day: 'numeric', month: 'short', year: d.getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined, hour: '2-digit', minute: '2-digit' }); }
   function actRef(x){
     if (!x.ref || /^cus_/.test(x.ref)) return '';
-    if (/^BL-/.test(x.ref)) return blkReg[x.ref] ? '<button type="button" class="refbtn" data-block="' + esc(x.ref) + '" title="Block details">' + esc(x.ref) + '</button>' : '<code>' + esc(x.ref) + '</code>';
+    if (/^(BL|UP)-/.test(x.ref)) return blkReg[x.ref] ? '<button type="button" class="refbtn" data-block="' + esc(x.ref) + '" title="' + (/^UP-/.test(x.ref) ? 'Uplisting booking details' : 'Block details') + '">' + esc(x.ref) + '</button>' : '<code>' + esc(x.ref) + '</code>';
     if (isBookingRef(x.ref)) return '<button type="button" class="refbtn" data-open="' + esc(x.ref) + '" data-w="' + esc(PBY[x.program] ? x.program : '') + '" title="Open booking ' + esc(x.ref) + '">' + esc(x.ref) + '</button>';
     return '<code>' + esc(x.ref) + '</code>';
   }
   function actRow(x){
     var r = x.actor, owner = r.id === 'owner' || r.role === 'owner';
     return '<tr><td class="main when"><span title="' + esc(x.t ? new Date(x.t).toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' }) : '') + '">' + esc(x.t ? actWhen(x.t) : '–') + '</span></td>' +
-      '<td data-l="Who" class="who">' + (owner && (!r.name || r.name === ROLES.owner) ? rolePill('owner') : '<span class="nm">' + esc(r.name || '–') + '</span>' + rolePill(r.role)) + (r.id === '-' ? '<span class="sub">username tried</span>' : '') + '</td>' +
+      '<td data-l="Who" class="who">' + (r.role === 'system' ? '<span class="pill sys" title="Done by the booking system for ' + esc(r.name || 'a connected service') + '">' + esc(r.name || 'System') + '</span>'
+        : owner && (!r.name || r.name === ROLES.owner) ? rolePill('owner') : '<span class="nm">' + esc(r.name || '–') + '</span>' + rolePill(r.role)) + (r.id === '-' ? '<span class="sub">username tried</span>' : '') + '</td>' +
       '<td data-l="What">' + (x.action === 'login_failed' ? '<span class="pill chk">' + esc(actLabel(x.action)) + '</span>' : esc(actLabel(x.action))) + '</td>' +
       '<td data-l="Booking">' + actRef(x) + '</td>' +
       '<td data-l="Details">' + (x.summary ? esc(x.summary) : '<span class="muted">–</span>') + '</td></tr>';
@@ -3440,7 +4164,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     if (!rows.length) return;
     downloadCsv('activity-log-' + todayIso() + '.csv', ['time', 'person', 'role', 'person_id', 'action', 'what', 'group', 'reference', 'week', 'details'], rows.map(function(x){
       var g = findBy(ACT_GROUPS, function(y){ return y[0] === actGroup(x.action); });
-      return [x.t ? new Date(x.t).toISOString() : '', x.actor.name, ROLES[x.actor.role] || x.actor.role, x.actor.id, x.action, actLabel(x.action), g ? g[1] : '', x.ref, x.program ? (PBY[x.program] ? wkName(x.program) : x.program) : '', x.summary];
+      return [x.t ? new Date(x.t).toISOString() : '', x.actor.name, roleName(x.actor), x.actor.id, x.action, actLabel(x.action), g ? g[1] : '', x.ref, x.program ? (PBY[x.program] ? wkName(x.program) : x.program) : '', x.summary];
     }));
   }
   VIEWS.team = {
@@ -3552,7 +4276,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     if (b.plan && active(b) && b.plan.status === 'past_due') out.push(['err', 'The last plan payment failed. Stripe is retrying it automatically.']);
     if (b.plan && b.plan.ended && num(b.balance_cents) && active(b)) out.push(['err', 'The payment plan has ended with ' + eur(b.balance_cents) + ' unpaid: send a balance link.']);
     if (unverified(b)) out.push(['err', 'Room only: no earlier programme fee payment from this email was found in Stripe. Match it to their GHL or RetreatGuru payment.']);
-    if (rm && active(b)) rm.order.forEach(function(n){ var x = rm.byName[n]; if (x.conflict && x.guests.some(function(g){ return g.ref === b.ref; })) out.push(['err', n + ': ' + (x.conflict === 'blocked' ? 'this room is blocked (' + reasonLabel(x.blocked.reason).toLowerCase() + ', ' + stayLabel(x.blocked.from, x.blocked.to) + '). Move the guest, or delete the block.' : x.conflict === 'mixed' ? 'women and men in a same-gender room.' : x.guests.length + ' guests for ' + plural(x.beds, 'bed') + '.')]); });
+    if (rm && active(b)) rm.order.forEach(function(n){ var x = rm.byName[n]; if (x.conflict && x.guests.some(function(g){ return g.ref === b.ref; })) out.push(['err', n + ': ' + (x.conflict === 'blocked' ? (isExt(x.blocked) ? 'this room is booked on Uplisting (' + upLabel(x.blocked) + ', ' + stayLabel(x.blocked.from, x.blocked.to) + '). Move the guest, or change that booking in Uplisting.' : 'this room is blocked (' + reasonLabel(x.blocked.reason).toLowerCase() + ', ' + stayLabel(x.blocked.from, x.blocked.to) + '). Move the guest, or delete the block.') : x.conflict === 'mixed' ? 'women and men in a same-gender room.' : x.guests.length + ' guests for ' + plural(x.beds, 'bed') + '.')]); });
     return out;
   }
   function drawerHtml(b){
@@ -4344,6 +5068,8 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
     store('s', 'aob_admin', null); store('s', 'aob_admin_who', null); store('s', 'aob_admin_exp', null); store('s', 'aob_admin_kind', null);
     token = ''; me = copyObj(OWNER); cache = {}; ovw = null; ov = {}; mounted = ''; nl = null;
     users = { d: null, at: 0, err: null }; uov = {}; acts = freshActs(); actors = {};
+    if (usync && usync.timer) clearTimeout(usync.timer);
+    upl = { d: null, at: 0, err: null }; umap = freshUmap(); usync = null; umSetFilter('all'); umQ = ''; upOpenChoice = null;
     if (modal) closeModal(true);
     if (drawerRef) closeDrawerUI();
     $('view').innerHTML = ''; show(false); applyRole(false);
@@ -4395,7 +5121,13 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
           : d.error || ('Something went wrong (error ' + x.s + '). Please try again.'), x.s === 401);
       }, function(){ done(); loginFail('Could not reach the booking system. Check your connection and try again.', false); });
   };
-  $('logout').onclick = function(){ signedOut(''); };
+  $('logout').onclick = function(){
+    if (!mapDirty()) { signedOut(''); return; }
+    confirmBox({ title: 'Sign out without saving?', danger: true, ok: 'Sign out', cancel: 'Stay and save', ret: $('logout'),
+      html: '<p>Your changes to the Uplisting mapping aren\'t saved yet. Signing out drops them.</p>' }).then(function(yes){ if (yes) signedOut(''); });
+  };
+  // closing or reloading the tab with an unsaved Uplisting mapping: the browser asks
+  window.addEventListener('beforeunload', function(e){ if (token && mapDirty()) { e.preventDefault(); e.returnValue = ''; return ''; } });
   document.addEventListener('keydown', function(e){
     if (modal) { trap(e, $('mbox')); if (e.key === 'Escape') { e.preventDefault(); closeModal(); } return; }
     if (drawerRef) {

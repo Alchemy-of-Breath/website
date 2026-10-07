@@ -26,7 +26,8 @@
    The activity log ("who did what, when") lives in "logbook" Customers: name 'AoB dashboard activity
    log', description '(do not delete)', metadata aob_logbook '1' plus up to 48 entries. Entry key:
    'e' + Date.now() in base 36 + 2 random base-36 characters; value: compact JSON
-   { t: unix ms, u: actor id ('owner' | customer id | '-'), n: actor name, r: role, a: action,
+   { t: unix ms, u: actor id ('owner' | customer id | 'uplisting' | '-'), n: actor name, r: role ('owner' | 'team' |
+     'viewer' | 'system' | '-'), a: action,
      f: booking reference or record id (optional), p: program id (optional), s: summary }
    (never more than 500 characters: the summary is cut). One entry is one metadata merge on the current
    logbook (adding a key leaves the others alone, so isolates writing at once don't clobber each other);
@@ -35,8 +36,10 @@
 import { stripe, searchAll, listAll, nowSec, liveMode, logError, timingSafeEqual, adminAuthorized, str, cut } from './core.js';
 
 export const ROLES = ['team', 'viewer'];
-export const ROLE_LABELS = { owner: 'Main admin', team: 'Team', viewer: 'View only' };
+export const ROLE_LABELS = { owner: 'Main admin', team: 'Team', viewer: 'View only', system: 'System' };
 export const OWNER = Object.freeze({ kind: 'owner', id: 'owner', name: 'Main admin', role: 'owner' });
+/* Changes nobody on the team made (the Uplisting webhook): logged with this actor, role 'system'. */
+export const UPLISTING_ACTOR = Object.freeze({ kind: 'system', id: 'uplisting', name: 'Uplisting', role: 'system' });
 export const SESSION_HOURS = 12;
 export const USERNAME_RE = /^[a-z0-9._-]{3,32}$/;
 export const PASSWORD_MAX = 100;

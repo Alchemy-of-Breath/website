@@ -11,6 +11,7 @@ import * as release from '../../functions/api/booking/release.js';
 import * as lead from '../../functions/api/booking/lead.js';
 import * as addonsApi from '../../functions/api/booking/addons.js';
 import * as loginApi from '../../functions/api/booking/login.js';
+import * as uplistingApi from '../../functions/api/booking/uplisting.js';
 import { readFileSync } from 'node:fs';
 import PROGRAMS from '../../booking-lib/programs.js';
 import {
@@ -18,12 +19,17 @@ import {
   quote, groupBookings, roomingMap, parseBooking, parseAddons, parseSvc, parseAssign, bookingCheckoutParams, bookingMetadata,
   formEncode, str, cleanNote, saveAdminMeta, findBooking, forgetBooking,
   availability, programWithRecords, calendarRooms, areaOf, blockInput, parseRecord, rangeLabel, overbooked, addDays, forgetWrites, listRecords, forgetRateLimits,
+  nightsBetween, channelLabel, guestShort, REC_REASONS, BLOCK_REASONS,
 } from '../../booking-lib/core.js';
+import {
+  forgetUplisting, uplistingConfig, parseProperties, normBooking, roomSets, chooseRooms, authHeader, mergeSettings, MAP_MAX_KEYS,
+} from '../../booking-lib/uplisting.js';
 import {
   forgetTeam, adminIdentity, generatePassword, PASSWORD_WORDS, activityEntry, logActivity, scrubText, hashPassword, verifyPassword, LOGBOOK_MAX,
 } from '../../booking-lib/team.js';
 
 stripeConfig.retryBaseMs = 1; // keep retries fast
+uplistingConfig.webhookRetryMs = [1, 1];
 
 /* ---------- the archived October 2026 week as a runtime fixture ----------
    It is no longer compiled into programs.js (booking/archive/), but most tests below were written
@@ -80,7 +86,7 @@ function reset(at = '2026-07-01T09:00:00Z') {
   store.faults.length = 0; store.disabledPM.clear(); store.rejectParams.clear(); store.badEmails.clear(); store.onCreate = null; store.onList = null; store.onGet = null;
   store.latency = 0; store.turnstileReply = null; store.noTosUrl = false; store.lagCustomers = false; store.lagInvoices = false; store.invoiceItems.length = 0;
   fakeNow = RealDate.parse(at);
-  clearAvailabilityMemo(undefined, { snapshot: true }); forgetWrites(); forgetTeam();
+  clearAvailabilityMemo(undefined, { snapshot: true }); forgetWrites(); forgetTeam(); forgetUplisting(); upReset();
 }
 const pad = n => String(n).padStart(6, '0');
 function parseForm(body) {
@@ -350,6 +356,7 @@ globalThis.fetch = async (url, init = {}) => {
     const good = f.get('response') === 'good-token';
     return new Response(JSON.stringify(good ? { success: true, hostname: 'alchemyofbreath.com', action: 'booking' } : { success: false, 'error-codes': ['invalid-input-response'] }), { status: 200 });
   }
+  if (url.startsWith('https://connect.uplisting.io/')) return upMock(url, init);
   if (!url.startsWith('https://api.stripe.com/v1')) return realFetch(url, init);
   const u = new URL(url), path = u.pathname.replace('/v1', ''), method = init.method || 'GET';
   const key = (init.headers || {})['Idempotency-Key'];
@@ -373,6 +380,44 @@ globalThis.fetch = async (url, init = {}) => {
   return res;
 };
 const fault = (method, path, opts) => store.faults.push({ method, path, times: 1, status: 500, ...opts });
+
+/* ---------- Uplisting mock (https://connect.uplisting.io): properties (JSON:API), bookings with pages, hooks ---------- */
+const UPK = 'upl_test_key_0001';
+const up = { props: [], included: [], bookings: new Map(), hooks: [], seq: 5000, calls: [], faults: [], account: { name: 'ASHA Tuscany', uid: 'u7005dd' }, hideWide: new Set() };
+function upReset() { up.props = []; up.included = []; up.bookings = new Map(); up.hooks = []; up.calls.length = 0; up.faults.length = 0; up.hideWide.clear(); }
+const upJ = (d, s = 200, h = {}) => new Response(JSON.stringify(d), { status: s, headers: { 'Content-Type': 'application/json', ...h } });
+async function upMock(url, init) {
+  const u = new URL(url), method = init.method || 'GET', h = init.headers || {};
+  up.calls.push({ method, path: u.pathname, search: u.search, auth: h.Authorization, ct: h['Content-Type'], body: init.body || null, t: Date.now() });
+  const f = up.faults.find(x => (!x.method || x.method === method) && x.path.test(u.pathname + u.search) && x.times > 0);
+  if (f) { f.times--; if (f.network) throw new TypeError('fetch failed'); return upJ({ errors: ['mock fault'] }, f.status, f.retryAfter ? { 'Retry-After': String(f.retryAfter) } : {}); }
+  if (h.Authorization !== 'Basic ' + Buffer.from(UPK).toString('base64')) return upJ({ error: 'Your API key does not appear to be valid' }, 401);
+  let m;
+  if (method === 'GET' && u.pathname === '/users/me') return upJ(up.account);
+  if (method === 'GET' && u.pathname === '/properties') return upJ({ data: up.props, included: up.included });
+  if (method === 'GET' && (m = u.pathname.match(/^\/bookings\/([^/]+)$/))) {
+    const pid = decodeURIComponent(m[1]);
+    if (!up.bookings.has(pid)) return upJ({ error: 'Not found' }, 404);
+    const from = u.searchParams.get('from'), to = u.searchParams.get('to'), wide = from && to && nightsBetween(from, to) > 100;
+    const rows = up.bookings.get(pid).filter(b => (!from || b.check_out >= from) && (!to || b.check_in <= to) && !(wide && up.hideWide.has(String(b.id))))
+      .sort((a, b) => (a.check_in < b.check_in ? -1 : a.check_in > b.check_in ? 1 : a.id - b.id));
+    const per = Math.min(50, +(u.searchParams.get('per_page') || 50)), pg = +(u.searchParams.get('page') || 0);
+    return upJ({ bookings: rows.slice(pg * per, pg * per + per).map(b => ({ ...b })), meta: { total_pages: Math.ceil(rows.length / per), total: rows.length } });
+  }
+  if (u.pathname === '/hooks' && method === 'GET') return upJ({ data: up.hooks.map(x => ({ id: String(x.id), type: 'webhooks', attributes: { target_url: x.target_url, event: x.event, created_at: '2026-06-01T00:00:00Z', updated_at: '2026-06-01T00:00:00Z' } })) });
+  if (u.pathname === '/hooks' && method === 'POST') {
+    const b = JSON.parse(init.body || '{}');
+    if (!b.target_url || !b.event) return upJ({ error: 'target_url and event are required' }, 422);
+    const id = ++up.seq; up.hooks.push({ id, target_url: b.target_url, event: b.event }); return upJ({ id }, 201);
+  }
+  if (method === 'DELETE' && (m = u.pathname.match(/^\/hooks\/(\d+)$/))) {
+    const i = up.hooks.findIndex(x => String(x.id) === m[1]);
+    if (i < 0) return upJ({ error: 'Not found' }, 404);
+    up.hooks.splice(i, 1); return upJ({ status: 'destroyed' });
+  }
+  return upJ({ error: 'mock: unhandled ' + method + ' ' + u.pathname }, 400);
+}
+const upFault = (path, opts) => up.faults.push({ path, times: 1, status: 500, ...opts });
 const stripeCalls = (method, re) => store.calls.filter(c => c.method === method && re.test(c.path)).length;
 
 /* A subscription invoice's PaymentIntent: no metadata of ours (Stripe doesn't copy the subscription's). */
@@ -3205,6 +3250,587 @@ reset();
   for (let i = 0; i < 40; i++) await loginRaw({ username: `flood${i}`, password: `pw-flood-${i}` }, ip(150 + i));
   ok(entries().filter(x => x.a === 'login_failed').length - f0 === 30, 'refused sign-ins: at most 30 log entries per 10 minutes per isolate');
   tick(11 * 60);
+}
+
+/* ================================================================== round 6: Uplisting → booking system */
+const UPL = { ...LIVE, UPLISTING_API_KEY: UPK, UPLISTING_WEBHOOK_SECRET: 'wh-secret-0123456789abcdef' };
+const UP = { b1: '251801', a2: '251802', cottage: '251810', gt: '251820', camper: '251830', solo: '268715' };
+const HOST = 'website-5h3.pages.dev', PEACE_1C = '1C · Peace Cottage';
+const MAP = { [UP.b1]: [RN.b1], [UP.a2]: [RN.a2], [UP.cottage]: [RN.a1, RN.b1, PEACE_1C], [`${UP.gt}_9001`]: [RN.gt(1)], [`${UP.gt}_9002`]: [RN.gt(2)], [UP.solo]: [RN.ark('A')] };
+// (a JSON object lists integer-like keys first whatever order they were written in: compare by content)
+const sameMap = (a, b) => { const j = o => JSON.stringify(Object.keys(o || {}).sort().map(k => [k, o[k]])); return j(a) === j(b); };
+const upProp = (id, name, nickname, units = []) => ({ id: String(id), type: 'properties', attributes: { name, nickname, currency: 'EUR', time_zone: 'Europe/Rome', maximum_capacity: 2, bedrooms: 1 },
+  relationships: { multi_units: { data: units.map(x => ({ id: String(x), type: 'multi_units' })) }, address: { data: { id: '1', type: 'addresses' } } } });
+function upFixtures() {
+  // not in id order on purpose; two listings share their public name (only the nickname tells them apart)
+  up.props = [upProp(UP.solo, 'Solo Retreat Room • Pool', '5A Ark'), upProp(UP.a2, 'Twin Retreat Ensuite • Pool • Tuscan Valley Views', '2A Temple'),
+    upProp(UP.b1, 'Twin Retreat Ensuite • Pool • Tuscan Valley Views', '1B Peace'), upProp(UP.cottage, 'Private Cottage For 6 • Pool', 'Peace Cottage (whole)'),
+    upProp(UP.gt, 'Glamping Twin • Pool', 'Glamping twins', [9002, 9001, 9003]), upProp(UP.camper, 'Campervan Spot 1', 'Camper 1')];
+  up.included = [{ id: '9001', type: 'multi_units', attributes: { name: 'GT 1' } }, { id: '9002', type: 'multi_units', attributes: { nickname: 'GT two' } },
+    { id: '9003', type: 'multi_units', attributes: {} }, { id: '1', type: 'addresses', attributes: { city: 'Volterra' } }];
+  for (const p of up.props) up.bookings.set(p.id, []);
+}
+let ubSeq = 700000;
+const ub = (pid, check_in, check_out, extra = {}) => ({
+  id: ++ubSeq, property_id: +pid, property_name: ((up.props.find(p => p.id === String(pid)) || {}).attributes || {}).name || 'Listing', check_in, check_out,
+  number_of_nights: nightsBetween(check_in, check_out), arrival_time: '15:00:00', departure_time: '11:00:00', guest_name: 'Jon Snow', preferred_guest_name: 'King of the North',
+  guest_email: 'jon.snow@castleblack.example', guest_phone: '+44797978889991', lock_code: '4321', note: 'Bringing the dragon', status: 'confirmed', channel: 'airbnb_official',
+  external_reservation_id: 'HMXQ7ZZ9', number_of_guests: 2, multi_unit_id: null, multi_unit_name: null, currency: 'EUR', total_payout: 388.5, booked_at: '2026-06-30T10:00:00Z', ...extra,
+});
+const addUb = (...a) => { const b = ub(...a); up.bookings.get(String(b.property_id)).push(b); return b; };
+const dropUb = b => { const l = up.bookings.get(String(b.property_id)); l.splice(l.indexOf(b), 1); };
+const upAdm = (body, env = UPL) => call(admin, 'POST', '/api/booking/admin', body, env, AUTH);
+const upGet = (q = '', env = UPL) => call(admin, 'GET', '/api/booking/admin?uplisting=1' + q, null, env, AUTH);
+const upRecs = () => store.customers.filter(c => !c.deleted && c.metadata && c.metadata.aob_ext === 'uplisting');
+const upRecOf = id => upRecs().filter(c => c.metadata.aob_ext_id === String(id));
+const settingsCus = () => store.customers.filter(c => !c.deleted && c.metadata && c.metadata.aob_settings === 'uplisting');
+const hookReq = (payload, { key = UPL.UPLISTING_WEBHOOK_SECRET, event = 'booking_updated', raw } = {}) => {
+  const q = new URLSearchParams();
+  if (key != null) q.set('key', key);
+  if (event) q.set('event', event);
+  return new Request(`https://${HOST}/api/booking/uplisting?${q}`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'User-Agent': 'Uplisting' }, body: raw != null ? raw : JSON.stringify(payload) });
+};
+async function upHook(payload, opts = {}) {
+  const res = await uplistingApi.onRequestPost({ request: hookReq(payload, opts), env: opts.env || UPL, waitUntil: p => store.waits.push(p) });
+  const text = await res.text(); let data; try { data = JSON.parse(text); } catch { data = text; }
+  const done = await Promise.all(store.waits.splice(0));
+  return { status: res.status, data, result: done[0] === undefined ? null : done[0] };
+}
+const kCalls = async fn => { const s0 = store.calls.length, u0 = up.calls.length; const res = await fn(); const s = store.calls.length - s0, u = up.calls.length - u0; return { res, stripe: s, upl: u, total: s + u }; };
+/* a sync to the end: each call's subrequests (Stripe + Uplisting, the activity log included), waiting when asked */
+async function syncAll(env = UPL, { cursor = null, headers = AUTH, max = 120 } = {}) {
+  const slices = []; let r;
+  for (let i = 0; i < max; i++) {
+    const k = await kCalls(() => call(admin, 'POST', '/api/booking/admin', { action: 'uplisting_sync', ...(cursor ? { cursor } : {}) }, env, headers));
+    r = k.res; slices.push({ status: r.status, total: k.total, data: r.data });
+    if (r.status !== 200 || r.data.done) break;
+    cursor = r.data.cursor;
+    if (r.data.paused) tick(r.data.retry_after + 1);
+  }
+  return { r, slices, max: Math.max(...slices.map(x => x.total)) };
+}
+
+/* off: health, the panel, the actions, the webhook */
+reset();
+{
+  r = await call(health, 'GET', '/api/booking/health', null, LIVE);
+  ok(r.data.uplisting === 'off', 'health: uplisting off without UPLISTING_API_KEY');
+  r = await call(health, 'GET', '/api/booking/health', null, { ...LIVE, UPLISTING_API_KEY: UPK });
+  ok(r.data.uplisting === 'no_webhook_secret', 'health: a key but no webhook secret');
+  r = await call(health, 'GET', '/api/booking/health', null, { ...UPL, UPLISTING_WEBHOOK_SECRET: 'fifteen-chars-x' });
+  ok(r.data.uplisting === 'no_webhook_secret', 'health: a webhook secret under 16 characters counts as none');
+  r = await call(health, 'GET', '/api/booking/health', null, UPL);
+  ok(r.data.uplisting === 'on' && !JSON.stringify(r.data).includes(UPK) && !JSON.stringify(r.data).includes(UPL.UPLISTING_WEBHOOK_SECRET), 'health: on (never the values)');
+  let k = await kCalls(() => upGet('', LIVE));
+  r = k.res;
+  ok(r.status === 200 && r.data.uplisting === true && r.data.status === 'off' && r.data.configured.api_key === false && r.data.configured.webhook_secret === false && r.data.account === null && r.data.properties.length === 0
+    && r.data.hooks === null && r.data.last_sync === null && JSON.stringify(r.data.mapping) === '{}' && r.data.imported.active === 0 && r.data.imported.upcoming === 0 && !r.data.error && k.upl === 0 && JSON.stringify(r.data.me) === OWNER_ME,
+  'panel off: configured false, no Uplisting call');
+  ok(r.data.rooms.length === 31 && r.data.rooms[0] === RN.a1 && r.data.room_groups.length === 8 && r.data.room_groups[0].area === 'Peace Cottage' && r.data.room_groups[0].rooms.length === 3
+    && r.data.webhook_url_hint === `https://${HOST}/api/booking/uplisting` && r.data.max_keys === 47 && r.data.hooks_other_hosts.length === 0, 'panel: calendar rooms (grouped by area), the webhook URL without its key');
+  r = await upGet('', ADMIN_ONLY);
+  ok(r.status === 200 && r.data.status === 'off' && JSON.stringify(r.data.mapping) === '{}' && r.data.rooms.length === 31, 'panel in demo mode (no Stripe)');
+  for (const action of ['uplisting_map', 'uplisting_hooks', 'uplisting_sync']) {
+    r = await upAdm({ action, mapping: {} }, LIVE);
+    ok(r.status === 503 && r.data.code === 'uplisting_off', `${action} without UPLISTING_API_KEY → 503 uplisting_off`);
+  }
+  for (const [env, msg] of [[LIVE, 'no key'], [{ ...LIVE, UPLISTING_API_KEY: UPK }, 'no webhook secret'], [{ ...UPL, STRIPE_SECRET_KEY: '' }, 'no Stripe']]) {
+    k = await kCalls(() => upHook({ id: 1, property_id: 2 }, { env }));
+    ok(k.res.status === 503 && k.res.data.error && k.total === 0 && k.res.result === null, `webhook off (${msg}) → 503, nothing read`);
+  }
+  ok(REC_REASONS.includes('uplisting') && !BLOCK_REASONS.includes('uplisting'), 'reason uplisting: a record reason, not one the team can choose');
+  r = await adm({ action: 'block_create', rooms: [RN.cv(3)], from: '2027-09-02', to: '2027-09-03', reason: 'uplisting' });
+  ok(r.status === 422 && /maintenance/.test(r.data.fields.reason) && !/uplisting/.test(r.data.fields.reason), 'block_create: the reason uplisting is refused');
+  ok(channelLabel('airbnb_official') === 'Airbnb' && channelLabel('booking_dot_com') === 'Booking.com' && channelLabel('home_away') === 'Vrbo' && channelLabel('google') === 'Google'
+    && channelLabel('uplisting') === 'Direct (Uplisting)' && channelLabel('expedia') === 'expedia', 'channel labels (others as they are)');
+  ok(guestShort('Jon Snow') === 'Jon S.' && guestShort('Stefan') === 'Stefan' && guestShort('mary jane watson') === 'mary W.' && guestShort('  ') === '' && guestShort('Ana 2') === 'Ana', 'guests in summaries: first name + last initial');
+  ok(authHeader('abc') === 'Basic YWJj', 'Authorization: Basic + base64 of the key');
+}
+
+/* the panel with a key: account, listings (JSON:API, multi-units), webhooks; 5-minute copy; errors */
+reset(); upFixtures();
+let tT, tV;
+{
+  let k = await kCalls(() => upGet());
+  r = k.res;
+  ok(r.status === 200 && r.data.status === 'on' && r.data.configured.api_key && r.data.configured.webhook_secret && JSON.stringify(r.data.account) === '{"name":"ASHA Tuscany"}' && !r.data.error && k.upl === 3,
+    'panel: the account name (only), 3 Uplisting calls');
+  ok(r.data.properties.map(p => p.id).join() === '251801,251802,251810,251820,251830,268715', 'listings by id');
+  const pB1 = r.data.properties.find(p => p.id === UP.b1), pA2 = r.data.properties.find(p => p.id === UP.a2), pGt = r.data.properties.find(p => p.id === UP.gt);
+  ok(pB1.name === pA2.name && pB1.nickname === '1B Peace' && pA2.nickname === '2A Temple' && pB1.units.length === 0 && Object.keys(pB1).join() === 'id,name,nickname,units', 'listings: name and nickname (two with the same name)');
+  ok(pGt.units.map(u => `${u.id}:${u.name}`).join('|') === '9002:GT two|9001:GT 1|9003:Unit 9003', 'multi-units: name, else nickname, else "Unit <id>"');
+  ok(JSON.stringify(r.data.hooks) === JSON.stringify({ booking_created: false, booking_updated: false, booking_removed: false }), 'webhooks: none yet');
+  ok(up.calls.length === 3 && up.calls.every(c => c.auth === 'Basic ' + Buffer.from(UPK).toString('base64') && c.ct === 'application/json'), 'every Uplisting call: Authorization Basic base64(key), Content-Type application/json');
+  const doc = { data: { id: '11033', type: 'properties', attributes: { name: 'Chic apt', nickname: 'BDC' } }, included: [{ id: '68', type: 'multi_units', attributes: { name: '5G' }, relationships: { property: { data: { id: '11033', type: 'properties' } } } }] };
+  ok(JSON.stringify(parseProperties(doc)) === JSON.stringify([{ id: '11033', name: 'Chic apt', nickname: 'BDC', units: [{ id: '68', name: '5G' }] }]) && parseProperties(null).length === 0 && parseProperties({ data: [{ id: 'bad id' }] }).length === 0,
+    'parseProperties: one property, units found from the included side, junk ignored');
+  k = await kCalls(() => upGet());
+  ok(k.res.status === 200 && k.upl === 0 && k.res.data.properties.length === 6 && k.res.data.account.name === 'ASHA Tuscany', 'within 5 minutes: the isolate\'s copy (no Uplisting call)');
+  k = await kCalls(() => upGet('&refresh=1'));
+  ok(k.upl === 3, 'refresh=1: read again');
+  tick(5 * 60 + 1);
+  k = await kCalls(() => upGet());
+  ok(k.upl === 3, 'after 5 minutes: read again');
+  // every role reads it
+  await adm({ action: 'user_create', username: 'tina', name: 'Tina', role: 'team', password: 'tina-pass' });
+  await adm({ action: 'user_create', username: 'vic', name: 'Vic', role: 'viewer', password: 'vic-pass' });
+  secrets.push('tina-pass', 'vic-pass');
+  tT = (await loginAs('tina', 'tina-pass')).data.token; tV = (await loginAs('vic', 'vic-pass')).data.token;
+  r = await getAs(tT, 'uplisting=1', UPL);
+  ok(r.status === 200 && r.data.me.role === 'team' && r.data.properties.length === 6, 'a team member reads the panel');
+  r = await getAs(tV, 'uplisting=1', UPL);
+  ok(r.status === 200 && r.data.me.role === 'viewer' && r.data.properties.length === 6, 'a viewer reads the panel');
+  r = await call(admin, 'GET', '/api/booking/admin?uplisting=1', null, UPL);
+  ok(r.status === 401, 'the panel needs a sign-in');
+  // errors: still 200 with the text
+  k = await kCalls(() => upGet('&refresh=1', { ...UPL, UPLISTING_API_KEY: 'wrong-key' }));
+  ok(k.res.status === 200 && /refused the API key/.test(k.res.data.error) && k.res.data.account === null && k.res.data.properties.length === 0 && k.res.data.hooks === null && k.res.data.configured.api_key, 'a wrong API key: 200 with the error');
+  upFault(/^\/properties/, { status: 503 });
+  k = await kCalls(() => upGet('&refresh=1'));
+  ok(k.res.status === 200 && /could not be reached/.test(k.res.data.error) && k.res.data.properties.length === 0 && k.res.data.account.name === 'ASHA Tuscany' && k.res.data.hooks, 'Uplisting failing one call: the rest shown, with the error');
+  fault('GET', /^\/customers\/search$/, { status: 500, times: 6 }); // both searches (settings, records) fail
+  r = await upGet();
+  ok(r.status === 502 && /Stripe/.test(r.data.error), 'Stripe unreadable → 502 (a mapping that can\'t be read never looks empty)');
+}
+
+/* the mapping */
+{
+  r = await upAdm({ action: 'uplisting_map', mapping: MAP });
+  let sc = settingsCus();
+  const snap = JSON.stringify(sc[0] && sc[0].metadata);
+  ok(r.status === 200 && r.data.ok && sameMap(r.data.mapping, MAP) && r.data.mapping[UP.cottage].join('|') === [RN.a1, RN.b1, PEACE_1C].join('|'), 'uplisting_map: saved');
+  ok(sc.length === 1 && sc[0].name === 'AoB booking settings · Uplisting (do not delete)' && sc[0].email === null && sc[0].metadata.aob_settings === 'uplisting' && sc[0].metadata.m251801 === RN.b1
+    && sc[0].metadata.m251820_9001 === RN.gt(1) && sc[0].metadata.m251810 === [RN.a1, RN.b1, PEACE_1C].join('|') && !sc[0].metadata.aob_rec_any && Object.keys(sc[0].metadata).length === 7, 'the settings customer: no email, never a record, m<listing>[_<unit>] = rooms');
+  ok(lastEntry('uplisting_map').s === 'Uplisting mapping: 6 listings mapped' && lastEntry('uplisting_map').u === 'owner', 'activity: uplisting_map');
+  r = await upGet();
+  ok(sameMap(r.data.mapping, MAP), 'the panel shows the mapping');
+  for (const [mapping, f, re, msg] of [
+    [{ 999999: [RN.a2] }, 'mapping.999999', /not in Uplisting/, 'a listing Uplisting doesn\'t have'],
+    [{ '251820_9999': [RN.a2] }, 'mapping.251820_9999', /unit is not part/, 'a unit the listing doesn\'t have'],
+    [{ '251801_9001': [RN.a2] }, 'mapping.251801_9001', /unit is not part/, 'a unit of another listing'],
+    [{ 'abc def': [RN.a2] }, 'mapping.abc def', /Unknown listing/, 'not a listing id'],
+    [{ [UP.b1]: ['Nowhere 9'] }, 'mapping.251801', /Unknown room: Nowhere 9/, 'an unknown room'],
+    [{ [UP.b1]: RN.b1 }, 'mapping.251801', /Choose rooms/, 'a room name instead of a list'],
+    [{ [UP.b1]: calendarRooms().rooms.map(x => x.name) }, 'mapping.251801', /Too many rooms/, 'all 31 rooms (over 500 characters)'],
+  ]) {
+    r = await upAdm({ action: 'uplisting_map', mapping });
+    ok(r.status === 422 && re.test(r.data.fields[f] || ''), `uplisting_map refused: ${msg}`);
+  }
+  r = await upAdm({ action: 'uplisting_map', mapping: [RN.a2] });
+  ok(r.status === 422 && r.data.fields.mapping, 'uplisting_map refused: not an object');
+  ok(JSON.stringify(settingsCus()[0].metadata) === snap && settingsCus().length === 1, 'nothing saved for refused mappings');
+  // 47 keys at most (+ aob_settings, aob_last_sync, aob_last_sync_result = Stripe's 50)
+  const extra = Array.from({ length: 48 }, (_, i) => String(300000 + i));
+  up.props.push(...extra.map(id => upProp(id, 'Extra ' + id, '')));
+  await upGet('&refresh=1');
+  r = await upAdm({ action: 'uplisting_map', mapping: Object.fromEntries(extra.map(id => [id, [RN.cv(1)]])) });
+  ok(r.status === 422 && r.data.fields.mapping === 'At most 47 listings and units can be mapped.' && MAP_MAX_KEYS === 47, 'uplisting_map refused: 48 keys');
+  r = await upAdm({ action: 'uplisting_map', mapping: Object.fromEntries(extra.slice(0, 47).map(id => [id, [RN.cv(1)]])) });
+  sc = settingsCus();
+  ok(r.status === 200 && Object.keys(sc[0].metadata).length === 48 && !sc[0].metadata.m251801, '47 keys fit; the keys that went are removed (the mapping is replaced)');
+  // a sync over 47 listings (unknown to the bookings endpoint: errors) adds aob_last_sync + result: exactly Stripe's 50 keys
+  tick(61);
+  let s = await syncAll();
+  ok(s.r.status === 200 && s.r.data.done && s.r.data.stats.errors === 47 && Object.keys(settingsCus()[0].metadata).length === 50 && s.max <= 45, `47 listings: done in ${s.slices.length} calls, the settings at 50 keys`);
+  up.props = up.props.filter(p => !extra.includes(p.id));
+  await upGet('&refresh=1');
+  r = await upAdm({ action: 'uplisting_map', mapping: { ...MAP, [UP.solo]: [] } });
+  ok(r.status === 200 && !r.data.mapping[UP.solo] && Object.keys(settingsCus()[0].metadata).filter(x => /^m\d/.test(x)).length === 5, 'an empty list removes a listing');
+  r = await upAdm({ action: 'uplisting_map', mapping: MAP });
+  // two settings customers (made by two isolates at once): merged, the newest wins per key; a save clears the older one
+  store.customers.push({ id: 'cus_setold01', object: 'customer', name: 'AoB booking settings · Uplisting (do not delete)', email: null, description: null,
+    metadata: { aob_settings: 'uplisting', m251830: RN.cv(1), m251801: RN.d2 }, created: nowS() - 86400 });
+  forgetUplisting();
+  r = await upGet();
+  ok(r.data.mapping[UP.camper].join() === RN.cv(1) && r.data.mapping[UP.b1].join() === RN.b1, 'several settings customers: merged, the newest wins per key');
+  r = await upAdm({ action: 'uplisting_map', mapping: MAP });
+  const old = cusOf('cus_setold01');
+  ok(r.status === 200 && !old.metadata.m251830 && !old.metadata.m251801 && old.metadata.aob_settings === 'uplisting', 'a save clears the older one\'s mapping (a removed listing can\'t come back)');
+  r = await upGet();
+  ok(!r.data.mapping[UP.camper] && sameMap(r.data.mapping, MAP), '… the panel shows exactly what was saved');
+  ok(mergeSettings([{ id: 'cus_a', created: 1, metadata: { aob_settings: 'uplisting', m1: 'A', aob_last_sync_result: '{bad' , aob_last_sync: 'x' } }]).last_sync.result === null, 'an unreadable last result reads as null');
+  // permissions
+  r = await asUser(tT, { action: 'uplisting_map', mapping: MAP }, UPL);
+  ok(r.status === 403 && r.data.code === 'owner_only', 'uplisting_map by a team member → 403 owner_only');
+  r = await asUser(tT, { action: 'uplisting_hooks' }, UPL);
+  ok(r.status === 403 && r.data.code === 'owner_only', 'uplisting_hooks by a team member → 403 owner_only');
+  for (const action of ['uplisting_map', 'uplisting_hooks', 'uplisting_sync']) {
+    r = await asUser(tV, { action, mapping: MAP }, UPL);
+    ok(r.status === 403 && r.data.code === 'read_only', `${action} by a viewer → 403 read_only`);
+  }
+  // Uplisting down while saving: not saved
+  forgetUplisting();
+  upFault(/^\/properties/, { status: 500 });
+  r = await upAdm({ action: 'uplisting_map', mapping: { [UP.b1]: [RN.c2] } });
+  ok(r.status === 503 && r.data.code === 'uplisting_busy' && /not saved/.test(r.data.error) && settingsCus().some(c => c.metadata.m251801 === RN.b1), 'Uplisting unreachable: the mapping is not saved (503)');
+  await upGet();
+  up.props.push(upProp('270001', 'Glamping Single • New', 'GS new')); up.bookings.set('270001', []);
+  const k = await kCalls(() => upAdm({ action: 'uplisting_map', mapping: { ...MAP, 270001: [RN.gs(4)] } }));
+  ok(k.res.status === 200 && k.res.data.mapping['270001'].join() === RN.gs(4) && k.upl === 1, 'a listing added in Uplisting since the 5-minute copy: the listings are read again once, then saved');
+  r = await upAdm({ action: 'uplisting_map', mapping: MAP });
+}
+
+/* webhooks: register, again, rotate the secret */
+{
+  const want = (ev, secret = UPL.UPLISTING_WEBHOOK_SECRET) => `https://${HOST}/api/booking/uplisting?key=${encodeURIComponent(secret)}&event=${ev}`;
+  let k = await kCalls(() => upAdm({ action: 'uplisting_hooks' }));
+  r = k.res;
+  ok(r.status === 200 && r.data.ok && r.data.created === 3 && r.data.removed === 0 && Object.values(r.data.hooks).every(Boolean) && up.hooks.map(h => h.event).join() === 'booking_created,booking_updated,booking_removed'
+    && up.hooks.every(h => h.target_url === want(h.event)), 'uplisting_hooks: the three booking events, each to this host with the key and the event');
+  ok(up.calls.filter(c => c.method === 'POST').every(c => JSON.parse(c.body).target_url && Object.keys(JSON.parse(c.body)).sort().join() === 'event,target_url'), 'POST /hooks { target_url, event }');
+  ok(!JSON.stringify(r.data).includes(UPL.UPLISTING_WEBHOOK_SECRET) && lastEntry('uplisting_hooks').s === 'Uplisting webhooks: 3 of 3 connected (3 added, 0 removed)'
+    && !JSON.stringify(entries()).includes(UPL.UPLISTING_WEBHOOK_SECRET), 'activity: uplisting_hooks; the key never in the answer or the log');
+  r = await upGet();
+  ok(Object.values(r.data.hooks).every(Boolean) && !JSON.stringify(r.data).includes(UPL.UPLISTING_WEBHOOK_SECRET), 'panel: connected, without the key');
+  r = await upAdm({ action: 'uplisting_hooks' });
+  ok(r.data.created === 0 && r.data.removed === 0 && up.hooks.length === 3, 'again: nothing to do');
+  // another app's hook and ours on the custom domain stay; a duplicate of ours goes
+  up.hooks.push({ id: 1, target_url: 'https://hooks.zapier.com/hooks/catch/1/x/', event: 'booking_created' }, { id: 2, target_url: 'https://alchemyofbreath.com/api/booking/uplisting?key=old&event=booking_created', event: 'booking_created' },
+    { id: 3, target_url: want('booking_updated'), event: 'booking_updated' });
+  const ROT = { ...UPL, UPLISTING_WEBHOOK_SECRET: 'rotated-secret-ABCDEFGHIJ' };
+  r = await upGet('&refresh=1', ROT);
+  ok(r.data.hooks && !Object.values(r.data.hooks).some(Boolean) && r.data.hooks_other_hosts.join() === 'alchemyofbreath.com', 'a new secret: the old hooks don\'t count; another host of ours is listed');
+  r = await upAdm({ action: 'uplisting_hooks' }, ROT);
+  ok(r.status === 200 && r.data.removed === 4 && r.data.created === 3 && up.hooks.length === 5 && up.hooks.some(h => h.id === 1) && up.hooks.some(h => h.id === 2)
+    && up.hooks.filter(h => h.target_url.startsWith(`https://${HOST}/`)).every(h => h.target_url === want(h.event, ROT.UPLISTING_WEBHOOK_SECRET)), 'rotated secret: our 4 old hooks (one a duplicate) removed, 3 new; other hosts and apps untouched');
+  r = await upHook({ id: 1, property_id: UP.b1 }, { env: ROT });
+  ok(r.status === 401, 'the old key is refused once the secret changed');
+  r = await upAdm({ action: 'uplisting_hooks' }, { ...UPL, UPLISTING_WEBHOOK_SECRET: '' });
+  ok(r.status === 409 && r.data.code === 'no_webhook_secret', 'uplisting_hooks without a secret → 409');
+  upFault(/^\/hooks$/, { method: 'POST', status: 429, retryAfter: 20 });
+  r = await upAdm({ action: 'uplisting_hooks' });
+  ok(r.status === 503 && r.data.code === 'uplisting_busy' && r.data.retry_after === 20 && r.data.removed === 3, 'Uplisting rate-limits the registration → 503 with retry_after');
+  r = await upAdm({ action: 'uplisting_hooks' });
+  ok(r.status === 200 && r.data.created === 3 && up.hooks.filter(h => h.target_url.startsWith(`https://${HOST}/`)).length === 3, '… again: done');
+}
+
+/* the webhook: key, unmapped, created from the API's copy, duplicates, changes, cancellations */
+{
+  let k = await kCalls(() => upHook({ id: 1, property_id: UP.b1 }, { key: null }));
+  ok(k.res.status === 401 && k.res.data.error === 'Not authorised.' && k.total === 0 && k.res.result === null, 'webhook: no key → 401, nothing read');
+  for (const key of ['wrong', UPL.UPLISTING_WEBHOOK_SECRET + 'x', UPL.UPLISTING_WEBHOOK_SECRET.slice(0, -1), '']) {
+    k = await kCalls(() => upHook({ id: 1, property_id: UP.b1 }, { key }));
+    ok(k.res.status === 401 && k.total === 0, `webhook: a wrong key (${key.length} characters) → 401`);
+  }
+  const bc = addUb(UP.camper, '2027-07-19', '2027-07-21');
+  k = await kCalls(() => upHook(bc, { event: 'booking_created' }));
+  ok(k.res.status === 200 && JSON.stringify(k.res.data) === '{"ok":true}' && k.res.result.action === 'ignored' && k.res.result.reason === 'unmapped' && k.upl === 0 && upRecOf(bc.id).length === 0, 'an unmapped listing: 200, ignored (no Uplisting call, nothing stored)');
+  // a new booking, a cold isolate: everything counted
+  const b1 = addUb(UP.b1, '2027-07-19', '2027-07-22');
+  forgetTeam(); forgetUplisting(); forgetWrites();
+  k = await kCalls(() => upHook({ ...b1, check_out: '2027-07-20', multi_unit_id: 9001, property_name: 'Fake', guest_name: 'Someone Else', number_of_guests: 7 }, { event: 'booking_created' }));
+  const c1 = upRecOf(b1.id)[0], m1 = c1 && c1.metadata;
+  ok(k.res.status === 200 && k.res.result.action === 'created' && upRecOf(b1.id).length === 1, 'booking_created: a record');
+  ok(m1.aob_rec === 'block' && m1.aob_rec_any === '1' && m1.aob_id === `UP-${b1.id}` && m1.aob_from === '2027-07-19' && m1.aob_to === '2027-07-22' && m1.aob_rooms === RN.b1 && m1.aob_reason === 'uplisting' && m1.aob_status === 'active'
+    && m1.aob_ext === 'uplisting' && m1.aob_ext_id === String(b1.id) && m1.aob_ext_prop === UP.b1 && !('aob_ext_unit' in m1) && m1.aob_ext_pname === b1.property_name && m1.aob_ext_channel === 'airbnb_official'
+    && m1.aob_ext_guest === 'Jon Snow' && m1.aob_ext_n === '2' && m1.aob_ext_ustatus === 'confirmed' && !m1.aob_ext_sync && !m1.aob_created_at, 'the record: the API\'s dates, listing, guest and count (the payload\'s ignored)');
+  ok(c1.email === null && c1.name === `Uplisting · Jon Snow · ${b1.property_name}` && c1.description === 'Imported from Uplisting (managed by sync)', 'its customer: name and description, no email');
+  ok(k.total <= 10, `webhook: ${k.total} subrequests on a cold isolate (Stripe ${k.stripe}, Uplisting ${k.upl}), under ~10`);
+  const q1 = up.calls.filter(c => c.path === `/bookings/${UP.b1}`).pop();
+  ok(q1 && /from=2027-07-18/.test(q1.search) && /to=2027-07-21/.test(q1.search) && /per_page=50/.test(q1.search) && /page=0/.test(q1.search), 'read back by the payload\'s dates, a day either side');
+  ok(store.calls.some(c => c.method === 'POST' && c.path === '/customers' && new RegExp(`^uplisting-${b1.id}-2027-07-19-2027-07-22-[0-9a-z]+$`).test(c.key || '')), 'Idempotency-Key uplisting-<id>-<check-in>-<check-out>-<rooms hash>');
+  const eB = lastEntry('uplisting_booking');
+  ok(eB && eB.s === 'Airbnb booking · 1B · Peace Cottage · 19–22 Jul 2027 (3 nights) · Jon S. · 2 guests' && eB.u === 'uplisting' && eB.n === 'Uplisting' && eB.r === 'system' && eB.f === `UP-${b1.id}` && eB.p === J1,
+    'activity: uplisting_booking by the Uplisting system actor');
+  r = await ownerGet('activity=1&user=uplisting', UPL);
+  ok(r.data.entries.length === 1 && r.data.entries[0].actor.role === 'system' && r.data.entries[0].actor.name === 'Uplisting', 'activity: user=uplisting');
+  // seen everywhere a block is
+  r = await call(admin, 'GET', `/api/booking/admin?program=${J1}`, null, UPL, AUTH);
+  const blB = r.data.blocks.find(x => x.id === `UP-${b1.id}`);
+  ok(blB && blB.reason === 'uplisting' && blB.rooms.join() === RN.b1 && blB.status === 'active' && blB.ext && blB.ext.source === 'uplisting' && blB.ext.id === String(b1.id) && blB.ext.property_id === UP.b1
+    && blB.ext.property_name === b1.property_name && blB.ext.channel === 'airbnb_official' && blB.ext.guest === 'Jon Snow' && blB.ext.guests === 2 && blB.ext.status === 'confirmed' && blB.ext.unit === '' && blB.ext.synced_at === blB.created_at
+    && Object.keys(blB.ext).sort().join() === 'channel,guest,guests,id,property_id,property_name,source,status,synced_at,unit', 'week GET: blocks[] with ext');
+  ok(r.data.rooming[RN.b1].blocked.id === `UP-${b1.id}` && r.data.rooming[RN.b1].blocked.ext.guest === 'Jon Snow' && r.data.rooming[RN.a2].blocked === undefined, 'rooming: blocked with ext');
+  ok(r.data.availability.rooms['twin-ensuite'].empty_units === 4, 'week 1 admin availability: one twin room less');
+  r = await call(admin, 'GET', '/api/booking/admin?calendar=1&from=2027-07-11&to=2027-08-08', null, UPL, AUTH);
+  ok(r.data.blocks.some(x => x.id === `UP-${b1.id}` && x.ext && x.ext.channel === 'airbnb_official'), 'calendar: blocks[] with ext');
+  ok(!JSON.stringify(r.data).includes('castleblack') && !JSON.stringify(r.data).includes('7978978'), 'no guest email or phone in the answers');
+  r = await availJ(UPL);
+  ok(r.data.rooms['twin-ensuite'].empty_units === 4 && r.data.rooms['twin-ensuite'].left.female === 8, 'public availability: BreathCamp 1 has one twin room less');
+  r = await availJ(UPL, J2);
+  ok(r.data.rooms['twin-ensuite'].empty_units === 5, '… BreathCamp 2 untouched');
+  // duplicates
+  const n0 = entries().length;
+  r = await upHook(b1, { event: 'booking_created' });
+  ok(r.result.action === 'unchanged' && upRecOf(b1.id).length === 1 && entries().length === n0, 'the same webhook again: unchanged (not logged)');
+  const b2 = addUb(UP.a2, '2027-08-02', '2027-08-05');
+  await Promise.all([0, 1, 2].map(i => uplistingApi.onRequestPost({ request: hookReq(b2, { event: i ? 'booking_updated' : 'booking_created' }), env: UPL, waitUntil: p => store.waits.push(p) })));
+  const three = await Promise.all(store.waits.splice(0));
+  ok(three.map(x => x.action).sort().join() === 'created,unchanged,unchanged' && upRecOf(b2.id).length === 1, 'three webhooks of one booking at once: one record');
+  forgetWrites(); forgetUplisting(); upRecOf(b2.id)[0]._lagging = true;
+  r = await upHook(b2);
+  ok(r.result.action === 'unchanged' && upRecOf(b2.id).length === 1, 'another isolate while search lags: found in the real-time list of new customers');
+  forgetWrites(); forgetUplisting(); tick(11 * 60);
+  r = await upHook(b2);
+  ok(r.result.action === 'created' && upRecOf(b2.id).length === 1 && r.result.rec.customer === upRecOf(b2.id)[0].id, 'neither search nor the list sees it: the same Idempotency-Key and body give back the same customer (one record)');
+  upRecOf(b2.id)[0]._lagging = false;
+  // changed in Uplisting
+  Object.assign(b1, { check_in: '2027-07-25', check_out: '2027-07-27', number_of_guests: 1, guest_name: 'Jon Targaryen' });
+  r = await upHook(b1);
+  let m = upRecOf(b1.id)[0].metadata;
+  ok(r.result.action === 'updated' && m.aob_from === '2027-07-25' && m.aob_to === '2027-07-27' && m.aob_ext_n === '1' && m.aob_ext_guest === 'Jon Targaryen' && !Number.isNaN(Date.parse(m.aob_ext_sync))
+    && upRecOf(b1.id)[0].name === `Uplisting · Jon Targaryen · ${b1.property_name}` && upRecOf(b1.id).length === 1, 'booking_updated: new dates (the same record), renamed, aob_ext_sync');
+  ok(lastEntry('uplisting_booking').s === 'Airbnb booking · 1B · Peace Cottage · 25–27 Jul 2027 (2 nights) · Jon T. · 1 guest' && lastEntry('uplisting_booking').p === J2, 'activity: the change');
+  r = await availJ(UPL);
+  const w1 = r.data.rooms['twin-ensuite'].empty_units;
+  r = await availJ(UPL, J2);
+  ok(w1 === 5 && r.data.rooms['twin-ensuite'].empty_units === 4, 'the room is free in week 1 again, taken in week 2');
+  r = await upHook({ ...b1, check_in: '2027-07-19', check_out: '2027-07-22' });
+  ok(r.result.action === 'unchanged' && upRecOf(b1.id)[0].metadata.aob_status === 'active', 'a late webhook with the old dates: looked up where our record is, not cancelled');
+  // moved to a unit of another listing
+  dropUb(b2); Object.assign(b2, { property_id: +UP.gt, multi_unit_id: 9002, property_name: 'Glamping Twin • Pool' }); up.bookings.get(UP.gt).push(b2);
+  r = await upHook(b2);
+  m = upRecOf(b2.id)[0].metadata;
+  ok(r.result.action === 'updated' && m.aob_ext_prop === UP.gt && m.aob_ext_unit === '9002' && m.aob_rooms === RN.gt(2) && m.aob_ext_pname === 'Glamping Twin • Pool', 'moved to a unit of another listing: that unit\'s room');
+  b2.multi_unit_id = null;
+  r = await upHook(b2);
+  m = upRecOf(b2.id)[0].metadata;
+  ok(r.result.action === 'updated' && !('aob_ext_unit' in m) && m.aob_rooms === RN.gt(2), 'the unit id gone: keeps its unit\'s room while that is free (no move)');
+  // cancelled, again, restored, deleted
+  b1.status = 'cancelled';
+  r = await upHook(b1, { event: 'booking_removed' });
+  m = upRecOf(b1.id)[0].metadata;
+  ok(r.result.action === 'cancelled' && m.aob_status === 'cancelled' && /^\d+$/.test(m.aob_status_at) && m.aob_ext_ustatus === 'cancelled' && upRecOf(b1.id).length === 1, 'cancelled in Uplisting: our record cancelled (kept for history)');
+  ok(lastEntry('uplisting_cancel').s === 'Airbnb booking cancelled · 1B · Peace Cottage · 25–27 Jul 2027 · Jon T.' && lastEntry('uplisting_cancel').r === 'system' && lastEntry('uplisting_cancel').f === `UP-${b1.id}`, 'activity: uplisting_cancel');
+  r = await availJ(UPL, J2);
+  ok(r.data.rooms['twin-ensuite'].empty_units === 5, 'its room is back on sale');
+  r = await call(admin, 'GET', '/api/booking/admin?calendar=1&from=2027-07-11&to=2027-08-08', null, UPL, AUTH);
+  ok(!r.data.blocks.some(x => x.id === `UP-${b1.id}`), 'calendar: a cancelled one is not drawn');
+  r = await upHook(b1, { event: 'booking_removed' });
+  ok(r.result.action === 'unchanged', 'cancelled twice: nothing to do');
+  b1.status = 'confirmed';
+  r = await upHook(b1);
+  m = upRecOf(b1.id)[0].metadata;
+  ok(r.result.action === 'updated' && m.aob_status === 'active' && !m.aob_status_at && m.aob_ext_ustatus === 'confirmed', 'confirmed again: active again');
+  dropUb(b1);
+  r = await upHook({ id: b1.id, property_id: b1.property_id, check_in: b1.check_in, check_out: b1.check_out, channel: 'uplisting', guest_name: 'Jon Targaryen', reason: 'destroyed', timestamp: '2026-07-01T09:00:00Z' }, { event: 'booking_removed' });
+  m = upRecOf(b1.id)[0].metadata;
+  ok(r.result.action === 'cancelled' && m.aob_status === 'cancelled' && m.aob_ext_ustatus === 'removed' && lastEntry('uplisting_cancel').s.startsWith('Airbnb booking removed in Uplisting · 1B · Peace Cottage'), 'deleted in Uplisting (the reduced payload): not found by the API → cancelled');
+  const b3 = addUb(UP.solo, '2027-09-01', '2027-09-04');
+  r = await upHook(b3, { event: 'booking_created' });
+  r = await upHook({ ...b3, status: 'cancelled', reason: 'cancelled' }, { event: 'booking_removed' });
+  ok(r.result.action === 'unchanged' && upRecOf(b3.id)[0].metadata.aob_status === 'active', 'booking_removed while the API has it confirmed: the API\'s copy wins');
+  const l0 = logs.length, u0 = up.calls.length;
+  upFault(/^\/bookings\//, { status: 500, times: 3 });
+  r = await upHook({ ...b3, status: 'cancelled' });
+  ok(r.status === 200 && r.result.action === 'failed' && up.calls.length - u0 === 3 && upRecOf(b3.id)[0].metadata.aob_status === 'active', 'Uplisting down while reading: 200 for Uplisting, tried 3 times, nothing changed');
+  ok(logs.slice(l0).some(l => l.includes('"route":"uplisting.webhook_read"') && l.includes('"status":500') && l.includes(`"booking":"${b3.id}"`)) && logs.slice(l0).every(l => !/Jon|Snow|@|7978|dragon/.test(l)), '… logged without personal data');
+  upFault(/^\/bookings\//, { status: 503 });
+  b3.status = 'cancelled';
+  r = await upHook(b3);
+  ok(r.result.action === 'cancelled', '… one failure: the retry gets it');
+  const b4 = addUb(UP.solo, '2027-10-01', '2027-10-03');
+  r = await upHook({ data: b4 });
+  ok(r.result.action === 'created', 'the booking under data works too');
+  for (const raw of ['not json', '[]', '{}', JSON.stringify({ id: 'a b', property_id: 1 }), JSON.stringify({ id: 5 })]) {
+    r = await upHook(null, { raw });
+    ok(r.status === 200 && r.data.ok === true && r.result.action === 'ignored', `a body without a booking (${raw.slice(0, 12)}): 200, ignored`);
+  }
+  const b5 = addUb(UP.solo, '2027-10-10', '2027-10-12');
+  r = await upHook({ id: b5.id, property_id: b5.property_id });
+  ok(r.result.action === 'ignored' && r.result.reason === 'no_dates' && upRecOf(b5.id).length === 0, 'no dates and no record of it: ignored (the sync brings it in)');
+  r = await upHook({ id: b4.id, property_id: b4.property_id, guest_name: 'Changed' });
+  ok(r.result.action === 'unchanged', 'no dates but a record: read by the record\'s dates');
+  // block_delete refused
+  r = await upAdm({ action: 'block_delete', id: `UP-${b4.id}` });
+  ok(r.status === 409 && r.data.code === 'external' && r.data.error === 'This booking comes from Uplisting: change or cancel it there and it will update here.', 'block_delete of an Uplisting booking (by its id) → 409 external');
+  r = await upAdm({ action: 'block_delete', id: upRecOf(b4.id)[0].id });
+  ok(r.status === 409 && r.data.code === 'external' && !upRecOf(b4.id)[0].deleted && upRecOf(b4.id)[0].metadata.aob_status === 'active', '… by its customer id → 409; still there');
+  r = await upAdm({ action: 'block_delete', id: 'UP-999' });
+  ok(r.status === 404, 'block_delete of an unknown UP- id → 404');
+  const blob = JSON.stringify(store.customers) + JSON.stringify(entries()) + logs.join('\n');
+  ok(!/castleblack|7978978|HMXQ7ZZ9|dragon|King of the North/.test(blob), 'no guest email, phone, reservation code, note or preferred name stored or logged');
+}
+
+/* rooms: whole cottages, units, clashes */
+reset(); upFixtures();
+{
+  r = await upAdm({ action: 'uplisting_map', mapping: MAP });
+  const w = addUb(UP.cottage, '2027-08-10', '2027-08-13', { channel: 'booking_dot_com', guest_name: 'Ada Lovelace', number_of_guests: 5 });
+  r = await upHook(w);
+  ok(r.result.action === 'created' && upRecOf(w.id)[0].metadata.aob_rooms === [RN.a1, RN.b1, PEACE_1C].join('|') && r.result.clash.length === 0, 'a whole-cottage listing: the booking takes every room mapped to it');
+  ok(lastEntry('uplisting_booking').s === `Booking.com booking · ${RN.a1}, ${RN.b1}, ${PEACE_1C} · 10–13 Aug 2027 (3 nights) · Ada L. · 5 guests`, 'activity: all its rooms');
+  const s1 = addUb(UP.b1, '2027-08-12', '2027-08-14', { channel: 'home_away', guest_name: 'Grace' });
+  r = await upHook(s1);
+  ok(r.result.action === 'created' && upRecOf(s1.id)[0].metadata.aob_rooms === RN.b1 && r.result.clash.join() === `UP-${w.id}`
+    && lastEntry('uplisting_booking').s === `Vrbo booking · ${RN.b1} · 12–14 Aug 2027 (2 nights) · Grace · 2 guests · clash with UP-${w.id}`, 'a room booked over the whole cottage\'s nights: saved, a clash');
+  // multi-unit listing
+  const u2 = addUb(UP.gt, '2027-09-10', '2027-09-12', { multi_unit_id: 9002, channel: 'google' });
+  r = await upHook(u2);
+  ok(upRecOf(u2.id)[0].metadata.aob_rooms === RN.gt(2) && upRecOf(u2.id)[0].metadata.aob_ext_unit === '9002' && lastEntry('uplisting_booking').s.startsWith('Google booking · Glamping Twin 2 · '), 'a booking of unit 9002: that unit\'s room');
+  const u0 = addUb(UP.gt, '2027-09-11', '2027-09-13', { channel: 'uplisting' });
+  r = await upHook(u0);
+  ok(upRecOf(u0.id)[0].metadata.aob_rooms === RN.gt(1) && r.result.clash.length === 0 && lastEntry('uplisting_booking').s.startsWith('Direct (Uplisting) booking · Glamping Twin 1'), 'no unit id: the first unit (by id) whose rooms are free');
+  const u3 = addUb(UP.gt, '2027-09-12', '2027-09-13');
+  r = await upHook(u3);
+  ok(upRecOf(u3.id)[0].metadata.aob_rooms === RN.gt(2) && r.result.clash.length === 0, 'no unit id, the first unit taken: the next free one');
+  const u4 = addUb(UP.gt, '2027-09-11', '2027-09-12');
+  r = await upHook(u4);
+  ok(upRecOf(u4.id)[0].metadata.aob_rooms === RN.gt(1) && r.result.clash.join() === `UP-${u0.id}`, 'no unit free: the first unit, a clash');
+  const u9 = addUb(UP.gt, '2027-09-20', '2027-09-21', { multi_unit_id: 9003 });
+  r = await upHook(u9);
+  ok(r.result.action === 'unmapped' && upRecOf(u9.id).length === 0, 'a unit that isn\'t mapped (and no whole-listing mapping): ignored');
+  ok(JSON.stringify(roomSets({ 1: ['A'], '1_7': ['B'] }, '1', '7')) === '[{"unit":"7","rooms":["B"]}]' && JSON.stringify(roomSets({ 1: ['A'] }, '1', '7')) === '[{"unit":"","rooms":["A"]}]'
+    && JSON.stringify(roomSets({ '1_8': ['C'], '1_7': ['B'], 1: ['A'] }, '1', '')) === '[{"unit":"7","rooms":["B"]},{"unit":"8","rooms":["C"]}]' && roomSets({ 12: ['A'] }, '1', '').length === 0, 'roomSets: unit, else the listing; units by id; 12 is not 1');
+  ok(chooseRooms([{ rooms: ['A'] }, { rooms: ['B'] }], { rooms: ['B'] }, [], '2027-01-01', '2027-01-02').rooms[0] === 'B', 'chooseRooms: a booking keeps its free unit');
+  // clashes with an online guest placed in the room and a manual booking
+  r = await call(checkout, 'POST', '/api/booking/checkout', jBooking([guest(1, 'twin-ensuite')]), UPL);
+  const oRef = r.data.ref; complete(r.data.session_id);
+  r = await upAdm({ action: 'assign', ref: oRef, assign: { 0: RN.a2 } });
+  r = await upAdm({ action: 'manual_create', from: '2027-07-20', to: '2027-07-22', guests: [mg('Mona', 'Female', RN.a2)] });
+  const mRef = r.data.booking.ref;
+  const c2 = addUb(UP.a2, '2027-07-21', '2027-07-23', { guest_name: 'Zed Last' });
+  let k = await kCalls(() => upHook(c2));
+  ok(k.res.result.action === 'created' && k.res.result.clash.join() === `${mRef},${oRef}` && lastEntry('uplisting_booking').s === `Airbnb booking · ${RN.a2} · 21–23 Jul 2027 (2 nights) · Zed L. · 2 guests · clash with ${mRef} / ${oRef}`,
+    'clash with the manual booking and the online guest placed in 2A: saved, named in the log');
+  ok(k.total <= 10, `a webhook with the week\'s placed guests read: ${k.total} subrequests`);
+  r = await call(admin, 'GET', `/api/booking/admin?program=${J1}`, null, UPL, AUTH);
+  ok(r.data.rooming[RN.a2].blocked.ext.id === String(c2.id) && r.data.rooming[RN.a2].conflict === 'blocked', 'rooming: the online guest in a room taken through Uplisting → conflict blocked');
+  const c3 = addUb(UP.a2, '2027-07-22', '2027-07-24'), l1 = logs.length;
+  fault('GET', /^\/payment_intents\/search$/, { status: 500, times: 3 });
+  r = await upHook(c3);
+  ok(r.result.action === 'created' && r.result.clash.join() === `UP-${c2.id}` && logs.slice(l1).some(l => l.includes('"route":"uplisting.clash"')), 'the week\'s placed guests unreadable: saved anyway, the clash check without them (logged)');
+  // the team's block / manual booking / room assignment over an Uplisting booking
+  const sA = addUb(UP.solo, '2027-09-01', '2027-09-04');
+  r = await upHook(sA);
+  const lbl = `(Airbnb · Jon S. · UP-${sA.id})`;
+  r = await upAdm({ action: 'block_create', rooms: [RN.ark('A')], from: '2027-09-02', to: '2027-09-03', reason: 'maintenance' });
+  ok(r.status === 409 && r.data.code === 'conflict' && r.data.conflicts[0] === `5A · The Ark has an Uplisting booking 1–4 Sep 2027 ${lbl}.`, 'block_create over an Uplisting booking → 409 conflict');
+  r = await upAdm({ action: 'manual_create', from: '2027-09-03', to: '2027-09-05', guests: [mg('Nell', 'Female', RN.ark('A'))] });
+  ok(r.status === 409 && r.data.conflicts[0] === `5A · The Ark has an Uplisting booking 1–4 Sep 2027 ${lbl}.`, 'manual_create in a room with an Uplisting booking → 409 conflict');
+  const cB = addUb(UP.b1, '2027-07-19', '2027-07-20');
+  r = await upHook(cB);
+  r = await upAdm({ action: 'assign', ref: oRef, assign: { 0: RN.b1 } });
+  ok(r.status === 200 && r.data.warnings[0] === `1B · Peace Cottage has an Uplisting booking 19–20 Jul 2027 (Airbnb · Jon S. · UP-${cB.id}).`, 'assign into a room with an Uplisting booking: saved, with a warning');
+  ok(store.customers.every(c => !c.metadata || (Object.keys(c.metadata).length <= 50 && Object.keys(c.metadata).every(x => x.length <= 40) && Object.values(c.metadata).every(v => String(v).length <= 500))), 'every customer within Stripe\'s metadata limits');
+  const big = addUb(UP.cottage, '2027-11-01', '2027-11-05', { guest_name: 'jane@example.com ' + 'Maximiliana '.repeat(20), property_name: 'P'.repeat(300), channel: 'c'.repeat(80), status: 's'.repeat(80), number_of_guests: 9999 });
+  r = await upHook(big);
+  const mb = upRecOf(big.id)[0];
+  ok(r.result.action === 'created' && mb.metadata.aob_ext_guest.length <= 60 && mb.metadata.aob_ext_guest.startsWith('[email] Maximiliana') && mb.metadata.aob_ext_pname.length === 60 && mb.metadata.aob_ext_channel.length === 40
+    && mb.metadata.aob_ext_ustatus.length === 40 && mb.metadata.aob_ext_n === '999' && mb.name.length <= 200 && Object.keys(mb.metadata).length <= 20 && Object.values(mb.metadata).every(v => String(v).length <= 500), 'the fullest record: values cut, an email in the name scrubbed, within the limits');
+  ok(JSON.stringify(normBooking({ id: 1, property_id: 2, guest_email: 'a@b.co', guest_phone: '+441234567890', check_in: '2027-01-01', check_out: '2027-01-02' })).match(/@|1234567890/) === null, 'normBooking keeps no email or phone');
+}
+
+/* the sync: slices, cursor, subrequests, 429, gone bookings, unmapped listings */
+reset(); upFixtures();
+{
+  r = await upAdm({ action: 'uplisting_sync' });
+  ok(r.status === 409 && r.data.code === 'no_mapping', 'uplisting_sync without a mapping → 409 no_mapping');
+  r = await upAdm({ action: 'uplisting_map', mapping: MAP });
+  const days = (start, n, step) => Array.from({ length: n }, (_, i) => addDays(start, i * step));
+  const b1s = days('2026-07-05', 120, 3).map(d => addUb(UP.b1, d, addDays(d, 1)));
+  const a2s = days('2026-08-01', 60, 5).map((d, i) => addUb(UP.a2, d, addDays(d, 2), i % 12 === 0 ? { status: 'cancelled' } : { channel: 'booking_dot_com' }));
+  const cot = ['2027-10-01', '2027-10-05', '2027-10-09'].map(d => addUb(UP.cottage, d, addDays(d, 3)));
+  addUb(UP.gt, '2027-05-01', '2027-05-03', { multi_unit_id: 9001 }); addUb(UP.gt, '2027-05-05', '2027-05-06', { multi_unit_id: 9001 });
+  addUb(UP.gt, '2027-05-01', '2027-05-02', { multi_unit_id: 9002 }); addUb(UP.gt, '2027-05-01', '2027-05-02', { multi_unit_id: 9003 });
+  addUb(UP.solo, '2026-03-01', '2026-03-03'); const soloIn = addUb(UP.solo, '2026-12-01', '2026-12-03'); addUb(UP.solo, '2028-06-01', '2028-06-03');
+  addUb(UP.camper, '2026-12-01', '2026-12-02');
+  tick(120);
+  let s = await syncAll();
+  ok(s.r.status === 200 && s.r.data.done === true && s.r.data.cursor === null && s.slices.length >= 5, `first sync: done in ${s.slices.length} calls`);
+  ok(s.max <= 45, `every call ≤ 45 subrequests, Stripe + Uplisting (largest ${s.max})`);
+  ok(s.slices.slice(0, -1).every(x => x.data.done === false && typeof x.data.cursor === 'string' && x.data.cursor.length > 40), 'a cursor between calls');
+  ok(s.slices.every((x, i) => i === 0 || x.data.progress.listings_done >= s.slices[i - 1].data.progress.listings_done) && s.slices.every(x => x.data.progress.listings_total === 5), 'progress: listings done of 5 (the mapped ones)');
+  ok(JSON.stringify(s.r.data.stats) === JSON.stringify({ created: 182, updated: 0, cancelled: 0, unchanged: 5, unmapped: 1, clashes: 0, errors: 0 }), `stats: 182 new, 5 cancelled ones never imported, 1 unmapped unit (${JSON.stringify(s.r.data.stats)})`);
+  ok(upRecs().length === 182 && new Set(upRecs().map(c => c.metadata.aob_ext_id)).size === 182 && upRecOf(soloIn.id).length === 1 && upRecs().every(c => c.metadata.aob_ext_sync === undefined), 'one record per booking in the window (not before, not after, not the unmapped listing)');
+  ok(upRecs().filter(c => c.metadata.aob_ext_prop === UP.cottage).every(c => c.metadata.aob_rooms.split('|').length === 3), 'the cottage\'s bookings take its three rooms');
+  ok(up.calls.filter(c => c.path === `/bookings/${UP.b1}` && /[?&]page=0&/.test(c.search)).length >= 2 && s.slices.some(x => x.data.progress.listings_done === 0 && !x.data.done), 'a slice can stop inside a page: the next one reads that page again and goes on from that booking');
+  ok(entries().filter(e => e.a === 'uplisting_sync').length === 1 && lastEntry('uplisting_sync').s === 'Uplisting sync: 182 new, 0 changed, 0 cancelled, 0 clashes, 1 not mapped' && lastEntry('uplisting_sync').u === 'owner'
+    && !entries().some(e => e.a === 'uplisting_booking'), 'one activity entry for the whole sync (none per booking)');
+  const sc = settingsCus()[0];
+  ok(!Number.isNaN(Date.parse(sc.metadata.aob_last_sync)) && JSON.parse(sc.metadata.aob_last_sync_result).created === 182 && Object.keys(JSON.parse(sc.metadata.aob_last_sync_result)).join() === 'created,updated,cancelled,unchanged,unmapped,clashes,errors', 'aob_last_sync and the result saved');
+  r = await upGet();
+  ok(r.data.last_sync.at === sc.metadata.aob_last_sync && r.data.last_sync.result.created === 182 && r.data.imported.active === 182 && r.data.imported.upcoming === 182, 'panel: last sync and imported counts');
+  // nothing new: everything unchanged
+  tick(61);
+  s = await syncAll();
+  ok(s.r.data.done && s.r.data.stats.created === 0 && s.r.data.stats.unchanged === 187 && s.r.data.stats.updated === 0 && s.slices.length <= 2 && s.max <= 45, `a second sync: all unchanged (${s.slices.length} call(s))`);
+  // changes in Uplisting between syncs, a booking over the cottage
+  b1s[10].check_out = addDays(b1s[10].check_in, 2); b1s[11].status = 'cancelled';
+  addUb(UP.cottage, '2026-08-02', '2026-08-05');
+  tick(61);
+  s = await syncAll();
+  ok(s.r.data.done && s.r.data.stats.updated === 1 && s.r.data.stats.cancelled === 1 && s.r.data.stats.created === 1 && s.r.data.stats.clashes === 1 && upRecOf(b1s[11].id)[0].metadata.aob_status === 'cancelled'
+    && !Number.isNaN(Date.parse(upRecOf(b1s[10].id)[0].metadata.aob_ext_sync)) && lastEntry('uplisting_sync').s === 'Uplisting sync: 1 new, 1 changed, 1 cancelled, 1 clash, 1 not mapped', 'changes: updated, cancelled, a new booking clashing (1B is in both listings)');
+  // a booking deleted in Uplisting: only cancelled once its listing was read in full
+  const gone = b1s[100];
+  dropUb(gone);
+  upFault(/^\/bookings\/251801\?.*&page=1&/, { status: 429, retryAfter: 20 });
+  tick(61);
+  r = await upAdm({ action: 'uplisting_sync' });
+  ok(r.status === 200 && r.data.paused === 'rate_limited' && r.data.retry_after === 20 && r.data.done === false && r.data.stats.errors === 0 && r.data.cursor && upRecOf(gone.id)[0].metadata.aob_status === 'active', '429 on the listing\'s 2nd page: paused (retry_after 20), not an error, nothing cancelled yet');
+  ok(entries().filter(e => e.a === 'uplisting_sync').length === 3, 'an unfinished sync is not logged');
+  tick(21);
+  s = await syncAll(UPL, { cursor: r.data.cursor });
+  ok(s.r.data.done && s.r.data.stats.cancelled === 1 && upRecOf(gone.id)[0].metadata.aob_status === 'cancelled' && upRecOf(gone.id)[0].metadata.aob_ext_ustatus === 'removed', '… continued with the cursor: the listing read in full, the gone booking cancelled');
+  // missing from the pages (they shift while bookings come in) but there by its dates: kept
+  const hid = b1s[50];
+  up.hideWide.add(String(hid.id));
+  tick(61);
+  s = await syncAll();
+  ok(s.r.data.done && s.r.data.stats.cancelled === 0 && upRecOf(hid.id)[0].metadata.aob_status === 'active' && up.calls.some(c => c.path === `/bookings/${UP.b1}` && /from=/.test(c.search) && nightsBetween(new URLSearchParams(c.search).get('from'), new URLSearchParams(c.search).get('to')) < 10),
+    'missing from the listing\'s pages but found by its own dates: not cancelled');
+  up.hideWide.clear();
+  // busy: Uplisting 5xx, Stripe 5xx
+  upFault(/^\/bookings\/251802/, { status: 502 });
+  tick(61);
+  r = await upAdm({ action: 'uplisting_sync' });
+  let c0 = r.data.cursor;
+  ok(r.data.paused === 'busy' && r.data.retry_after > 0 && r.data.stats.errors === 0 && r.data.cursor, 'Uplisting 5xx: paused busy');
+  a2s.slice(1, 4).forEach(b => { b.guest_name = 'New Name'; });
+  tick(11);
+  fault('POST', /^\/customers\/cus_/, { status: 500, times: 3 });
+  s = await syncAll(UPL, { cursor: c0 });
+  ok(s.r.data.done && s.slices.some(x => x.data.paused === 'busy') && s.r.data.stats.updated >= 3, 'Stripe 5xx on a write: paused busy, the cursor repeats it');
+  // a listing Uplisting no longer has: counted as an error, its bookings kept
+  up.bookings.delete(UP.solo);
+  tick(61);
+  s = await syncAll();
+  ok(s.r.data.done && s.r.data.stats.errors === 1 && upRecOf(soloIn.id)[0].metadata.aob_status === 'active', 'a listing Uplisting answers 404 for: an error, nothing cancelled');
+  up.bookings.set(UP.solo, [soloIn]);
+  // pacing: 5 bookings a page → 24 pages for one listing: this isolate stays under 14 calls a minute per listing
+  uplistingConfig.perPage = 5;
+  tick(61);
+  s = await syncAll();
+  ok(s.r.data.done && s.slices.some(x => x.data.paused === 'rate_limited' && x.data.retry_after > 0 && x.data.retry_after <= 60) && s.max <= 45 && s.r.data.stats.errors === 0, `pacing: paused with retry_after under Uplisting's per-listing limit (${s.slices.length} calls, largest ${s.max})`);
+  const perMin = up.calls.filter(c => c.path === `/bookings/${UP.b1}`).map(c => c.t);
+  ok(perMin.every((t, i) => perMin.filter(x => x > t - 60000 && x <= t).length <= 15), 'never more than 15 calls a minute for one listing');
+  uplistingConfig.perPage = 50;
+  // cursor checks
+  upFault(/^\/bookings\/251802\?/, { status: 429, retryAfter: 5 });
+  tick(61);
+  r = await upAdm({ action: 'uplisting_sync' });
+  const cur = r.data.cursor;
+  ok(r.data.paused === 'rate_limited' && typeof cur === 'string' && /^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]{43}$/.test(cur), 'the cursor: base64url state + signature');
+  const flip = cur.slice(0, 10) + (cur[10] === 'A' ? 'B' : 'A') + cur.slice(11);
+  r = await upAdm({ action: 'uplisting_sync', cursor: flip });
+  ok(r.status === 400 && r.data.code === 'bad_cursor', 'a changed cursor → 400 bad_cursor');
+  r = await upAdm({ action: 'uplisting_sync', cursor: 'garbage' });
+  ok(r.status === 400 && r.data.code === 'bad_cursor', 'garbage → 400');
+  r = await upAdm({ action: 'uplisting_sync', cursor: cur }, { ...UPL, ADMIN_TOKEN: 'another-admin-token-0987654321' });
+  ok(r.status === 401, '(a new admin token: signed out)');
+  tick(7 * 3600);
+  r = await upAdm({ action: 'uplisting_sync', cursor: cur });
+  ok(r.status === 400 && r.data.code === 'bad_cursor', 'a cursor older than 6 hours → 400');
+  // the team can sync; the entry names them
+  await adm({ action: 'user_create', username: 'tom', name: 'Tom', role: 'team', password: 'tom-pass' }); secrets.push('tom-pass');
+  const tTom = (await loginAs('tom', 'tom-pass')).data.token;
+  tick(61);
+  s = await syncAll(UPL, { headers: bearer(tTom) });
+  ok(s.r.status === 200 && s.r.data.done && lastEntry('uplisting_sync').n === 'Tom' && lastEntry('uplisting_sync').r === 'team', 'a team member runs the sync; the entry names them');
+  // a listing no longer mapped: its bookings (from today on) are released by the next sync
+  const a2Active = upRecs().filter(c => c.metadata.aob_ext_prop === UP.a2 && c.metadata.aob_status === 'active').length;
+  r = await upAdm({ action: 'uplisting_map', mapping: { ...MAP, [UP.a2]: [] } });
+  tick(61);
+  s = await syncAll();
+  ok(s.r.data.done && s.r.data.stats.cancelled === a2Active && a2Active > 40 && upRecs().filter(c => c.metadata.aob_ext_prop === UP.a2).every(c => c.metadata.aob_status === 'cancelled') && s.max <= 45 && s.slices.length >= 2,
+    `unmapped listing: its ${a2Active} bookings released in slices (${s.slices.length} calls, largest ${s.max})`);
+  tick(61);
+  r = await upAdm({ action: 'uplisting_sync' }, { ...UPL, UPLISTING_API_KEY: 'bad-key' });
+  ok(r.status === 502 && r.data.code === 'uplisting_auth' && /API key/.test(r.data.error), 'a key Uplisting refuses → 502 uplisting_auth');
+  ok(store.customers.every(c => !c.metadata || (Object.keys(c.metadata).length <= 50 && Object.values(c.metadata).every(v => String(v).length <= 500))), 'every customer within Stripe\'s metadata limits after the syncs');
+  const blob = JSON.stringify(store.customers) + JSON.stringify(entries()) + logs.join('\n');
+  ok(!/castleblack|7978978|HMXQ7ZZ9|dragon/.test(blob), 'no guest email or phone stored or logged by the sync');
 }
 
 /* nothing personal in the logs */

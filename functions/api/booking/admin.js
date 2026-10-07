@@ -19,6 +19,16 @@
 //                   { entries: [{ id, t (unix ms), at (ISO), actor: { id: 'owner'|customer id|'-', name, role },
 //                   action, ref, program, summary }], has_more } (limit 1 to 1000, default 200; before = the
 //                   oldest t shown, for "Load older").
+// GET ?uplisting=1[&refresh=1]   (every role; refresh: Uplisting's listings, account and webhooks read again
+//                   instead of this isolate's 5-minute copy) the Setup → Uplisting panel: { uplisting: true, status:
+//                   'off'|'on'|'no_webhook_secret', configured: { api_key, webhook_secret }, account: { name } | null,
+//                   properties: [{ id, name, nickname, units: [{ id, name }] }] (by id), mapping: { '<pid>': [room names],
+//                   '<pid>_<unit id>': [...] }, rooms: [calendar room names], room_groups: [{ area, rooms }], hooks:
+//                   { booking_created, booking_updated, booking_removed } (true: registered for this host with the
+//                   current secret) | null, hooks_other_hosts: [hosts], webhook_url_hint (no key), last_sync: { at,
+//                   result: { created, updated, cancelled, unchanged, unmapped, clashes, errors } } | null, imported:
+//                   { active, upcoming }, max_keys: 47, error? (Uplisting unreachable / refused: still 200) }. No API
+//                   key: no Uplisting call (account null, properties [], hooks null). Stripe unreadable → 502.
 // Others than the owner: GET ?users / ?activity and the owner-only actions → 403 { error: 'Only the main admin
 // can do this.', code: 'owner_only' }; any POST by a viewer → 403 { error: 'View-only access: you can look but
 // not change anything.', code: 'read_only' }.
@@ -41,7 +51,16 @@
 //     user out. 404 unknown id. There is no delete: disable instead.
 //   test_users_create {} (Stripe test keys only, else 403) → { ok, users: [{ user, password }] }: test1, test2
 //     (team) and test3 (view only) with fresh passwords; existing ones are reactivated, their passwords reset.
-// Every action that answers 2xx is written to the activity log with who did it (never failing the action).
+// Uplisting (see booking-lib/uplisting.js; 503 { code: 'uplisting_off' } without UPLISTING_API_KEY):
+//   uplisting_map { mapping } (owner) → { ok, mapping }; 422 { error, fields: { 'mapping.<key>' | mapping: text } }.
+//   uplisting_hooks {} (owner) → { ok, hooks, created, removed }; 409 code no_webhook_secret | bad_host.
+//   uplisting_sync { cursor? } (owner, team) → { ok, done, cursor | null, progress: { listings_done, listings_total },
+//     stats: { created, updated, cancelled, unchanged, unmapped, clashes, errors }, paused?: 'rate_limited' | 'busy',
+//     retry_after? (seconds to wait before calling again) }; 409 no_mapping, 400 bad_cursor, 503 too_big.
+//   Uplisting refusing or unreachable → 502 / 503 { error, code: 'uplisting_auth' | 'uplisting' | 'uplisting_busy', retry_after? }.
+//   block_delete of an Uplisting booking → 409 { error, code: 'external' }.
+// Every action that answers 2xx is written to the activity log with who did it (never failing the action); an
+// unfinished sync slice is not (one uplisting_sync entry when it is done).
 import {
   json, preflight, guardPost, readBody, getProgram, listPrograms, programSummary, programDetail, programPayments, groupBookings,
   openBookingSessions, openSessionsRaw, recentRaw, recentProgramPayments, mergePayments, buildOccupancy, occupancy, availability, checkAvailability, validRef, findBooking, forgetBooking, stripe,
@@ -52,7 +71,9 @@ import {
   liveMode, listRecords, listOffline, calendarRooms, weekConflicts, nameConflicts, manualBooking, blockOut, blockInput, manualInput,
   manualUpdateInput, offlineInput, createOfflinePayment, recordsChanged, rememberWrite, parseRecord, isManualRef, isBlockId, homeProgram,
   overlaps, weekRange, validDay, addDays, nightsBetween, todayIso, rangeLabel, OFFLINE_METHODS, REC_MAX_NIGHTS, BUSY, cut,
+  isExternal, externalLabel,
 } from '../../../booking-lib/core.js';
+import { uplistingPanel, saveMapping, connectHooks, syncSlice } from '../../../booking-lib/uplisting.js';
 import { seedDemo, clearDemo, placeDemo } from '../../../booking-lib/demo.js';
 import {
   resolveAdmin, meOut, listUsers, readUser, userInput, userOut, createUser, updateUser, generatePassword, passwordMin,
@@ -113,7 +134,8 @@ function overviewOf(weeks, recentBookings, stay = { totals: ZERO_TOTALS() }) {
 /* ------------------------------------------------------------------ who */
 const READ_ONLY = { error: 'View-only access: you can look but not change anything.', code: 'read_only' };
 const OWNER_ONLY = { error: 'Only the main admin can do this.', code: 'owner_only' };
-const OWNER_ACTIONS = new Set(['user_create', 'user_update', 'test_users_create', 'seed_demo', 'place_demo', 'clear_demo', 'register_domains', 'repair_plans']);
+const OWNER_ACTIONS = new Set(['user_create', 'user_update', 'test_users_create', 'seed_demo', 'place_demo', 'clear_demo', 'register_domains', 'repair_plans',
+  'uplisting_map', 'uplisting_hooks']);
 /* → { me } or { res: the 401 / 503 answer } */
 async function whoIs(request, env) {
   let who;
@@ -133,6 +155,10 @@ export async function onRequestGet({ request, env }) {
   if (params.get('users') || params.get('activity')) {
     if (me.role !== 'owner') return send(OWNER_ONLY, 403);
     return params.get('users') ? usersGet(env, send) : activityGet(env, params, send);
+  }
+  if (params.get('uplisting')) {
+    try { return send(await uplistingPanel(env, request, { refresh: params.get('refresh') === '1' && me.role !== 'viewer' })); }
+    catch (e) { logError('admin.uplisting', e); return send({ error: 'Could not load the Uplisting settings from Stripe: ' + e.message }, 502); }
   }
   if (params.get('calendar')) {
     try { return await calendar(env, params, send); }
@@ -325,7 +351,10 @@ async function blockDelete(env, body, send) {
     const found = (await listRecords(env, { recent: true })).find(r => r.type === 'block' && r.id === id);
     rec = found ? await readRecord(env, found.customer) : null;
   }
+  else if (/^UP-[A-Za-z0-9-]{1,24}$/.test(id)) rec = (await listRecords(env, { recent: true })).find(r => r.type === 'block' && r.id === id) || null;
   if (!rec || rec.type !== 'block') return send({ error: 'Block not found (it may have been removed already).' }, 404);
+  // a booking imported from Uplisting only changes there (the sync would bring it back anyway)
+  if (isExternal(rec)) return send({ error: 'This booking comes from Uplisting: change or cancel it there and it will update here.', code: 'external' }, 409);
   await stripe(env, 'DELETE', `/customers/${rec.customer}`);
   recordsChanged({ id: rec.customer }, true);
   return send({ ok: true, id: rec.id, customer: rec.customer });
@@ -446,7 +475,8 @@ function assignWarnings(program, bookings, booking, records = []) {
   for (const name of mine) {
     const slot = rooming[name];
     if (!slot) continue;
-    if (slot.conflict === 'blocked') out.push(`${name} is blocked ${rangeLabel(slot.blocked.from, slot.blocked.to)} (${slot.blocked.reason}).`);
+    if (slot.conflict === 'blocked') out.push(slot.blocked.ext ? `${name} has an Uplisting booking ${rangeLabel(slot.blocked.from, slot.blocked.to)} (${externalLabel(slot.blocked)}).`
+      : `${name} is blocked ${rangeLabel(slot.blocked.from, slot.blocked.to)} (${slot.blocked.reason}).`);
     else if (slot.conflict === 'mixed') out.push(`${name}: women and men are in the same room.`);
     else if (slot.conflict === 'over') out.push(`${name}: ${slot.guests.length} guests for ${slot.capacity} ${slot.capacity === 1 ? 'place' : 'beds'}.`);
   }
@@ -667,6 +697,17 @@ function activityOf(body, d, hint) {
     case 'place_demo': return entry(`Placed demo guests in rooms · ${editionOf(body.program)}`, { program: body.program });
     case 'clear_demo': return entry(`Removed demo bookings · ${editionOf(body.program)}`, { program: body.program });
     case 'register_domains': return entry(d.ok ? 'Registered the payment domains' : 'Tried to register the payment domains (some failed)');
+    case 'uplisting_map': { const n = Object.keys(d.mapping || {}).length; return entry(`Uplisting mapping: ${count(n, 'listing')} mapped`); }
+    case 'uplisting_hooks': {
+      const on = Object.values(d.hooks || {}).filter(Boolean).length;
+      return entry(`Uplisting webhooks: ${on} of 3 connected (${d.created || 0} added, ${d.removed || 0} removed)`);
+    }
+    case 'uplisting_sync': {
+      if (!d.done) return null; // one entry per sync, when it is done
+      const x = d.stats || {};
+      return entry(`Uplisting sync: ${x.created || 0} new, ${x.updated || 0} changed, ${x.cancelled || 0} cancelled, ${count(x.clashes || 0, 'clash', 'clashes')}`
+        + `${x.unmapped ? `, ${x.unmapped} not mapped` : ''}${x.errors ? `, ${count(x.errors, 'error')}` : ''}`);
+    }
     case 'repair_plans': return entry(`Repaired payment plans${(d.repaired || []).length || (d.failed || []).length ? ` · ${count((d.repaired || []).length, 'plan')} fixed${(d.failed || []).length ? `, ${(d.failed || []).length} failed` : ''}` : ''}`);
     default: return entry(cut(`${action} ${ref || ''}`.trim(), 120) || 'action');
   }
@@ -743,6 +784,14 @@ async function runAction(context, env, body, send, hint) {
         }
       }
       return send({ ok: failed.length === 0, repaired, failed, short });
+    }
+    // Uplisting: which rooms each listing is, its webhooks, a full sync in slices
+    if (body.action === 'uplisting_map' || body.action === 'uplisting_hooks' || body.action === 'uplisting_sync') {
+      if (!env.UPLISTING_API_KEY || !String(env.UPLISTING_API_KEY).trim()) return send({ error: 'Uplisting is not connected: set UPLISTING_API_KEY in Cloudflare first.', code: 'uplisting_off' }, 503);
+      const r = body.action === 'uplisting_map' ? await saveMapping(env, body)
+        : body.action === 'uplisting_hooks' ? await connectHooks(env, context.request)
+        : await syncSlice(env, { cursor: typeof body.cursor === 'string' ? body.cursor : null });
+      return send(r.data, r.status);
     }
     // the team's records: room blocks and manual bookings; offline payments
     if (body.action === 'block_create') return await blockCreate(env, body, send);

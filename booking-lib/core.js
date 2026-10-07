@@ -25,6 +25,8 @@
    - STRIPE_WEBHOOK_SECRET   optional, whsec_… for /api/booking/webhook
    - ADMIN_TOKEN             required for /api/booking/admin (long random string)
    - GHL_WEBHOOK_URL         optional, GHL inbound-webhook URL that receives booking events
+   - UPLISTING_API_KEY + UPLISTING_WEBHOOK_SECRET  optional, bookings made in Uplisting take their rooms
+                             here (see booking-lib/uplisting.js)
    - TURNSTILE_SITE_KEY + TURNSTILE_SECRET  optional Cloudflare Turnstile bot check on checkout/lead
 
    Payment plans: payment "plan" is a Stripe subscription (monthly, program.payment_plan.installments
@@ -164,7 +166,7 @@ export async function ipHash(env, ip) {
   return Array.from(new Uint8Array(d), b => b.toString(16).padStart(2, '0')).join('').slice(0, 16);
 }
 
-const timeoutSignal = ms => (typeof AbortSignal !== 'undefined' && AbortSignal.timeout ? AbortSignal.timeout(ms) : undefined);
+export const timeoutSignal = ms => (typeof AbortSignal !== 'undefined' && AbortSignal.timeout ? AbortSignal.timeout(ms) : undefined);
 
 /* Cloudflare Turnstile, decided on siteverify's JSON answer (it uses 4xx statuses for real results).
    Fails open only when Cloudflare can't be reached (network error, timeout, a 5xx without an answer)
@@ -791,6 +793,10 @@ function stripeError(res, data, netErr) {
   e.requestId = res ? res.headers.get('Request-Id') : null;
   return e;
 }
+/* Cloudflare's free plan allows 50 subrequests per invocation. Work that has to stay under it (the
+   Uplisting sync) passes an env copy with `subrequests: { n: 0 }`: every Stripe attempt (retries
+   included) and every Uplisting call adds one. */
+export const countSubrequest = env => { if (env && env.subrequests && typeof env.subrequests.n === 'number') env.subrequests.n++; };
 /* One Stripe API call. 8 s timeout; up to 2 retries on network errors, 429 and 5xx (jittered backoff,
    Stripe-Should-Retry honoured), reusing ONE Idempotency-Key per logical POST so a retry can't
    create a second object. Errors carry type, code, param, status and requestId. */
@@ -802,6 +808,7 @@ export async function stripe(env, method, path, params, opts = {}) {
   if (method === 'POST') headers['Idempotency-Key'] = opts.idempotencyKey || crypto.randomUUID();
   for (let attempt = 0; ; attempt++) {
     let res = null, data = null, netErr = null;
+    countSubrequest(env);
     try {
       res = await fetch('https://api.stripe.com/v1' + path, { method, headers, body, signal: timeoutSignal(timeoutMs) });
       const text = await res.text();
@@ -1244,7 +1251,8 @@ export function groupBookings(program, payments, now = nowSec()) {
    'mixed': women and men in a same-gender room; 'over': more people than it holds. Names a booking
    still carries but the program no longer lists show up with unknown: true.
    records (the team's, see listRecords): a block overlapping the week marks its rooms blocked: { id,
-   reason, comment, from, to } (anyone placed in a blocked room → conflict 'blocked'); the guests of a
+   reason, comment, from, to, ext } (ext: an Uplisting booking, see parseRecord; anyone placed in a
+   blocked room → conflict 'blocked'); the guests of a
    manual booking overlapping the week are in their rooms with manual: true (they count for the
    beds and the one-gender rule like everyone else). bookings: the online ones only. */
 export const nameCapacity = r => r && (r.same_gender || byUnit(r)) ? (r.sleeps || 1) : 1;
@@ -1262,7 +1270,7 @@ export function roomingMap(program, bookings, records = []) {
   }
   for (const rec of recordsFor(program, records)) {
     if (rec.type === 'block') {
-      for (const name of rec.rooms) if (rooming[name] && !rooming[name].blocked) rooming[name].blocked = { id: rec.id, reason: rec.reason, comment: rec.comment, from: rec.from, to: rec.to };
+      for (const name of rec.rooms) if (rooming[name] && !rooming[name].blocked) rooming[name].blocked = { id: rec.id, reason: rec.reason, comment: rec.comment, from: rec.from, to: rec.to, ext: rec.ext || null };
     } else {
       rec.guests.forEach((g, i) => { if (rooming[g.room_name]) rooming[g.room_name].guests.push({ ref: rec.ref, index: i, name: g.name, gender: g.gender, manual: true, from: rec.from, to: rec.to }); });
     }
@@ -1354,8 +1362,13 @@ export function calendarRooms(programs = listPrograms()) {
    aob_programme ('yes': the guests attend the BreathCamp of an overlapping week and take programme
    places there; 'no': just staying), aob_source 'manual'. A block is removed by deleting its
    customer; a manual booking is cancelled / restored (it may have offline payments).
-   Everywhere availability is computed they are applied to a copy of the week (programWithRecords). */
-export const REC_REASONS = ['maintenance', 'staff', 'owner', 'other'];
+   Everywhere availability is computed they are applied to a copy of the week (programWithRecords).
+   Bookings imported from Uplisting (booking-lib/uplisting.js) are blocks with aob_reason 'uplisting'
+   and aob_ext 'uplisting' + aob_ext_* keys (see extOf); only the sync changes them (aob_status
+   'cancelled' when cancelled there), the team never deletes them. */
+export const REC_REASONS = ['maintenance', 'staff', 'owner', 'other', 'uplisting'];
+/* The reasons the team can choose for a block ('uplisting' is set by the import only). */
+export const BLOCK_REASONS = REC_REASONS.filter(r => r !== 'uplisting');
 export const REC_MAX_NIGHTS = 120, REC_FIRST_DAY = '2026-01-01', REC_LAST_DAY = '2030-12-31';
 const REC_QUERY = "metadata['aob_rec_any']:'1'";
 const REC_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -1365,6 +1378,29 @@ export const newManualRef = from => `MB${from.slice(2, 4)}${from.slice(5, 7)}-${
 export const isManualRef = r => typeof r === 'string' && /^MB\d{4}-[A-Z0-9]{6}$/.test(r);
 export const isBlockId = s => typeof s === 'string' && /^BL-[A-Z0-9]{6}$/.test(s);
 const isRecordCustomer = c => !!c && !c.deleted && (c.metadata || {}).aob_rec_any === '1';
+
+/* Uplisting channels as the team calls them (others: the channel text as it is). */
+export const CHANNEL_LABELS = { airbnb: 'Airbnb', airbnb_official: 'Airbnb', booking_dot_com: 'Booking.com', home_away: 'Vrbo', homeaway: 'Vrbo', vrbo: 'Vrbo',
+  google: 'Google', uplisting: 'Direct (Uplisting)', direct: 'Direct (Uplisting)' };
+export const channelLabel = c => CHANNEL_LABELS[String(c || '').toLowerCase()] || str(c, 40) || 'Uplisting';
+/* 'Jon Snow' → 'Jon S.' (first name + last initial: what summaries show of a guest) */
+export function guestShort(name) {
+  const parts = str(name, 120).split(/\s+/).filter(Boolean);
+  if (!parts.length) return '';
+  const last = parts.length > 1 ? Array.from(parts[parts.length - 1])[0] : '';
+  return cut(parts[0], 40) + (last && /\p{L}/u.test(last) ? ` ${last.toUpperCase()}.` : '');
+}
+/* An imported Uplisting booking's details (aob_ext_*), or null. */
+export function extOf(md, created_at) {
+  if (!md || md.aob_ext !== 'uplisting') return null;
+  const n = parseInt(md.aob_ext_n || '', 10);
+  return { source: 'uplisting', id: md.aob_ext_id || '', property_id: md.aob_ext_prop || '', property_name: md.aob_ext_pname || '', unit: md.aob_ext_unit || '',
+    channel: md.aob_ext_channel || '', guest: md.aob_ext_guest || '', guests: Number.isInteger(n) && n > 0 ? n : null, status: md.aob_ext_ustatus || '',
+    synced_at: md.aob_ext_sync || created_at || null };
+}
+export const isExternal = rec => !!(rec && rec.ext && rec.ext.source === 'uplisting');
+/* 'Airbnb · Jon S. · UP-123' for messages about an imported booking */
+export const externalLabel = rec => [channelLabel(rec.ext.channel), guestShort(rec.ext.guest), rec.id].filter(Boolean).join(' · ');
 
 /* A record customer, read back (null when it isn't one, or is unreadable). */
 export function parseRecord(c) {
@@ -1376,14 +1412,15 @@ export function parseRecord(c) {
     comment: md.aob_comment || '', status: md.aob_status === 'cancelled' ? 'cancelled' : 'active', status_at: parseInt(md.aob_status_at || '0', 10) || null,
     created_at: md.aob_created_at || new Date((c.created || 0) * 1000).toISOString(), created: c.created || 0,
   };
-  if (type === 'block') return { ...base, rooms: String(md.aob_rooms || '').split('|').filter(Boolean), reason: REC_REASONS.includes(md.aob_reason) ? md.aob_reason : 'other' };
+  if (type === 'block') return { ...base, rooms: String(md.aob_rooms || '').split('|').filter(Boolean), reason: REC_REASONS.includes(md.aob_reason) ? md.aob_reason : 'other',
+    ext: extOf(md, base.created_at) };
   const guests = [];
   for (let i = 1; i <= 12; i++) {
     const v = md[`aob_g${i}`]; if (!v) continue;
     const [name, email, gender, room_name] = v.split(' | ');
     guests.push({ name: name || '', email: email || '', gender: gender || '', room_name: room_name || '' });
   }
-  return { ...base, ref: base.id, source: 'manual', guests, programme: md.aob_programme === 'yes' ? 'yes' : 'no',
+  return { ...base, ref: base.id, source: 'manual', ext: null, guests, programme: md.aob_programme === 'yes' ? 'yes' : 'no',
     total_cents: parseInt(md.aob_total || '0', 10) || 0, lead: { name: md.aob_lead_name || (guests[0] && guests[0].name) || '', email: md.aob_lead_email || '', whatsapp: md.aob_whatsapp || '' } };
 }
 /* The active records overlapping a week. */
@@ -1407,11 +1444,15 @@ function withWrites(rows) {
   return [...byId.values()];
 }
 const RECENT_WRITE_SEC = 10 * 60; // real-time lists of what was created lately (search lags)
-/* rows of a search plus a real-time list of what was created in the last 10 minutes (list wins) */
+/* The real-time list of customers created in the last 10 minutes (callers that also look for other
+   customers read it once and hand it to listRecords as recentRows). */
+export const recentCustomers = env => listAll(env, '/customers', { 'created[gte]': nowSec() - RECENT_WRITE_SEC });
+/* rows of a search plus a real-time list of what was created in the last 10 minutes (list wins).
+   recent: true, or that list already read (an array or a promise of one). */
 async function searchWithRecent(env, object, query, listPath, recent) {
   const [found, fresh] = await Promise.all([
     searchAll(env, query, 2000, object),
-    recent ? listAll(env, listPath, { 'created[gte]': nowSec() - RECENT_WRITE_SEC }) : [],
+    recent && recent !== true ? recent : recent ? listAll(env, listPath, { 'created[gte]': nowSec() - RECENT_WRITE_SEC }) : [],
   ]);
   const byId = new Map();
   for (const x of [...found, ...fresh]) byId.set(x.id, x);
@@ -1421,10 +1462,12 @@ async function searchWithRecent(env, object, query, listPath, recent) {
 /* Every record (blocks and manual bookings, cancelled ones too), oldest first. One customers search
    (paginated). cached: from a 15 s memo with single flight (the public availability: one search for
    every week and every poll). recent: also the real-time list of customers created in the last 10
-   minutes (one more call: checkout and the admin read this way, so a record just made counts at once). */
+   minutes (one more call: checkout and the admin read this way, so a record just made counts at once).
+   recentRows: that real-time list already read (recentCustomers(), an array or a promise): implies recent. */
 const recMemo = { v: null, at: 0, inflight: null, gen: 0 };
 export function clearRecordsMemo() { recMemo.v = null; recMemo.inflight = null; recMemo.gen++; }
-export async function listRecords(env, { cached = false, recent = false } = {}) {
+export async function listRecords(env, { cached = false, recent = false, recentRows = null } = {}) {
+  if (recentRows) recent = recentRows;
   let raw;
   if (cached && !recent) {
     if (recMemo.v && Date.now() - recMemo.at < MEMO_TTL_MS) raw = recMemo.v;
@@ -1522,7 +1565,8 @@ export function weekConflicts(program, occ, cand) {
 /* Clashes in the physical rooms on the same nights: a block with anyone in its rooms (manual guests,
    online guests placed there in an overlapping week); a manual booking with a block, or with other
    people in a room (more than it holds, women and men in a one-gender room, a room sold by the unit
-   used by another booking). Two blocks on one room don't clash.
+   used by another booking). Two of the team's blocks on one room don't clash; a booking imported from
+   Uplisting (a block with ext) is a guest in its rooms: the team's blocks and manual bookings clash with it.
    others: the other active records; weeks: [{ program, bookings }] (groupBookings) of the weeks the
    candidate overlaps. → [human text] */
 export function nameConflicts(cand, others, weeks, rooms = calendarRooms().rooms) {
@@ -1544,16 +1588,21 @@ export function nameConflicts(cand, others, weeks, rooms = calendarRooms().rooms
     }
   }
   if (cand.type === 'block') {
-    for (const n of cand.rooms) for (const o of people.get(n) || []) {
-      if (!overlaps(o, cand)) continue;
-      say(`${n}|${o.who}`, `${n}: ${o.who} is there ${rangeLabel(o.from > cand.from ? o.from : cand.from, o.to < cand.to ? o.to : cand.to)}.`);
+    for (const n of cand.rooms) {
+      for (const o of people.get(n) || []) {
+        if (!overlaps(o, cand)) continue;
+        say(`${n}|${o.who}`, `${n}: ${o.who} is there ${rangeLabel(o.from > cand.from ? o.from : cand.from, o.to < cand.to ? o.to : cand.to)}.`);
+      }
+      // a guest booked through Uplisting is someone in the room too (two of the team's blocks don't clash)
+      if (!isExternal(cand)) for (const b of blocks.get(n) || []) if (isExternal(b)) say(`b|${n}|${b.id}`, `${n} has an Uplisting booking ${rangeLabel(b.from, b.to)} (${externalLabel(b)}).`);
     }
     return out;
   }
   const mine = new Map();
   cand.guests.forEach(g => push(mine, g.room_name, g));
   for (const [n, gs] of mine) {
-    for (const b of blocks.get(n) || []) say(`b|${n}|${b.id}`, `${n} is blocked ${rangeLabel(b.from, b.to)} (${b.reason}${b.comment ? `: ${cut(b.comment, 80)}` : ''}).`);
+    for (const b of blocks.get(n) || []) say(`b|${n}|${b.id}`, isExternal(b) ? `${n} has an Uplisting booking ${rangeLabel(b.from, b.to)} (${externalLabel(b)}).`
+      : `${n} is blocked ${rangeLabel(b.from, b.to)} (${b.reason}${b.comment ? `: ${cut(b.comment, 80)}` : ''}).`);
     const r = info.get(n), list = (people.get(n) || []).filter(o => overlaps(o, cand));
     if (!r || !list.length) continue;
     for (let d = cand.from; d < cand.to; d = addDays(d, 1)) {
@@ -1571,9 +1620,10 @@ export function nameConflicts(cand, others, weeks, rooms = calendarRooms().rooms
 
 /* The week a manual booking belongs to (the first BreathCamp it overlaps), else null (a stay). */
 export const homeProgram = (rec, programs = listPrograms()) => programs.slice().sort((a, b) => (a.dates.start < b.dates.start ? -1 : 1)).find(p => overlaps(rec, weekRange(p))) || null;
-/* A block as the admin shows it. */
+/* A block as the admin shows it. ext: { source: 'uplisting', id, property_id, property_name, unit, channel,
+   guest, guests, status, synced_at } for a booking imported from Uplisting, else null. */
 export const blockOut = rec => ({ id: rec.id, customer: rec.customer, rooms: rec.rooms.slice(), from: rec.from, to: rec.to, nights: rec.nights,
-  reason: rec.reason, comment: rec.comment, status: rec.status, created_at: rec.created_at });
+  reason: rec.reason, comment: rec.comment, status: rec.status, created_at: rec.created_at, ext: rec.ext ? { ...rec.ext } : null });
 /* A manual booking in the shape of an online one (source 'manual'): total = the agreed price, paid =
    its offline payments; manual: { from, to, nights, programme, comment, customer }. offline: rows
    from listOffline (any; this booking's are picked by reference). */
@@ -1622,7 +1672,7 @@ export function blockInput(body, { now = new Date(), rooms = calendarRooms().roo
   else if (list.some(n => !known.has(n))) errors.rooms = `Unknown room: ${list.find(n => !known.has(n))}.`;
   else if (list.join('|').length > 490) errors.rooms = 'That is more room names than one block can hold. Split it into two blocks.';
   const reason = body.reason == null || body.reason === '' ? 'other' : body.reason;
-  if (!REC_REASONS.includes(reason)) errors.reason = `One of ${REC_REASONS.join(', ')}.`;
+  if (!BLOCK_REASONS.includes(reason)) errors.reason = `One of ${BLOCK_REASONS.join(', ')}.`;
   if (Object.keys(errors).length) return { errors };
   const id = newBlockId(), comment = cleanNote(body.comment);
   const metadata = { ...recordBase('block', id, from, to, comment, now), aob_rooms: list.join('|'), aob_reason: reason };
