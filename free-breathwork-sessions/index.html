@@ -212,10 +212,6 @@ main .btn-primary{box-shadow:0 8px 24px rgba(214,166,82,.3)}
 .photo-label{position:absolute;left:30px;right:26px;bottom:26px;z-index:3;color:#fff;transition:opacity .4s}
 .photo-label span{display:block;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:#eee0c2}
 .photo-label strong{display:block;font-family:var(--serif);font-size:23px;font-weight:400;line-height:1.3}
-.date-stamp{position:absolute;right:-20px;top:82px;z-index:6;width:116px;height:128px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 8px;background:linear-gradient(135deg,#fffdf6ed,#ffffff8c 50%,#e8f3edba);border:1px solid #ffffffee;-webkit-backdrop-filter:blur(18px) saturate(155%);backdrop-filter:blur(18px) saturate(155%);border-radius:15px;box-shadow:inset 1px 1px 0 #fff,inset -1px -1px 0 #ffffff90,0 12px 30px #3f554829;transform:rotate(5deg);transition:opacity .4s}
-.date-stamp small{font-size:9px;letter-spacing:.2em;color:var(--slate)}
-.date-stamp strong{font-family:var(--serif);font-weight:400;font-size:27px;line-height:1.35}
-.date-stamp span{font-size:10px;line-height:1.4;color:var(--muted)}
 .media-caption{position:relative;z-index:6;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:18px 3px 0;font-size:10px;letter-spacing:.06em;color:#4e696a}
 .sound-btn{display:inline-flex;align-items:center;gap:8px;min-height:42px;font:500 12px var(--sans);letter-spacing:.02em;color:var(--ink);background:var(--grad-gold);border:0;border-radius:999px;padding:10px 16px;cursor:pointer;box-shadow:0 6px 16px rgba(214,166,82,.32);transition:filter .2s,transform .2s;white-space:nowrap}
 .sound-btn:hover{filter:brightness(1.06);transform:translateY(-1px)}
@@ -226,8 +222,7 @@ main .btn-primary{box-shadow:0 8px 24px rgba(214,166,82,.3)}
 .hero-visual.is-video::before,.hero-visual.is-video::after{border-radius:28px}
 .hero-visual.is-video .portrait-window{height:auto;aspect-ratio:16/9;border-radius:14px}
 .hero-visual.is-video .portrait-window iframe{left:0;width:100%;transform:none;pointer-events:auto}
-.hero-visual.is-video .portrait-window::after,.hero-visual.is-video .photo-label,.hero-visual.is-video .date-stamp{opacity:0;pointer-events:none}
-.hero-meta{position:relative;z-index:2;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:25px;margin-top:56px;padding:25px 27px;background:#fffdf9a6;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);border:1px solid #d6c19766;box-shadow:0 5px 20px #866d3f09;border-radius:8px;list-style:none}
+.hero-visual.is-video .portrait-window::after,.hero-visual.is-video .photo-label,.hero-visual.is-video .hero-meta{position:relative;z-index:2;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:25px;margin-top:56px;padding:25px 27px;background:#fffdf9a6;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);border:1px solid #d6c19766;box-shadow:0 5px 20px #866d3f09;border-radius:8px;list-style:none}
 .meta-item{display:flex;align-items:center;gap:13px;font-size:13px;line-height:1.5}
 .meta-item svg{width:22px;height:22px;stroke:#a78b51;fill:none;stroke-width:1.3;flex-shrink:0}
 .meta-item strong{display:block;font-weight:500}
@@ -460,9 +455,7 @@ main .btn-primary{box-shadow:0 8px 24px rgba(214,166,82,.3)}
   .hero-visual{padding:17px 13px 20px;border-radius:215px 215px 22px 22px;max-width:440px}
   .hero-visual::before{inset:-10px 10px 15px -7px}
   .hero-visual::after{inset:16px -8px -9px 12px}
-  .date-stamp{right:-6px;top:61px;width:98px;height:112px}
-  .date-stamp strong{font-size:23px}
-  .hero-meta{grid-template-columns:minmax(0,1fr);gap:16px;margin-top:40px;padding:22px}
+      .hero-meta{grid-template-columns:minmax(0,1fr);gap:16px;margin-top:40px;padding:22px}
   .bw-stats ul{grid-template-columns:repeat(2,minmax(0,1fr));gap:24px 0}
   .bw-stats li:nth-child(2){border:0}
   .bw-stats b{font-size:27px}
@@ -880,7 +873,6 @@ main p em,main li em{color:var(--gold-text)}
             <iframe id="heroVideo" src="https://player.vimeo.com/video/711822132?h=c7f925194d&amp;autoplay=1&amp;muted=1&amp;playsinline=1&amp;loop=1&amp;autopause=0&amp;title=0&amp;byline=0&amp;portrait=0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen title="Welcome to Breathe The World" tabindex="-1"></iframe>
             <div class="photo-label"><span>A welcome from Anthony</span><strong>Breathe The World</strong></div>
           </div>
-          <div class="date-stamp" aria-hidden="true"><small>EVERY</small><strong>Sunday</strong><span>9:30 &amp; 17:00<br>London time</span></div>
           <div class="media-caption">
             <span>Breathwork &middot; Community &middot; Free</span>
             <button class="sound-btn" type="button" id="soundBtn" aria-pressed="false">
