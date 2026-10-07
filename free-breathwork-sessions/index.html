@@ -87,7 +87,7 @@
 <meta name="twitter:title" content="Free Breathwork Sessions Every Sunday">
 <meta name="twitter:description" content="Unlock the Power of Conscious Breathing and Connection with Free Breathwork Sessions Online Provided by the Alchemy of Breath!">
 <meta name="twitter:image" content="https://alchemyofbreath.com/wp-content/uploads/resized-1.jpg">
-<meta name="theme-color" content="#173022">
+<meta name="theme-color" content="#3A2614">
 <link rel="icon" type="image/png" href="https://alchemyofbreath.com/wp-content/uploads/AOB-Gold-Black-Transparant-symbol.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -170,24 +170,27 @@ section>.wrap{position:relative;z-index:1}
 /* ===== free breathwork sessions: glass over breath ===== */
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
 /* glass surfaces */
-.glass{position:relative;color:#fff;border-radius:24px;background:linear-gradient(140deg,rgba(255,255,255,.2) 0%,rgba(255,255,255,.07) 100%);border:1px solid rgba(255,255,255,.3);backdrop-filter:blur(18px) saturate(150%);-webkit-backdrop-filter:blur(18px) saturate(150%);box-shadow:0 24px 60px rgba(6,12,18,.28),inset 0 1px 0 rgba(255,255,255,.42)}
+.glass{position:relative;color:#fff;border-radius:24px;background:linear-gradient(140deg,rgba(255,244,224,.22) 0%,rgba(255,232,196,.07) 100%);border:1px solid rgba(255,238,210,.34);backdrop-filter:blur(18px) saturate(150%);-webkit-backdrop-filter:blur(18px) saturate(150%);box-shadow:0 24px 60px rgba(6,12,18,.28),inset 0 1px 0 rgba(255,255,255,.42)}
 .glass-light{position:relative;color:var(--ink);border-radius:22px;background:linear-gradient(140deg,rgba(255,255,255,.78) 0%,rgba(255,255,255,.52) 100%);border:1px solid rgba(255,255,255,.85);backdrop-filter:blur(20px) saturate(160%);-webkit-backdrop-filter:blur(20px) saturate(160%);box-shadow:0 22px 54px rgba(34,31,32,.10),inset 0 1px 0 #fff}
 @supports not ((backdrop-filter:blur(2px)) or (-webkit-backdrop-filter:blur(2px))){.glass{background:rgba(18,28,34,.84)}.glass-light{background:rgba(255,255,255,.94)}}
-.photo-bg{position:absolute;inset:0;z-index:0;background:var(--img) center/cover no-repeat}
-.photo-bg::after{content:"";position:absolute;inset:0;background:linear-gradient(160deg,rgba(14,26,30,.78) 0%,rgba(14,26,30,.56) 55%,rgba(14,26,30,.72) 100%)}
-.photo-bg.dark::after{background:linear-gradient(180deg,rgba(10,18,28,.55),rgba(10,18,28,.78))}
+.photo-bg{position:absolute;inset:0;z-index:0;isolation:isolate;background:var(--img) center/cover no-repeat}
+/* golden-brown tint: recolours every photo toward the warm house palette, then the gradient below sets contrast */
+.photo-bg::before,.fb-hero-bg::before,.voice-bgs::before{content:"";position:absolute;inset:0;background:#9A6A2E;mix-blend-mode:color;opacity:.5;pointer-events:none}
+.photo-bg::after{content:"";position:absolute;inset:0;background:radial-gradient(70% 60% at 85% 8%,rgba(236,196,120,.26) 0%,rgba(236,196,120,0) 70%),linear-gradient(100deg,rgba(52,32,12,.86) 0%,rgba(84,54,21,.68) 48%,rgba(118,79,32,.5) 100%),linear-gradient(180deg,rgba(40,24,8,0) 60%,rgba(40,24,8,.4) 100%)}
+.photo-bg.dark::after{background:radial-gradient(60% 50% at 50% 0%,rgba(236,196,120,.24) 0%,rgba(236,196,120,0) 70%),linear-gradient(180deg,rgba(86,56,22,.72),rgba(52,32,13,.88))}
 .photo-bg.soft{filter:saturate(1.05)}
-.photo-bg.soft::after{background:linear-gradient(180deg,rgba(18,40,24,.45),rgba(18,34,22,.68))}
+.photo-bg.soft::after{background:radial-gradient(60% 60% at 50% 0%,rgba(240,204,130,.32) 0%,rgba(240,204,130,0) 70%),linear-gradient(180deg,rgba(120,80,32,.55),rgba(66,41,16,.74))}
 .sec-intro.light h2,.sec-intro.light p{color:#fff}
+.fb-hero h1,.fb-hero .rotator,.sec-intro.light h2,.fb-sessions h2,.fb-voices h2{text-shadow:0 2px 22px rgba(40,22,6,.35)}
 .sec-intro.light h2 em{color:var(--gold)}
 .sec-intro.light p{color:rgba(255,255,255,.86)}
 .eb-light{color:#F1DFB8}
 .eb-light::before{background:var(--gold)}
 
 /* hero */
-.fb-hero{position:relative;overflow:hidden;padding:150px 0 110px;color:#fff;background:#173022}
-.fb-hero-bg{position:absolute;inset:-4%;background:url("https://alchemyofbreath.com/wp-content/uploads/bokeh-bg-texture-1.jpg") center/cover no-repeat;animation:drift 28s ease-in-out infinite alternate}
-.fb-hero-bg::after{content:"";position:absolute;inset:0;background:radial-gradient(90% 80% at 15% 40%,rgba(10,24,16,.78) 0%,rgba(10,24,16,.5) 55%,rgba(10,24,16,.3) 100%)}
+.fb-hero{position:relative;overflow:hidden;padding:150px 0 70px;color:#fff;background:#3A2614}
+.fb-hero-bg{position:absolute;inset:-4%;isolation:isolate;background:url("https://alchemyofbreath.com/wp-content/uploads/bokeh-bg-texture-1.jpg") center/cover no-repeat;animation:drift 28s ease-in-out infinite alternate}
+.fb-hero-bg::after{content:"";position:absolute;inset:0;background:radial-gradient(55% 55% at 82% 18%,rgba(240,200,124,.34) 0%,rgba(240,200,124,0) 70%),radial-gradient(90% 85% at 12% 45%,rgba(54,33,12,.84) 0%,rgba(112,74,29,.56) 55%,rgba(150,104,46,.32) 100%)}
 @keyframes drift{from{transform:scale(1.02) translate3d(0,0,0)}to{transform:scale(1.1) translate3d(-1.5%,-1%,0)}}
 .fb-hero-grid{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:56px;align-items:center}
 .tag-glass{display:inline-block;padding:8px 18px;border-radius:999px;font-size:.74rem;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:#fff;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.32);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
@@ -204,7 +207,7 @@ section>.wrap{position:relative;z-index:1}
 .dot{width:8px;height:8px;border-radius:50%;background:#7EE0A4;box-shadow:0 0 0 0 rgba(126,224,164,.7);animation:ping 2.4s ease-out infinite}
 @keyframes ping{0%{box-shadow:0 0 0 0 rgba(126,224,164,.6)}75%,100%{box-shadow:0 0 0 10px rgba(126,224,164,0)}}
 .video-card{padding:12px;border-radius:26px}
-.vbox{position:relative;aspect-ratio:16/9;border-radius:16px;overflow:hidden;background:#0d1a12}
+.vbox{position:relative;aspect-ratio:16/9;border-radius:16px;overflow:hidden;background:#2a1b0c}
 .vbox iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
 .video-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 8px 4px}
 .vf-label{font-size:.72rem;font-weight:500;letter-spacing:.22em;color:rgba(255,255,255,.8)}
@@ -225,7 +228,7 @@ section>.wrap{position:relative;z-index:1}
 .slot-uk small{font-family:var(--sans);font-size:.9rem;color:rgba(255,255,255,.75)}
 .slot-local{font-size:.86rem;color:rgba(255,255,255,.85);margin-top:6px}
 .slot-local strong{font-weight:500;color:#fff}
-.slot-local b{font-weight:500;color:var(--gold)}
+.slot-local b{font-weight:500;color:#FFE1A3}
 .slot-count{margin-top:10px;font-size:.8rem;letter-spacing:.04em;color:rgba(255,255,255,.9);padding-top:10px;border-top:1px solid rgba(255,255,255,.22);font-variant-numeric:tabular-nums}
 .slot-count .live{color:#7EE0A4;font-weight:500}
 .sessions-note{margin-top:26px;font-size:1.04rem;color:rgba(255,255,255,.88);max-width:32em}
@@ -278,11 +281,13 @@ section>.wrap{position:relative;z-index:1}
 .benefit p{font-size:.92rem;line-height:1.65;color:rgba(255,255,255,.86)}
 
 /* voices */
-.fb-voices{position:relative;overflow:hidden;color:#fff;text-align:center;background:#1c2a33}
-.voice-bgs{position:absolute;inset:0}
+.fb-voices{position:relative;overflow:hidden;color:#fff;text-align:center;background:#3A2614}
+.voice-bgs{position:absolute;inset:0;isolation:isolate}
+.voice-bgs::before{z-index:1}
+.voice-bgs::after{z-index:2}
 .vbg{position:absolute;inset:0;background:var(--img) center/cover no-repeat;opacity:0;transition:opacity 1.4s ease;transform:scale(1.04)}
 .vbg.is-on{opacity:1}
-.voice-bgs::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,20,28,.55),rgba(14,20,28,.7))}
+.voice-bgs::after{content:"";position:absolute;inset:0;background:radial-gradient(60% 60% at 50% 30%,rgba(240,200,124,.22) 0%,rgba(240,200,124,0) 70%),linear-gradient(180deg,rgba(66,41,16,.62),rgba(48,29,11,.78))}
 .fb-voices .wrap{position:relative;z-index:1}
 .fb-voices h2{color:#fff;max-width:18em;margin:0 auto 40px}
 .fb-voices h2 em{color:var(--gold)}
@@ -351,7 +356,33 @@ section>.wrap{position:relative;z-index:1}
 .fb-disclaimer{position:relative;z-index:1;max-width:44em;margin:50px auto 0;text-align:center;font-size:.82rem;color:var(--slate);line-height:1.6}
 .fb-disclaimer a{color:var(--ink);text-underline-offset:3px}
 
-@media(prefers-reduced-motion:reduce){.fb-hero-bg{animation:none}.dot{animation:none}.rot-item,.voice,.vbg{transition:none}}
+
+/* ux additions */
+.stat-bar{position:relative;z-index:1;list-style:none;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));margin-top:64px;padding:6px;border-radius:22px}
+.stat-bar li{padding:18px 20px;text-align:center;border-left:1px solid rgba(255,238,210,.22)}
+.stat-bar li:first-child{border-left:0}
+.stat-bar b{display:block;font-family:var(--serif);font-weight:400;font-size:clamp(1.6rem,2.6vw,2.2rem);line-height:1.1;color:#F6E2B5}
+.stat-bar span{display:block;margin-top:4px;font-size:.82rem;color:rgba(255,248,236,.86)}
+.slot{transition:transform .3s,box-shadow .3s,border-color .3s}
+.slot.is-next{border-color:rgba(240,204,130,.75);box-shadow:0 24px 60px rgba(30,16,4,.32),0 0 0 1px rgba(240,204,130,.35),inset 0 1px 0 rgba(255,255,255,.45)}
+.next-badge{align-self:flex-start;display:inline-flex;align-items:center;gap:6px;font-size:.66rem;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--ink);background:var(--grad-gold);border-radius:999px;padding:5px 10px;margin-bottom:6px}
+.slot.big .next-badge{align-self:center}
+.people-bg{position:absolute;inset:0;z-index:0;background:url("https://alchemyofbreath.com/wp-content/uploads/BTWF-bg-1-1.jpg") center/cover no-repeat}
+.people-bg::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(253,246,233,.86) 0%,rgba(247,235,210,.72) 50%,rgba(253,246,233,.9) 100%)}
+.fb-people .wrap{position:relative;z-index:1}
+.mini-quotes{position:relative;z-index:1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-top:22px}
+.mini-q{margin:0;padding:22px 22px 18px;display:flex;flex-direction:column}
+.mini-q .mq-mark{font-family:var(--serif);font-size:2.6rem;line-height:.6;color:var(--gold-deep);height:18px}
+.mini-q blockquote{font-family:var(--serif);font-size:1.02rem;line-height:1.5;color:var(--ink);flex:1}
+.mini-q figcaption{margin-top:12px;font-size:.72rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--slate)}
+.voice-card{touch-action:pan-y}
+.voice-card:focus-visible{outline:2px solid var(--gold);outline-offset:4px}
+.m-cta{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:55;display:none;align-items:center;justify-content:center;gap:10px;padding:15px 20px;border-radius:999px;font-weight:500;font-size:.95rem;letter-spacing:.03em;color:var(--ink);text-decoration:none;background:var(--grad-gold);box-shadow:0 14px 34px rgba(60,36,10,.35),inset 0 1px 0 rgba(255,255,255,.5);transform:translateY(140%);transition:transform .35s cubic-bezier(.22,.61,.36,1)}
+.m-cta.show{transform:none}
+@media(max-width:1060px){.stat-bar{grid-template-columns:repeat(2,minmax(0,1fr))}.stat-bar li:nth-child(3){border-left:0}.stat-bar li:nth-child(n+3){border-top:1px solid rgba(255,238,210,.22)}.mini-quotes{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.m-cta{display:flex}body{padding-bottom:84px}}
+@media(max-width:560px){.rotator{font-size:2.05rem;max-width:none}.mini-quotes{grid-template-columns:minmax(0,1fr)}.stat-bar{margin-top:44px}.stat-bar li{padding:14px 10px}}
+@media(prefers-reduced-motion:reduce){.m-cta{transition:none}.fb-hero-bg{animation:none}.dot{animation:none}.rot-item,.voice,.vbg{transition:none}}
 @media(max-width:1060px){
   .fb-hero-grid,.fb-sessions-grid{grid-template-columns:minmax(0,1fr)}
   .feat-grid,.benefit-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -745,6 +776,14 @@ main p em,main li em{color:var(--gold-text)}
         </div>
       </div>
     </div>
+    <div class="wrap">
+      <ul class="glass stat-bar reveal" aria-label="Breathe The World at a glance">
+        <li><b>170,000+</b><span>people have breathed with us</span></li>
+        <li><b>2</b><span>free sessions every Sunday</span></li>
+        <li><b>30</b><span>minutes can change everything</span></li>
+        <li><b>Free</b><span>world-class breathwork</span></li>
+      </ul>
+    </div>
   </section>
 
   <!-- SESSIONS + REGISTER -->
@@ -832,6 +871,7 @@ main p em,main li em{color:var(--gold-text)}
 
   <!-- FIND YOUR PEOPLE -->
   <section class="fb-people cv" aria-labelledby="people-title">
+    <div class="people-bg" aria-hidden="true"></div>
     <div class="orb g" style="width:620px;height:620px;top:-120px;left:-220px" aria-hidden="true"></div>
     <div class="orb t" style="width:640px;height:640px;bottom:-220px;right:-220px" aria-hidden="true"></div>
     <div class="wrap">
@@ -858,12 +898,12 @@ main p em,main li em{color:var(--gold-text)}
           <blockquote>I have had the pleasure and privilege of assisting Anthony in his work. Not only does he hold a beautiful and reassuring space, it also abounds with positive energy which is what makes it so special. Thank you for your space and your heart Anthony!</blockquote>
         </figure>
       </div>
-      <ul class="chips" aria-label="More words from the community">
-        <li class="glass-light chip reveal">&ldquo;Thank you all for co-creating this space. Truly beautiful.&rdquo; &ndash; Raymonde</li>
-        <li class="glass-light chip reveal d1">&ldquo;So much love and gratitude to this loving community space. You are so appreciated!&rdquo; &ndash; Melissa</li>
-        <li class="glass-light chip reveal d2">&ldquo;Tears, release, and a sense of clarity&mdash;thank you for this sacred container.&rdquo; &ndash; Ilona</li>
-        <li class="glass-light chip reveal d3">&ldquo;Today&rsquo;s breath practice was more effective than any workshop I&rsquo;ve attended.&rdquo; &ndash; Kate</li>
-      </ul>
+      <div class="mini-quotes" aria-label="More words from the community">
+        <figure class="glass-light mini-q reveal"><span class="mq-mark" aria-hidden="true">&ldquo;</span><blockquote>&ldquo;Thank you all for co-creating this space. Truly beautiful.&rdquo;</blockquote><figcaption>&ndash; Raymonde</figcaption></figure>
+        <figure class="glass-light mini-q reveal d1"><span class="mq-mark" aria-hidden="true">&ldquo;</span><blockquote>&ldquo;So much love and gratitude to this loving community space. You are so appreciated!&rdquo;</blockquote><figcaption>&ndash; Melissa</figcaption></figure>
+        <figure class="glass-light mini-q reveal d2"><span class="mq-mark" aria-hidden="true">&ldquo;</span><blockquote>&ldquo;Tears, release, and a sense of clarity&mdash;thank you for this sacred container.&rdquo;</blockquote><figcaption>&ndash; Ilona</figcaption></figure>
+        <figure class="glass-light mini-q reveal d3"><span class="mq-mark" aria-hidden="true">&ldquo;</span><blockquote>&ldquo;Today&rsquo;s breath practice was more effective than any workshop I&rsquo;ve attended.&rdquo;</blockquote><figcaption>&ndash; Kate</figcaption></figure>
+      </div>
     </div>
   </section>
 
@@ -906,7 +946,7 @@ main p em,main li em{color:var(--gold-text)}
     </div>
     <div class="wrap">
       <h2 id="voices-title" class="reveal">170,000+ people have breathed with us during our free <em>Sunday sessions</em></h2>
-      <div class="glass voice-card reveal d1" aria-roledescription="carousel" aria-label="What people say after a session">
+      <div class="glass voice-card reveal d1" tabindex="0" aria-roledescription="carousel" aria-label="What people say after a session. Use the arrow keys to move between quotes.">
         <span class="vq" aria-hidden="true">&ldquo;</span>
         <div class="voice-track" aria-live="polite">
           <figure class="voice is-on"><blockquote>&ldquo;All I can say is WOW&hellip; That was mind-blowing. The music. Everything.&rdquo;</blockquote><figcaption>- Paula</figcaption></figure>
@@ -1040,6 +1080,7 @@ main p em,main li em{color:var(--gold-text)}
   </section>
 
 </main>
+<a class="m-cta" href="#register" aria-hidden="true" tabindex="-1">Reserve your free spot <span aria-hidden="true">&rarr;</span></a>
 
 <!-- FOOTER -->
 <footer class="foot">
@@ -1181,7 +1222,18 @@ main p em,main li em{color:var(--gold-text)}
       cnt.textContent='Next session in '+(d?d+'d ':'')+pad(hr)+'h '+pad(m)+'m';
     });
   }
-  tick(); setInterval(tick,30000);
+  function markNext(){
+    [].slice.call(document.querySelectorAll('.slots, .again-grid')).forEach(function(group){
+      var best=null, bestT=Infinity, now=Date.now();
+      [].slice.call(group.querySelectorAll('.slot[data-h]')).forEach(function(s){
+        var t=nextSession(+s.dataset.h,+s.dataset.m,now); s.classList.remove('is-next');
+        var b=s.querySelector('.next-badge'); if(b) b.remove();
+        if(t!=null && t<bestT){ bestT=t; best=s; }
+      });
+      if(best){ best.classList.add('is-next'); var badge=document.createElement('span'); badge.className='next-badge'; badge.textContent='Next up'; best.insertBefore(badge,best.firstChild); }
+    });
+  }
+  tick(); markNext(); setInterval(function(){ tick(); markNext(); },30000);
 
   /* hero video: sound on/off through the Vimeo player API */
   var btn=document.getElementById('soundBtn'), frame=document.getElementById('heroVideo'), player=null;
@@ -1216,6 +1268,25 @@ main p em,main li em{color:var(--gold-text)}
   var card=document.querySelector('.voice-card');
   if(card){ card.addEventListener('mouseenter',function(){ if(timer) clearInterval(timer); }); card.addEventListener('mouseleave',restart); }
   restart();
+  if(card){
+    var x0=null;
+    card.addEventListener('touchstart',function(e){ x0=e.touches[0].clientX; },{passive:true});
+    card.addEventListener('touchend',function(e){ if(x0==null) return; var dx=e.changedTouches[0].clientX-x0; if(Math.abs(dx)>40){ show(vi+(dx<0?1:-1)); restart(); } x0=null; },{passive:true});
+    card.addEventListener('keydown',function(e){ if(e.key==='ArrowRight'){ show(vi+1); restart(); } else if(e.key==='ArrowLeft'){ show(vi-1); restart(); } });
+  }
+
+  /* phones: sticky "Reserve" button once the hero is behind you, hidden while the form is on screen */
+  var mcta=document.querySelector('.m-cta'), hero=document.querySelector('.fb-hero'), reg=document.getElementById('register');
+  if(mcta && hero && reg){
+    var shown=null;
+    function upd(){
+      var vh=window.innerHeight, h=hero.getBoundingClientRect(), r=reg.getBoundingClientRect();
+      var on=h.bottom<80 && !(r.top<vh*.85 && r.bottom>vh*.15);
+      if(on===shown) return; shown=on;
+      mcta.classList.toggle('show',on); mcta.setAttribute('aria-hidden',on?'false':'true'); mcta.tabIndex=on?0:-1;
+    }
+    window.addEventListener('scroll',upd,{passive:true}); window.addEventListener('resize',upd); upd();
+  }
 })();
 </script>
 <script>
