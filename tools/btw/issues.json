@@ -52,5 +52,17 @@
     "letter": "2026-40.html",
     "video": "https://cdn.jsdelivr.net/gh/Alchemy-of-Breath/website@main/assets/btw/amy-w40.mp4",
     "poster": "https://cdn.jsdelivr.net/gh/Alchemy-of-Breath/website@main/assets/btw/amy-w40-poster.jpg"
+  },
+  {
+    "date": "2026-10-11",
+    "title": "Why You’re Worth It",
+    "title_html": "Why You&rsquo;re <em>Worth It</em>",
+    "description": "Why you’re worth it. Breathe The World with Amy Rachelle and Alchemy of Breath trainers Pablo and Tina Marie.",
+    "am_host": "Pablo",
+    "am_role": "Alchemy of Breath trainer",
+    "pm_host": "Tina Marie",
+    "pm_role": "Alchemy of Breath trainer",
+    "closing": "Yes. I am worth it.",
+    "letter": "2026-41.html"
   }
 ]
