@@ -63,6 +63,8 @@
     "pm_host": "Tina Marie",
     "pm_role": "Alchemy of Breath trainer",
     "closing": "Yes. I am worth it.",
-    "letter": "2026-41.html"
+    "letter": "2026-41.html",
+    "am_photo": "https://cdn.jsdelivr.net/gh/Alchemy-of-Breath/website@main/assets/btw/pablo.jpg",
+    "pm_photo": "https://cdn.jsdelivr.net/gh/Alchemy-of-Breath/website@main/assets/btw/tina-marie.jpg"
   }
 ]
