@@ -171,6 +171,9 @@ button{font:inherit;color:inherit}
 .field textarea{resize:none;overflow:hidden;min-height:2.6em}
 .field input:focus,.field textarea:focus{border-bottom-color:var(--gold-deep);box-shadow:0 1px 0 var(--gold-deep)}
 .field ::placeholder{color:#A99D88;opacity:1}
+.other-field{margin-top:18px;max-width:580px}
+.other-field input{font-size:clamp(1.1rem,1rem + .5vw,1.3rem)}
+.choice .other-hint{color:var(--slate);font-size:.9rem}
 
 .err{margin-top:16px;display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:6px;background:var(--error-wash);color:var(--error);font-size:.92rem;font-weight:400}
 .status{margin-top:16px;color:var(--slate);font-size:.95rem}
@@ -320,7 +323,22 @@ button{font:inherit;color:inherit}
       title: 'Training at this level is a serious investment in yourself. Where are you with that?',
       options: ['I am ready and able to invest in this now',
                 'I am resourceful and would find a way if it is the right fit',
-                NOT_READY] },
+                NOT_READY],
+      other: { label: 'Something else', placeholder: 'Tell us where you are with it' } },
+    { id: 'investment_amount', type: 'choice',
+      title: 'What amount are you comfortable investing in your training?',
+      help: 'Tuition is $7,200, or $6,400 with the Early Bird for the November 19, 2026 cohort. Payment plans and partial scholarships are available.',
+      options: ['$6,400 or more, the full tuition',
+                '$5,000 to $6,400',
+                '$3,500 to $5,000',
+                'Under $3,500'],
+      other: { label: 'Another amount', placeholder: 'Type the amount you have in mind' } },
+    { id: 'payment_preference', type: 'choice',
+      title: 'How would you prefer to pay?',
+      options: ['In full, upfront',
+                'Payment plan: 20% deposit, then monthly instalments',
+                'I would like to ask about a partial scholarship'],
+      other: { label: 'Something else', placeholder: 'Tell us what would work for you' } },
     { id: 'first_name', type: 'short', contact: true, autocomplete: 'given-name',
       title: 'First name',
       helpHtml: 'A few details so we can confirm your call. <a href="' + CONFIG.privacyUrl + '" target="_blank" rel="noopener">Privacy policy</a>' },
@@ -338,12 +356,13 @@ button{font:inherit;color:inherit}
 
   /* ================= BRANCHING ================= */
   // Q1 "No"  → skip to name + email, then a free-sessions ending (no phone, no calendar).
-  // Q8 "not in a position to invest" → collect contact details, skip the calendar.
+  // Q8 "not in a position to invest" → skip the amount + payment questions, collect contact details, skip the calendar.
   // Final "No" → saved in GHL, no calendar.  Final "Yes" → calendar.
   function isVisible(q) {
     if (answers.facilitator_intent === 'No')
       return ['facilitator_intent', 'first_name', 'last_name', 'email'].indexOf(q.id) > -1;
-    if (q.id === 'call_commitment' && answers.investment_readiness === NOT_READY) return false;
+    if (answers.investment_readiness === NOT_READY &&
+        ['investment_amount', 'payment_preference', 'call_commitment'].indexOf(q.id) > -1) return false;
     return true;
   }
   function outcome() {
@@ -376,10 +395,12 @@ button{font:inherit;color:inherit}
   tracking.referrer = params.get('embed_ref') || document.referrer || '';
   tracking.page_url = params.get('embed_page') || (location.origin + location.pathname);
 
+  var OTHER = '__other__';
   QUESTIONS.forEach(function (q) {
     if (q.options) q.keys = q.options.map(function (o, i) {
       return (q.options.length === 2 && q.options[0] === 'Yes') ? o.charAt(0) : LETTERS.charAt(i);
     });
+    if (q.other) q.keys.push(LETTERS.charAt(q.options.length));
   });
 
   /* ================= HELPERS ================= */
@@ -408,7 +429,13 @@ button{font:inherit;color:inherit}
   function isDemo() { return !CONFIG.webhookUrl; }
   function qById(id) { for (var i = 0; i < QUESTIONS.length; i++) if (QUESTIONS[i].id === id) return QUESTIONS[i]; return null; }
   function visibleList() { return QUESTIONS.filter(isVisible); }
-  function val(id) { return String(answers[id] || '').trim(); }
+  function val(id) {
+    if (answers[id] === OTHER) {
+      var t = String(answers[id + '_other'] || '').trim();
+      return t ? 'Other: ' + t : '';
+    }
+    return String(answers[id] || '').trim();
+  }
 
   function loadDraft() {
     try {
@@ -465,6 +492,29 @@ button{font:inherit;color:inherit}
         s.choiceBtns.push(b);
         body.appendChild(b);
       });
+      if (q.other) {
+        var isOther = answers[q.id] === OTHER;
+        var ob = h('button', { type: 'button', class: 'choice', role: 'radio', 'aria-checked': String(isOther) }, [
+          h('span', { class: 'key', 'aria-hidden': 'true', text: q.keys[q.options.length] }),
+          h('span', {}, [q.other.label, h('span', { class: 'other-hint', text: ' · type your own' })]),
+          h('span', { class: 'tick' }, [svg(CHECK, 16)])
+        ]);
+        ob.addEventListener('click', function () { chooseOther(q); });
+        s.choiceBtns.push(ob);
+        body.appendChild(ob);
+        var oin = h('input', { id: 'f-' + q.id + '-other', type: 'text', placeholder: q.other.placeholder, autocomplete: 'off', 'aria-label': q.other.label });
+        oin.value = answers[q.id + '_other'] || '';
+        oin.addEventListener('input', function () {
+          answers[q.id + '_other'] = oin.value;
+          if (!err.hidden) setError(q, '');
+          saveDraft();
+        });
+        s.btn = h('button', { type: 'button', class: 'btn', onclick: next });
+        s.otherInput = oin;
+        s.otherField = h('div', { class: 'field other-field' }, [oin,
+          h('div', { class: 'actions' }, [s.btn, coarse ? null : h('span', { class: 'hint', html: 'press <b>Enter ↵</b>' })])]);
+        s.otherField.hidden = !isOther;
+      }
     } else {
       var input = q.type === 'long'
         ? h('textarea', { id: 'f-' + q.id, rows: '1', placeholder: 'Type your answer here…', 'aria-labelledby': 't-' + q.id })
@@ -486,7 +536,7 @@ button{font:inherit;color:inherit}
       actions = h('div', { class: 'actions' }, [s.btn, hint]);
     }
 
-    var inner = h('div', { class: 'q' }, [head, help, body, err, status, actions]);
+    var inner = h('div', { class: 'q' }, [head, help, body, s.otherField || null, err, status, actions]);
     s.el = h('section', { class: 'screen', id: 's-' + q.id, 'aria-labelledby': 't-' + q.id }, [inner]);
     s.inner = inner;
     s.focus = s.input || title;
@@ -586,6 +636,7 @@ button{font:inherit;color:inherit}
     answers[q.id] = q.options[i];
     saveDraft();
     s.choiceBtns.forEach(function (b, j) { b.setAttribute('aria-checked', String(i === j)); });
+    if (s.otherField) s.otherField.hidden = true;
     setError(q, '');
     var b = s.choiceBtns[i];
     b.classList.remove('blink'); void b.offsetWidth; b.classList.add('blink');
@@ -593,7 +644,20 @@ button{font:inherit;color:inherit}
     advanceTimer = setTimeout(function () { if (currentId === q.id) next(); }, reduceMotion ? 150 : 450);
   }
 
+  function chooseOther(q) {
+    if (busy) return;
+    var s = screens[q.id];
+    clearTimeout(advanceTimer);
+    answers[q.id] = OTHER;
+    saveDraft();
+    s.choiceBtns.forEach(function (b, j) { b.setAttribute('aria-checked', String(j === q.options.length)); });
+    s.otherField.hidden = false;
+    setError(q, '');
+    setTimeout(function () { s.otherInput.focus({ preventScroll: true }); }, 30);
+  }
+
   function validate(q) {
+    if (answers[q.id] === OTHER && !val(q.id)) return 'Type your answer, or pick one of the options';
     var v = val(q.id);
     if (!v) return q.type === 'choice' ? 'Choose one of the options to continue' : 'Please fill this in to continue';
     if (q.type === 'email' && !EMAIL_RE.test(v)) return 'That email looks incomplete. Use the format name@example.com';
@@ -745,6 +809,7 @@ button{font:inherit;color:inherit}
       var s = screens[q.id];
       if (s.input) { s.input.value = ''; s.input.style.height = ''; }
       if (s.choiceBtns) s.choiceBtns.forEach(function (b) { b.setAttribute('aria-checked', 'false'); });
+      if (s.otherField) { s.otherField.hidden = true; s.otherInput.value = ''; }
       setError(q, '');
     });
     show('welcome', -1);
@@ -768,7 +833,7 @@ button{font:inherit;color:inherit}
     var q = qById(currentId);
     if (q && q.type === 'choice' && tag !== 'INPUT' && tag !== 'TEXTAREA' && e.key.length === 1) {
       var i = q.keys.indexOf(e.key.toUpperCase());
-      if (i > -1) { e.preventDefault(); choose(q, i); }
+      if (i > -1) { e.preventDefault(); if (q.other && i === q.options.length) chooseOther(q); else choose(q, i); }
     }
   });
 
