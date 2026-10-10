@@ -521,6 +521,44 @@ footer{background:var(--foot);border-top:1px solid rgba(225,182,104,.35);padding
 .pill:hover .pill-label,.pill:focus .pill-label{max-width:260px;padding-left:24px;padding-right:48px}
 @media(max-width:560px){.pill{right:16px;bottom:16px}}
 :focus-visible{outline:2px solid var(--gold-deep);outline-offset:3px;border-radius:6px}
+
+/* 2027 waitlist sign-up: name + email posted to a GoHighLevel inbound webhook */
+.wl{position:relative;max-width:600px;margin:0 auto;text-align:left;color:var(--ink);background:#fff;border:1px solid rgba(225,182,104,.45);border-radius:22px;padding:30px 30px 24px;box-shadow:var(--shadow-soft)}
+.wl-perks{list-style:none;display:flex;flex-wrap:wrap;justify-content:center;gap:8px 20px;margin:0 0 20px;padding:0}
+.wl-perks li{display:inline-flex;align-items:center;gap:8px;font-size:.84rem;font-weight:400;line-height:1.4;color:var(--ink)}
+.wl-perks li::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--teal);flex:none}
+.wl-row{display:grid;grid-template-columns:1fr 1.4fr;gap:10px}
+.wl-in{width:100%;min-width:0;font-family:var(--sans);font-size:1rem;font-weight:400;color:var(--ink);background:#FBF7EF;border:1px solid rgba(34,31,32,.2);border-radius:999px;padding:15px 22px;transition:border-color .2s,box-shadow .2s,background .2s}
+.wl-in::placeholder{color:#6F7F89;opacity:1}
+.wl-in:focus{outline:none;background:#fff;border-color:var(--gold-deep);box-shadow:0 0 0 4px rgba(225,182,104,.22)}
+.wl-in[aria-invalid="true"]{border-color:#B4432F}
+.wl .btn{width:100%;justify-content:center;margin-top:12px}
+.wl .btn[disabled]{opacity:.7;cursor:progress;transform:none}
+.wl-hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.wl-sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.wl-msg{font-size:.88rem;text-align:center;margin-top:10px;color:#B4432F}
+.wl-msg:empty{display:none}
+.wl-note{font-size:.78rem;line-height:1.55;color:var(--slate);text-align:center;margin-top:12px}
+.wl-note a{color:inherit}
+.wl-done{display:none;text-align:center;padding:8px 0 4px;outline:none}
+.wl-tick{width:52px;height:52px;margin:0 auto 14px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--grad-gold);box-shadow:0 8px 22px rgba(214,166,82,.4)}
+.wl-done h3{font-size:1.5rem;margin-bottom:8px}
+.wl-done p{font-size:.98rem;max-width:28em;margin:0 auto}
+.wl.is-done .wl-form{display:none}
+.wl.is-done .wl-done{display:block}
+@media(max-width:560px){.wl{padding:24px 18px 20px;border-radius:18px}.wl-row{grid-template-columns:1fr}}
+/* BreathCamps: the waitlist sits in a deep-teal band right after the booking steps */
+.wl-sec{background:linear-gradient(165deg,#24474a 0%,#1c3638 55%,#132729 100%);color:#FBF7EF;overflow:hidden}
+.wl-sec .eyebrow{color:#E9CF9C}
+.wl-sec h2{color:#FBF7EF}
+.wl-sec em{color:var(--gold)}
+.wl-sec .sec-intro p{color:rgba(251,247,239,.86)}
+.wl-sec .orb.g{background:radial-gradient(circle,rgba(225,182,104,.16) 0%,rgba(225,182,104,0) 70%)}
+.wl-sec .wl{box-shadow:0 24px 70px rgba(0,0,0,.28)}
+.hero-dates .hd-wl{font-family:var(--sans);font-size:.72rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:#8A5F1C;text-decoration:underline;text-underline-offset:4px;text-decoration-color:rgba(138,95,28,.4);white-space:nowrap}
+.hero-dates .hd-wl:hover{text-decoration-color:currentColor}
+.final .wl-link{position:relative;z-index:1;margin-top:22px}
+.final .wl-link a{color:#8A5F1C;font-weight:500}
 </style>
 <!-- Meta Pixel 713374525487066: PageView + ViewContent (retreat landing page).
      Only on the live domain, so preview deploys on *.pages.dev never reach Ads Manager. -->
@@ -582,6 +620,7 @@ src="https://www.facebook.com/tr?id=713374525487066&ev=PageView&noscript=1"/></n
         <span class="hd-list">
           <span class="hd-item">Oct 25 &ndash; 31</span>
         </span>
+        <a class="hd-wl" href="#waitlist">2027 waitlist &rarr;</a>
       </p>
       <div class="hero-proof reveal d3">
         <img class="avatars" src="https://alchemyofbreath.com/wp-content/uploads/people-updated.png" alt="Alchemy of Breath community">
@@ -946,6 +985,42 @@ src="https://www.facebook.com/tr?id=713374525487066&ev=PageView&noscript=1"/></n
   </div>
 </section>
 
+<!-- 2027 WAITLIST (tag waitlist:BreathCamp 2027 in GHL) -->
+<section id="waitlist" class="wl-sec" style="scroll-margin-top:90px">
+  <div class="orb g" style="width:520px;height:520px;top:-200px;left:-180px"></div>
+  <div class="wrap">
+    <div class="sec-intro" style="margin-bottom:40px">
+      <span class="eyebrow reveal" style="justify-content:center">BreathCamp 2027</span>
+      <h2 class="reveal d1">Can&rsquo;t make October? <em>Join the 2027 waitlist</em>.</h2>
+      <p class="reveal d2" style="margin-top:16px;font-size:1.04rem">BreathCamp returns in 2027. Leave your name and email, and you&rsquo;ll be the first to know when we open, with waitlist discounts before anyone else.</p>
+    </div>
+    <div class="wl" data-hook="https://services.leadconnectorhq.com/hooks/5lz2Wm44CNDwLSZWgAPf/webhook-trigger/d204aec5-9886-410e-b239-5f2e6e7bd3ef" data-waitlist="BreathCamp 2027" data-tag="waitlist:BreathCamp 2027" data-source="BreathCamps page">
+      <form class="wl-form" novalidate>
+        <ul class="wl-perks">
+          <li>First to know when we open</li>
+          <li>Waitlist discounts</li>
+          <li>No commitment</li>
+        </ul>
+        <div class="wl-row">
+          <label class="wl-sr" for="wl-bc-name">First name</label>
+          <input class="wl-in" id="wl-bc-name" name="first_name" type="text" autocomplete="given-name" placeholder="First name" maxlength="60" required>
+          <label class="wl-sr" for="wl-bc-email">Email address</label>
+          <input class="wl-in" id="wl-bc-email" name="email" type="email" autocomplete="email" inputmode="email" placeholder="Email address" maxlength="120" required>
+        </div>
+        <div class="wl-hp" aria-hidden="true"><label>Leave this empty <input name="wl_hp" type="text" tabindex="-1" autocomplete="off"></label></div>
+        <button class="btn btn-primary" type="submit">Join the 2027 waitlist <span class="arr">&rarr;</span></button>
+        <p class="wl-msg" aria-live="polite"></p>
+        <p class="wl-note">Unsubscribe anytime. <a href="https://alchemyofbreath.com/privacy-policy/">Privacy policy</a>.</p>
+      </form>
+      <div class="wl-done">
+        <div class="wl-tick" aria-hidden="true"><svg viewBox="0 0 24 24" width="24" height="24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="#221F20" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <h3>You&rsquo;re on the list, <span class="wl-name"></span>.</h3>
+        <p>We&rsquo;ll email you first when BreathCamp 2027 opens, with your waitlist discount.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ACCOMMODATION OPTIONS -->
 <section>
   <div class="wrap">
@@ -1060,6 +1135,7 @@ src="https://www.facebook.com/tr?id=713374525487066&ev=PageView&noscript=1"/></n
       <a class="btn btn-primary" href="#book">Reserve your place <span class="arr">&rarr;</span></a>
       <a class="btn btn-ghost" href="https://go.alchemyofbreath.com/book-a-conversation" target="_blank" rel="noopener">Book a free conversation</a>
     </div>
+    <p class="cta-note wl-link reveal d2">Can&rsquo;t make October? <a href="#waitlist">Join the 2027 waitlist</a>.</p>
     <img class="avatars reveal d3" src="https://alchemyofbreath.com/wp-content/uploads/people-updated.png" alt="Alchemy of Breath community">
   </div>
 </section>
@@ -1290,6 +1366,65 @@ document.addEventListener('click', function(e){
   var a = e.target.closest('a[href*="retreat.guru"]');
   if (a && window.fbq) fbq('track', 'InitiateCheckout', {content_name: 'Retreat Booking'});
 });
+</script>
+<script>
+/* 2027 waitlist: posts first name + email to a GoHighLevel inbound webhook.
+   The GHL workflow creates or updates the contact and adds the waitlist tag.
+   Config per box: data-hook (webhook URL; empty = demo, nothing sent),
+   data-waitlist, data-tag, data-source. */
+(function(){
+  var KEYS=['utm_source','utm_medium','utm_campaign','utm_term','utm_content','utm_id','fbclid','gclid','msclkid'];
+  function utms(){
+    var out={}, qs=new URLSearchParams(location.search), rec=null;
+    try{ rec=JSON.parse(localStorage.getItem('aob_utm')||'null'); }catch(e){}
+    var saved=(rec&&rec.p)||{};
+    KEYS.forEach(function(k){ var v=qs.get(k)||saved[k]; if(v) out[k]=String(v).slice(0,250); });
+    return out;
+  }
+  function post(url,body){
+    var ctrl=window.AbortController?new AbortController():null;
+    var timer=setTimeout(function(){ if(ctrl) ctrl.abort(); },10000);
+    return fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),keepalive:true,signal:ctrl?ctrl.signal:undefined})
+      .then(function(r){ clearTimeout(timer); if(!r.ok) throw new Error('HTTP '+r.status); },
+            function(e){ clearTimeout(timer); throw e; });
+  }
+  [].forEach.call(document.querySelectorAll('.wl[data-hook]'),function(box){
+    var form=box.querySelector('.wl-form'), name=form.elements.first_name, email=form.elements.email,
+        hp=form.elements.wl_hp, btn=form.querySelector('button[type="submit"]'), msg=box.querySelector('.wl-msg'),
+        label=btn.innerHTML, busy=false;
+    function bad(el,text){ el.setAttribute('aria-invalid','true'); msg.textContent=text; el.focus(); }
+    [name,email].forEach(function(el){ el.addEventListener('input',function(){ el.removeAttribute('aria-invalid'); msg.textContent=''; }); });
+    function done(first){
+      box.querySelector('.wl-name').textContent=first;
+      box.classList.add('is-done');
+      var d=box.querySelector('.wl-done'); d.setAttribute('tabindex','-1');
+      try{ d.focus({preventScroll:true}); }catch(e){}
+      if(window.fbq) fbq('track','Lead',{content_name:box.dataset.waitlist+' waitlist'});
+      (window.dataLayer=window.dataLayer||[]).push({event:'waitlist_signup',waitlist:box.dataset.waitlist});
+    }
+    form.addEventListener('submit',function(e){
+      e.preventDefault();
+      if(busy) return;
+      var first=name.value.trim(), addr=email.value.trim();
+      if(!first) return bad(name,'Please add your first name.');
+      if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(addr)) return bad(email,'Please check your email address.');
+      if(hp && hp.value) return done(first); // bots fill the hidden field: show success, send nothing
+      var body={first_name:first,email:addr,waitlist:box.dataset.waitlist,tag:box.dataset.tag,
+        source:'Website: '+box.dataset.source+' (2027 waitlist)',
+        page_url:location.origin+location.pathname,referrer:document.referrer||'',
+        submitted_at:new Date().toISOString()};
+      var u=utms(); for(var k in u) body[k]=u[k];
+      var url=box.dataset.hook;
+      busy=true; btn.disabled=true; btn.textContent='Joining…'; msg.textContent='';
+      var send=url
+        ? post(url,body).catch(function(){ return new Promise(function(r){ setTimeout(r,1500); }).then(function(){ return post(url,body); }); })
+        : Promise.resolve(console.info('[waitlist] demo mode, nothing sent:',body));
+      send.then(function(){ done(first); },function(){
+        msg.textContent='Sorry, that didn’t go through. Please try again in a moment.';
+      }).then(function(){ busy=false; btn.disabled=false; btn.innerHTML=label; });
+    });
+  });
+})();
 </script>
 </body>
 </html>

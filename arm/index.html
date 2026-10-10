@@ -494,6 +494,35 @@ main p em,main li em{color:var(--gold-text)}
   .soon{width:140px;height:140px}
   .soon-y{font-size:2.3rem}
 }
+
+/* 2027 waitlist sign-up: name + email posted to a GoHighLevel inbound webhook */
+.wl{position:relative;max-width:600px;margin:0 auto;text-align:left;color:var(--ink);background:#fff;border:1px solid rgba(225,182,104,.45);border-radius:22px;padding:30px 30px 24px;box-shadow:var(--shadow-soft)}
+.wl-perks{list-style:none;display:flex;flex-wrap:wrap;justify-content:center;gap:8px 20px;margin:0 0 20px;padding:0}
+.wl-perks li{display:inline-flex;align-items:center;gap:8px;font-size:.84rem;font-weight:400;line-height:1.4;color:var(--ink)}
+.wl-perks li::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--teal);flex:none}
+.wl-row{display:grid;grid-template-columns:1fr 1.4fr;gap:10px}
+.wl-in{width:100%;min-width:0;font-family:var(--sans);font-size:1rem;font-weight:400;color:var(--ink);background:#FBF7EF;border:1px solid rgba(34,31,32,.2);border-radius:999px;padding:15px 22px;transition:border-color .2s,box-shadow .2s,background .2s}
+.wl-in::placeholder{color:#6F7F89;opacity:1}
+.wl-in:focus{outline:none;background:#fff;border-color:var(--gold-deep);box-shadow:0 0 0 4px rgba(225,182,104,.22)}
+.wl-in[aria-invalid="true"]{border-color:#B4432F}
+.wl .btn{width:100%;justify-content:center;margin-top:12px}
+.wl .btn[disabled]{opacity:.7;cursor:progress;transform:none}
+.wl-hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.wl-sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.wl-msg{font-size:.88rem;text-align:center;margin-top:10px;color:#B4432F}
+.wl-msg:empty{display:none}
+.wl-note{font-size:.78rem;line-height:1.55;color:var(--slate);text-align:center;margin-top:12px}
+.wl-note a{color:inherit}
+.wl-done{display:none;text-align:center;padding:8px 0 4px;outline:none}
+.wl-tick{width:52px;height:52px;margin:0 auto 14px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--grad-gold);box-shadow:0 8px 22px rgba(214,166,82,.4)}
+.wl-done h3{font-size:1.5rem;margin-bottom:8px}
+.wl-done p{font-size:.98rem;max-width:28em;margin:0 auto}
+.wl.is-done .wl-form{display:none}
+.wl.is-done .wl-done{display:block}
+@media(max-width:560px){.wl{padding:24px 18px 20px;border-radius:18px}.wl-row{grid-template-columns:1fr}}
+/* ARM holding page: the waitlist sits under the Coming 2027 stamp */
+.wl-hero{margin-top:46px}
+.wl-hero .wl-lead{font-size:1.04rem;max-width:32em;margin:0 auto 22px}
 </style>
 <script type="application/ld+json">
 {
@@ -684,6 +713,34 @@ main p em,main li em{color:var(--gold-text)}
       <div class="soon-wrap reveal d2">
         <p class="soon"><span class="soon-k">Coming</span><span class="soon-y">2027</span></p>
       </div>
+      <!-- 2027 WAITLIST (tag waitlist:ARM 2027 in GHL) -->
+      <div class="wl-hero" id="waitlist">
+        <p class="wl-lead reveal d2">Join the 2027 waitlist. You&rsquo;ll be the first to know when the next cohort opens, with waitlist discounts before anyone else.</p>
+        <div class="wl" data-hook="https://services.leadconnectorhq.com/hooks/5lz2Wm44CNDwLSZWgAPf/webhook-trigger/0504022d-ca80-4c56-a8ef-455298ae8b65" data-waitlist="ARM 2027" data-tag="waitlist:ARM 2027" data-source="Alchemy Regulation Method page">
+      <form class="wl-form" novalidate>
+        <ul class="wl-perks">
+          <li>First to know when we open</li>
+          <li>Waitlist discounts</li>
+          <li>No commitment</li>
+        </ul>
+        <div class="wl-row">
+          <label class="wl-sr" for="wl-arm-name">First name</label>
+          <input class="wl-in" id="wl-arm-name" name="first_name" type="text" autocomplete="given-name" placeholder="First name" maxlength="60" required>
+          <label class="wl-sr" for="wl-arm-email">Email address</label>
+          <input class="wl-in" id="wl-arm-email" name="email" type="email" autocomplete="email" inputmode="email" placeholder="Email address" maxlength="120" required>
+        </div>
+        <div class="wl-hp" aria-hidden="true"><label>Leave this empty <input name="wl_hp" type="text" tabindex="-1" autocomplete="off"></label></div>
+        <button class="btn btn-primary" type="submit">Join the 2027 waitlist <span class="arr">&rarr;</span></button>
+        <p class="wl-msg" aria-live="polite"></p>
+        <p class="wl-note">Unsubscribe anytime. <a href="https://alchemyofbreath.com/privacy-policy/">Privacy policy</a>.</p>
+      </form>
+      <div class="wl-done">
+        <div class="wl-tick" aria-hidden="true"><svg viewBox="0 0 24 24" width="24" height="24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="#221F20" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <h3>You&rsquo;re on the list, <span class="wl-name"></span>.</h3>
+        <p>We&rsquo;ll email you first when the 2027 Alchemy Regulation Method cohort opens, with your waitlist discount.</p>
+      </div>
+    </div>
+      </div>
       <div class="vid-frame reveal d3">
         <iframe src="https://player.vimeo.com/video/1199846965?h=9f23deedcd&amp;autopause=0&amp;loop=0&amp;muted=0&amp;title=0&amp;portrait=0&amp;byline=0"
                 title="Alchemy Regulation Method" loading="lazy"
@@ -847,5 +904,64 @@ main p em,main li em{color:var(--gold-text)}
 })();
 </script>
 <script>(function(){if(window.self!==window.top){var st=document.createElement('style');st.textContent='.cv{content-visibility:visible !important}';document.head.appendChild(st);}function reportHeight(){var h=document.documentElement.scrollHeight;window.parent.postMessage({type:'aob-embed-resize',height:h},'*');}window.addEventListener('load',reportHeight);window.addEventListener('resize',reportHeight);var mo=new MutationObserver(reportHeight);mo.observe(document.body,{childList:true,subtree:true,attributes:true});setInterval(reportHeight,800);})();</script>
+<script>
+/* 2027 waitlist: posts first name + email to a GoHighLevel inbound webhook.
+   The GHL workflow creates or updates the contact and adds the waitlist tag.
+   Config per box: data-hook (webhook URL; empty = demo, nothing sent),
+   data-waitlist, data-tag, data-source. */
+(function(){
+  var KEYS=['utm_source','utm_medium','utm_campaign','utm_term','utm_content','utm_id','fbclid','gclid','msclkid'];
+  function utms(){
+    var out={}, qs=new URLSearchParams(location.search), rec=null;
+    try{ rec=JSON.parse(localStorage.getItem('aob_utm')||'null'); }catch(e){}
+    var saved=(rec&&rec.p)||{};
+    KEYS.forEach(function(k){ var v=qs.get(k)||saved[k]; if(v) out[k]=String(v).slice(0,250); });
+    return out;
+  }
+  function post(url,body){
+    var ctrl=window.AbortController?new AbortController():null;
+    var timer=setTimeout(function(){ if(ctrl) ctrl.abort(); },10000);
+    return fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),keepalive:true,signal:ctrl?ctrl.signal:undefined})
+      .then(function(r){ clearTimeout(timer); if(!r.ok) throw new Error('HTTP '+r.status); },
+            function(e){ clearTimeout(timer); throw e; });
+  }
+  [].forEach.call(document.querySelectorAll('.wl[data-hook]'),function(box){
+    var form=box.querySelector('.wl-form'), name=form.elements.first_name, email=form.elements.email,
+        hp=form.elements.wl_hp, btn=form.querySelector('button[type="submit"]'), msg=box.querySelector('.wl-msg'),
+        label=btn.innerHTML, busy=false;
+    function bad(el,text){ el.setAttribute('aria-invalid','true'); msg.textContent=text; el.focus(); }
+    [name,email].forEach(function(el){ el.addEventListener('input',function(){ el.removeAttribute('aria-invalid'); msg.textContent=''; }); });
+    function done(first){
+      box.querySelector('.wl-name').textContent=first;
+      box.classList.add('is-done');
+      var d=box.querySelector('.wl-done'); d.setAttribute('tabindex','-1');
+      try{ d.focus({preventScroll:true}); }catch(e){}
+      if(window.fbq) fbq('track','Lead',{content_name:box.dataset.waitlist+' waitlist'});
+      (window.dataLayer=window.dataLayer||[]).push({event:'waitlist_signup',waitlist:box.dataset.waitlist});
+    }
+    form.addEventListener('submit',function(e){
+      e.preventDefault();
+      if(busy) return;
+      var first=name.value.trim(), addr=email.value.trim();
+      if(!first) return bad(name,'Please add your first name.');
+      if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(addr)) return bad(email,'Please check your email address.');
+      if(hp && hp.value) return done(first); // bots fill the hidden field: show success, send nothing
+      var body={first_name:first,email:addr,waitlist:box.dataset.waitlist,tag:box.dataset.tag,
+        source:'Website: '+box.dataset.source+' (2027 waitlist)',
+        page_url:location.origin+location.pathname,referrer:document.referrer||'',
+        submitted_at:new Date().toISOString()};
+      var u=utms(); for(var k in u) body[k]=u[k];
+      var url=box.dataset.hook;
+      busy=true; btn.disabled=true; btn.textContent='Joining…'; msg.textContent='';
+      var send=url
+        ? post(url,body).catch(function(){ return new Promise(function(r){ setTimeout(r,1500); }).then(function(){ return post(url,body); }); })
+        : Promise.resolve(console.info('[waitlist] demo mode, nothing sent:',body));
+      send.then(function(){ done(first); },function(){
+        msg.textContent='Sorry, that didn’t go through. Please try again in a moment.';
+      }).then(function(){ busy=false; btn.disabled=false; btn.innerHTML=label; });
+    });
+  });
+})();
+</script>
 </body>
 </html>
