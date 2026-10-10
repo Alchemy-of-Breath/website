@@ -109,13 +109,18 @@ a{color:inherit}
 button{font:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--gold-deep);outline-offset:3px}
 
-/* ambient glow, breathing at 5.5 breaths a minute (one cycle every 11 s) */
-.orb{position:fixed;z-index:0;pointer-events:none;width:min(80vmax,920px);aspect-ratio:1;max-width:none;border-radius:50%;
-  right:calc(min(80vmax,920px) * -.34);top:50%;translate:0 -50%;
-  background:radial-gradient(circle,rgba(225,182,104,.36) 0%,rgba(225,182,104,.15) 36%,rgba(225,182,104,0) 68%);
-  animation:breathe 11s ease-in-out infinite}
-@keyframes breathe{0%,100%{transform:scale(.82)}50%{transform:scale(1.05)}}
-@media(max-width:700px){.orb{top:8%;right:calc(min(80vmax,920px) * -.45)}}
+/* background: three soft colour fields drifting slowly; the gold one also breathes at 5.5 breaths a minute (11 s) */
+.flow{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.flow i{position:absolute;width:72vmax;height:72vmax;max-width:none;border-radius:50%;will-change:transform}
+.flow i::before{content:"";position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle,var(--c) 0%,rgba(251,247,239,0) 66%)}
+.flow .f1{--c:rgba(225,182,104,.42);right:-30vmax;top:-14vmax;animation:drift1 38s ease-in-out infinite alternate}
+.flow .f1::before{animation:breathe 11s ease-in-out infinite}
+.flow .f2{--c:rgba(236,163,122,.22);left:-32vmax;bottom:-36vmax;animation:drift2 47s ease-in-out infinite alternate}
+.flow .f3{--c:rgba(0,165,178,.11);width:56vmax;height:56vmax;left:18vmax;top:34vh;animation:drift3 56s ease-in-out infinite alternate}
+@keyframes drift1{to{transform:translate(-20vmax,24vh)}}
+@keyframes drift2{to{transform:translate(26vmax,-20vh)}}
+@keyframes drift3{to{transform:translate(-22vmax,-26vh)}}
+@keyframes breathe{0%,100%{transform:scale(.86)}50%{transform:scale(1.06)}}
 
 /* top bar + progress */
 .progress{position:fixed;top:0;left:0;right:0;height:3px;background:var(--gold-soft);z-index:5}
@@ -225,7 +230,7 @@ button{font:inherit;color:inherit}
   .pill-more{display:none}
 }
 @media(prefers-reduced-motion:reduce){
-  .orb{animation:none;transform:scale(.95)}
+  .flow i,.flow i::before{animation:none}
   .screen,.screen.is-past,.screen.is-active{transform:none!important;transition:opacity .2s,visibility 0s linear .2s}
   .screen.is-active{transition:opacity .2s}
   .choice.blink,.shake{animation:none}
@@ -254,7 +259,7 @@ button{font:inherit;color:inherit}
 </head>
 <body class="no-anim">
 
-<div class="orb" aria-hidden="true"></div>
+<div class="flow" aria-hidden="true"><i class="f1"></i><i class="f2"></i><i class="f3"></i></div>
 <div class="progress" role="progressbar" aria-label="Application progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="progress"></i></div>
 <header class="bar">
   <a class="mark" href="https://alchemyofbreath.com/" target="_top" aria-label="Alchemy of Breath home">
