@@ -13,6 +13,8 @@
    - Adds the tags to GHL form/booking iframes and to links into GHL funnels
      (go. / breathcamp. / link.alchemyofbreath.com), so hidden fields with a
      matching query key are filled too.
+   - Adds them to links into the facilitator application (/facilitator-application/),
+     whose embed forwards its own query string into the form.
    Source: tools/utm/aob-utm.js. Inlined into every page by tools/utm/inject.py. */
 (function(){
   var KEYS=['utm_source','utm_medium','utm_campaign','utm_term','utm_content','utm_id','fbclid','gclid','msclkid'];
@@ -40,9 +42,10 @@
   }catch(e){}
 
   var GHL=/^https:\/\/((link|api)\.(alchemyofbreath\.com|leadconnectorhq\.com)\/widget\/(form|survey|booking|quiz)\/|(go|breathcamp)\.alchemyofbreath\.com\/)/;
+  var APPLY=/^https:\/\/(www\.)?alchemyofbreath\.com\/facilitator-application\/?$/;
   var withTags=function(url){
     var u; try{ u=new URL(url,location.href); }catch(e){ return null; }
-    if(!GHL.test(u.href)) return null;
+    if(!GHL.test(u.href) && !APPLY.test(u.origin+u.pathname)) return null;
     var ch=false;
     for(var k in P){ if(!u.searchParams.has(k)){ u.searchParams.set(k,P[k]); ch=true; } }
     return ch?u.href:null;
@@ -393,8 +396,9 @@ button{font:inherit;color:inherit}
 
   var params = new URLSearchParams(location.search);
   var tracking = {};
-  ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'gclid', 'fbclid'].forEach(function (k) {
-    tracking[k] = params.get(k) || '';
+  var TRACK_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'utm_id', 'gclid', 'fbclid', 'msclkid'];
+  TRACK_KEYS.forEach(function (k) {
+    tracking[k] = (params.get(k) || '').slice(0, 250);
   });
   // When embedded on alchemyofbreath.com the parent page forwards its own URL, referrer and query string.
   tracking.referrer = params.get('embed_ref') || document.referrer || '';
@@ -748,7 +752,7 @@ button{font:inherit;color:inherit}
       u.searchParams.set('full_name', (p.first_name + ' ' + p.last_name).trim());
       ['first_name', 'last_name', 'email', 'phone'].forEach(function (k) { if (p[k]) u.searchParams.set(k, p[k]); });
     }
-    ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'].forEach(function (k) { if (p[k]) u.searchParams.set(k, p[k]); });
+    TRACK_KEYS.forEach(function (k) { if (p[k]) u.searchParams.set(k, p[k]); });
     return u.toString();
   }
 
