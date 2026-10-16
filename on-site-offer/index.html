@@ -76,13 +76,13 @@
 <!-- AOB-UTM:end -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>On-site Special Offer | Alchemy of Breath</title>
-<meta name="description" content="On-site special offer, until Saturday 17 October, 3 pm (Italy time): reserve the Intuition Retreat (5–11 September 2027) with a $400 deposit, or BreathCamp + Intuition Retreat (29 August – 11 September 2027) with a $700 deposit.">
+<meta name="description" content="On-site special offer, until Saturday 17 October, 3 pm (Italy time): pay a $500 deposit for season 2027 and receive a coupon code: $400 for the Intuition Retreat (5–11 September 2027) or $700 for BreathCamp + Intuition Retreat (29 August – 11 September 2027).">
 <meta name="robots" content="noindex, nofollow">
 <link rel="canonical" href="https://alchemyofbreath.com/on-site-offer/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Alchemy of Breath">
 <meta property="og:title" content="On-site special offer">
-<meta property="og:description" content="Reserve September 2027 at ASHA: the Intuition Retreat with a $400 deposit, or BreathCamp + Intuition Retreat with a $700 deposit.">
+<meta property="og:description" content="Pay a $500 deposit for season 2027 at ASHA and receive a coupon code: $400 for the Intuition Retreat, $700 for BreathCamp + Intuition Retreat.">
 <meta property="og:image" content="https://alchemyofbreath.com/wp-content/uploads/glow-head-578x600.jpg">
 <meta property="og:url" content="https://alchemyofbreath.com/on-site-offer/">
 <meta name="theme-color" content="#FBF7EF">
@@ -127,21 +127,18 @@ h1,h2{font-family:var(--serif);font-weight:400;line-height:1.16}
 .intro p{font-size:1.02rem;color:var(--slate)}
 .intro h1,.intro p,.desc{text-wrap:balance}
 
-/* offers */
-.offers{position:relative;z-index:1;display:grid;grid-template-columns:1fr auto 1fr;gap:20px;align-items:stretch}
+/* offer card */
 .offer{background:var(--paper);border:1px solid rgba(225,182,104,.42);border-radius:22px;box-shadow:var(--shadow-lift);padding:34px 30px 30px;display:flex;flex-direction:column;text-align:center}
 .offer h2{font-size:clamp(1.6rem,3vw,1.95rem);margin-bottom:10px}
 .when{font-size:.78rem;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:#00727C;margin-bottom:14px}
 .desc{font-size:.95rem;color:var(--slate);line-height:1.6;max-width:24em;margin:0 auto}
 .price{margin:24px 0;padding:20px 0 20px;border-top:1px solid rgba(225,182,104,.32);border-bottom:1px solid rgba(225,182,104,.32)}
-.dep{font-size:.72rem;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--slate);margin-bottom:8px}
 .now{display:flex;align-items:baseline;justify-content:center;gap:8px}
 .num{display:inline-block;font-family:var(--serif);font-size:clamp(3.1rem,10vw,4rem);line-height:1;letter-spacing:-.01em;
   background:linear-gradient(135deg,#E1B668 0%,#D6A652 45%,#B8862F 100%);-webkit-background-clip:text;background-clip:text;color:transparent;
   filter:drop-shadow(0 8px 22px rgba(214,166,82,.28))}
 .num sup{font-size:.42em;position:relative;top:.14em;vertical-align:top;margin-right:.04em}
 .usd{font-size:.74rem;font-weight:500;letter-spacing:.2em;color:var(--slate)}
-.save{display:inline-block;margin-top:14px;background:var(--gold-wash);color:#8A6420;border-radius:999px;padding:6px 16px;font-size:.8rem;font-weight:500;letter-spacing:.02em}
 .choose{margin-top:auto}
 .btn{display:flex;align-items:center;justify-content:center;gap:10px;min-height:58px;padding:14px 16px;border-radius:999px;background:var(--grad-gold);color:var(--ink);font-weight:500;font-size:1.02rem;letter-spacing:.03em;text-decoration:none;box-shadow:0 8px 20px rgba(214,166,82,.32);transition:transform .2s ease,box-shadow .2s ease}
 .btn:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(214,166,82,.42)}
@@ -149,16 +146,25 @@ h1,h2{font-family:var(--serif);font-weight:400;line-height:1.16}
 .btn span{transition:transform .2s ease}
 .btn:hover span{transform:translateX(3px)}
 
-/* the training card is the dark one */
+/* the deposit card is the dark one */
 .offer.dark{background:radial-gradient(120% 70% at 50% 0%,#332D2E 0%,var(--ink) 62%);border-color:rgba(225,182,104,.5);color:#fff}
 .offer.dark h2{color:#fff}
 .offer.dark .desc{color:rgba(255,255,255,.74)}
 .offer.dark .price{border-color:rgba(225,182,104,.24)}
 .offer.dark .when{color:#5FCFD8}
-.offer.dark .usd,.offer.dark .dep{color:rgba(255,255,255,.62)}
-.offer.dark .save{background:rgba(225,182,104,.16);color:var(--gold)}
+.offer.dark .usd{color:rgba(255,255,255,.62)}
 .offer.dark .btn{box-shadow:0 8px 24px rgba(0,0,0,.35)}
 .offer.dark .closed{color:rgba(255,255,255,.74);border-color:rgba(225,182,104,.3)}
+
+/* one season deposit, and the coupon code each retreat gets */
+.offer.deposit{position:relative;z-index:1;max-width:640px;margin:0 auto}
+.coupons-intro{font-size:.98rem;color:rgba(255,255,255,.82);margin-bottom:14px}
+.coupons{list-style:none;display:grid;gap:12px;text-align:left}
+.coupons li{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:16px 20px;border:1px solid rgba(225,182,104,.28);border-radius:16px;background:rgba(255,255,255,.04)}
+.coupons h3{font-family:var(--serif);font-weight:400;font-size:1.3rem;line-height:1.2;color:#fff;margin-bottom:6px}
+.coupons .when{margin:0;font-size:.7rem}
+.cval{flex:0 0 auto;text-align:right;font-size:.66rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.62);line-height:1.3}
+.cval b{display:block;font-family:var(--serif);font-weight:400;font-size:2.1rem;line-height:1.05;letter-spacing:0;text-transform:none;color:var(--gold)}
 
 /* deadline: live countdown until 17 Oct 2026, 3 pm Italy time, then the offer closes */
 .deadline{display:inline-flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px 12px;margin-top:20px;padding:9px 20px;border-radius:999px;background:var(--gold-wash);border:1px solid rgba(225,182,104,.5);color:#8A6420;font-size:.88rem;font-weight:500}
@@ -168,9 +174,6 @@ h1,h2{font-family:var(--serif);font-weight:400;line-height:1.16}
 .ended .choose .btn{display:none}
 .ended .choose .closed{display:flex}
 .ended .deadline{background:#F1F1F1;border-color:#DDD;color:var(--slate)}
-
-.or{display:flex;align-items:center;justify-content:center}
-.or span{width:52px;height:52px;border-radius:50%;background:var(--paper);border:1px solid rgba(225,182,104,.5);box-shadow:var(--shadow-soft);display:grid;place-items:center;font-family:var(--serif);font-size:1.12rem;color:var(--gold-deep)}
 
 .reception{position:relative;z-index:1;display:flex;align-items:center;gap:16px;max-width:620px;margin:32px auto 0;padding:18px 22px;background:var(--paper);border:1px solid rgba(0,165,178,.35);border-left:4px solid var(--teal);border-radius:16px;box-shadow:var(--shadow-soft);text-align:left}
 .reception svg{flex:0 0 auto;width:30px;height:30px;color:var(--teal)}
@@ -186,10 +189,6 @@ h1,h2{font-family:var(--serif);font-weight:400;line-height:1.16}
 .foot a:hover{text-decoration:underline}
 .foot-links{margin-top:12px;display:flex;gap:18px;justify-content:center;flex-wrap:wrap;font-size:.8rem}
 
-@media(max-width:820px){
-  .offers{grid-template-columns:1fr;gap:0;max-width:480px;margin:0 auto}
-  .or{margin:-8px 0;position:relative;z-index:2}
-}
 @media(max-width:560px){
   .wrap{padding:0 16px}
   .stage{padding:38px 0 48px}
@@ -198,6 +197,9 @@ h1,h2{font-family:var(--serif);font-weight:400;line-height:1.16}
   .btn{min-height:56px}
   .deadline{border-radius:16px;padding:10px 16px;font-size:.84rem}
   .reception{padding:16px 18px;gap:14px}
+  .coupons li{flex-direction:column;align-items:flex-start;gap:10px;padding:14px 16px}
+  .cval{text-align:left}
+  .cval b{display:inline;margin-right:8px;font-size:1.8rem}
 }
 @media(prefers-reduced-motion:reduce){.btn,.btn span{transition:none}.btn:hover{transform:none}}
 </style>
@@ -218,50 +220,38 @@ h1,h2{font-family:var(--serif);font-weight:400;line-height:1.16}
     <header class="intro">
       <span class="eyebrow">On-site special offer</span>
       <h1>Come back to ASHA in 2027</h1>
-      <p>Reserve your place for September 2027 with a deposit, before you leave ASHA.</p>
+      <p>Pay a $500 deposit for the 2027 season before you leave ASHA, and receive a coupon code for your retreat.</p>
       <p class="deadline" role="timer" aria-live="off"><span id="dlLabel">Offer ends Saturday 17 October, 3 pm (Italy time)</span><span class="count" id="dlCount" hidden></span></p>
     </header>
 
-    <div class="offers">
-      <article class="offer" aria-labelledby="ir-title">
-        <h2 id="ir-title">Intuition Retreat</h2>
-        <p class="when">Sunday 5 &ndash; Saturday 11 September 2027</p>
-        <p class="desc">One week at ASHA to discover your intuitive gifts and learn to trust them.</p>
-        <div class="price">
-          <p class="dep">Deposit</p>
-          <p class="now"><span class="num"><sup>$</sup>400</span><span class="usd">USD</span></p>
-          <p class="save">Secures your place on the retreat</p>
-        </div>
-        <div class="choose">
-          <a class="btn" href="https://link.alchemyofbreath.com/payment-link/6ad1cafcc0e70c7fefb75034" aria-label="Intuition Retreat, 5 to 11 September 2027, pay the $400 deposit">Pay $400 deposit <span aria-hidden="true">&rarr;</span></a>
-          <p class="closed">This offer has ended</p>
-        </div>
-      </article>
-
-      <div class="or" aria-hidden="true"><span>or</span></div>
-
-      <article class="offer dark" aria-labelledby="bc-title">
-        <h2 id="bc-title">BreathCamp + Intuition Retreat</h2>
-        <p class="when">Sunday 29 August &ndash; Saturday 11 September 2027</p>
-        <p class="desc">Two weeks at ASHA: a week of BreathCamp, followed by the Intuition Retreat.</p>
-        <div class="price">
-          <p class="dep">Deposit</p>
-          <p class="now"><span class="num"><sup>$</sup>700</span><span class="usd">USD</span></p>
-          <p class="save">Secures your place for both weeks</p>
-        </div>
-        <div class="choose">
-          <a class="btn" href="https://link.alchemyofbreath.com/payment-link/6ad1cb55075ea22a20cdedef" aria-label="BreathCamp and Intuition Retreat, 29 August to 11 September 2027, pay the $700 deposit">Pay $700 deposit <span aria-hidden="true">&rarr;</span></a>
-          <p class="closed">This offer has ended</p>
-        </div>
-      </article>
-    </div>
+    <article class="offer dark deposit" aria-labelledby="dep-title">
+      <h2 id="dep-title">Deposit for season 2027</h2>
+      <p class="now"><span class="num"><sup>$</sup>500</span><span class="usd">USD</span></p>
+      <div class="price">
+        <p class="coupons-intro">After you pay, you&rsquo;ll receive a coupon code for your retreat:</p>
+        <ul class="coupons">
+          <li>
+            <div><h3>Intuition Retreat</h3><p class="when">Sunday 5 &ndash; Saturday 11 September 2027</p></div>
+            <p class="cval"><b>$400</b>coupon code</p>
+          </li>
+          <li>
+            <div><h3>BreathCamp + Intuition Retreat</h3><p class="when">Sunday 29 August &ndash; Saturday 11 September 2027</p></div>
+            <p class="cval"><b>$700</b>coupon code</p>
+          </li>
+        </ul>
+      </div>
+      <div class="choose">
+        <a class="btn" href="https://link.alchemyofbreath.com/payment-link/6ad1d580c0e70c7fefb75043" aria-label="Pay the $500 deposit for season 2027">Pay $500 deposit <span aria-hidden="true">&rarr;</span></a>
+        <p class="closed">This offer has ended</p>
+      </div>
+    </article>
 
     <div class="reception">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h3"/><path d="m14.5 16.5 1.5 1.5 3-3"/></svg>
       <p><strong>Before you leave:</strong> after you pay, show your payment confirmation to ASHA Reception.</p>
     </div>
 
-    <p class="fine">Deposits in US dollars. You&rsquo;ll pay on our secure checkout page.</p>
+    <p class="fine">Deposit in US dollars. You&rsquo;ll pay on our secure checkout page.</p>
   </div>
 </section>
 </main>
