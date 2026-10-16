@@ -76,13 +76,13 @@
 <!-- AOB-UTM:end -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>On-site Special Offer | Alchemy of Breath</title>
-<meta name="description" content="Special promotion offer for season 2027, on site until Saturday 17 October, 3 pm (Italy time): pay a €500 deposit and receive a coupon code: €400 for the Intuition Retreat (5–11 September 2027) or €1,000 for BreathCamp + Intuition Retreat (29 August – 11 September 2027).">
+<meta name="description" content="Special promotion offer for season 2027, on site until Saturday 17 October, 3 pm (Italy time): €1,000 off BreathCamp + Intuition Retreat (29 August – 11 September 2027) at 2026 prices. Lock in both weeks with a €500 deposit.">
 <meta name="robots" content="noindex, nofollow">
 <link rel="canonical" href="https://alchemyofbreath.com/on-site-offer/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Alchemy of Breath">
 <meta property="og:title" content="On-site special offer">
-<meta property="og:description" content="Special promotion offer for season 2027 at ASHA: pay a €500 deposit and receive a coupon code: €400 for the Intuition Retreat, €1,000 for BreathCamp + Intuition Retreat.">
+<meta property="og:description" content="€1,000 off BreathCamp + Intuition Retreat at ASHA, 29 August – 11 September 2027, at 2026 prices. Lock in both weeks with a €500 deposit.">
 <meta property="og:image" content="https://alchemyofbreath.com/wp-content/uploads/glow-head-578x600.jpg">
 <meta property="og:url" content="https://alchemyofbreath.com/on-site-offer/">
 <meta name="theme-color" content="#FBF7EF">
@@ -149,16 +149,23 @@ h1,h2{font-family:var(--serif);font-weight:400;line-height:1.16}
 .offer.dark .btn{box-shadow:0 8px 24px rgba(0,0,0,.35)}
 .offer.dark .closed{color:rgba(255,255,255,.74);border-color:rgba(225,182,104,.3)}
 
-/* one season deposit, and the coupon code each retreat gets */
+/* one offer: the two-week bundle, €1,000 off, locked in with a deposit */
 .offer.deposit{position:relative;z-index:1;max-width:640px;margin:0 auto}
-.coupons-intro{font-size:.98rem;color:rgba(255,255,255,.82);margin-bottom:14px}
-.coupons{list-style:none;display:grid;gap:12px;text-align:left}
-.coupons li{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:16px 20px;border:1px solid rgba(225,182,104,.28);border-radius:16px;background:rgba(255,255,255,.04)}
-.coupons h3{font-family:var(--serif);font-weight:400;font-size:1.3rem;line-height:1.2;color:#fff;margin-bottom:6px}
-.coupons .when{margin:0;font-size:.7rem}
-.cval{flex:0 0 auto;text-align:right;font-size:.66rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.62);line-height:1.3}
-.cval b{display:block;font-family:var(--serif);font-weight:400;font-size:2.1rem;line-height:1.05;letter-spacing:0;text-transform:none;color:var(--gold)}
-.first{margin-top:18px;font-size:.98rem;line-height:1.55;color:rgba(255,255,255,.88);text-wrap:balance}
+.bundle-name{font-family:var(--serif);font-size:clamp(1.35rem,2.8vw,1.6rem);line-height:1.2;color:var(--gold);margin:6px 0 8px;text-wrap:balance}
+.offer .bundle .when{margin-bottom:0}
+.only{margin-top:10px;font-size:.88rem;color:rgba(255,255,255,.7)}
+.off{display:flex;flex-direction:column;align-items:center;gap:8px}
+.num{display:inline-block;font-family:var(--serif);font-size:clamp(3.1rem,10vw,4.2rem);line-height:1;letter-spacing:-.01em;
+  background:linear-gradient(135deg,#E1B668 0%,#D6A652 45%,#B8862F 100%);-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 8px 22px rgba(214,166,82,.28))}
+.off-label{font-size:.76rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.7)}
+.save{display:inline-block;margin-top:16px;background:rgba(225,182,104,.16);color:var(--gold);border-radius:999px;padding:6px 16px;font-size:.84rem;font-weight:500;letter-spacing:.02em}
+.terms{display:grid;grid-template-columns:1fr 1fr;gap:12px;text-align:left}
+.terms div{min-width:0;border:1px solid rgba(225,182,104,.28);border-radius:16px;padding:14px 18px;background:rgba(255,255,255,.04)}
+.terms dt{font-size:.68rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.62);margin-bottom:6px}
+.terms dd{margin:0;font-family:var(--serif);font-size:1.45rem;line-height:1.15;color:#fff;font-variant-numeric:tabular-nums}
+.terms small{display:block;margin-top:4px;font-family:var(--sans);font-size:.82rem;line-height:1.4;color:rgba(255,255,255,.7)}
+.first{margin:20px 0 24px;font-size:.98rem;line-height:1.55;color:rgba(255,255,255,.88);text-wrap:balance}
 .first strong{font-weight:500;color:var(--gold)}
 
 /* deadline: live countdown until 17 Oct 2026, 3 pm Italy time, then the offer closes */
@@ -192,9 +199,7 @@ h1,h2{font-family:var(--serif);font-weight:400;line-height:1.16}
   .btn{min-height:56px}
   .deadline{border-radius:16px;padding:10px 16px;font-size:.84rem}
   .reception{padding:16px 18px;gap:14px}
-  .coupons li{flex-direction:column;align-items:flex-start;gap:10px;padding:14px 16px}
-  .cval{text-align:left}
-  .cval b{display:inline;margin-right:8px;font-size:1.8rem}
+  .terms{grid-template-columns:1fr}
 }
 @media(prefers-reduced-motion:reduce){.btn,.btn span{transition:none}.btn:hover{transform:none}}
 </style>
@@ -215,28 +220,28 @@ h1,h2{font-family:var(--serif);font-weight:400;line-height:1.16}
     <header class="intro">
       <span class="eyebrow">On-site special offer</span>
       <h1>Come back to ASHA in 2027</h1>
-      <p>Pay a &euro;500 deposit for the 2027 season before you leave ASHA, and receive a coupon code for your retreat.</p>
+      <p>Book BreathCamp and the Intuition Retreat together and save &euro;1,000, at 2026 prices. Lock in both weeks with a &euro;500 deposit before you leave ASHA.</p>
       <p class="deadline" role="timer" aria-live="off"><span id="dlLabel">Offer ends Saturday 17 October, 3 pm (Italy time)</span><span class="count" id="dlCount" hidden></span></p>
     </header>
 
     <article class="offer dark deposit" aria-labelledby="dep-title">
       <h2 id="dep-title">Special promotion offer for season 2027&nbsp;&ndash; deposit</h2>
-      <div class="price">
-        <p class="coupons-intro">After you pay, you&rsquo;ll receive a coupon code for your retreat:</p>
-        <ul class="coupons">
-          <li>
-            <div><h3>Intuition Retreat</h3><p class="when">Sunday 5 &ndash; Saturday 11 September 2027</p></div>
-            <p class="cval"><b>&euro;400</b>coupon code</p>
-          </li>
-          <li>
-            <div><h3>BreathCamp + Intuition Retreat</h3><p class="when">Sunday 29 August &ndash; Saturday 11 September 2027</p></div>
-            <p class="cval"><b>&euro;1,000</b>coupon code</p>
-          </li>
-        </ul>
-        <p class="first">When sales open, <strong>you&rsquo;ll be the first</strong> to choose your accommodation and make your final purchase.</p>
+      <div class="bundle">
+        <p class="bundle-name">BreathCamp + Intuition Retreat</p>
+        <p class="when">Sunday 29 August &ndash; Saturday 11 September 2027</p>
+        <p class="only">Two weeks at ASHA, booked together. This offer is for both weeks only.</p>
       </div>
+      <div class="price">
+        <p class="off"><span class="num">&euro;1,000 off</span><span class="off-label">the two-week bundle</span></p>
+        <p class="save">At 2026 prices, before the 2027 price rise</p>
+      </div>
+      <dl class="terms">
+        <div><dt>Full price per week</dt><dd>&euro;1,649&ndash;&euro;3,500<small>depending on the accommodation you choose</small></dd></div>
+        <div><dt>Deposit today</dt><dd>&euro;500<small>locks in both weeks</small></dd></div>
+      </dl>
+      <p class="first">After your deposit, we&rsquo;ll send you your &euro;1,000 discount code and how to pay the rest. When sales open, <strong>you&rsquo;ll be the first</strong> to choose your accommodation.</p>
       <div class="choose">
-        <a class="btn" href="https://link.alchemyofbreath.com/payment-link/6ad1d580c0e70c7fefb75043" aria-label="Special promotion offer for season 2027, deposit: pay €500">Pay &euro;500 deposit <span aria-hidden="true">&rarr;</span></a>
+        <a class="btn" href="https://link.alchemyofbreath.com/payment-link/6ad1d580c0e70c7fefb75043" aria-label="BreathCamp + Intuition Retreat, €1,000 off: pay the €500 deposit">Pay &euro;500 deposit <span aria-hidden="true">&rarr;</span></a>
         <p class="closed">This offer has ended</p>
       </div>
     </article>
