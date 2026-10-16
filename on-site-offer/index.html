@@ -133,12 +133,6 @@ h1,h2{font-family:var(--serif);font-weight:400;line-height:1.16}
 .when{font-size:.78rem;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:#00727C;margin-bottom:14px}
 .desc{font-size:.95rem;color:var(--slate);line-height:1.6;max-width:24em;margin:0 auto}
 .price{margin:24px 0;padding:20px 0 20px;border-top:1px solid rgba(225,182,104,.32);border-bottom:1px solid rgba(225,182,104,.32)}
-.now{display:flex;align-items:baseline;justify-content:center;gap:8px}
-.num{display:inline-block;font-family:var(--serif);font-size:clamp(3.1rem,10vw,4rem);line-height:1;letter-spacing:-.01em;
-  background:linear-gradient(135deg,#E1B668 0%,#D6A652 45%,#B8862F 100%);-webkit-background-clip:text;background-clip:text;color:transparent;
-  filter:drop-shadow(0 8px 22px rgba(214,166,82,.28))}
-.num sup{font-size:.42em;position:relative;top:.14em;vertical-align:top;margin-right:.04em}
-.usd{font-size:.74rem;font-weight:500;letter-spacing:.2em;color:var(--slate)}
 .choose{margin-top:auto}
 .btn{display:flex;align-items:center;justify-content:center;gap:10px;min-height:58px;padding:14px 16px;border-radius:999px;background:var(--grad-gold);color:var(--ink);font-weight:500;font-size:1.02rem;letter-spacing:.03em;text-decoration:none;box-shadow:0 8px 20px rgba(214,166,82,.32);transition:transform .2s ease,box-shadow .2s ease}
 .btn:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(214,166,82,.42)}
@@ -152,7 +146,6 @@ h1,h2{font-family:var(--serif);font-weight:400;line-height:1.16}
 .offer.dark .desc{color:rgba(255,255,255,.74)}
 .offer.dark .price{border-color:rgba(225,182,104,.24)}
 .offer.dark .when{color:#5FCFD8}
-.offer.dark .usd{color:rgba(255,255,255,.62)}
 .offer.dark .btn{box-shadow:0 8px 24px rgba(0,0,0,.35)}
 .offer.dark .closed{color:rgba(255,255,255,.74);border-color:rgba(225,182,104,.3)}
 
@@ -226,7 +219,6 @@ h1,h2{font-family:var(--serif);font-weight:400;line-height:1.16}
 
     <article class="offer dark deposit" aria-labelledby="dep-title">
       <h2 id="dep-title">Special promotion offer for season 2027&nbsp;&ndash; deposit</h2>
-      <p class="now"><span class="num"><sup>$</sup>500</span><span class="usd">USD</span></p>
       <div class="price">
         <p class="coupons-intro">After you pay, you&rsquo;ll receive a coupon code for your retreat:</p>
         <ul class="coupons">
