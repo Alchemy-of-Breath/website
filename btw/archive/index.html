@@ -13,6 +13,8 @@
    - Adds the tags to GHL form/booking iframes and to links into GHL funnels
      (go. / breathcamp. / link.alchemyofbreath.com), so hidden fields with a
      matching query key are filled too.
+   - Adds them to links into the facilitator application (/facilitator-application/),
+     whose embed forwards its own query string into the form.
    Source: tools/utm/aob-utm.js. Inlined into every page by tools/utm/inject.py. */
 (function(){
   var KEYS=['utm_source','utm_medium','utm_campaign','utm_term','utm_content','utm_id','fbclid','gclid','msclkid'];
@@ -40,9 +42,10 @@
   }catch(e){}
 
   var GHL=/^https:\/\/((link|api)\.(alchemyofbreath\.com|leadconnectorhq\.com)\/widget\/(form|survey|booking|quiz)\/|(go|breathcamp)\.alchemyofbreath\.com\/)/;
+  var APPLY=/^https:\/\/(www\.)?alchemyofbreath\.com\/facilitator-application\/?$/;
   var withTags=function(url){
     var u; try{ u=new URL(url,location.href); }catch(e){ return null; }
-    if(!GHL.test(u.href)) return null;
+    if(!GHL.test(u.href) && !APPLY.test(u.origin+u.pathname)) return null;
     var ch=false;
     for(var k in P){ if(!u.searchParams.has(k)){ u.searchParams.set(k,P[k]); ch=true; } }
     return ch?u.href:null;
@@ -277,11 +280,19 @@ h1,h2,h3{font-family:var(--serif);font-weight:400;color:var(--ink);line-height:1
   <div class="arch-list">
     <a class="arch-item now" href="/btw/">
       <div>
-        <span class="wk">Week 41 &middot; 2026</span><span class="badge">This week</span>
+        <span class="wk">Week 42 &middot; 2026</span><span class="badge">This week</span>
+        <h3>When There’s No One To Convince</h3>
+        <p class="meta">Sunday 18 October 2026 &middot; with Pablo and Caroline</p>
+      </div>
+      <span class="go">Join &rarr;</span>
+    </a>
+    <a class="arch-item" href="/btw/2026/week-41/">
+      <div>
+        <span class="wk">Week 41 &middot; 2026</span>
         <h3>Why You’re Worth It</h3>
         <p class="meta">Sunday 11 October 2026 &middot; with Rhiannon and Tina Marie</p>
       </div>
-      <span class="go">Join &rarr;</span>
+      <span class="go">Read &rarr;</span>
     </a>
     <a class="arch-item" href="/btw/2026/week-40/">
       <div>

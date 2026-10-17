@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<!-- AOB-UTM:start -->
+<script>
+/* AoB UTM keeper: remembers the campaign tags a visitor arrived with and hands
+   them to GoHighLevel on whatever page they later sign up on.
+   - Stores utm_*, fbclid, gclid, msclkid from the landing URL for 90 days
+     (latest campaign wins), in localStorage and an .alchemyofbreath.com cookie.
+   - Seeds GHL's own form_embed.js memory (sessionStorage "UPS"), so GHL forms
+     attribute the contact to the campaign even when the form page has no tags.
+   - Adds the tags to GHL form/booking iframes and to links into GHL funnels
+     (go. / breathcamp. / link.alchemyofbreath.com), so hidden fields with a
+     matching query key are filled too.
+   - Adds them to links into the facilitator application (/facilitator-application/),
+     whose embed forwards its own query string into the form.
+   Source: tools/utm/aob-utm.js. Inlined into every page by tools/utm/inject.py. */
+(function(){
+  var KEYS=['utm_source','utm_medium','utm_campaign','utm_term','utm_content','utm_id','fbclid','gclid','msclkid'];
+  var STORE='aob_utm', DAYS=90, MS=DAYS*864e5;
+  var ls=function(k,v){ try{ if(v===undefined) return localStorage.getItem(k); localStorage.setItem(k,v); }catch(e){ return null; } };
+  var qs=new URLSearchParams(location.search), got={}, any=false;
+  KEYS.forEach(function(k){ var v=qs.get(k); if(v){ got[k]=v.slice(0,250); any=true; } });
+  var rec=null;
+  if(any){
+    rec={p:got,t:Date.now(),landing:location.origin+location.pathname};
+    ls(STORE,JSON.stringify(rec));
+    try{ document.cookie=STORE+'='+encodeURIComponent(JSON.stringify(got))+';path=/;max-age='+(DAYS*86400)+';SameSite=Lax'+
+      (/(^|\.)alchemyofbreath\.com$/.test(location.hostname)?';domain=.alchemyofbreath.com':''); }catch(e){}
+  } else {
+    try{ rec=JSON.parse(ls(STORE)||'null'); }catch(e){ rec=null; }
+    if(!rec || !rec.p || Date.now()-rec.t>MS) return;
+  }
+  var P=rec.p;
+
+  // GHL form_embed.js falls back to sessionStorage "UPS" when the page URL has no utm_ tags
+  try{
+    var ups=new URLSearchParams(sessionStorage.getItem('UPS')||''), changed=false;
+    for(var k in P){ if(k.indexOf('utm_')===0 && ups.get(k)!==P[k]){ ups.set(k,P[k]); changed=true; } }
+    if(changed) sessionStorage.setItem('UPS','?'+ups.toString());
+  }catch(e){}
+
+  var GHL=/^https:\/\/((link|api)\.(alchemyofbreath\.com|leadconnectorhq\.com)\/widget\/(form|survey|booking|quiz)\/|(go|breathcamp)\.alchemyofbreath\.com\/)/;
+  var APPLY=/^https:\/\/(www\.)?alchemyofbreath\.com\/facilitator-application\/?$/;
+  var withTags=function(url){
+    var u; try{ u=new URL(url,location.href); }catch(e){ return null; }
+    if(!GHL.test(u.href) && !APPLY.test(u.origin+u.pathname)) return null;
+    var ch=false;
+    for(var k in P){ if(!u.searchParams.has(k)){ u.searchParams.set(k,P[k]); ch=true; } }
+    return ch?u.href:null;
+  };
+  var fixFrame=function(f){
+    ['src','data-src'].forEach(function(a){ var v=f.getAttribute(a), n=v&&withTags(v); if(n) f.setAttribute(a,n); });
+  };
+  var scan=function(root){
+    if(root.tagName==='IFRAME'){ fixFrame(root); return; }
+    if(root.querySelectorAll) [].forEach.call(root.querySelectorAll('iframe'),fixFrame);
+  };
+  scan(document);
+  if('MutationObserver' in window){
+    new MutationObserver(function(ms){ ms.forEach(function(m){ [].forEach.call(m.addedNodes,function(n){ if(n.nodeType===1) scan(n); }); }); })
+      .observe(document.documentElement,{childList:true,subtree:true});
+  }
+  // links into GHL funnels: tag them at click time (covers links built by scripts too)
+  var tagLink=function(e){
+    var a=e.target && e.target.closest && e.target.closest('a[href]'); if(!a) return;
+    var n=withTags(a.getAttribute('href')); if(n) a.setAttribute('href',n);
+  };
+  document.addEventListener('mousedown',tagLink,true);
+  document.addEventListener('touchstart',tagLink,{capture:true,passive:true});
+  document.addEventListener('keydown',function(e){ if(e.key==='Enter') tagLink(e); },true);
+  document.addEventListener('click',tagLink,true);
+})();
+</script>
+<!-- AOB-UTM:end -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>When There’s No One To Convince · Breathe The World | Alchemy of Breath</title>
+<meta name="description" content="When there’s no one to convince. Breathe The World with Amy Rachelle, Alchemy of Breath senior trainer Pablo and facilitator Caroline.">
+<meta name="robots" content="noindex, follow">
+<link rel="canonical" href="https://alchemyofbreath.com/btw/2026/week-42/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Alchemy of Breath">
+<meta property="og:title" content="When There’s No One To Convince · Breathe The World | Alchemy of Breath">
+<meta property="og:description" content="When there’s no one to convince. Breathe The World with Amy Rachelle, Alchemy of Breath senior trainer Pablo and facilitator Caroline.">
+<meta property="og:image" content="https://alchemyofbreath.com/wp-content/uploads/amy-rachelle-1.jpg">
+<meta property="og:url" content="https://alchemyofbreath.com/btw/2026/week-42/">
+<meta name="theme-color" content="#FBF7EF">
+<link rel="icon" type="image/png" href="https://alchemyofbreath.com/wp-content/uploads/AOB-Gold-Black-Transparant-symbol.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Roboto:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FFFFFF;--paper-2:#FBF7EF;--cream:#FDF6E9;
+  --gold:#E1B668;--gold-deep:#D6A652;--gold-soft:#EFDCB6;--gold-wash:#F7EBD2;
+  --teal:#00A5B2;--slate:#5B7889;--ink:#221F20;--foot:#191617;
+  --grad-gold:linear-gradient(135deg,#E1B668 0%,#D6A652 100%);
+  --shadow-soft:0 1px 2px rgba(34,31,32,.04),0 8px 24px rgba(34,31,32,.06),0 24px 64px rgba(34,31,32,.07);
+  --shadow-lift:0 2px 4px rgba(34,31,32,.05),0 14px 34px rgba(34,31,32,.10),0 34px 80px rgba(34,31,32,.10);
+  --serif:'Marcellus',Georgia,'Times New Roman',serif;
+  --sans:'Roboto',-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;overflow-x:clip}
+body{font-family:var(--sans);font-weight:300;font-size:18px;line-height:1.7;color:var(--ink);background:var(--paper);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+::selection{background:var(--gold-wash);color:var(--ink)}
+img{max-width:100%;height:auto;display:block}
+a{color:var(--ink)}
+em{color:var(--gold-deep);font-style:italic}
+h1,h2,h3{font-family:var(--serif);font-weight:400;color:var(--ink);line-height:1.14}
+.wrap{max-width:1040px;margin:0 auto;padding:0 26px}
+.eyebrow{font-family:var(--sans);font-size:.72rem;font-weight:500;letter-spacing:.24em;text-transform:uppercase;color:var(--slate);display:inline-flex;align-items:center;gap:14px;margin-bottom:18px}
+.eyebrow::before{content:"";width:32px;height:1px;background:var(--gold)}
+.orb{position:absolute;border-radius:50%;pointer-events:none;z-index:0}
+.orb.g{background:radial-gradient(circle,rgba(225,182,104,.22) 0%,rgba(225,182,104,0) 70%)}
+.orb.t{background:radial-gradient(circle,rgba(0,165,178,.12) 0%,rgba(0,165,178,0) 70%)}
+
+/* nav */
+.nav{position:sticky;top:0;z-index:40;background:rgba(255,255,255,.86);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid rgba(225,182,104,.2)}
+.nav-in{max-width:1040px;margin:0 auto;padding:13px 26px;display:flex;align-items:center;justify-content:space-between;gap:18px}
+.nav-logo img{height:32px;width:auto}
+.nav-cta{font-family:var(--sans);font-size:.78rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:#2A2114;background:var(--grad-gold);text-decoration:none;padding:11px 20px;border-radius:999px;white-space:nowrap;box-shadow:0 6px 18px rgba(214,166,82,.4);transition:transform .25s,box-shadow .25s}
+.nav-cta:hover{transform:translateY(-1px);box-shadow:0 10px 26px rgba(214,166,82,.5)}
+@media(max-width:560px){.nav-cta{padding:9px 14px;font-size:.68rem}}
+
+/* hero */
+.hero{position:relative;overflow:hidden;padding:72px 0 56px;background:radial-gradient(120% 90% at 50% 0%,var(--cream) 0%,var(--paper) 66%);text-align:center}
+.hero .wrap{position:relative;z-index:1}
+.hero h1{font-size:clamp(2.2rem,5vw,3.6rem);max-width:14em;margin:0 auto 18px}
+.hero .when{font-family:var(--serif);font-size:clamp(1.05rem,2.2vw,1.3rem);color:var(--ink);margin:0 auto 6px}
+.hero .when b{font-weight:400;color:var(--gold-deep)}
+.hero .tz{font-size:.86rem;color:var(--slate)}
+
+/* join card */
+.join{position:relative;z-index:2;max-width:820px;margin:-8px auto 0;padding:0 26px}
+.join-card{background:var(--paper);border:1px solid rgba(225,182,104,.45);border-radius:22px;box-shadow:var(--shadow-lift);padding:34px 36px 30px}
+.join-head{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:22px}
+.join-head h2{font-size:1.35rem}
+.creds{font-family:var(--sans);font-size:.92rem;color:var(--slate);line-height:1.6}
+.creds b{font-family:var(--serif);font-weight:400;font-size:1.05rem;color:var(--ink);letter-spacing:.02em}
+.creds span{display:block}
+.zoom-btn{display:flex;align-items:center;justify-content:center;gap:12px;text-decoration:none;font-family:var(--sans);font-weight:500;font-size:1rem;letter-spacing:.03em;padding:19px 30px;border-radius:999px;background:var(--grad-gold);color:#2A2114;box-shadow:0 10px 28px rgba(214,166,82,.42);transition:transform .25s,box-shadow .25s;margin-bottom:26px}
+.zoom-btn:hover{transform:translateY(-2px);box-shadow:0 16px 38px rgba(214,166,82,.55)}
+.sessions{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.sess{background:var(--paper-2);border:1px solid rgba(225,182,104,.28);border-radius:16px;padding:22px 22px 20px}
+.sess .lbl{font-family:var(--sans);font-size:.66rem;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:6px}
+.sess .time{font-family:var(--serif);font-size:1.6rem;color:var(--ink);line-height:1.1}
+.sess .time small{display:block;font-family:var(--sans);font-size:.78rem;color:var(--slate);margin-top:4px;letter-spacing:.02em}
+.sess .local{font-size:.8rem;color:var(--teal);margin-top:6px;min-height:1.2em}
+.sess .host{font-size:.9rem;color:var(--ink);margin-top:12px;padding-top:12px;border-top:1px solid rgba(225,182,104,.3)}
+.sess .host b{font-weight:500}
+.cal{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.cal a{font-family:var(--sans);font-size:.7rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--ink);text-decoration:none;border:1px solid rgba(34,31,32,.22);border-radius:999px;padding:7px 13px;transition:border-color .2s,background .2s}
+.cal a:hover{border-color:var(--gold-deep);background:var(--gold-wash)}
+.join-note{font-size:.82rem;color:var(--slate);margin-top:20px;text-align:center}
+@media(max-width:640px){
+  .join{padding:0 16px}
+  .join-card{padding:26px 20px 22px}
+  .sessions{grid-template-columns:1fr}
+}
+
+/* letter */
+.letter{position:relative;overflow:hidden;padding:80px 0 90px;background:linear-gradient(180deg,var(--paper) 0%,var(--paper-2) 100%)}
+.letter .wrap{position:relative;z-index:1}
+.letter-grid{display:grid;grid-template-columns:.62fr 1.38fr;gap:56px;align-items:start}
+.portrait{position:sticky;top:96px}
+.portrait-frame{border-radius:280px 280px 18px 18px;overflow:hidden;box-shadow:var(--shadow-lift);outline:1px solid rgba(225,182,104,.5);outline-offset:9px;aspect-ratio:4/4.7;transform:rotate(-.6deg)}
+.portrait-frame img{width:100%;height:100%;object-fit:cover;object-position:50% 20%}
+.portrait-cap{text-align:center;margin-top:22px}
+.portrait-cap strong{display:block;font-family:var(--serif);font-weight:400;font-size:1.15rem;color:var(--ink)}
+.portrait-cap span{font-size:.7rem;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--slate)}
+.letter-card{background:var(--paper);border:1px solid rgba(225,182,104,.25);border-radius:6px;padding:50px 52px;box-shadow:var(--shadow-soft);position:relative;transform:rotate(.3deg)}
+.letter-card::before{content:"";position:absolute;top:-14px;left:50%;transform:translateX(-50%) rotate(-2deg);width:120px;height:28px;background:rgba(239,220,182,.55);border:1px solid rgba(225,182,104,.25)}
+.letter-card h2{font-size:clamp(1.6rem,3vw,2.1rem);margin-bottom:22px}
+.letter-card p{font-size:1.02rem;margin-bottom:1.05em;line-height:1.75}
+.letter-card p.q{font-family:var(--serif);font-size:1.1rem;color:var(--ink);margin:1.2em 0}
+.letter-card p.mantra{font-family:var(--serif);font-size:1.3rem;color:var(--gold-deep);text-align:center;margin:1.6em 0;letter-spacing:.02em}
+.letter-card .sig{font-family:var(--serif);font-size:1.5rem;color:var(--ink);margin-top:26px;display:inline-block}
+.letter-card .sig-role{font-size:.74rem;letter-spacing:.18em;text-transform:uppercase;color:var(--slate);font-weight:500;margin-top:2px;line-height:1.6}
+.ps{margin-top:30px;padding:22px 26px;background:linear-gradient(120deg,#fff 0%,var(--gold-wash) 140%);border-left:3px solid var(--gold);border-radius:0 14px 14px 0}
+.ps p{margin:0;font-size:.96rem}
+.ps a{color:var(--gold-deep);font-weight:400}
+@media(max-width:860px){
+  .letter{padding:64px 0 70px}
+  .letter-grid{grid-template-columns:1fr;gap:40px}
+  .portrait{position:static;max-width:300px;margin:0 auto}
+}
+@media(max-width:560px){
+  .letter-card{padding:34px 24px}
+  .wrap{padding:0 20px}
+}
+
+/* closing */
+.closing{text-align:center;padding:72px 0;background:var(--paper)}
+.closing h2{font-size:clamp(1.6rem,3.2vw,2.3rem);max-width:16em;margin:0 auto 14px}
+.closing p{color:var(--slate);max-width:32em;margin:0 auto 28px}
+.closing .zoom-btn{display:inline-flex;margin:0}
+
+/* footer */
+.foot{background:var(--foot);color:rgba(255,255,255,.72);padding:40px 0;text-align:center;font-size:.85rem}
+.foot a{color:var(--gold);text-decoration:none}
+.foot a:hover{text-decoration:underline}
+.foot-links{margin-top:12px;display:flex;gap:18px;justify-content:center;flex-wrap:wrap;font-size:.8rem}
+
+/* weekly issues */
+.more{text-align:center;font-size:.84rem;color:var(--slate);margin-top:10px}
+.more a{color:var(--gold-deep)}
+.letter-card .voice{margin:1.2em 0 1.4em;padding:18px 22px;border-left:2px solid var(--gold);background:var(--paper-2);border-radius:0 12px 12px 0}
+.letter-card .voice p{font-family:var(--serif);font-style:italic;color:var(--slate);margin:0 0 .5em;font-size:1.02rem}
+.letter-card .voice p:last-child{margin-bottom:0}
+.ps p + p{margin-top:.7em}
+.past{position:relative;z-index:2;max-width:820px;margin:-8px auto 0;padding:0 26px}
+.past-card{background:var(--paper);border:1px solid rgba(225,182,104,.45);border-radius:22px;box-shadow:var(--shadow-soft);padding:30px 34px;text-align:center}
+.past-card p{color:var(--slate);margin-bottom:20px}
+.past-card .zoom-btn{display:inline-flex;margin:0}
+.reg{margin-top:26px;padding-top:24px;border-top:1px solid rgba(225,182,104,.3);scroll-margin-top:90px}
+.reg h2{text-align:center}
+.reg .reg-lede{text-align:center;color:var(--slate);font-size:.92rem;margin:6px 0 16px}
+.reg-form{width:100%;min-height:620px;border-radius:12px;overflow:hidden}
+.reg-form iframe{width:100%;min-height:620px;display:block;border:0;background:transparent}
+.reg .reg-small{text-align:center;font-size:.74rem;color:var(--slate);margin-top:10px}
+@media(max-width:560px){.reg-form,.reg-form iframe{min-height:680px}}
+.arch{padding:64px 0 90px;background:var(--paper)}
+.arch-list{max-width:760px;margin:40px auto 0;display:grid;gap:14px}
+.arch-item{display:flex;align-items:center;justify-content:space-between;gap:20px;text-decoration:none;background:var(--paper-2);border:1px solid rgba(225,182,104,.28);border-radius:16px;padding:22px 26px;transition:transform .25s,box-shadow .25s,border-color .25s}
+.arch-item:hover{transform:translateY(-2px);box-shadow:var(--shadow-soft);border-color:var(--gold)}
+.arch-item .wk{font-family:var(--sans);font-size:.66rem;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-deep)}
+.arch-item h3{font-size:1.35rem;margin:4px 0 4px}
+.arch-item .meta{font-size:.84rem;color:var(--slate)}
+.arch-item .go{font-family:var(--sans);font-size:.72rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);white-space:nowrap}
+.arch-item.now{background:var(--paper);border-color:var(--gold)}
+.arch-item .badge{display:inline-block;margin-left:8px;background:var(--ink);color:var(--gold);border-radius:999px;padding:3px 10px;font-size:.58rem;letter-spacing:.14em;vertical-align:middle}
+@media(max-width:560px){.arch-item{flex-direction:column;align-items:flex-start;gap:10px}.past{padding:0 16px}.past-card{padding:24px 20px}}
+/* countdown to each session */
+.cd{margin-top:12px}
+.cd-lbl{font-family:var(--sans);font-size:.62rem;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--slate);margin-bottom:6px}
+.cd-row{display:flex;gap:6px}
+.cd-u{flex:1;min-width:0;background:var(--paper);border:1px solid rgba(225,182,104,.4);border-radius:10px;padding:7px 4px 6px;text-align:center}
+.cd-u b{display:block;font-family:var(--serif);font-weight:400;font-size:1.35rem;line-height:1.05;color:var(--ink);font-variant-numeric:tabular-nums}
+.cd-u span{display:block;font-family:var(--sans);font-size:.56rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--slate);margin-top:3px}
+.cd-live{display:inline-flex;align-items:center;gap:9px;font-family:var(--sans);font-size:.78rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:#2A2114;background:var(--grad-gold);border-radius:999px;padding:9px 16px;text-decoration:none}
+.cd-live::before{content:"";width:8px;height:8px;border-radius:50%;background:#B3261E;box-shadow:0 0 0 0 rgba(179,38,30,.6);animation:cdpulse 1.8s ease-out infinite}
+@keyframes cdpulse{0%{box-shadow:0 0 0 0 rgba(179,38,30,.55)}70%{box-shadow:0 0 0 9px rgba(179,38,30,0)}100%{box-shadow:0 0 0 0 rgba(179,38,30,0)}}
+.cd-done{font-size:.84rem;color:var(--slate);font-style:italic}
+@media(prefers-reduced-motion:reduce){.cd-live::before{animation:none}}
+/* video message in place of the portrait */
+.portrait-frame.video{aspect-ratio:9/16;border-radius:22px;transform:none;background:var(--ink)}
+.portrait-frame.video video{width:100%;height:100%;object-fit:cover;display:block}
+/* facilitator photo on a session */
+.host.with-ph{display:flex;align-items:center;gap:12px}
+.host .av{width:52px;height:52px;border-radius:50%;object-fit:cover;flex:none;outline:1px solid rgba(225,182,104,.55);outline-offset:3px}
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="nav-in">
+    <a class="nav-logo" href="https://alchemyofbreath.com/" aria-label="Alchemy of Breath">
+      <img src="https://alchemyofbreath.com/wp-content/uploads/AOB-Gold-Black-Transparant.png" alt="Alchemy of Breath" width="150" height="32">
+    </a>
+    <a class="nav-cta" href="#register">Reserve your spot</a>
+  </div>
+</header>
+
+<main>
+
+<section class="hero">
+  <div class="orb g" style="width:560px;height:560px;top:-240px;left:-220px" aria-hidden="true"></div>
+  <div class="orb t" style="width:520px;height:520px;bottom:-260px;right:-200px" aria-hidden="true"></div>
+  <div class="wrap">
+    <span class="eyebrow" style="justify-content:center">#BreatheTheWorld &middot; This Sunday</span>
+    <h1>When There&rsquo;s No One <em>To&nbsp;Convince</em></h1>
+    <p class="when">Sunday 18 October 2026 &middot; <b>9:30 AM</b> and <b>5:00 PM</b></p>
+    <p class="tz">London time &middot; free, online, everyone welcome</p>
+  </div>
+</section>
+
+<div class="join">
+  <div class="join-card">
+    <div class="sessions">
+      <div class="sess">
+        <p class="lbl">Morning session</p>
+        <p class="time">9:30 AM<small>Sunday 18 October &middot; London time</small></p>
+        <p class="local" id="localAm"></p>
+        <div class="cd" id="cdAm" aria-live="polite"></div>
+        <p class="host with-ph"><img class="av" src="https://cdn.jsdelivr.net/gh/Alchemy-of-Breath/website@main/assets/btw/pablo.jpg" alt="Pablo" width="52" height="52" loading="lazy"><span>Sharing this week: <b>Pablo</b>, Alchemy of Breath senior trainer</span></p>
+        <div class="cal">
+          <a href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Breathe%20The%20World%20%E2%80%94%20When%20There%E2%80%99s%20No%20One%20To%20Convince%20%28AM%29&amp;dates=20261018T093000%2F20261018T103000&amp;ctz=Europe%2FLondon&amp;location=Online&amp;details=Free%20live%20breathwork%20with%20Alchemy%20of%20Breath.%20Reserve%20your%20free%20spot%3A%20https%3A%2F%2Falchemyofbreath.com%2Fbtw%2F%23register" target="_blank" rel="noopener">Google Calendar</a>
+          <a href="https://website-5h3.pages.dev/free-breathwork-sessions/welcome/breathe-the-world-am.ics" download>Apple / Outlook</a>
+        </div>
+      </div>
+      <div class="sess">
+        <p class="lbl">Evening session</p>
+        <p class="time">5:00 PM<small>Sunday 18 October &middot; London time</small></p>
+        <p class="local" id="localPm"></p>
+        <div class="cd" id="cdPm" aria-live="polite"></div>
+        <p class="host">Sharing this week: <b>Caroline</b>, Alchemy of Breath facilitator</p>
+        <div class="cal">
+          <a href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=Breathe%20The%20World%20%E2%80%94%20When%20There%E2%80%99s%20No%20One%20To%20Convince%20%28PM%29&amp;dates=20261018T170000%2F20261018T180000&amp;ctz=Europe%2FLondon&amp;location=Online&amp;details=Free%20live%20breathwork%20with%20Alchemy%20of%20Breath.%20Reserve%20your%20free%20spot%3A%20https%3A%2F%2Falchemyofbreath.com%2Fbtw%2F%23register" target="_blank" rel="noopener">Google Calendar</a>
+          <a href="https://website-5h3.pages.dev/free-breathwork-sessions/welcome/breathe-the-world-pm.ics" download>Apple / Outlook</a>
+        </div>
+      </div>
+    </div>
+    <div class="reg" id="register">
+      <h2>Reserve your <em>free spot</em></h2>
+      <p class="reg-lede">Sign up once, then come to either session, or both.</p>
+      <div class="reg-form">
+        <iframe src="https://link.alchemyofbreath.com/widget/form/6ssfkrUSnSdcJlkFos3D" style="width:100%;height:100%;border:none;border-radius:10px"
+          id="inline-6ssfkrUSnSdcJlkFos3D" data-layout="{'id':'INLINE'}" data-trigger-type="alwaysShow" data-trigger-value=""
+          data-activation-type="alwaysActivated" data-activation-value="" data-deactivation-type="neverDeactivate"
+          data-deactivation-value="" data-form-name="AOB | Free Lead | Free Breathwork Sessions - Website" data-height="620"
+          data-layout-iframe-id="inline-6ssfkrUSnSdcJlkFos3D" data-form-id="6ssfkrUSnSdcJlkFos3D" title="AOB | Free Lead | Free Breathwork Sessions - Website"></iframe>
+      </div>
+      <p class="reg-small">Your details stay with us. You can unsubscribe anytime.</p>
+    </div>
+  </div>
+  <p class="more">Missed a Sunday? <a href="/btw/archive/">Read past weeks&rsquo; messages</a></p>
+</div>
+
+<section class="letter">
+  <div class="orb g" style="width:480px;height:480px;bottom:-200px;left:-200px" aria-hidden="true"></div>
+  <div class="wrap">
+    <div class="letter-grid">
+      <div class="portrait">
+        <div class="portrait-frame video">
+          <video src="https://assets.cdn.filesafe.space/5lz2Wm44CNDwLSZWgAPf/media/6ad25f72989628c77a259b4b.mp4" poster="https://cdn.jsdelivr.net/gh/Alchemy-of-Breath/website@main/assets/btw/amy-w42-poster.jpg" controls playsinline preload="metadata"
+                 aria-label="A video message from Amy Rachelle"></video>
+        </div>
+        <div class="portrait-cap"><strong>Amy Rachelle</strong><span>Co-founder, Alchemy of Breath &amp; ASHA</span></div>
+      </div>
+
+      <div class="letter-card">
+        <span class="eyebrow">A note from Amy</span>
+        <h2>When There’s No One To Convince</h2>
+        <p>Dear friend,</p>
+        <p>Most of us know what it feels like to chase after something or someone. Or be chased for validation, approval, money, and the list goes on.</p>
+        <p>Slippery. Elusive. It&rsquo;s a whole lot of hard work.</p>
+        <p>And often, underneath it all there&rsquo;s an ache, a deep hurt, that we are somehow not enough, and we need to convince someone we&rsquo;re good, worthy, or &mdash; enough.</p>
+        <p class="q">Sigh&hellip;</p>
+        <p>Then there are moments when things simply flow. You meet the right person at the right time. Something you&rsquo;ve been longing for finds its way to you with ease, grace, perhaps even a little serendipity &mdash; the opposite of chasing, or being chased.</p>
+        <p>These experiences teach me to feel the difference between convincing and conviction &mdash; not just in my mind, but in my body.</p>
+        <p>Convincing is the chase. The pushing, proving, persuading. The exhausting dance of trying to get something or someone to meet a need we may not even know we have.</p>
+        <p class="q">Conviction feels and looks different.</p>
+        <p>It&rsquo;s not loud, flashy, or made of fanfare. It&rsquo;s grounded. Still and silent. It&rsquo;s a deep inner knowing that doesn&rsquo;t need validation to feel worthy.</p>
+        <p class="q">So why do we work so hard to get our needs met through convincing?</p>
+        <p>Perhaps because we don&rsquo;t always know what we really &mdash; need. Without clocking what we really need, we may not know our true value&hellip; so then we chase it in people, places, and things.</p>
+        <p>It&rsquo;s the opposite of innate conviction. Without it, we can find ourselves trying to get what we need through pushing, persuading, or unconsciously manipulating situations and people.</p>
+        <div class="voice">
+          <p>&ldquo;Like me&rdquo;</p>
+          <p>&ldquo;See me&rdquo;</p>
+          <p>&ldquo;Validate me&rdquo;</p>
+        </div>
+        <p>Not because we&rsquo;re manipulative people. But because we&rsquo;re human, and sometimes we simply don&rsquo;t know what our needs are, or our value&hellip;. much less how to communicate our needs in a way that gets them met.</p>
+        <p>The irony is that convincing cancels out conviction. Like inner apology robs inner authority.</p>
+        <p class="q">Try this for a moment.</p>
+        <p>Bring to mind a situation where you&rsquo;re trying to convince someone of something.</p>
+        <p>Notice what happens in your body.</p>
+        <p>Now imagine letting go of the need to convince. Not giving up on what matters to you, but releasing the struggle to make it happen.</p>
+        <p class="q">What changes?</p>
+        <p>One state might feel contracted, depleted, and uncertain. The other, grounded, solid, and secure.</p>
+        <p class="q">What is the longing beneath the chase? What need is asking to be seen?</p>
+        <p>This Sunday, join our senior trainer Pablo and Alchemy of Breath facilitator Caroline as they guide us in using our breath to &mdash; get our needs met/know our own worth/conviction.</p>
+        <p>Together, we&rsquo;ll explore what happens when we stop trying to get our needs met through convincing and we instead lean into conviction.</p>
+        <p>I&rsquo;m sending you my love and support, always.</p>
+        <div class="sig">Amy</div>
+        <div class="ps">
+          <p><b>P.S.</b> Is it time to turn your life around? Our <a href="/the-alchemist/">Inner Journey</a> begins November 19&hellip; it&rsquo;s an invitation to deepen your relationship with yourself, so that conviction becomes the norm, and chasing doesn&rsquo;t highjack your worth.</p>
+        </div>
+        <div class="voice">
+          <p>&ldquo;I could not recommend the Inner Journey enough! It&rsquo;s transformational.&rdquo;</p>
+          <p>&mdash; Divya</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="closing">
+  <div class="wrap">
+    <span class="eyebrow" style="justify-content:center">This Sunday, 18 October</span>
+    <h2>Lean into conviction.</h2>
+    <p>9:30 AM or 5:00 PM London time. Free, online, and open to everyone.</p>
+    <a class="zoom-btn" href="#register">Reserve your free spot &rarr;</a>
+  </div>
+</section>
+
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <p>&copy; Alchemy of Breath &middot; Breathe The World, every Sunday</p>
+    <div class="foot-links">
+      <a href="https://alchemyofbreath.com/">Home</a>
+      <a href="/btw/">This week</a>
+      <a href="/btw/archive/">Past weeks</a>
+      <a href="/free-breathwork-sessions/">About Breathe The World</a>
+      <a href="/the-alchemist/">The Inner Journey</a>
+      <a href="https://alchemyofbreath.com/privacy-policy/">Privacy</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  // this week's date, shown in the visitor's own time zone when it differs from London
+  var Y=2026, M=9, D=18;
+  function londonToLocal(h,m){
+    var guess=new Date(Date.UTC(Y,M,D,h-1,m));
+    try{
+      var fmt=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/London',hour:'2-digit',minute:'2-digit',hour12:false});
+      for(var i=0;i<3;i++){
+        var parts=fmt.format(guess).split(':');
+        var diff=(h*60+m)-(parseInt(parts[0],10)*60+parseInt(parts[1],10));
+        if(diff===0) break;
+        guess=new Date(guess.getTime()+diff*60000);
+      }
+      return guess;
+    }catch(e){ return null; }
+  }
+  function show(id,h,m){
+    var el=document.getElementById(id); if(!el) return;
+    var local=londonToLocal(h,m); if(!local) return;
+    try{
+      var tz=Intl.DateTimeFormat().resolvedOptions().timeZone||'';
+      var t=local.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});
+      var lon=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/London',hour:'2-digit',minute:'2-digit'}).format(local);
+      var here=new Intl.DateTimeFormat('en-GB',{hour:'2-digit',minute:'2-digit'}).format(local);
+      if(here!==lon) el.textContent='That\u2019s '+t+' in your time zone'+(tz?' ('+tz.replace(/_/g,' ')+')':'');
+    }catch(e){}
+  }
+  show('localAm',9,30);
+  show('localPm',17,0);
+
+  // live countdown to each session; turns into a join button while it runs
+  var LEN=75*60000;
+  function pad(n){ return (n<10?'0':'')+n; }
+  function unit(v,l){ return '<div class="cd-u"><b>'+v+'</b><span>'+l+'</span></div>'; }
+  var sessions=[['cdAm',londonToLocal(9,30)],['cdPm',londonToLocal(17,0)]], last={};
+  function tick(){
+    var now=Date.now();
+    sessions.forEach(function(s){
+      var el=document.getElementById(s[0]); if(!el||!s[1]) return;
+      var start=s[1].getTime(), left=start-now, html;
+      if(left>0){
+        var t=Math.floor(left/1000), d=Math.floor(t/86400), h=Math.floor(t%86400/3600), m=Math.floor(t%3600/60), sec=t%60;
+        html='<p class="cd-lbl">Starts in</p><div class="cd-row">'+(d>0?unit(d,d===1?'day':'days'):'')+unit(pad(h),'hrs')+unit(pad(m),'min')+unit(pad(sec),'sec')+'</div>';
+      }else if(now<start+LEN){
+        html='<a class="cd-live" href="#register">Live now &middot; register to join</a>';
+      }else{
+        html='<p class="cd-done">This session has ended. See you next Sunday.</p>';
+      }
+      if(last[s[0]]!==html){ el.innerHTML=html; last[s[0]]=html; }
+    });
+  }
+  tick(); setInterval(tick,1000);
+})();
+</script>
+<script src="https://link.alchemyofbreath.com/js/form_embed.js"></script>
+<script>(function(){if(window.self!==window.top){var st=document.createElement('style');st.textContent='.cv{content-visibility:visible !important}';document.head.appendChild(st);}function reportHeight(){var h=document.documentElement.scrollHeight;window.parent.postMessage({type:'aob-embed-resize',height:h},'*');}window.addEventListener('load',reportHeight);window.addEventListener('resize',reportHeight);var mo=new MutationObserver(reportHeight);mo.observe(document.body,{childList:true,subtree:true,attributes:true});setInterval(reportHeight,800);})();</script>
+</body>
+</html>
