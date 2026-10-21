@@ -74,6 +74,8 @@ EXTRA_CSS = '''
 /* video message in place of the portrait */
 .portrait-frame.video{aspect-ratio:9/16;border-radius:22px;transform:none;background:var(--ink)}
 .portrait-frame.video video{width:100%;height:100%;object-fit:cover;display:block}
+/* optional line under the hero title */
+.hero .sub{font-family:var(--serif);font-size:clamp(1.05rem,2.2vw,1.3rem);color:var(--slate);max-width:28em;margin:-6px auto 18px}
 /* facilitator photo on a session */
 .host.with-ph{display:flex;align-items:center;gap:12px}
 .host .av{width:52px;height:52px;border-radius:50%;object-fit:cover;flex:none;outline:1px solid rgba(225,182,104,.55);outline-offset:3px}
@@ -212,6 +214,7 @@ def portrait(i):
 
 def page(i, current, canonical, style):
     wk = f"Week {i['week']} &middot; {i['year']}"
+    sub = f'''    <p class="sub">{html.escape(i['subtitle'])}</p>\n''' if i.get('subtitle') else ''
     out = head(f"{i['title']} · Breathe The World | Alchemy of Breath", i['description'], canonical, style)
     out += nav(current)
     out += f'''
@@ -223,7 +226,7 @@ def page(i, current, canonical, style):
   <div class="wrap">
     <span class="eyebrow" style="justify-content:center">#BreatheTheWorld &middot; {'This Sunday' if current else wk}</span>
     <h1>{i['title_html']}</h1>
-    <p class="when">{i['long']} &middot; <b>9:30 AM</b> and <b>5:00 PM</b></p>
+{sub}    <p class="when">{i['long']} &middot; <b>9:30 AM</b> and <b>5:00 PM</b></p>
     <p class="tz">{'London time &middot; free, online, everyone welcome' if current else 'London time &middot; this session has taken place'}</p>
   </div>
 </section>
@@ -274,7 +277,7 @@ def page(i, current, canonical, style):
 
       <div class="letter-card">
         <span class="eyebrow">A note from Amy</span>
-        <h2>{html.escape(i['title'])}</h2>
+        <h2>{html.escape(i.get('letter_title', i['title']))}</h2>
 {i['body']}
       </div>
     </div>
