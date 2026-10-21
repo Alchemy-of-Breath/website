@@ -247,6 +247,13 @@ h1,h2,h3{font-family:var(--serif);font-weight:400;color:var(--ink);line-height:1
 /* video message in place of the portrait */
 .portrait-frame.video{aspect-ratio:9/16;border-radius:22px;transform:none;background:var(--ink)}
 .portrait-frame.video video{width:100%;height:100%;object-fit:cover;display:block}
+.portrait-frame.video{position:relative}
+.portrait-frame .play{position:absolute;inset:0;width:100%;height:100%;border:0;padding:0;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.portrait-frame .play[hidden]{display:none}
+.portrait-frame .play span{position:relative;width:76px;height:76px;border-radius:50%;background:var(--grad-gold);box-shadow:0 10px 30px rgba(42,33,20,.35),0 0 0 8px rgba(255,255,255,.25);transition:transform .25s}
+.portrait-frame .play span::after{content:"";position:absolute;left:50%;top:50%;transform:translate(-38%,-50%);border-style:solid;border-width:13px 0 13px 21px;border-color:transparent transparent transparent #2A2114}
+.portrait-frame .play:hover span{transform:scale(1.06)}
+.portrait-frame .play:focus-visible span{outline:2px solid var(--ink);outline-offset:6px}
 /* optional line under the hero title */
 .hero .sub{font-family:var(--serif);font-size:clamp(1.05rem,2.2vw,1.3rem);color:var(--slate);max-width:28em;margin:-6px auto 18px}
 /* facilitator photo on a session */
@@ -294,6 +301,7 @@ h1,h2,h3{font-family:var(--serif);font-weight:400;color:var(--ink);line-height:1
         <div class="portrait-frame video">
           <video src="https://assets.cdn.filesafe.space/5lz2Wm44CNDwLSZWgAPf/media/6ab4e87559582adc0cceac30.mp4" poster="https://cdn.jsdelivr.net/gh/Alchemy-of-Breath/website@main/assets/btw/amy-w39-poster.jpg" controls playsinline preload="metadata"
                  aria-label="A video message from Amy Rachelle"></video>
+          <button class="play" type="button" aria-label="Play Amy&rsquo;s video message" hidden><span></span></button>
         </div>
         <div class="portrait-cap"><strong>Amy Rachelle</strong><span>Co-founder, Alchemy of Breath &amp; ASHA</span></div>
       </div>
@@ -357,6 +365,7 @@ h1,h2,h3{font-family:var(--serif);font-weight:400;color:var(--ink);line-height:1
     </div>
   </div>
 </footer>
+<script>document.querySelectorAll('.portrait-frame.video').forEach(function(f){var v=f.querySelector('video'),b=f.querySelector('.play');if(!v||!b)return;v.removeAttribute('controls');b.hidden=false;b.addEventListener('click',function(){var p=v.play();if(p&&p.catch)p.catch(function(){});});v.addEventListener('play',function(){b.hidden=true;v.controls=true;});});</script>
 <script>(function(){if(window.self!==window.top){var st=document.createElement('style');st.textContent='.cv{content-visibility:visible !important}';document.head.appendChild(st);}function reportHeight(){var h=document.documentElement.scrollHeight;window.parent.postMessage({type:'aob-embed-resize',height:h},'*');}window.addEventListener('load',reportHeight);window.addEventListener('resize',reportHeight);var mo=new MutationObserver(reportHeight);mo.observe(document.body,{childList:true,subtree:true,attributes:true});setInterval(reportHeight,800);})();</script>
 </body>
 </html>
