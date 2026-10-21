@@ -203,6 +203,8 @@ button{font:inherit;color:inherit}
 .eyebrow::before{content:"";width:34px;height:1px;background:var(--gold)}
 .display{font-family:var(--serif);font-weight:400;font-size:clamp(2.1rem,1.35rem + 2.8vw,3.3rem);line-height:1.1;letter-spacing:-.01em;text-wrap:balance;outline:none}
 .display em{font-style:normal;color:var(--gold-text)}
+.display.is-long{font-size:clamp(1.85rem,1.2rem + 2.2vw,2.75rem)}
+.callout{margin-top:16px;font-size:1rem;font-weight:500;color:var(--ink)}
 .lede{margin-top:20px;font-size:1.12rem;color:var(--ink-soft);max-width:54ch}
 .meta{margin-top:30px;display:flex;flex-wrap:wrap;gap:8px 22px;font-size:.88rem;color:var(--slate)}
 .meta span{display:inline-flex;align-items:center;gap:7px}
@@ -239,7 +241,8 @@ button{font:inherit;color:inherit}
   .choice.blink,.shake{animation:none}
 }
 </style>
-<!-- Meta Pixel 713374525487066: SubmitApplication when an application reaches GHL.
+<!-- Meta Pixel 713374525487066: SubmitApplication when an application reaches GHL
+     (coach version, ?for=coaches: Lead instead, for qualified applications only).
      PageView is not sent here: the WordPress page that frames this form already
      sends it (behind its cookie-consent banner). Loads only when the form is shown
      on alchemyofbreath.com, embedded (embed_page) or served directly. -->
@@ -297,6 +300,14 @@ button{font:inherit;color:inherit}
     privacyUrl: 'https://alchemyofbreath.com/privacy-policy/',
     source: 'facilitator-application'
   };
+
+  // ?for=coaches → the version for the coaches Meta ad: its own welcome copy and questions, sent as
+  // variant "coaches" (GHL tags it fa-coach-ad) and to Meta as a Lead. Webhook and calendar are shared.
+  var COACHES = new URLSearchParams(location.search).get('for') === 'coaches';
+  if (COACHES) {
+    CONFIG.source = 'facilitator-application-coaches';
+    document.title = 'Breathwork Certification for Coaches | Alchemy of Breath';
+  }
 
   var NOT_READY = 'I am not in a position to invest anything right now';
 
@@ -356,10 +367,32 @@ button{font:inherit;color:inherit}
       options: ['Yes', 'No'] }
   ];
 
+  // Coach version: Q1 keeps the facilitator_intent id so its "No" branch and GHL mapping are shared.
+  if (COACHES) QUESTIONS = [
+    { id: 'facilitator_intent', type: 'choice',
+      title: 'Are you a coach, wellness practitioner or healer who wants to get certified in breathwork?',
+      options: ['Yes', 'No'] },
+    { id: 'practitioner_type', type: 'choice',
+      title: 'Which best describes your current work?',
+      options: ['Health, wellness or life coach',
+                'Therapist or counselor',
+                'Yoga, Pilates or movement instructor',
+                'Bodyworker, healer or other practitioner'] },
+    { id: 'clients_per_month', type: 'choice',
+      title: 'On average, about how many clients do you see per month?',
+      options: ['0-10', '10-20', '20-50', '50-100', '100+'] },
+    { id: 'work_details', type: 'long',
+      title: 'Tell us a little bit more about the work you do',
+      help: 'How long are your sessions? What exact modalities do you use? etc.' },
+    { id: 'session_price', type: 'short',
+      title: 'What are you currently charging for your average session?' }
+  ].concat(QUESTIONS.filter(function (q) { return q.contact; }));
+
   /* ================= BRANCHING ================= */
   // Q1 "No"  → skip to name + email, then a free-sessions ending (no phone, no calendar).
   // Q8 "not in a position to invest" → skip the amount question, collect contact details, skip the calendar.
   // Final "No" → saved in GHL, no calendar.  Final "Yes" → calendar.
+  // Coach version: only Q1 branches; everyone else goes to the calendar.
   function isVisible(q) {
     if (answers.facilitator_intent === 'No')
       return ['facilitator_intent', 'first_name', 'last_name', 'email'].indexOf(q.id) > -1;
@@ -375,7 +408,7 @@ button{font:inherit;color:inherit}
   }
 
   /* ================= STATE ================= */
-  var DRAFT_KEY = 'aob-facilitator-application-v1';
+  var DRAFT_KEY = 'aob-facilitator-application-v1' + (COACHES ? '-coaches' : '');
   var LETTERS = 'ABCDEFGHIJ';
   var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
   var mq = function (s) { return !!(window.matchMedia && window.matchMedia(s).matches); };
@@ -456,17 +489,23 @@ button{font:inherit;color:inherit}
   function renderWelcome() {
     var start = h('button', { type: 'button', class: 'btn', onclick: next }, ['Begin', svg(ARROW)]);
     var el = h('section', { class: 'screen', id: 's-welcome' }, [
-      h('div', { class: 'q' }, [
+      h('div', { class: 'q' }, (COACHES ? [
+        h('p', { class: 'eyebrow', text: 'For Health, Wellness & Life Coaches' }),
+        h('h1', { class: 'display is-long', tabindex: '-1', html: 'Add An Extra $2,000-$5,000 Per Week By Getting Certified In <em>Conscious Connected Breathwork</em>' }),
+        h('p', { class: 'lede', text: 'Join 1,500+ Practitioners Certified Through Alchemy of Breath' }),
+        h('p', { class: 'callout', text: 'Fill In The Short Form To Secure Your Call!' })
+      ] : [
         h('p', { class: 'eyebrow', text: 'Certified Breathwork Facilitator Training' }),
         h('h1', { class: 'display', tabindex: '-1', html: 'Your application, and a call <em>shaped around it</em>' }),
-        h('p', { class: 'lede', text: 'A few questions about where you are and where you want to go. Our Success Advisors read every answer before your discovery call, so the conversation starts where you are.' }),
+        h('p', { class: 'lede', text: 'A few questions about where you are and where you want to go. Our Success Advisors read every answer before your discovery call, so the conversation starts where you are.' })
+      ]).concat([
         hadDraft ? h('p', { class: 'note', text: 'Welcome back. Your earlier answers are still here.' }) : null,
         h('div', { class: 'actions' }, [start, coarse ? null : h('span', { class: 'hint', html: 'press <b>Enter ↵</b>' })]),
         h('p', { class: 'meta' }, [
-          h('span', { text: 'About 5 minutes' }),
+          h('span', { text: COACHES ? 'About 2 minutes' : 'About 5 minutes' }),
           h('span', { text: 'The glow breathes at 5.5 breaths a minute. Breathe with it, if you like.' })
         ])
-      ])
+      ]))
     ]);
     screens.welcome = { el: el, focus: el.querySelector('h1') };
     stage.appendChild(el);
@@ -683,7 +722,7 @@ button{font:inherit;color:inherit}
 
   /* ================= SUBMIT ================= */
   function buildPayload(o) {
-    var p = { source: CONFIG.source, outcome: o, outcome_tag: 'fa-' + o.replace(/_/g, '-'), submitted_at: new Date().toISOString() };
+    var p = { source: CONFIG.source, variant: COACHES ? 'coaches' : 'default', outcome: o, outcome_tag: 'fa-' + o.replace(/_/g, '-'), submitted_at: new Date().toISOString() };
     QUESTIONS.forEach(function (q) { p[q.id] = isVisible(q) ? val(q.id) : ''; });
     if (p.phone) p.phone = '+' + p.phone.replace(/\D/g, '');
     p.summary = QUESTIONS.filter(function (q) { return isVisible(q) && !q.contact; })
@@ -727,7 +766,11 @@ button{font:inherit;color:inherit}
       s.status.hidden = true;
       if (s.btn) s.btn.disabled = false;
       clearDraft();
-      if (window.fbq && !isDemo()) fbq('track', 'SubmitApplication', { content_name: 'Facilitator Application', outcome: o });
+      if (window.fbq && !isDemo()) {
+        // Coach ad: a standard Lead, only for qualified applicants (Q1 "Yes"), so Meta learns from them.
+        if (COACHES) { if (o === 'booking') fbq('track', 'Lead', { content_name: 'Coach Application', content_category: 'coach-ad' }); }
+        else fbq('track', 'SubmitApplication', { content_name: 'Facilitator Application', outcome: o });
+      }
       renderEnd(o, payload);
       show('end', 1);
     }, function () {
