@@ -96,6 +96,11 @@ function aob_pages_proxy_serve() {
 		// One of our pages.
 		$upstream = $origin . $routes[ $key ];
 		$is_html  = true;
+	} elseif ( preg_match( '#^tuition-grants(/[a-z0-9-]+)?$#', $key ) ) {
+		// Tuition grants mini-site: the hub and every page under it
+		// (practitioner, inner-journey, discovery-call, thank-you).
+		$upstream = $origin . '/' . $key . '/';
+		$is_html  = true;
 	} elseif ( preg_match( '#^btw/[a-z0-9/-]+$#', $key ) ) {
 		// Breathe The World: every weekly page and the archive live under /btw/,
 		// so new weeks go live without a plugin update.
