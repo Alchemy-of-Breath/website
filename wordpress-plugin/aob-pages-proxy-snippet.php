@@ -71,6 +71,24 @@ function aob_pages_proxy_serve() {
 	}
 	$key = trim( $path, '/' );
 
+	// Our addresses are lowercase. A mixed-case request (/BreathCamps/, /Shop/)
+	// would otherwise miss the routes below and get the old WordPress page, a
+	// duplicate of ours, so send it to the lowercase address instead. Only
+	// addresses we serve or redirect are touched; the rest stays WordPress.
+	$lower = strtolower( $key );
+	if ( $lower !== $key && (
+		isset( $routes[ $lower ] ) || isset( $redirects[ $lower ] )
+		|| preg_match( '#^(btw/[a-z0-9/-]+|tuition-grants(/[a-z0-9-]+)?|thank-you-(ft|ij)-t(3[4-9]|[4-9][0-9])-(am|pm))$#', $lower )
+	) ) {
+		$query = wp_parse_url( $request_uri, PHP_URL_QUERY );
+		$to    = home_url( isset( $redirects[ $lower ] ) ? $redirects[ $lower ] : '/' . $lower . '/' );
+		if ( $query ) {
+			$to .= '?' . $query;
+		}
+		wp_redirect( $to, 301 );
+		exit;
+	}
+
 	if ( isset( $redirects[ $key ] ) ) {
 		$query = wp_parse_url( $request_uri, PHP_URL_QUERY );
 		$to    = home_url( $redirects[ $key ] );
