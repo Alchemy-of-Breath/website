@@ -147,11 +147,13 @@ h1,h2{font-family:var(--serif);font-weight:400;line-height:1.16}
 .choose{margin-top:auto}
 .pick{font-size:.72rem;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--slate);margin-bottom:12px}
 .btns{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.btn{display:flex;align-items:center;justify-content:center;gap:10px;min-height:58px;padding:14px 16px;border-radius:999px;background:var(--grad-gold);color:var(--ink);font-weight:500;font-size:1.02rem;letter-spacing:.03em;text-decoration:none;box-shadow:0 8px 20px rgba(214,166,82,.32);transition:transform .2s ease,box-shadow .2s ease}
+.btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:58px;padding:14px 16px;border-radius:999px;background:var(--grad-gold);color:var(--ink);font-weight:500;font-size:1.02rem;letter-spacing:.03em;text-decoration:none;box-shadow:0 8px 20px rgba(214,166,82,.32);transition:transform .2s ease,box-shadow .2s ease}
 .btn:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(214,166,82,.42)}
 .btn:focus-visible{outline:3px solid var(--teal);outline-offset:3px}
-.btn span{transition:transform .2s ease}
-.btn:hover span{transform:translateX(3px)}
+.btn .lbl{display:inline-flex;align-items:center;gap:10px}
+.btn .arr{transition:transform .2s ease}
+.btn:hover .arr{transform:translateX(3px)}
+.btn .time{font-size:.8rem;font-weight:400;letter-spacing:.02em;opacity:.78}
 
 /* the training card is the dark one */
 .offer.dark{background:radial-gradient(120% 70% at 50% 0%,#332D2E 0%,var(--ink) 62%);border-color:rgba(225,182,104,.5);color:#fff}
@@ -186,7 +188,7 @@ h1,h2{font-family:var(--serif);font-weight:400;line-height:1.16}
   .offer{padding:28px 20px 22px;border-radius:20px}
   .btn{min-height:56px}
 }
-@media(prefers-reduced-motion:reduce){.btn,.btn span{transition:none}.btn:hover{transform:none}}
+@media(prefers-reduced-motion:reduce){.btn,.btn .arr{transition:none}.btn:hover{transform:none}}
 </style>
 </head>
 <body>
@@ -222,8 +224,8 @@ h1,h2{font-family:var(--serif);font-weight:400;line-height:1.16}
         <div class="choose">
           <p class="pick">Choose your group</p>
           <div class="btns">
-            <a class="btn" href="https://link.alchemyofbreath.com/payment-link/6ae37f0200921ddbe8ee01c1" aria-label="The Inner Journey, AM group, pay $2,097">AM group <span aria-hidden="true">&rarr;</span></a>
-            <a class="btn" href="https://link.alchemyofbreath.com/payment-link/6ae37f1d00921ddbe8ee01c2" aria-label="The Inner Journey, PM group, pay $2,097">PM group <span aria-hidden="true">&rarr;</span></a>
+            <a class="btn" href="https://link.alchemyofbreath.com/payment-link/6ae37f0200921ddbe8ee01c1" aria-label="The Inner Journey, AM group, classes at 9 am UK, pay $2,097"><span class="lbl">AM group <span class="arr" aria-hidden="true">&rarr;</span></span><span class="time">9 am UK</span></a>
+            <a class="btn" href="https://link.alchemyofbreath.com/payment-link/6ae37f1d00921ddbe8ee01c2" aria-label="The Inner Journey, PM group, classes at 5:30 pm UK, pay $2,097"><span class="lbl">PM group <span class="arr" aria-hidden="true">&rarr;</span></span><span class="time">5:30 pm UK</span></a>
           </div>
         </div>
       </article>
@@ -244,8 +246,8 @@ h1,h2{font-family:var(--serif);font-weight:400;line-height:1.16}
         <div class="choose">
           <p class="pick">Choose your group</p>
           <div class="btns">
-            <a class="btn" href="https://link.alchemyofbreath.com/payment-link/6ae37e835b49394de8f57dce" aria-label="Facilitator Training, AM group, pay $4,500">AM group <span aria-hidden="true">&rarr;</span></a>
-            <a class="btn" href="https://link.alchemyofbreath.com/payment-link/6ae37ee100921ddbe8ee01c0" aria-label="Facilitator Training, PM group, pay $4,500">PM group <span aria-hidden="true">&rarr;</span></a>
+            <a class="btn" href="https://link.alchemyofbreath.com/payment-link/6ae37e835b49394de8f57dce" aria-label="Facilitator Training, AM group, classes at 9 am UK, pay $4,500"><span class="lbl">AM group <span class="arr" aria-hidden="true">&rarr;</span></span><span class="time">9 am UK</span></a>
+            <a class="btn" href="https://link.alchemyofbreath.com/payment-link/6ae37ee100921ddbe8ee01c0" aria-label="Facilitator Training, PM group, classes at 5:30 pm UK, pay $4,500"><span class="lbl">PM group <span class="arr" aria-hidden="true">&rarr;</span></span><span class="time">5:30 pm UK</span></a>
           </div>
         </div>
       </article>
