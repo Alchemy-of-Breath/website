@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<!-- AOB-UTM:start -->
+<script>
+/* AoB UTM keeper: remembers the campaign tags a visitor arrived with and hands
+   them to GoHighLevel on whatever page they later sign up on.
+   - Stores utm_*, fbclid, gclid, msclkid from the landing URL for 90 days
+     (latest campaign wins), in localStorage and an .alchemyofbreath.com cookie.
+   - Seeds GHL's own form_embed.js memory (sessionStorage "UPS"), so GHL forms
+     attribute the contact to the campaign even when the form page has no tags.
+   - Adds the tags to GHL form/booking iframes and to links into GHL funnels
+     (go. / breathcamp. / link.alchemyofbreath.com), so hidden fields with a
+     matching query key are filled too.
+   - Adds them to links into the facilitator application (/facilitator-application/),
+     whose embed forwards its own query string into the form.
+   Source: tools/utm/aob-utm.js. Inlined into every page by tools/utm/inject.py. */
+(function(){
+  var KEYS=['utm_source','utm_medium','utm_campaign','utm_term','utm_content','utm_id','fbclid','gclid','msclkid'];
+  var STORE='aob_utm', DAYS=90, MS=DAYS*864e5;
+  var ls=function(k,v){ try{ if(v===undefined) return localStorage.getItem(k); localStorage.setItem(k,v); }catch(e){ return null; } };
+  var qs=new URLSearchParams(location.search), got={}, any=false;
+  KEYS.forEach(function(k){ var v=qs.get(k); if(v){ got[k]=v.slice(0,250); any=true; } });
+  var rec=null;
+  if(any){
+    rec={p:got,t:Date.now(),landing:location.origin+location.pathname};
+    ls(STORE,JSON.stringify(rec));
+    try{ document.cookie=STORE+'='+encodeURIComponent(JSON.stringify(got))+';path=/;max-age='+(DAYS*86400)+';SameSite=Lax'+
+      (/(^|\.)alchemyofbreath\.com$/.test(location.hostname)?';domain=.alchemyofbreath.com':''); }catch(e){}
+  } else {
+    try{ rec=JSON.parse(ls(STORE)||'null'); }catch(e){ rec=null; }
+    if(!rec || !rec.p || Date.now()-rec.t>MS) return;
+  }
+  var P=rec.p;
+
+  // GHL form_embed.js falls back to sessionStorage "UPS" when the page URL has no utm_ tags
+  try{
+    var ups=new URLSearchParams(sessionStorage.getItem('UPS')||''), changed=false;
+    for(var k in P){ if(k.indexOf('utm_')===0 && ups.get(k)!==P[k]){ ups.set(k,P[k]); changed=true; } }
+    if(changed) sessionStorage.setItem('UPS','?'+ups.toString());
+  }catch(e){}
+
+  var GHL=/^https:\/\/((link|api)\.(alchemyofbreath\.com|leadconnectorhq\.com)\/widget\/(form|survey|booking|quiz)\/|(go|breathcamp)\.alchemyofbreath\.com\/)/;
+  var APPLY=/^https:\/\/(www\.)?alchemyofbreath\.com\/facilitator-application\/?$/;
+  var withTags=function(url){
+    var u; try{ u=new URL(url,location.href); }catch(e){ return null; }
+    if(!GHL.test(u.href) && !APPLY.test(u.origin+u.pathname)) return null;
+    var ch=false;
+    for(var k in P){ if(!u.searchParams.has(k)){ u.searchParams.set(k,P[k]); ch=true; } }
+    return ch?u.href:null;
+  };
+  var fixFrame=function(f){
+    ['src','data-src'].forEach(function(a){ var v=f.getAttribute(a), n=v&&withTags(v); if(n) f.setAttribute(a,n); });
+  };
+  var scan=function(root){
+    if(root.tagName==='IFRAME'){ fixFrame(root); return; }
+    if(root.querySelectorAll) [].forEach.call(root.querySelectorAll('iframe'),fixFrame);
+  };
+  scan(document);
+  if('MutationObserver' in window){
+    new MutationObserver(function(ms){ ms.forEach(function(m){ [].forEach.call(m.addedNodes,function(n){ if(n.nodeType===1) scan(n); }); }); })
+      .observe(document.documentElement,{childList:true,subtree:true});
+  }
+  // links into GHL funnels: tag them at click time (covers links built by scripts too)
+  var tagLink=function(e){
+    var a=e.target && e.target.closest && e.target.closest('a[href]'); if(!a) return;
+    var n=withTags(a.getAttribute('href')); if(n) a.setAttribute('href',n);
+  };
+  document.addEventListener('mousedown',tagLink,true);
+  document.addEventListener('touchstart',tagLink,{capture:true,passive:true});
+  document.addEventListener('keydown',function(e){ if(e.key==='Enter') tagLink(e); },true);
+  document.addEventListener('click',tagLink,true);
+})();
+</script>
+<!-- AOB-UTM:end -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Two Weeks at ASHA 2027 | Alchemy of Breath</title>
+<meta name="description" content="On-site special offer, valid until Sunday 1 November, 11:59 pm UK time: a €500 deposit holds your place for Intuition with Amy (29 August – 4 September 2027) and Alchemist with Anthony (5 – 11 September 2027) and gives you €1,000 off your total for both weeks.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="canonical" href="https://alchemyofbreath.com/offer/asha-2027/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Alchemy of Breath">
+<meta property="og:title" content="Two weeks at ASHA in 2027">
+<meta property="og:description" content="Intuition with Amy and Alchemist with Anthony, 29 August – 11 September 2027. A €500 deposit holds your place and gives you €1,000 off both weeks.">
+<meta property="og:image" content="https://alchemyofbreath.com/wp-content/uploads/glow-head-578x600.jpg">
+<meta property="og:url" content="https://alchemyofbreath.com/offer/asha-2027/">
+<meta name="theme-color" content="#FBF7EF">
+<link rel="icon" type="image/png" href="https://alchemyofbreath.com/wp-content/uploads/AOB-Gold-Black-Transparant-symbol.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://link.alchemyofbreath.com">
+<link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FFFFFF;--cream:#FDF6E9;
+  --gold:#E1B668;--gold-deep:#D6A652;--gold-wash:#F7EBD2;
+  --teal:#00A5B2;--slate:#5B7889;--ink:#221F20;--foot:#191617;
+  --grad-gold:linear-gradient(135deg,#E1B668 0%,#D6A652 100%);
+  --shadow-soft:0 1px 2px rgba(34,31,32,.04),0 8px 24px rgba(34,31,32,.06),0 24px 64px rgba(34,31,32,.07);
+  --shadow-lift:0 2px 4px rgba(34,31,32,.05),0 14px 34px rgba(34,31,32,.10),0 34px 80px rgba(34,31,32,.10);
+  --serif:'Marcellus',Georgia,'Times New Roman',serif;
+  --sans:'Roboto',-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{overflow-x:clip}
+body{font-family:var(--sans);font-weight:300;font-size:17px;line-height:1.65;color:var(--ink);background:var(--paper);-webkit-font-smoothing:antialiased;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column}
+main{flex:1 0 auto;display:flex;flex-direction:column}
+::selection{background:var(--gold-wash);color:var(--ink)}
+img{max-width:100%;height:auto;display:block}
+h1,h2{font-family:var(--serif);font-weight:400;line-height:1.16}
+.wrap{max-width:1040px;margin:0 auto;padding:0 26px}
+
+/* nav */
+.nav{position:sticky;top:0;z-index:40;background:rgba(255,255,255,.86);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid rgba(225,182,104,.2)}
+.nav-in{max-width:1040px;margin:0 auto;padding:13px 26px;display:flex;align-items:center;justify-content:center}
+.nav-logo img{height:32px;width:auto}
+
+/* stage */
+.stage{flex:1 0 auto;position:relative;overflow:hidden;padding:56px 0 64px;background:radial-gradient(120% 80% at 50% 0%,var(--cream) 0%,var(--paper) 62%)}
+.stage::before{content:"";position:absolute;top:-220px;left:-180px;width:620px;height:620px;border-radius:50%;background:radial-gradient(circle,rgba(225,182,104,.22) 0%,rgba(225,182,104,0) 68%);pointer-events:none}
+.stage::after{content:"";position:absolute;bottom:-260px;right:-200px;width:680px;height:680px;border-radius:50%;background:radial-gradient(circle,rgba(0,165,178,.10) 0%,rgba(0,165,178,0) 68%);pointer-events:none}
+.intro{position:relative;z-index:1;text-align:center;max-width:34em;margin:0 auto 40px}
+.eyebrow{font-size:.72rem;font-weight:500;letter-spacing:.24em;text-transform:uppercase;color:var(--slate);display:inline-flex;align-items:center;gap:14px;margin-bottom:16px}
+.eyebrow::before,.eyebrow::after{content:"";width:28px;height:1px;background:var(--gold)}
+.intro h1{font-size:clamp(2.1rem,5.4vw,3.1rem);margin-bottom:12px}
+.intro p{font-size:1.02rem;color:var(--slate)}
+.intro h1,.intro p{text-wrap:balance}
+
+/* offer card: dark, one deposit */
+.offer{position:relative;z-index:1;max-width:680px;margin:0 auto;background:radial-gradient(120% 70% at 50% 0%,#332D2E 0%,var(--ink) 62%);border:1px solid rgba(225,182,104,.5);border-radius:22px;box-shadow:var(--shadow-lift);padding:34px 30px 30px;color:#fff;text-align:center}
+.price{padding:0 0 24px;margin-bottom:24px;border-bottom:1px solid rgba(225,182,104,.24)}
+.off{display:flex;flex-direction:column;align-items:center;gap:8px}
+.num{display:inline-block;font-family:var(--serif);font-size:clamp(3.1rem,10vw,4.2rem);line-height:1;letter-spacing:-.01em;
+  background:linear-gradient(135deg,#E1B668 0%,#D6A652 45%,#B8862F 100%);-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 8px 22px rgba(214,166,82,.28))}
+.off-label{font-family:var(--sans);font-size:.76rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.7)}
+.save{display:inline-block;margin-top:16px;background:rgba(225,182,104,.16);color:var(--gold);border-radius:999px;padding:6px 16px;font-size:.84rem;font-weight:500;letter-spacing:.02em}
+
+/* the two weeks */
+.weeks{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:12px;text-align:left}
+.weeks li{min-width:0;display:flex;flex-direction:column;gap:4px;border:1px solid rgba(225,182,104,.28);border-radius:16px;padding:16px 18px;background:rgba(255,255,255,.04)}
+.wk{font-size:.68rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:#5FCFD8}
+.wk-name{font-family:var(--serif);font-size:1.4rem;line-height:1.2;color:var(--gold)}
+.wk-date{font-size:.86rem;line-height:1.45;color:rgba(255,255,255,.74);text-wrap:balance}
+
+/* what's included */
+.incl{margin:26px 0 28px;text-align:left}
+.incl-head{font-family:var(--serif);font-size:1.18rem;line-height:1.3;color:#fff;text-align:center;margin-bottom:14px;text-wrap:balance}
+.incl ul{list-style:none;display:grid;gap:9px;max-width:32em;margin:0 auto}
+.incl li{position:relative;padding-left:30px;font-size:.96rem;line-height:1.5;color:rgba(255,255,255,.86)}
+.incl li::before{content:"";position:absolute;left:0;top:.18em;width:19px;height:19px;border-radius:50%;
+  background:rgba(225,182,104,.16) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.6 6.3 5 8.6l4.4-5' fill='none' stroke='%23E1B668' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/11px no-repeat}
+
+.btn{display:flex;align-items:center;justify-content:center;gap:10px;min-height:58px;padding:14px 16px;border-radius:999px;background:var(--grad-gold);color:var(--ink);font-weight:500;font-size:1.02rem;letter-spacing:.03em;text-decoration:none;box-shadow:0 8px 24px rgba(0,0,0,.35);transition:transform .2s ease,box-shadow .2s ease}
+.btn:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(214,166,82,.42)}
+.btn:focus-visible{outline:3px solid var(--teal);outline-offset:3px}
+.btn span{transition:transform .2s ease}
+.btn:hover span{transform:translateX(3px)}
+
+/* deadline: live countdown until Sunday 1 Nov 2026, 11:59 pm UK time, then the offer closes */
+.deadline{display:inline-flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px 12px;margin-top:20px;padding:9px 20px;border-radius:999px;background:var(--gold-wash);border:1px solid rgba(225,182,104,.5);color:#8A6420;font-size:.88rem;font-weight:500}
+.deadline .count{font-variant-numeric:tabular-nums;color:var(--ink);font-weight:500}
+.deadline .count[hidden]{display:none}
+.closed{display:none;min-height:58px;align-items:center;justify-content:center;border:1px dashed rgba(225,182,104,.3);border-radius:999px;padding:14px 16px;font-size:.95rem;color:rgba(255,255,255,.74)}
+.ended .choose .btn{display:none}
+.ended .choose .closed{display:flex}
+.ended .deadline{background:#F1F1F1;border-color:#DDD;color:var(--slate)}
+
+.fine{position:relative;z-index:1;text-align:center;font-size:.84rem;color:var(--slate);margin-top:22px}
+
+/* footer */
+.foot{background:var(--foot);color:rgba(255,255,255,.72);padding:40px 0;text-align:center;font-size:.85rem}
+.foot a{color:var(--gold);text-decoration:none}
+.foot a:hover{text-decoration:underline}
+.foot-links{margin-top:12px;display:flex;gap:18px;justify-content:center;flex-wrap:wrap;font-size:.8rem}
+
+@media(max-width:560px){
+  .wrap{padding:0 16px}
+  .stage{padding:38px 0 48px}
+  .intro{margin-bottom:28px}
+  .offer{padding:28px 20px 22px;border-radius:20px}
+  .btn{min-height:56px}
+  .deadline{border-radius:16px;padding:10px 16px;font-size:.84rem}
+  .weeks{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){.btn,.btn span{transition:none}.btn:hover{transform:none}}
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="nav-in">
+    <a class="nav-logo" href="https://alchemyofbreath.com/" aria-label="Alchemy of Breath">
+      <img src="https://alchemyofbreath.com/wp-content/uploads/AOB-Gold-Black-Transparant.png" alt="Alchemy of Breath" width="150" height="32">
+    </a>
+  </div>
+</header>
+
+<main>
+<section class="stage">
+  <div class="wrap">
+    <header class="intro">
+      <span class="eyebrow">On-site special offer</span>
+      <h1>Two weeks at ASHA in 2027</h1>
+      <p>A &euro;500 deposit holds your place and gives you an exclusive &euro;1,000 discount on your total for both weeks.</p>
+      <p class="deadline" role="timer" aria-live="off"><span id="dlLabel">Offer valid until Sunday 1 November, 11:59 pm UK time</span><span class="count" id="dlCount" hidden></span></p>
+    </header>
+
+    <article class="offer" aria-labelledby="offer-title">
+      <div class="price">
+        <h2 class="off" id="offer-title"><span class="num">&euro;1,000 off</span><span class="off-label">your total for both weeks</span></h2>
+        <p class="save">&euro;500 deposit today</p>
+      </div>
+      <ol class="weeks">
+        <li><span class="wk">Week 1</span><span class="wk-name">Intuition with Amy</span><span class="wk-date">Sunday 29 August &ndash; Saturday 4&nbsp;September&nbsp;2027</span></li>
+        <li><span class="wk">Week 2</span><span class="wk-name">Alchemist with Anthony</span><span class="wk-date">Sunday 5 &ndash; Saturday 11&nbsp;September&nbsp;2027</span></li>
+      </ol>
+      <div class="incl">
+        <p class="incl-head">Two weeks, everything included except travel</p>
+        <ul>
+          <li>Three fresh plant-based meals a day</li>
+          <li>Daily Intuition classes with Amy</li>
+          <li>Breathwork, voice, dance and 6-Step sessions</li>
+          <li>Sound healing, and art as personal development</li>
+          <li>Full access to the pool, the land and all of ASHA&rsquo;s spaces</li>
+          <li>Certification in 6 Steps to Yourself, Seeds of Alchemy, Alchemy Meditation and The Bridge</li>
+          <li>Business in a Box with Amy and Anthony</li>
+        </ul>
+      </div>
+      <div class="choose">
+        <a class="btn" href="https://link.alchemyofbreath.com/payment-link/6ad1d580c0e70c7fefb75043" aria-label="Intuition with Amy and Alchemist with Anthony, €1,000 off both weeks: pay your €500 deposit today">Pay your &euro;500 deposit today <span aria-hidden="true">&rarr;</span></a>
+        <p class="closed">This offer has ended</p>
+      </div>
+    </article>
+
+    <p class="fine">Deposit in euros. You&rsquo;ll pay on our secure checkout page.</p>
+  </div>
+</section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <p>&copy; Alchemy of Breath</p>
+    <div class="foot-links">
+      <a href="https://alchemyofbreath.com/">Home</a>
+      <a href="https://alchemyofbreath.com/privacy-policy/">Privacy</a>
+      <a href="https://alchemyofbreath.com/terms-and-conditions/">Terms</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* The offer closes on Sunday 1 Nov 2026, 11:59 pm UK time (GMT, UTC+0: British Summer Time ended on 25 Oct).
+   Until then a live countdown runs; afterwards the pay button is replaced by "This offer has ended". */
+(function(){
+  var END=Date.parse('2026-11-01T23:59:00+00:00');
+  var root=document.documentElement, label=document.getElementById('dlLabel'), count=document.getElementById('dlCount'), timer;
+  var pad=function(n){ return (n<10?'0':'')+n; };
+  function tick(){
+    var ms=END-Date.now();
+    if(ms<=0){
+      root.classList.add('ended');
+      label.textContent='This offer ended on Sunday 1 November at 11:59 pm UK time';
+      count.hidden=true;
+      clearInterval(timer);
+      return;
+    }
+    var s=Math.floor(ms/1000), d=Math.floor(s/86400), h=Math.floor(s%86400/3600), m=Math.floor(s%3600/60);
+    count.textContent='Ends in '+(d?d+'d ':'')+h+'h '+pad(m)+'m '+pad(s%60)+'s';
+    count.hidden=false;
+  }
+  timer=setInterval(tick,1000);
+  tick();
+})();
+</script>
+
+<script>(function(){if(window.self!==window.top){var st=document.createElement('style');st.textContent='.cv{content-visibility:visible !important}';document.head.appendChild(st);}function reportHeight(){var h=document.documentElement.scrollHeight;window.parent.postMessage({type:'aob-embed-resize',height:h},'*');}window.addEventListener('load',reportHeight);window.addEventListener('resize',reportHeight);var mo=new MutationObserver(reportHeight);mo.observe(document.body,{childList:true,subtree:true,attributes:true});setInterval(reportHeight,800);})();</script>
+</body>
+</html>
