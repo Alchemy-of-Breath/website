@@ -98,5 +98,21 @@
     "letter": "2026-43.html",
     "video": "https://assets.cdn.filesafe.space/5lz2Wm44CNDwLSZWgAPf/media/6ad900ef3be7ffaf0d50bd55.mp4",
     "poster": "https://cdn.jsdelivr.net/gh/Alchemy-of-Breath/website@main/assets/btw/amy-w43-poster.jpg"
+  },
+  {
+    "date": "2026-11-01",
+    "title": "From Failure to Freedom",
+    "title_html": "From Failure to <em>Freedom</em>",
+    "description": "From failure to freedom. Breathe The World with Amy Rachelle and Alchemy of Breath founder Anthony, sharing both sessions.",
+    "am_host": "Anthony",
+    "am_role": "founder of Alchemy of Breath",
+    "pm_host": "Anthony",
+    "pm_role": "founder of Alchemy of Breath",
+    "closing": "Turn your fear of failure into freedom.",
+    "letter": "2026-44.html",
+    "am_photo": "https://cdn.jsdelivr.net/gh/Alchemy-of-Breath/website@main/assets/btw/anthony.jpg",
+    "pm_photo": "https://cdn.jsdelivr.net/gh/Alchemy-of-Breath/website@main/assets/btw/anthony.jpg",
+    "video": "https://assets.cdn.filesafe.space/5lz2Wm44CNDwLSZWgAPf/media/6ae340a5ce53a65ab279f0fe.mp4",
+    "poster": "https://cdn.jsdelivr.net/gh/Alchemy-of-Breath/website@main/assets/btw/amy-w44-poster.jpg"
   }
 ]

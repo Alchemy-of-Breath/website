@@ -186,6 +186,13 @@ FOOT = '''
 '''
 
 
+def hosts(i):
+    """'Rachel and Freddy', or just 'Anthony' when one person shares both sessions."""
+    if i['am_host'] == i['pm_host']:
+        return i['am_host']
+    return f"{i['am_host']} and {i['pm_host']}"
+
+
 def session(i, which):
     am = which == 'AM'
     host, role = (i['am_host'], i['am_role']) if am else (i['pm_host'], i['pm_role'])
@@ -270,7 +277,7 @@ def page(i, current, canonical, style):
         out += f'''
 <div class="past">
   <div class="past-card">
-    <p>This was Amy&rsquo;s message for {i['long']}, with {i['am_host']} and {i['pm_host']}. Breathe The World is free and runs every Sunday.</p>
+    <p>This was Amy&rsquo;s message for {i['long']}, with {hosts(i)}. Breathe The World is free and runs every Sunday.</p>
     <a class="zoom-btn" href="/btw/">Join this week&rsquo;s session &rarr;</a>
   </div>
   <p class="more"><a href="/btw/archive/">All past weeks</a></p>
@@ -396,7 +403,7 @@ def archive(issues, style):
       <div>
         <span class="wk">Week {i['week']} &middot; {i['year']}</span>{badge}
         <h3>{html.escape(i['title'])}</h3>
-        <p class="meta">{i['long']} &middot; with {i['am_host']} and {i['pm_host']}</p>
+        <p class="meta">{i['long']} &middot; with {hosts(i)}</p>
       </div>
       <span class="go">{'Join' if now else 'Read'} &rarr;</span>
     </a>''')
