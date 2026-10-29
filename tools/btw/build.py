@@ -75,6 +75,8 @@ EXTRA_CSS = '''
 .portrait-frame.video{aspect-ratio:9/16;border-radius:22px;transform:none;background:var(--ink)}
 .portrait-frame.video video{width:100%;height:100%;object-fit:cover;display:block}
 .portrait-frame.video{position:relative}
+/* the video stays beside the letter while it is read; never taller than the screen */
+@media(min-width:861px){.portrait-frame.video{width:min(100%,calc((100vh - 230px) * 9 / 16));margin:0 auto}}
 .portrait-frame .play{position:absolute;inset:0;width:100%;height:100%;border:0;padding:0;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center}
 .portrait-frame .play[hidden]{display:none}
 .portrait-frame .play span{position:relative;width:76px;height:76px;border-radius:50%;background:var(--grad-gold);box-shadow:0 10px 30px rgba(42,33,20,.35),0 0 0 8px rgba(255,255,255,.25);transition:transform .25s}

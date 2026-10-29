@@ -10,7 +10,7 @@
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth;overflow-x:clip}
-body{font-family:var(--sans);font-weight:300;font-size:18px;line-height:1.7;color:var(--ink);background:var(--paper);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body{font-family:var(--sans);font-weight:300;font-size:18px;line-height:1.7;color:var(--ink);background:var(--paper);-webkit-font-smoothing:antialiased;overflow-x:hidden;overflow-x:clip}
 ::selection{background:var(--gold-wash);color:var(--ink)}
 img{max-width:100%;height:auto;display:block}
 a{color:var(--ink)}
@@ -67,8 +67,8 @@ h1,h2,h3{font-family:var(--serif);font-weight:400;color:var(--ink);line-height:1
   .sessions{grid-template-columns:1fr}
 }
 
-/* letter */
-.letter{position:relative;overflow:hidden;padding:80px 0 90px;background:linear-gradient(180deg,var(--paper) 0%,var(--paper-2) 100%)}
+/* letter (overflow:clip, not hidden: hidden here or on body stops the sticky nav and portrait) */
+.letter{position:relative;overflow:hidden;overflow:clip;padding:80px 0 90px;background:linear-gradient(180deg,var(--paper) 0%,var(--paper-2) 100%)}
 .letter .wrap{position:relative;z-index:1}
 .letter-grid{display:grid;grid-template-columns:.62fr 1.38fr;gap:56px;align-items:start}
 .portrait{position:sticky;top:96px}
