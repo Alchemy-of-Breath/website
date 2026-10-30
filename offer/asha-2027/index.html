@@ -76,7 +76,7 @@
 <!-- AOB-UTM:end -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Two Weeks at ASHA 2027 | Alchemy of Breath</title>
-<meta name="description" content="On-site special offer, valid until Sunday 1 November, 11:59 pm UK time: a €500 deposit holds your place for Intuition with Amy (29 August – 4 September 2027) and Alchemist with Anthony (5 – 11 September 2027) and gives you €1,000 off your total for both weeks.">
+<meta name="description" content="On-site special offer, valid until Saturday 31 October, 3 pm CET: a €500 deposit holds your place for Intuition with Amy (29 August – 4 September 2027) and Alchemist with Anthony (5 – 11 September 2027) and gives you €1,000 off your total for both weeks.">
 <meta name="robots" content="noindex, nofollow">
 <link rel="canonical" href="https://alchemyofbreath.com/offer/asha-2027/">
 <meta property="og:type" content="website">
@@ -158,7 +158,7 @@ h1,h2{font-family:var(--serif);font-weight:400;line-height:1.16}
 .btn span{transition:transform .2s ease}
 .btn:hover span{transform:translateX(3px)}
 
-/* deadline: live countdown until Sunday 1 Nov 2026, 11:59 pm UK time, then the offer closes */
+/* deadline: live countdown until Saturday 31 Oct 2026, 3 pm CET, then the offer closes */
 .deadline{display:inline-flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px 12px;margin-top:20px;padding:9px 20px;border-radius:999px;background:var(--gold-wash);border:1px solid rgba(225,182,104,.5);color:#8A6420;font-size:.88rem;font-weight:500}
 .deadline .count{font-variant-numeric:tabular-nums;color:var(--ink);font-weight:500}
 .deadline .count[hidden]{display:none}
@@ -204,7 +204,7 @@ h1,h2{font-family:var(--serif);font-weight:400;line-height:1.16}
       <span class="eyebrow">On-site special offer</span>
       <h1>Two weeks at ASHA in 2027</h1>
       <p>A &euro;500 deposit holds your place and gives you an exclusive &euro;1,000 discount on your total for both weeks.</p>
-      <p class="deadline" role="timer" aria-live="off"><span id="dlLabel">Offer valid until Sunday 1 November, 11:59 pm UK time</span><span class="count" id="dlCount" hidden></span></p>
+      <p class="deadline" role="timer" aria-live="off"><span id="dlLabel">Offer valid until Saturday 31 October, 3 pm CET</span><span class="count" id="dlCount" hidden></span></p>
     </header>
 
     <article class="offer" aria-labelledby="offer-title">
@@ -251,17 +251,17 @@ h1,h2{font-family:var(--serif);font-weight:400;line-height:1.16}
 </footer>
 
 <script>
-/* The offer closes on Sunday 1 Nov 2026, 11:59 pm UK time (GMT, UTC+0: British Summer Time ended on 25 Oct).
+/* The offer closes on Saturday 31 Oct 2026, 3 pm CET (UTC+1: summer time ended on 25 Oct).
    Until then a live countdown runs; afterwards the pay button is replaced by "This offer has ended". */
 (function(){
-  var END=Date.parse('2026-11-01T23:59:00+00:00');
+  var END=Date.parse('2026-10-31T15:00:00+01:00');
   var root=document.documentElement, label=document.getElementById('dlLabel'), count=document.getElementById('dlCount'), timer;
   var pad=function(n){ return (n<10?'0':'')+n; };
   function tick(){
     var ms=END-Date.now();
     if(ms<=0){
       root.classList.add('ended');
-      label.textContent='This offer ended on Sunday 1 November at 11:59 pm UK time';
+      label.textContent='This offer ended on Saturday 31 October at 3 pm CET';
       count.hidden=true;
       clearInterval(timer);
       return;

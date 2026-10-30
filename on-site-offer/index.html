@@ -76,7 +76,7 @@
 <!-- AOB-UTM:end -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>On-site Special Offer | Alchemy of Breath</title>
-<meta name="description" content="On-site special offer for the 19 November 2026 cohort: the Inner Journey for $2,097 (standard $3,097) or the Facilitator Training for $4,500 (online Last Minute $6,800, standard $7,200). Choose the AM or PM group.">
+<meta name="description" content="On-site special offer until Saturday 31 October, 3 pm CET, for the 19 November 2026 cohort: the Inner Journey for $2,097 (standard $3,097) or the Facilitator Training for $4,500 (online Last Minute $6,800, standard $7,200). Choose the AM or PM group.">
 <meta name="robots" content="noindex, nofollow">
 <link rel="canonical" href="https://alchemyofbreath.com/on-site-offer/">
 <meta property="og:type" content="website">
@@ -171,6 +171,16 @@ h1,h2{font-family:var(--serif);font-weight:400;line-height:1.16}
 
 .fine{position:relative;z-index:1;text-align:center;font-size:.84rem;color:var(--slate);margin-top:30px}
 
+/* deadline: live countdown until Saturday 31 Oct 2026, 3 pm CET, then the offer closes */
+.deadline{display:inline-flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px 12px;margin-top:20px;padding:9px 20px;border-radius:999px;background:var(--gold-wash);border:1px solid rgba(225,182,104,.5);color:#8A6420;font-size:.88rem;font-weight:500}
+.deadline .count{font-variant-numeric:tabular-nums;color:var(--ink);font-weight:500}
+.deadline .count[hidden]{display:none}
+.closed{display:none;min-height:58px;align-items:center;justify-content:center;border:1px dashed rgba(225,182,104,.6);border-radius:999px;padding:14px 16px;font-size:.95rem;color:var(--slate)}
+.offer.dark .closed{color:rgba(255,255,255,.74);border-color:rgba(225,182,104,.3)}
+.ended .choose .pick,.ended .choose .btns{display:none}
+.ended .choose .closed{display:flex}
+.ended .deadline{background:#F1F1F1;border-color:#DDD;color:var(--slate)}
+
 /* footer */
 .foot{background:var(--foot);color:rgba(255,255,255,.72);padding:40px 0;text-align:center;font-size:.85rem}
 .foot a{color:var(--gold);text-decoration:none}
@@ -187,6 +197,7 @@ h1,h2{font-family:var(--serif);font-weight:400;line-height:1.16}
   .intro{margin-bottom:28px}
   .offer{padding:28px 20px 22px;border-radius:20px}
   .btn{min-height:56px}
+  .deadline{border-radius:16px;padding:10px 16px;font-size:.84rem}
 }
 @media(prefers-reduced-motion:reduce){.btn,.btn .arr{transition:none}.btn:hover{transform:none}}
 </style>
@@ -208,6 +219,7 @@ h1,h2{font-family:var(--serif);font-weight:400;line-height:1.16}
       <span class="eyebrow">On-site special offer</span>
       <h1>Choose your next step</h1>
       <p>Two programs at a special on-site price, both starting 19 November 2026. Pick one, then choose your group: AM or PM.</p>
+      <p class="deadline" role="timer" aria-live="off"><span id="dlLabel">Offer ends Saturday 31 October, 3 pm CET</span><span class="count" id="dlCount" hidden></span></p>
     </header>
 
     <div class="offers">
@@ -227,6 +239,7 @@ h1,h2{font-family:var(--serif);font-weight:400;line-height:1.16}
             <a class="btn" href="https://link.alchemyofbreath.com/payment-link/6ae37f0200921ddbe8ee01c1" aria-label="The Inner Journey, AM group, classes at 9 am UK, pay $2,097"><span class="lbl">AM group <span class="arr" aria-hidden="true">&rarr;</span></span><span class="time">9 am UK</span></a>
             <a class="btn" href="https://link.alchemyofbreath.com/payment-link/6ae37f1d00921ddbe8ee01c2" aria-label="The Inner Journey, PM group, classes at 5:30 pm UK, pay $2,097"><span class="lbl">PM group <span class="arr" aria-hidden="true">&rarr;</span></span><span class="time">5:30 pm UK</span></a>
           </div>
+          <p class="closed">This offer has ended</p>
         </div>
       </article>
 
@@ -249,6 +262,7 @@ h1,h2{font-family:var(--serif);font-weight:400;line-height:1.16}
             <a class="btn" href="https://link.alchemyofbreath.com/payment-link/6ae37e835b49394de8f57dce" aria-label="Facilitator Training, AM group, classes at 9 am UK, pay $4,500"><span class="lbl">AM group <span class="arr" aria-hidden="true">&rarr;</span></span><span class="time">9 am UK</span></a>
             <a class="btn" href="https://link.alchemyofbreath.com/payment-link/6ae37ee100921ddbe8ee01c0" aria-label="Facilitator Training, PM group, classes at 5:30 pm UK, pay $4,500"><span class="lbl">PM group <span class="arr" aria-hidden="true">&rarr;</span></span><span class="time">5:30 pm UK</span></a>
           </div>
+          <p class="closed">This offer has ended</p>
         </div>
       </article>
     </div>
@@ -268,6 +282,31 @@ h1,h2{font-family:var(--serif);font-weight:400;line-height:1.16}
     </div>
   </div>
 </footer>
+
+<script>
+/* The on-site offer closes on Saturday 31 Oct 2026, 3 pm CET (UTC+1: summer time ended on 25 Oct).
+   Until then a live countdown runs; afterwards the pay buttons are replaced by "This offer has ended". */
+(function(){
+  var END=Date.parse('2026-10-31T15:00:00+01:00');
+  var root=document.documentElement, label=document.getElementById('dlLabel'), count=document.getElementById('dlCount'), timer;
+  var pad=function(n){ return (n<10?'0':'')+n; };
+  function tick(){
+    var ms=END-Date.now();
+    if(ms<=0){
+      root.classList.add('ended');
+      label.textContent='This on-site offer ended on Saturday 31 October at 3 pm CET';
+      count.hidden=true;
+      clearInterval(timer);
+      return;
+    }
+    var s=Math.floor(ms/1000), d=Math.floor(s/86400), h=Math.floor(s%86400/3600), m=Math.floor(s%3600/60);
+    count.textContent='Ends in '+(d?d+'d ':'')+h+'h '+pad(m)+'m '+pad(s%60)+'s';
+    count.hidden=false;
+  }
+  timer=setInterval(tick,1000);
+  tick();
+})();
+</script>
 
 <script>(function(){if(window.self!==window.top){var st=document.createElement('style');st.textContent='.cv{content-visibility:visible !important}';document.head.appendChild(st);}function reportHeight(){var h=document.documentElement.scrollHeight;window.parent.postMessage({type:'aob-embed-resize',height:h},'*');}window.addEventListener('load',reportHeight);window.addEventListener('resize',reportHeight);var mo=new MutationObserver(reportHeight);mo.observe(document.body,{childList:true,subtree:true,attributes:true});setInterval(reportHeight,800);})();</script>
 </body>
