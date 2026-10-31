@@ -152,6 +152,12 @@ h1,h2{font-family:var(--serif);font-weight:400;line-height:1.16}
 .incl li::before{content:"";position:absolute;left:0;top:.18em;width:19px;height:19px;border-radius:50%;
   background:rgba(225,182,104,.16) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.6 6.3 5 8.6l4.4-5' fill='none' stroke='%23E1B668' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/11px no-repeat}
 
+/* full weekly price, before the discount */
+.cost{margin:0 0 26px;padding:18px 20px;border-radius:16px;background:rgba(225,182,104,.08);border:1px solid rgba(225,182,104,.22);text-align:left;font-size:.93rem;line-height:1.55;color:rgba(255,255,255,.8)}
+.cost p+p{margin-top:8px}
+.cost strong{color:var(--gold);font-weight:500;white-space:nowrap}
+.cost .before{color:#fff;font-weight:500}
+
 .btn{display:flex;align-items:center;justify-content:center;gap:10px;min-height:58px;padding:14px 16px;border-radius:999px;background:var(--grad-gold);color:var(--ink);font-weight:500;font-size:1.02rem;letter-spacing:.03em;text-decoration:none;box-shadow:0 8px 24px rgba(0,0,0,.35);transition:transform .2s ease,box-shadow .2s ease}
 .btn:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(214,166,82,.42)}
 .btn:focus-visible{outline:3px solid var(--teal);outline-offset:3px}
@@ -227,6 +233,10 @@ h1,h2{font-family:var(--serif);font-weight:400;line-height:1.16}
           <li>Certification in 6 Steps to Yourself, Seeds of Alchemy, Alchemy Meditation and The Bridge</li>
           <li>Business in a Box with Amy and Anthony</li>
         </ul>
+      </div>
+      <div class="cost">
+        <p>The full price for the week includes tuition, food, accommodation, special events, and everything except transport.</p>
+        <p>The price for the 7 days depends on the accommodation you choose: from <strong>&euro;1,979</strong> for bringing your own tent, up to <strong>&euro;4,794</strong> for a poolside private cottage. <span class="before">That&rsquo;s before your &euro;1,000 discount!</span></p>
       </div>
       <div class="choose">
         <a class="btn" href="https://link.alchemyofbreath.com/payment-link/6ad1d580c0e70c7fefb75043" aria-label="Intuition with Amy and Alchemist with Anthony, €1,000 off both weeks: pay your €500 deposit today">Pay your &euro;500 deposit today <span aria-hidden="true">&rarr;</span></a>
