@@ -178,7 +178,7 @@ section>.wrap{position:relative;z-index:1}
 body{background:var(--paper-2)}
 main .wrap{max-width:1240px;padding:0 48px}
 main section{padding:100px 0}
-main section[id]{scroll-margin-top:96px}
+main section[id]{scroll-margin-top:calc(96px + var(--grant-h,0px))}
 main h2{font-size:clamp(2rem,3.5vw,3rem);line-height:1.17}
 main h3{line-height:1.25}
 main .eyebrow{font-size:.7rem;letter-spacing:.22em;margin-bottom:22px}
@@ -189,7 +189,7 @@ main .btn-primary{box-shadow:0 8px 24px rgba(214,166,82,.3)}
 .text-link:hover{text-decoration-color:var(--gold-deep)}
 
 /* hero */
-.bw-hero{position:relative;overflow:hidden;padding:150px 0 72px !important;background:radial-gradient(ellipse at 84% 17%,#d6e7df70,transparent 48%),radial-gradient(ellipse at 38% 75%,#efd8a658,transparent 65%),#fbf7ef}
+.bw-hero{position:relative;overflow:hidden;padding:calc(150px + var(--grant-h,0px)) 0 72px !important;background:radial-gradient(ellipse at 84% 17%,#d6e7df70,transparent 48%),radial-gradient(ellipse at 38% 75%,#efd8a658,transparent 65%),#fbf7ef}
 .bw-hero::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(118deg,transparent 0 135px,#c8ad7430 136px,transparent 137px 270px);-webkit-mask-image:linear-gradient(90deg,transparent 10%,#0004 55%,#000 100%);mask-image:linear-gradient(90deg,transparent 10%,#0004 55%,#000 100%);pointer-events:none}
 .bw-hero-grid{position:relative;z-index:2;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:65px;align-items:center}
 .rotator{font-family:var(--serif);font-size:clamp(1.3rem,1.9vw,1.6rem);line-height:1.3;color:var(--ink);margin-bottom:18px;min-height:1.3em}
@@ -451,7 +451,7 @@ main .btn-primary{box-shadow:0 8px 24px rgba(214,166,82,.3)}
 @media(max-width:760px){
   main .wrap{padding:0 24px}
   main section{padding:68px 0}
-  .bw-hero{padding:112px 0 44px !important}
+  .bw-hero{padding:calc(112px + var(--grant-h,0px)) 0 44px !important}
   .bw-hero h1{font-size:clamp(2.1rem,8.6vw,2.8rem);letter-spacing:-.03em}
   .bw-hero .intro{font-size:15px;margin:22px 0}
   .portrait-window{--ph:420px;border-radius:200px 200px 10px 10px}
@@ -541,6 +541,18 @@ html.is-live body{padding-bottom:84px}
 html.menu-open .live-bar{opacity:0;pointer-events:none}
 @media(max-width:560px){.live-bar{left:12px;right:12px;transform:none;justify-content:space-between;padding-left:14px}.lb-text{flex-direction:column;align-items:flex-start;gap:0;line-height:1.35}}
 @media(prefers-reduced-motion:reduce){.live-dot{animation:none}}
+
+/* Breathe the World Grant: first row of the fixed header until the grant closes */
+.grant-bar{position:relative;background:#1c3638;border-bottom:1px solid rgba(225,182,104,.3)}
+.gb-link{display:flex;align-items:center;justify-content:center;gap:14px;max-width:1240px;margin:0 auto;padding:9px 56px 9px 28px;color:#dfe7e3;text-decoration:none;font-size:.84rem;line-height:1.45}
+.gb-tag{font-size:.64rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);white-space:nowrap}
+.gb-text b{font-weight:500;color:#fff}
+.gb-m{display:none;color:var(--gold)}
+.gb-go{flex-shrink:0;padding:6px 14px;border-radius:999px;background:var(--grad-gold);color:var(--ink);font-size:.74rem;font-weight:500;letter-spacing:.04em;white-space:nowrap;transition:filter .2s}
+.gb-link:hover .gb-go{filter:brightness(1.07)}
+.gb-x{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:36px;height:36px;border:0;border-radius:50%;background:none;color:rgba(223,231,227,.7);font-size:1.35rem;line-height:1;cursor:pointer}
+.gb-x:hover{color:#fff;background:rgba(255,255,255,.08)}
+@media(max-width:760px){.gb-tag,.gb-16{display:none}.gb-m{display:inline}.gb-link{justify-content:space-between;gap:12px;padding:9px 46px 9px 18px;font-size:.8rem}}
 
 /* ===== site shell ===== */
 /* nav */
@@ -760,6 +772,24 @@ main p em,main li em{color:var(--gold-text)}
 <!-- NAV -->
 <a class="skip" href="#main">Skip to content</a>
 <header class="nav" id="nav">
+  <div class="grant-bar" id="grantBar">
+    <a class="gb-link" href="/tuition-grants/inner-journey/?utm_source=free-breathwork-sessions&amp;utm_medium=banner&amp;utm_campaign=t34-grant-btw">
+      <span class="gb-tag">Breathe the World Grant</span>
+      <span class="gb-text"><span class="gb-m">Grant &middot; </span>Up to <b>$929.10 off</b> the Inner Journey<span class="gb-16"> &middot; only 16 grants</span> &middot; closes Sun 15&nbsp;Nov</span>
+      <span class="gb-go">Apply &rarr;</span>
+    </a>
+    <button class="gb-x" type="button" aria-label="Hide this announcement">&times;</button>
+  </div>
+  <script>(function(){
+    /* the grant closes Sunday 15 Nov 2026 at midnight UK; a visitor can also hide the bar */
+    var b=document.getElementById('grantBar'), k='aobGrantBtwHidden', gone=Date.now()>=Date.UTC(2026,10,16,0,0);
+    try{ gone=gone||localStorage.getItem(k)==='1'; }catch(e){}
+    function fit(){ document.documentElement.style.setProperty('--grant-h',(b.isConnected?b.offsetHeight:0)+'px'); }
+    if(gone){ b.remove(); return; }
+    b.querySelector('.gb-x').addEventListener('click',function(){ b.remove(); try{ localStorage.setItem(k,'1'); }catch(e){} fit(); });
+    fit(); addEventListener('resize',fit); addEventListener('load',fit);
+    if(document.fonts&&document.fonts.ready) document.fonts.ready.then(fit);
+  })();</script>
   <div class="nav-in">
     <a class="nav-logo" href="/" aria-label="Alchemy of Breath — home">
       <img src="https://alchemyofbreath.com/wp-content/uploads/AOB-Gold-Black-Transparant.png" alt="Alchemy of Breath" width="252" height="72" decoding="async">
