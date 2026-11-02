@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<!-- AOB-UTM:start -->
+<script>
+/* AoB UTM keeper: remembers the campaign tags a visitor arrived with and hands
+   them to GoHighLevel on whatever page they later sign up on.
+   - Stores utm_*, fbclid, gclid, msclkid from the landing URL for 90 days
+     (latest campaign wins), in localStorage and an .alchemyofbreath.com cookie.
+   - Seeds GHL's own form_embed.js memory (sessionStorage "UPS"), so GHL forms
+     attribute the contact to the campaign even when the form page has no tags.
+   - Adds the tags to GHL form/booking iframes and to links into GHL funnels
+     (go. / breathcamp. / link.alchemyofbreath.com), so hidden fields with a
+     matching query key are filled too.
+   - Adds them to links into the facilitator application (/facilitator-application/),
+     whose embed forwards its own query string into the form.
+   Source: tools/utm/aob-utm.js. Inlined into every page by tools/utm/inject.py. */
+(function(){
+  var KEYS=['utm_source','utm_medium','utm_campaign','utm_term','utm_content','utm_id','fbclid','gclid','msclkid'];
+  var STORE='aob_utm', DAYS=90, MS=DAYS*864e5;
+  var ls=function(k,v){ try{ if(v===undefined) return localStorage.getItem(k); localStorage.setItem(k,v); }catch(e){ return null; } };
+  var qs=new URLSearchParams(location.search), got={}, any=false;
+  KEYS.forEach(function(k){ var v=qs.get(k); if(v){ got[k]=v.slice(0,250); any=true; } });
+  var rec=null;
+  if(any){
+    rec={p:got,t:Date.now(),landing:location.origin+location.pathname};
+    ls(STORE,JSON.stringify(rec));
+    try{ document.cookie=STORE+'='+encodeURIComponent(JSON.stringify(got))+';path=/;max-age='+(DAYS*86400)+';SameSite=Lax'+
+      (/(^|\.)alchemyofbreath\.com$/.test(location.hostname)?';domain=.alchemyofbreath.com':''); }catch(e){}
+  } else {
+    try{ rec=JSON.parse(ls(STORE)||'null'); }catch(e){ rec=null; }
+    if(!rec || !rec.p || Date.now()-rec.t>MS) return;
+  }
+  var P=rec.p;
+
+  // GHL form_embed.js falls back to sessionStorage "UPS" when the page URL has no utm_ tags
+  try{
+    var ups=new URLSearchParams(sessionStorage.getItem('UPS')||''), changed=false;
+    for(var k in P){ if(k.indexOf('utm_')===0 && ups.get(k)!==P[k]){ ups.set(k,P[k]); changed=true; } }
+    if(changed) sessionStorage.setItem('UPS','?'+ups.toString());
+  }catch(e){}
+
+  var GHL=/^https:\/\/((link|api)\.(alchemyofbreath\.com|leadconnectorhq\.com)\/widget\/(form|survey|booking|quiz)\/|(go|breathcamp)\.alchemyofbreath\.com\/)/;
+  var APPLY=/^https:\/\/(www\.)?alchemyofbreath\.com\/facilitator-application\/?$/;
+  var withTags=function(url){
+    var u; try{ u=new URL(url,location.href); }catch(e){ return null; }
+    if(!GHL.test(u.href) && !APPLY.test(u.origin+u.pathname)) return null;
+    var ch=false;
+    for(var k in P){ if(!u.searchParams.has(k)){ u.searchParams.set(k,P[k]); ch=true; } }
+    return ch?u.href:null;
+  };
+  var fixFrame=function(f){
+    ['src','data-src'].forEach(function(a){ var v=f.getAttribute(a), n=v&&withTags(v); if(n) f.setAttribute(a,n); });
+  };
+  var scan=function(root){
+    if(root.tagName==='IFRAME'){ fixFrame(root); return; }
+    if(root.querySelectorAll) [].forEach.call(root.querySelectorAll('iframe'),fixFrame);
+  };
+  scan(document);
+  if('MutationObserver' in window){
+    new MutationObserver(function(ms){ ms.forEach(function(m){ [].forEach.call(m.addedNodes,function(n){ if(n.nodeType===1) scan(n); }); }); })
+      .observe(document.documentElement,{childList:true,subtree:true});
+  }
+  // links into GHL funnels: tag them at click time (covers links built by scripts too)
+  var tagLink=function(e){
+    var a=e.target && e.target.closest && e.target.closest('a[href]'); if(!a) return;
+    var n=withTags(a.getAttribute('href')); if(n) a.setAttribute('href',n);
+  };
+  document.addEventListener('mousedown',tagLink,true);
+  document.addEventListener('touchstart',tagLink,{capture:true,passive:true});
+  document.addEventListener('keydown',function(e){ if(e.key==='Enter') tagLink(e); },true);
+  document.addEventListener('click',tagLink,true);
+})();
+</script>
+<!-- AOB-UTM:end -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VIP Black Friday: Facilitator Training | Alchemy of Breath</title>
+<meta name="description" content="VIP Black Friday price for the Breathe the World community: the 8 month, triple accredited Breathwork Facilitator Training, starting 19 November 2026. Hold your place with a $500 deposit.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="canonical" href="https://alchemyofbreath.com/offer/vip-black-friday/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Alchemy of Breath">
+<meta property="og:title" content="VIP Black Friday: Breathwork Facilitator Training">
+<meta property="og:description" content="Train as a certified breathwork facilitator, starting 19 November 2026. A VIP price for our Breathe the World community. Hold your place with a $500 deposit.">
+<meta property="og:image" content="https://alchemyofbreath.com/wp-content/uploads/glow-head-578x600.jpg">
+<meta property="og:url" content="https://alchemyofbreath.com/offer/vip-black-friday/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#FBF7EF">
+<link rel="icon" type="image/png" href="https://alchemyofbreath.com/wp-content/uploads/AOB-Gold-Black-Transparant-symbol.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+/* Alchemy of Breath brand (Marcellus + Roboto, warm paper, gold, deep teal) on the
+   landing-page-design skill's structure: Tailwind type scale, spacing tokens, flat
+   section backgrounds, base motion curve, tagline reveal. Brand fonts and colours
+   win where the skill's visual bans conflict with them. */
+:root{
+  --paper:#FBF7EF;--white:#FFFFFF;--cream:#FDF6E9;
+  --gold:#E1B668;--gold-deep:#D6A652;--gold-soft:#EFDCB6;--gold-wash:#F7EBD2;
+  --gold-text:#8A5F1C;
+  --teal:#00A5B2;--deep:#1c3638;--slate:#5B7889;--muted:#58656a;--ink:#221F20;--foot:#191617;
+  --line:rgba(154,124,72,.24);
+  --grad-gold:linear-gradient(135deg,#E1B668 0%,#D6A652 100%);
+  --shadow-soft:0 1px 2px rgba(34,31,32,.04),0 8px 24px rgba(34,31,32,.06),0 24px 64px rgba(34,31,32,.07);
+  --shadow-lift:0 2px 4px rgba(34,31,32,.05),0 16px 32px rgba(34,31,32,.10),0 32px 80px rgba(34,31,32,.10);
+  --serif:'Marcellus',Georgia,'Times New Roman',serif;
+  --sans:'Roboto',-apple-system,'Segoe UI',sans-serif;
+  --curve:cubic-bezier(0.22,1,0.36,1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{overflow-x:clip;scroll-behavior:smooth}
+body{font-family:var(--sans);font-weight:300;font-size:16px;line-height:24px;color:var(--ink);background:var(--paper);-webkit-font-smoothing:antialiased}
+img{max-width:100%;height:auto;display:block}
+a{color:inherit}
+::selection{background:var(--gold-wash)}
+:focus-visible{outline:2px solid var(--gold-deep);outline-offset:4px;border-radius:4px}
+.wrap{max-width:1152px;margin:0 auto;padding:0 32px}
+p,li{text-wrap:pretty}
+h1,h2,h3{font-family:var(--serif);font-weight:400;text-wrap:balance}
+
+/* text styles (Tailwind scale) */
+.heading-1{font-size:60px;line-height:60px;letter-spacing:-.02em}
+.heading-2{font-size:48px;line-height:48px;letter-spacing:-.01em}
+.heading-3{font-size:36px;line-height:40px}
+.heading-5{font-size:24px;line-height:32px}
+.heading-6{font-size:20px;line-height:28px}
+.title-2{font-size:18px;line-height:28px;font-weight:500}
+.title-3{font-size:16px;line-height:24px;font-weight:500}
+.body-3{font-size:16px;line-height:24px}
+.body-lg{font-size:18px;line-height:28px}
+.caption-2{font-size:14px;line-height:20px}
+.caption-3{font-size:12px;line-height:16px;font-weight:500;letter-spacing:.2em;text-transform:uppercase}
+.muted{color:var(--muted)}
+
+/* eyebrow: gold rules on slate */
+.eyebrow{display:inline-flex;align-items:center;gap:12px;color:var(--slate);margin-bottom:24px}
+.eyebrow::before,.eyebrow.both::after{content:"";width:32px;height:1px;background:var(--gold)}
+
+/* skip link */
+.skip{position:absolute;left:16px;top:-80px;z-index:100;background:var(--ink);color:#fff;padding:8px 12px;border-radius:8px;text-decoration:none;transition:transform .3s var(--curve)}
+.skip:focus{top:16px}
+
+/* draft bar: lists unconfirmed facts; renders only while CONFIG has gaps */
+.draft{display:none;background:#FFF4C2;border-bottom:1px solid #E8D27A;color:#5A4500;font-size:14px;line-height:20px;padding:12px 0}
+.draft.on{display:block}
+.draft strong{font-weight:500}
+.draft ul{margin:4px 0 0 16px}
+.ph{display:inline-block;background:#FFF4C2;border:1px dashed #C9A93A;color:#5A4500;border-radius:4px;padding:0 4px;font-family:var(--sans);font-weight:500;font-size:.9em;letter-spacing:0;text-transform:none}
+
+/* nav: compact floating bar */
+.nav{position:sticky;top:16px;z-index:50;display:flex;justify-content:center;padding:0 16px;margin-top:16px;pointer-events:none}
+.nav-in{pointer-events:auto;display:flex;align-items:center;gap:24px;padding:8px 8px 8px 24px;border-radius:9999px;background:rgba(255,255,255,.78);-webkit-backdrop-filter:blur(16px) saturate(140%);backdrop-filter:blur(16px) saturate(140%);border:1px solid rgba(225,182,104,.32);box-shadow:var(--shadow-soft)}
+.nav-logo img{height:28px;width:auto}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:9999px;background:var(--grad-gold);color:var(--ink);font-family:var(--sans);font-weight:500;text-decoration:none;cursor:pointer;box-shadow:0 8px 24px rgba(214,166,82,.32);transition:transform .5s var(--curve),box-shadow .3s var(--curve),filter .3s var(--curve)}
+.btn:hover{transform:translateY(-2px);filter:brightness(1.05);box-shadow:0 16px 32px rgba(214,166,82,.45)}
+.btn:active{transform:translateY(1px) scale(.98)}
+.btn .arr{transition:transform .5s var(--curve)}
+.btn:hover .arr{transform:translateX(4px)}
+.btn-md{font-size:16px;line-height:24px;padding:16px 32px;min-height:56px}
+.btn-sm{font-size:14px;line-height:20px;padding:8px 12px 8px 16px}
+.btn-dark{background:var(--ink);color:#fff;box-shadow:none}
+.cta-err{display:none;margin-top:12px;font-size:14px;line-height:20px;color:#9A2A1F}
+.cta-err.on{display:block}
+.ended .btn.pay{display:none}
+.closed{display:none}
+.ended .closed{display:flex;align-items:center;justify-content:center;min-height:56px;padding:16px 24px;border:1px dashed var(--line);border-radius:9999px;color:var(--muted)}
+
+/* sections */
+section{padding:96px 0}
+.sec-head{max-width:680px;margin:0 auto 48px;text-align:center}
+.sec-head p{margin-top:16px}
+.white{background:var(--white)}
+.reveal{opacity:0;transform:translateY(32px);transition:opacity .7s var(--curve),transform .7s var(--curve)}
+.reveal.in{opacity:1;transform:none}
+
+/* hero */
+.hero{padding:64px 0 96px}
+.hero-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:64px;align-items:center}
+.hero h1,.hero .sub{max-width:680px}
+.hero h1 .gold{color:var(--gold-text)}
+.hero .sub{margin-top:24px;color:var(--muted)}
+.price-line{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 16px;margin-top:32px}
+.price-now{font-family:var(--serif);font-size:48px;line-height:48px;color:var(--ink)}
+.price-was{font-size:18px;line-height:28px;color:var(--muted)}
+.price-was s{text-decoration-color:var(--gold-deep);text-decoration-thickness:2px}
+.save{display:inline-block;border-radius:9999px;background:var(--gold-wash);border:1px solid rgba(225,182,104,.5);color:var(--gold-text);padding:4px 12px;font-size:14px;line-height:20px;font-weight:500}
+.hero-cta{display:flex;flex-wrap:wrap;align-items:center;gap:16px 24px;margin-top:32px}
+.hero-cta .note{font-size:14px;line-height:20px;color:var(--muted);max-width:16em}
+.deadline{display:inline-flex;flex-wrap:wrap;align-items:center;gap:4px 12px;margin-top:24px;padding:8px 16px;border-radius:9999px;background:var(--white);border:1px solid var(--line);font-size:14px;line-height:20px;color:var(--gold-text);font-weight:500}
+.deadline .count{font-variant-numeric:tabular-nums;color:var(--ink)}
+.deadline .count:empty{display:none}
+.ended .deadline{color:var(--muted)}
+.proof{display:flex;flex-wrap:wrap;align-items:center;gap:8px 24px;margin-top:40px;padding-top:24px;border-top:1px solid var(--line);font-size:14px;line-height:20px;color:var(--muted)}
+.proof strong{color:var(--ink);font-weight:500}
+.proof .dot{width:4px;height:4px;border-radius:9999px;background:var(--gold)}
+
+/* hero visual: arched window with a glass date stamp */
+.arch{position:relative;max-width:440px;margin-left:auto}
+.arch-frame{position:relative;padding:16px;border-radius:9999px 9999px 24px 24px;background:rgba(255,255,255,.6);border:1px solid #fff;box-shadow:var(--shadow-lift)}
+.arch-frame::before{content:"";position:absolute;inset:-12px 16px 12px -12px;border-radius:9999px 9999px 24px 24px;border:1px solid rgba(225,182,104,.45);transform:rotate(-3deg);z-index:-1}
+.arch img{width:100%;aspect-ratio:4/5;object-fit:cover;object-position:50% 75%;border-radius:9999px 9999px 8px 8px}
+.stamp{position:absolute;left:-24px;bottom:48px;transform:rotate(-4deg);padding:16px 24px;border-radius:16px;background:rgba(255,255,255,.82);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border:1px solid #fff;box-shadow:var(--shadow-soft);text-align:center}
+.stamp .caption-3{color:var(--slate);letter-spacing:.16em}
+.stamp .heading-5{margin-top:4px}
+
+/* included */
+.incl-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:24px}
+.card .ico{width:40px;height:40px;border-radius:9999px;display:grid;place-items:center;background:var(--gold-wash);color:var(--gold-text);margin-bottom:16px}
+.card .ico svg{width:20px;height:20px}
+.card p{margin-top:8px;color:var(--muted)}
+.card.note{background:transparent;border-style:dashed}
+.groups{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;max-width:680px;margin:48px auto 0}
+.group{border:1px solid var(--line);border-radius:16px;padding:16px 24px;background:var(--white);display:flex;justify-content:space-between;align-items:center;gap:16px}
+.group .caption-3{color:var(--slate)}
+.groups-lead{text-align:center;margin-top:48px}
+
+/* tagline reveal */
+.tagline{background:var(--deep);color:#fff;padding:96px 0}
+.tagline p{max-width:880px;margin:0 auto;text-align:center;font-family:var(--serif);font-size:48px;line-height:48px;text-wrap:balance}
+.tagline .w{color:rgba(255,255,255,.3);transition:color .6s var(--curve)}
+.tagline .w.on{color:#fff}
+.tagline .w.g.on{color:var(--gold)}
+
+/* price comparison */
+.compare{max-width:680px;margin:0 auto;background:var(--white);border:1px solid var(--line);border-radius:24px;padding:32px;box-shadow:var(--shadow-soft)}
+.bar-row+.bar-row{margin-top:24px}
+.bar-top{display:flex;justify-content:space-between;align-items:baseline;gap:16px;margin-bottom:8px}
+.bar-top .amt{font-family:var(--serif);font-size:24px;line-height:32px}
+.bar{height:16px;border-radius:9999px;background:var(--gold-wash);overflow:hidden}
+.bar i{display:block;height:100%;border-radius:9999px;transform-origin:left;transform:scaleX(0);transition:transform 1.2s var(--curve)}
+.in .bar i{transform:scaleX(var(--w))}
+.bar.std i{background:#C9C2B5}
+.bar.vip i{background:var(--grad-gold)}
+.compare .foot-note{margin-top:24px;padding-top:16px;border-top:1px solid var(--line);color:var(--muted)}
+
+/* steps */
+.steps{list-style:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;counter-reset:s}
+.step{position:relative;background:var(--white);border:1px solid var(--line);border-radius:16px;padding:32px 24px 24px}
+.step .n{font-family:var(--serif);font-size:30px;line-height:36px;color:var(--gold-deep)}
+.step h3{margin-top:12px}
+.step p{margin-top:8px;color:var(--muted)}
+.pay-opts{display:grid;gap:8px;margin-top:16px}
+.pay-opts div{border:1px solid var(--line);border-radius:8px;padding:8px 12px;font-size:14px;line-height:20px;color:var(--ink);background:var(--paper)}
+.pay-opts strong{font-weight:500}
+
+/* proof */
+.quotes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.quote{background:var(--white);border:1px solid var(--line);border-radius:16px;padding:24px;display:flex;flex-direction:column;justify-content:space-between;gap:24px}
+.quote blockquote{font-family:var(--serif);font-size:18px;line-height:28px}
+.who{display:flex;align-items:center;gap:12px}
+.who img{width:48px;height:48px;border-radius:9999px;object-fit:cover}
+.who .caption-2{color:var(--muted)}
+.founders{display:grid;grid-template-columns:auto 1fr;gap:24px;align-items:center;max-width:680px;margin:48px auto 0;padding:24px;border-radius:16px;background:var(--paper);border:1px solid var(--line)}
+.founders .pics{display:flex}
+.founders .pics img{width:64px;height:64px;border-radius:9999px;object-fit:cover;border:2px solid var(--white)}
+.founders .pics img+img{margin-left:-16px}
+.founders p{color:var(--muted)}
+.badges{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:32px}
+.badges span{border:1px solid var(--line);border-radius:9999px;padding:4px 12px;font-size:14px;line-height:20px;color:var(--muted);background:var(--white)}
+
+/* faq */
+.faq{max-width:760px;margin:0 auto}
+.faq details{border-bottom:1px solid var(--line)}
+.faq summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:16px;padding:24px 0;font-size:18px;line-height:28px;font-weight:500}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary .pm{flex:none;width:24px;height:24px;border-radius:9999px;border:1px solid var(--line);position:relative;transition:transform .5s var(--curve)}
+.faq summary .pm::before,.faq summary .pm::after{content:"";position:absolute;left:50%;top:50%;width:10px;height:1px;background:var(--ink);transform:translate(-50%,-50%)}
+.faq summary .pm::after{transform:translate(-50%,-50%) rotate(90deg)}
+.faq details[open] .pm{transform:rotate(45deg)}
+.faq .a{padding:0 40px 24px 0;color:var(--muted)}
+.faq .a a{color:var(--gold-text)}
+
+/* final cta */
+.final{background:var(--white);text-align:center}
+.final .box{max-width:680px;margin:0 auto}
+.final .price-line{justify-content:center}
+.final .hero-cta{justify-content:center}
+.final .alt{margin-top:24px;font-size:14px;line-height:20px;color:var(--muted)}
+.final .alt a{color:var(--gold-text)}
+
+/* footer */
+.foot{background:var(--foot);color:rgba(255,255,255,.7);padding:48px 0;text-align:center;font-size:14px;line-height:20px}
+.foot img{height:48px;width:auto;margin:0 auto 16px}
+.foot a{color:var(--gold);text-decoration:none}
+.foot a:hover{text-decoration:underline}
+.foot-links{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 24px;margin:16px 0}
+.foot .disc{max-width:680px;margin:16px auto 0;font-size:12px;line-height:16px;color:rgba(255,255,255,.5)}
+
+@media(max-width:960px){
+  .hero-grid{grid-template-columns:1fr;gap:48px}
+  .arch{margin:0 auto;max-width:360px}
+  .incl-grid,.quotes,.steps{grid-template-columns:1fr 1fr}
+}
+@media(max-width:640px){
+  .wrap{padding:0 16px}
+  section{padding:64px 0}
+  .hero{padding:32px 0 64px}
+  .heading-1{font-size:36px;line-height:40px;letter-spacing:-.01em}
+  .heading-2{font-size:30px;line-height:36px}
+  .price-now{font-size:36px;line-height:40px}
+  .hero-cta .btn,.final .btn{width:100%}
+  .hero-cta .note{max-width:none}
+  .deadline{border-radius:16px}
+  .incl-grid,.quotes,.steps,.groups{grid-template-columns:1fr}
+  .tagline{padding:80px 0}
+  .tagline p{font-size:30px;line-height:36px}
+  .compare{padding:24px 16px;border-radius:16px}
+  .founders{grid-template-columns:1fr;text-align:center;justify-items:center}
+  .stamp{left:-8px;bottom:32px;padding:12px 16px}
+  .nav-in{gap:16px;padding-left:16px}
+  .nav-logo img{height:24px}
+  .faq .a{padding-right:0}
+}
+/* ===== Black Friday layer: night black and AoB gold =====
+   Flat night background (#131209), gold accents, a sale ticker, an outlined
+   "Black Friday" word behind the hero and a percentage sticker on the photo. */
+:root{--night:#131209;--night-2:#1F1F1F;--on-night:rgba(255,255,255,.72);--gold-line:rgba(225,182,104,.32)}
+
+.ticker{background:var(--night);border-top:1px solid var(--gold-line);border-bottom:1px solid var(--gold-line);overflow:hidden;color:var(--gold);position:relative;z-index:2}
+.ticker-track{display:flex;width:max-content;animation:tick 40s linear infinite}
+.ticker:hover .ticker-track{animation-play-state:paused}
+.ticker-group{display:flex;align-items:center;flex:none}
+.ticker-group span{display:inline-flex;align-items:center;gap:24px;padding:12px 0 12px 24px;font-size:12px;line-height:16px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;white-space:nowrap}
+.ticker-group span::after{content:"";width:6px;height:6px;background:var(--gold);transform:rotate(45deg)}
+.ticker-group b{font-weight:500;color:#fff}
+@keyframes tick{to{transform:translateX(-50%)}}
+
+.bf{background:var(--night);color:#fff;position:relative;overflow:hidden}
+.bf .eyebrow{color:var(--gold)}
+.bf .heading-1,.bf .heading-2{color:#fff}
+.bf .muted,.bf .sub,.bf .price-was,.bf .hero-cta .note,.bf .alt{color:var(--on-night)}
+.bf .alt a{color:var(--gold)}
+.bf .price-now{background:linear-gradient(135deg,#F3D79B 0%,#E1B668 45%,#B8862F 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.bf .price-was s{text-decoration-color:var(--gold)}
+.bf .save{background:rgba(225,182,104,.14);border-color:var(--gold-line);color:var(--gold)}
+.bf .deadline{background:rgba(255,255,255,.04);border-color:var(--gold-line);color:var(--gold)}
+.bf .deadline .count{color:#fff}
+.bf .cta-err{color:#F2A08F}
+.bf .closed{color:var(--on-night);border-color:var(--gold-line)}
+.bf .btn{box-shadow:0 8px 32px rgba(225,182,104,.28)}
+.bf .btn:hover{box-shadow:0 16px 40px rgba(225,182,104,.42)}
+.bf .wrap{position:relative;z-index:1}
+
+/* the hero runs up behind the floating nav */
+.hero.bf{margin-top:-88px;padding-top:152px}
+.hero.bf h1 .gold{color:var(--gold)}
+.bf-tag{display:inline-flex;align-items:center;gap:8px;margin-bottom:24px;padding:4px 12px 4px 4px;border:1px solid var(--gold-line);border-radius:9999px;color:var(--gold)}
+.bf-tag b{background:var(--grad-gold);color:var(--ink);border-radius:9999px;padding:4px 8px;font-weight:500;letter-spacing:.16em}
+.bf .proof{border-top-color:rgba(255,255,255,.12);color:rgba(255,255,255,.6)}
+.bf .proof strong{color:#fff}
+
+/* outlined word behind the content */
+.bf-word{position:absolute;left:50%;bottom:-24px;transform:translateX(-50%);z-index:0;pointer-events:none;white-space:nowrap;font-family:var(--serif);font-size:128px;line-height:1;color:transparent;-webkit-text-stroke:1px rgba(225,182,104,.2);letter-spacing:.02em}
+.final.bf{padding-bottom:160px}
+.foot{border-top:1px solid var(--gold-line)}
+
+/* hero photo on night */
+.bf .arch-frame{background:rgba(255,255,255,.04);border-color:var(--gold-line);box-shadow:0 32px 80px rgba(0,0,0,.5)}
+.bf .arch-frame::before{border-color:rgba(225,182,104,.35)}
+.bf .arch img{object-position:32% 50%}
+.bf .stamp{background:rgba(19,18,9,.78);border-color:var(--gold-line);box-shadow:0 16px 40px rgba(0,0,0,.45)}
+.bf .stamp .caption-3{color:var(--gold)}
+.bf .stamp .heading-5{color:#fff}
+.sticker{position:absolute;top:24px;right:-16px;width:112px;height:112px;border-radius:9999px;background:var(--grad-gold);color:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;transform:rotate(12deg);box-shadow:0 16px 40px rgba(0,0,0,.45);transition:transform .5s var(--curve)}
+.sticker::before{content:"";position:absolute;inset:4px;border-radius:9999px;border:1px dashed rgba(34,31,32,.4)}
+.sticker .pct{font-family:var(--serif);font-size:30px;line-height:36px}
+.sticker .lbl{font-size:12px;line-height:16px;font-weight:500;letter-spacing:.2em;text-transform:uppercase}
+.arch:hover .sticker{transform:rotate(4deg) scale(1.04)}
+
+/* tagline and price comparison share one night stretch */
+.tagline{background:var(--night)}
+#price.bf{padding-top:0}
+.bf .compare{background:rgba(255,255,255,.04);border-color:var(--gold-line);box-shadow:none}
+.bf .bar-top .title-3{color:#fff}
+.bf .bar-top .amt{color:#fff}
+.bf .vip .amt,.bf .bar-row.vip-row .amt{color:var(--gold)}
+.bf .bar{background:rgba(255,255,255,.08)}
+.bf .bar.std i{background:rgba(255,255,255,.3)}
+.bf .compare .foot-note{border-top-color:rgba(255,255,255,.12);color:rgba(255,255,255,.6)}
+.cut{display:inline-block;margin-left:8px;border-radius:9999px;background:var(--grad-gold);color:var(--ink);padding:0 8px;font-family:var(--sans);font-size:12px;line-height:20px;font-weight:500;letter-spacing:.08em;vertical-align:middle}
+
+@media(max-width:960px){
+  .bf-word{font-size:96px}
+  .sticker{right:-8px}
+}
+@media(max-width:640px){
+  .hero.bf{margin-top:-80px;padding-top:112px}
+  .bf-word{font-size:60px;bottom:-8px}
+  .final.bf{padding-bottom:112px}
+  .proof .dot{display:none}
+  .proof{gap:8px 16px}
+  .sticker{width:88px;height:88px;top:16px;right:-4px}
+  .sticker .pct{font-size:24px;line-height:32px}
+  .sticker .lbl{font-size:12px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .ticker-track{animation:none}
+  .sticker{transition:none}
+  html{scroll-behavior:auto}
+  .reveal{transform:none;transition:opacity .3s linear}
+  .btn,.btn .arr,.bar i,.faq summary .pm{transition:none}
+  .bar i{transform:scaleX(var(--w))}
+  .tagline .w{color:#fff;transition:none}
+  .tagline .w.g{color:var(--gold)}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<!-- Draft bar: filled from CONFIG below. Disappears once every fact is confirmed. -->
+<div class="draft" id="draft" role="note"><div class="wrap"><strong>Draft, not ready to publish.</strong> Still to confirm:<ul id="draftList"></ul></div></div>
+
+<div class="ticker" role="marquee" aria-label="VIP Black Friday: Facilitator Training offer"><div class="ticker-track"><div class="ticker-group"><span>VIP Black Friday</span><span>Facilitator Training <b data-price>$4,747</b></span><span data-save>You save $2,453</span><span>Cohort starts 19 November</span><span>$500 holds your place</span><span>For our Breathe the World community</span></div><div class="ticker-group" aria-hidden="true"><span>VIP Black Friday</span><span>Facilitator Training <b data-price>$4,747</b></span><span data-save>You save $2,453</span><span>Cohort starts 19 November</span><span>$500 holds your place</span><span>For our Breathe the World community</span></div></div></div>
+
+<header class="nav">
+  <div class="nav-in">
+    <a class="nav-logo" href="https://alchemyofbreath.com/" aria-label="Alchemy of Breath home">
+      <img src="https://alchemyofbreath.com/wp-content/uploads/AOB-Gold-Black-Transparant.png" alt="Alchemy of Breath" width="150" height="32">
+    </a>
+    <a class="btn btn-sm pay" href="#" data-pay>Hold my place <span class="arr" aria-hidden="true">&rarr;</span></a>
+  </div>
+</header>
+
+<main id="main">
+
+<!-- HERO -->
+<section class="hero bf">
+  <div class="bf-word" aria-hidden="true">Black Friday</div>
+  <div class="wrap hero-grid">
+    <div>
+      <span class="bf-tag caption-3"><b>VIP</b> Black Friday offer</span>
+      <h1 class="heading-1">Become a certified breathwork facilitator, <span class="gold">at a VIP price</span></h1>
+      <p class="sub body-lg">The full 8 month, 400 hour Facilitator Training with Anthony Abbagnano and Amy Rachelle, ND. A Black Friday price for the people who already breathe with us on Sundays. Your cohort starts Thursday 19&nbsp;November.</p>
+
+      <div class="price-line">
+        <span class="price-now" data-price>$4,747</span>
+        <span class="price-was">instead of <s>$7,200</s></span>
+        <span class="save" data-save>You save $2,453</span>
+      </div>
+
+      <div class="hero-cta">
+        <a class="btn btn-md pay" href="#" data-pay>Hold my place with $500 <span class="arr" aria-hidden="true">&rarr;</span></a>
+        <p class="closed">This VIP offer has ended</p>
+        <p class="note">$500 deposit today. Choose to pay the rest in full or in 3 payments after.</p>
+      </div>
+      <p class="cta-err" role="alert" data-err>The checkout link is not connected yet. Please try again shortly, or email support@alchemyofbreath.com.</p>
+
+      <p class="deadline" role="timer" aria-live="off"><span data-dl-label>VIP price ends <span class="ph" data-dl-ph>{{offer end: day, date, time and time zone}}</span></span><span class="count" data-dl-count></span></p>
+
+      <div class="proof">
+        <span><strong>Triple accredited</strong> FHT &middot; GPBA &middot; AADP</span>
+        <span class="dot" aria-hidden="true"></span>
+        <span><strong>1,000+</strong> facilitators trained</span>
+        <span class="dot" aria-hidden="true"></span>
+        <span>School founded <strong>2012</strong></span>
+      </div>
+    </div>
+
+    <div class="arch">
+      <div class="arch-frame">
+        <img src="https://alchemyofbreath.com/wp-content/uploads/bg-photo-anthony-1.jpg" alt="Anthony Abbagnano guiding a group breathwork session" width="1000" height="719" fetchpriority="high">
+      </div>
+      <div class="sticker" aria-hidden="true"><span class="pct" data-pct>34%</span><span class="lbl">off</span></div>
+      <div class="stamp">
+        <div class="caption-3">VIP access &middot; T34 starts</div>
+        <div class="heading-5">Thu 19 November</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHAT'S INCLUDED -->
+<section class="white reveal" id="included" aria-labelledby="incl-h">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow both caption-3">What you get</span>
+      <h2 class="heading-2" id="incl-h">Everything in the full training, at the VIP price</h2>
+      <p class="body-lg muted">The same 8 month programme and the same certification as every cohort. Only the price is different.</p>
+    </div>
+    <div class="incl-grid">
+      <div class="card">
+        <div class="ico" aria-hidden="true"><svg viewBox="0 0 256 256" fill="currentColor"><path d="M232,64H208V48a8,8,0,0,0-8-8H56a8,8,0,0,0-8,8V64H24A16,16,0,0,0,8,80V96a40,40,0,0,0,40,40h3.65A80.13,80.13,0,0,0,120,191.61V216H96a8,8,0,0,0,0,16h64a8,8,0,0,0,0-16H136V191.58c31.94-3.23,58.44-25.64,68.08-55.58H208a40,40,0,0,0,40-40V80A16,16,0,0,0,232,64ZM48,120A24,24,0,0,1,24,96V80H48v32q0,4,.39,8Zm144-8.9c0,35.52-28.49,64.64-63.51,64.9H128a64,64,0,0,1-64-64V56H192ZM232,96a24,24,0,0,1-24,24h-.5a81.81,81.81,0,0,0,.5-8.9V80h24Z"/></svg></div>
+        <h3 class="title-2">400 hour certification</h3>
+        <p class="body-3">Graduate as a Certified Breathwork Facilitator, triple accredited by FHT, GPBA and AADP.</p>
+      </div>
+      <div class="card">
+        <div class="ico" aria-hidden="true"><svg viewBox="0 0 256 256" fill="currentColor"><path d="M117.25,157.92a60,60,0,1,0-66.5,0A95.83,95.83,0,0,0,3.53,195.63a8,8,0,1,0,13.4,8.74,80,80,0,0,1,134.14,0,8,8,0,0,0,13.4-8.74A95.83,95.83,0,0,0,117.25,157.92ZM40,108a44,44,0,1,1,44,44A44.05,44.05,0,0,1,40,108Zm210.14,98.7a8,8,0,0,1-11.07-2.33A79.83,79.83,0,0,0,172,168a8,8,0,0,1,0-16,44,44,0,1,0-16.34-84.87,8,8,0,1,1-5.94-14.85,60,60,0,0,1,55.53,105.64,95.83,95.83,0,0,1,47.22,37.71A8,8,0,0,1,250.14,206.7Z"/></svg></div>
+        <h3 class="title-2">Weekly live calls</h3>
+        <p class="body-3">Coaching, questions and feedback on your case studies from Master Trainers, all the way through.</p>
+      </div>
+      <div class="card">
+        <div class="ico" aria-hidden="true"><svg viewBox="0 0 256 256" fill="currentColor"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm0-144a56,56,0,1,0,56,56A56.06,56.06,0,0,0,128,72Zm0,96a40,40,0,1,1,40-40A40,40,0,0,1,128,168Z"/></svg></div>
+        <h3 class="title-2">The Inner Journey, included</h3>
+        <p class="body-3">Walk the path yourself first: a supported inner descent and return, before you hold it for others.</p>
+      </div>
+      <div class="card">
+        <div class="ico" aria-hidden="true"><svg viewBox="0 0 256 256" fill="currentColor"><path d="M224,48H160a40,40,0,0,0-32,16A40,40,0,0,0,96,48H32A16,16,0,0,0,16,64V192a16,16,0,0,0,16,16H96a24,24,0,0,1,24,24,8,8,0,0,0,16,0,24,24,0,0,1,24-24h64a16,16,0,0,0,16-16V64A16,16,0,0,0,224,48ZM96,192H32V64H96a24,24,0,0,1,24,24V200A39.81,39.81,0,0,0,96,192Zm128,0H160a39.81,39.81,0,0,0-24,8V88a24,24,0,0,1,24-24h64Z"/></svg></div>
+        <h3 class="title-2">Workbook and case studies</h3>
+        <p class="body-3">An extensive workbook, case studies and guided practice, so the craft becomes second nature.</p>
+      </div>
+      <div class="card">
+        <div class="ico" aria-hidden="true"><svg viewBox="0 0 256 256" fill="currentColor"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm88,104a87.62,87.62,0,0,1-6.4,32.94l-44.7-27.49a15.92,15.92,0,0,0-6.24-2.23l-22.82-3.08a16.11,16.11,0,0,0-16,7.86h-8.72l-3.8-7.86a15.91,15.91,0,0,0-11-8.67l-8-1.73L96.14,104h16.71a16.06,16.06,0,0,0,7.73-2l12.25-6.76a16.62,16.62,0,0,0,3-2.14l26.91-24.34A15.93,15.93,0,0,0,166,49.1l-.36-.65A88.11,88.11,0,0,1,216,128ZM40,128a87.53,87.53,0,0,1,8.54-37.8l11.34,30.27a16,16,0,0,0,11.62,10l21.43,4.61L96.74,143a16.09,16.09,0,0,0,14.4,9h1.48l-7.23,16.23a16,16,0,0,0,2.86,17.37l.14.14L128,205.94l-1.94,10A88.11,88.11,0,0,1,40,128Z"/></svg></div>
+        <h3 class="title-2">A worldwide community</h3>
+        <p class="body-3">One year in the I Am Alchemy community, plus the alumni network and a marketing toolkit.</p>
+      </div>
+      <div class="card note">
+        <div class="ico" aria-hidden="true"><svg viewBox="0 0 256 256" fill="currentColor"><path d="M128,64a40,40,0,1,0,40,40A40,40,0,0,0,128,64Zm0,64a24,24,0,1,1,24-24A24,24,0,0,1,128,128Zm0-112a88.1,88.1,0,0,0-88,88c0,31.4,14.51,64.68,42,96.25a254.19,254.19,0,0,0,41.45,38.3,8,8,0,0,0,9.18,0A254.19,254.19,0,0,0,174,200.25c27.45-31.57,42-64.85,42-96.25A88.1,88.1,0,0,0,128,16Zm0,206c-16.53-13-72-60.75-72-118a72,72,0,0,1,144,0C200,161.23,144.53,209,128,222Z"/></svg></div>
+        <h3 class="title-2">Graduation in Tuscany</h3>
+        <p class="body-3">You graduate at a 7 day BreathCamp at ASHA, our school in Italy. The BreathCamp is paid separately.</p>
+      </div>
+    </div>
+
+    <p class="groups-lead title-3">Two live class times, both starting with Orientation on Thursday 19&nbsp;November</p>
+    <div class="groups">
+      <div class="group"><span class="caption-3">AM group</span><span class="heading-6">9 am UK</span></div>
+      <div class="group"><span class="caption-3">PM group</span><span class="heading-6">5:30 pm UK</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- TAGLINE REVEAL -->
+<section class="tagline" aria-label="Why now">
+  <div class="wrap">
+    <p data-reveal-words>You already know what the breath can do for you. <span class="g">Now learn to hold that space for others.</span></p>
+  </div>
+</section>
+
+<!-- PRICE COMPARISON -->
+<section class="reveal bf" id="price" aria-labelledby="price-h">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow both caption-3">The VIP price</span>
+      <h2 class="heading-2" id="price-h">The same training, for $2,453 less</h2>
+    </div>
+    <div class="compare">
+      <div class="bar-row">
+        <div class="bar-top"><span class="title-3">Standard tuition</span><span class="amt">$7,200</span></div>
+        <div class="bar std"><i style="--w:1"></i></div>
+      </div>
+      <div class="bar-row vip-row">
+        <div class="bar-top"><span class="title-3">VIP Black Friday <span class="cut" data-pct-cut>34% off</span></span><span class="amt" data-price>$4,747</span></div>
+        <div class="bar vip"><i style="--w:.6593" data-bar></i></div>
+      </div>
+      <p class="foot-note caption-2">Prices in US dollars, for the Facilitator Training cohort starting 19 November 2026. The graduation BreathCamp in Tuscany is paid separately.</p>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="white reveal" id="how" aria-labelledby="how-h">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow both caption-3">How it works</span>
+      <h2 class="heading-2" id="how-h">Three steps to your place</h2>
+    </div>
+    <ol class="steps" role="list">
+      <li class="step">
+        <span class="n" aria-hidden="true">1</span>
+        <h3 class="heading-6">Pay your $500 deposit</h3>
+        <p class="body-3">Your deposit holds your seat at the VIP price. Pay by card or bank transfer on our secure checkout.</p>
+      </li>
+      <li class="step">
+        <span class="n" aria-hidden="true">2</span>
+        <h3 class="heading-6">Choose how to pay the rest</h3>
+        <p class="body-3">Right after your deposit, pick the option that suits you.</p>
+        <div class="pay-opts">
+          <div><strong>Pay in full:</strong> <span data-price>$4,747</span> in total</div>
+          <div><strong>3 payments:</strong> with a 10% admin fee, about <span data-plan>$5,222</span> in total</div>
+        </div>
+      </li>
+      <li class="step">
+        <span class="n" aria-hidden="true">3</span>
+        <h3 class="heading-6">Join Orientation on 19 November</h3>
+        <p class="body-3">Your training begins with the Orientation Class, live in the AM or PM group. We send everything you need to get ready.</p>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- PROOF -->
+<section class="reveal" id="voices" aria-labelledby="voices-h">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow both caption-3">In their words</span>
+      <h2 class="heading-2" id="voices-h">What our facilitators say</h2>
+    </div>
+    <div class="quotes">
+      <figure class="quote">
+        <blockquote>&ldquo;It creates the space for deep insight, connection and transformation in a safe and loving container.&rdquo;</blockquote>
+        <figcaption class="who"><img src="https://alchemyofbreath.com/wp-content/uploads/tanya.jpg" alt="Tanya Lopez" width="48" height="48" loading="lazy"><span><span class="title-3">Tanya Lopez</span><br><span class="caption-2">Facilitator</span></span></figcaption>
+      </figure>
+      <figure class="quote">
+        <blockquote>&ldquo;I feel like my heart has opened up again for the first time in decades, and the training group has become a new little community for all of us.&rdquo;</blockquote>
+        <figcaption class="who"><img src="https://alchemyofbreath.com/wp-content/uploads/Nick.jpg" alt="Nick" width="48" height="48" loading="lazy"><span><span class="title-3">Nick</span><br><span class="caption-2">Facilitator</span></span></figcaption>
+      </figure>
+      <figure class="quote">
+        <blockquote>&ldquo;Breathwork continues to open doors, and the training allows me to fully investigate and be supported in my experiences.&rdquo;</blockquote>
+        <figcaption class="who"><img src="https://alchemyofbreath.com/wp-content/uploads/hannah-2.jpg" alt="Hannah Goodman" width="48" height="48" loading="lazy"><span><span class="title-3">Hannah Goodman</span><br><span class="caption-2">Facilitator</span></span></figcaption>
+      </figure>
+    </div>
+
+    <div class="founders">
+      <div class="pics">
+        <img src="https://alchemyofbreath.com/wp-content/uploads/anthony-abbagnano-2-1.jpg" alt="Anthony Abbagnano" width="64" height="64" loading="lazy">
+        <img src="https://alchemyofbreath.com/wp-content/uploads/amy-rachelle-1.jpg" alt="Amy Rachelle, ND" width="64" height="64" loading="lazy">
+      </div>
+      <p class="body-3"><span class="title-3" style="color:var(--ink)">Led by Anthony Abbagnano and Amy Rachelle, ND,</span> founders of Alchemy of Breath and ASHA in Tuscany, with Master Trainers who studied directly with Anthony.</p>
+    </div>
+    <div class="badges" aria-label="Accreditations">
+      <span>Federation of Holistic Therapies</span><span>Global Professional Breathwork Alliance</span><span>American Association of Drugless Practitioners</span>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="white reveal" id="faq" aria-labelledby="faq-h">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow both caption-3">Questions</span>
+      <h2 class="heading-2" id="faq-h">Before you hold your place</h2>
+    </div>
+    <div class="faq">
+      <details>
+        <summary>Who is the VIP price for?<span class="pm" aria-hidden="true"></span></summary>
+        <div class="a body-3">For our community: people who join Breathe the World on Sundays, guests from this year&rsquo;s BreathCamps, and everyone who has been waiting for the right moment to train with us.</div>
+      </details>
+      <details>
+        <summary>When does the VIP price end?<span class="pm" aria-hidden="true"></span></summary>
+        <div class="a body-3">The VIP price is available until <span class="ph" data-dl-ph>{{offer end: day, date, time and time zone}}</span>. After that, the checkout closes and the standard price applies.</div>
+      </details>
+      <details>
+        <summary>What does the $500 deposit do?<span class="pm" aria-hidden="true"></span></summary>
+        <div class="a body-3">It holds your seat in the 19 November cohort at the VIP price. Straight after your deposit you choose how to pay the rest: in full, or in 3 payments.</div>
+      </details>
+      <details>
+        <summary>How do the payment options work?<span class="pm" aria-hidden="true"></span></summary>
+        <div class="a body-3">Pay in full and your total is <span data-price>$4,747</span>. Choose 3 payments and a 10% admin fee applies, so your total is about <span data-plan>$5,222</span>. You can pay by card or bank transfer.</div>
+      </details>
+      <details>
+        <summary>I have no prior breathwork experience. Can I still join?<span class="pm" aria-hidden="true"></span></summary>
+        <div class="a body-3">Yes. The training is designed for people with varying levels of experience. A comprehensive introductory module guides you through the foundations of breathwork.</div>
+      </details>
+      <details>
+        <summary>What will I be qualified to offer?<span class="pm" aria-hidden="true"></span></summary>
+        <div class="a body-3">You receive the Alchemy of Breath Facilitator Certification. It equips you to facilitate 1:1 sessions, group workshops and breath journeys in a safe, trauma informed way, in person or online.</div>
+      </details>
+      <details>
+        <summary>Is the graduation BreathCamp included?<span class="pm" aria-hidden="true"></span></summary>
+        <div class="a body-3">No. You graduate at a 7 day BreathCamp at ASHA in Tuscany, which is paid separately. <a href="https://alchemyofbreath.com/breathcamps/">See the BreathCamp weeks</a>.</div>
+      </details>
+      <details>
+        <summary>Can I talk to someone before I decide?<span class="pm" aria-hidden="true"></span></summary>
+        <div class="a body-3">Of course. <a href="https://go.alchemyofbreath.com/book-842709">Book a free call</a> with a Success Advisor who has completed the full training, or email <a href="mailto:support@alchemyofbreath.com">support@alchemyofbreath.com</a>.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<div class="ticker" aria-hidden="true"><div class="ticker-track"><div class="ticker-group"><span>VIP Black Friday</span><span>Facilitator Training <b data-price>$4,747</b></span><span data-save>You save $2,453</span><span>Cohort starts 19 November</span><span>$500 holds your place</span><span>For our Breathe the World community</span></div><div class="ticker-group" aria-hidden="true"><span>VIP Black Friday</span><span>Facilitator Training <b data-price>$4,747</b></span><span data-save>You save $2,453</span><span>Cohort starts 19 November</span><span>$500 holds your place</span><span>For our Breathe the World community</span></div></div></div>
+<section class="final bf" aria-labelledby="final-h">
+  <div class="bf-word" aria-hidden="true">Black Friday</div>
+  <div class="wrap box">
+    <span class="eyebrow both caption-3">VIP Black Friday</span>
+    <h2 class="heading-2" id="final-h">Your place in the 19 November cohort is waiting</h2>
+    <div class="price-line">
+      <span class="price-now" data-price>$4,747</span>
+      <span class="price-was">instead of <s>$7,200</s></span>
+    </div>
+    <div class="hero-cta">
+      <a class="btn btn-md pay" href="#" data-pay>Hold my place with $500 <span class="arr" aria-hidden="true">&rarr;</span></a>
+      <p class="closed">This VIP offer has ended</p>
+    </div>
+    <p class="cta-err" role="alert" data-err>The checkout link is not connected yet. Please try again shortly, or email support@alchemyofbreath.com.</p>
+    <p class="deadline" role="timer" aria-live="off"><span data-dl-label>VIP price ends <span class="ph" data-dl-ph>{{offer end: day, date, time and time zone}}</span></span><span class="count" data-dl-count></span></p>
+    <p class="alt">Not sure yet? <a href="https://go.alchemyofbreath.com/book-842709">Book a free call with a Success Advisor</a>. No pressure, no obligation.</p>
+  </div>
+</section>
+
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <img src="https://alchemyofbreath.com/wp-content/uploads/AoB-emblem-web-white-150x150.png" alt="" width="48" height="48" loading="lazy">
+    <p>Questions? <a href="mailto:support@alchemyofbreath.com">support@alchemyofbreath.com</a></p>
+    <nav class="foot-links" aria-label="Legal">
+      <a href="https://alchemyofbreath.com/">Home</a>
+      <a href="https://alchemyofbreath.com/privacy-policy/">Privacy policy</a>
+      <a href="https://alchemyofbreath.com/terms-and-conditions/">Terms and conditions</a>
+      <a href="https://alchemyofbreath.com/waiver-and-release/">Disclaimer</a>
+    </nav>
+    <p>&copy; Alchemy of Breath</p>
+    <p class="disc">Alchemy of Breath provides breathwork training and education. Breathwork is not a substitute for medical or psychological treatment. Individual results vary and are not guaranteed.</p>
+  </div>
+</footer>
+
+<script>
+/* ===== Offer facts. Edit here only. =====
+   Source: VIP Black Friday week plan (monday import, 2 Nov 2026). The price, the
+   end time and the checkout link were still open in the plan, so the page shows
+   a draft bar until each one is set and confirmed. */
+var CONFIG = {
+  price: 4747,             // final VIP price, confirmed 3 Nov 2026
+  priceConfirmed: true,    // confirmed final price (3 Nov 2026)
+  standard: 7200,          // standard FT tuition (facilitator-training page)
+  deposit: 500,
+  planFee: 0.10,           // 3 payment option only
+  offerEnds: null,         // e.g. '2026-11-09T23:59:00+00:00'
+  offerEndsLabel: null,    // e.g. 'Monday 9 November, 11:59 pm UK'
+  checkoutUrl: null        // GHL checkout link with the $500 deposit
+};
+
+(function(){
+  var C = CONFIG, root = document.documentElement;
+  var usd = function(n){ return '$' + Math.round(n).toLocaleString('en-US'); };
+  var $$ = function(s){ return [].slice.call(document.querySelectorAll(s)); };
+
+  // prices
+  $$('[data-price]').forEach(function(el){ el.textContent = usd(C.price); });
+  $$('[data-plan]').forEach(function(el){ el.textContent = usd(C.price * (1 + C.planFee)); });
+  $$('[data-save]').forEach(function(el){ el.textContent = 'You save ' + usd(C.standard - C.price); });
+  var pct = Math.round((C.standard - C.price) / C.standard * 100) + '%';
+  $$('[data-pct]').forEach(function(el){ el.textContent = pct; });
+  $$('[data-pct-cut]').forEach(function(el){ el.textContent = pct + ' off'; });
+  $$('[data-bar]').forEach(function(el){ el.style.setProperty('--w', (C.price / C.standard).toFixed(4)); });
+  var h = document.getElementById('price-h');
+  if (h) h.textContent = 'The same training, for ' + usd(C.standard - C.price) + ' less';
+
+  // checkout links
+  $$('[data-pay]').forEach(function(a){
+    if (C.checkoutUrl) { a.href = C.checkoutUrl; return; }
+    a.addEventListener('click', function(e){
+      e.preventDefault();
+      $$('[data-err]').forEach(function(p){ p.classList.add('on'); });
+    });
+  });
+
+  // deadline and countdown
+  if (C.offerEndsLabel) $$('[data-dl-ph]').forEach(function(el){ el.outerHTML = C.offerEndsLabel; });
+  var END = C.offerEnds ? Date.parse(C.offerEnds) : NaN;
+  if (!isNaN(END)) {
+    var pad = function(n){ return (n < 10 ? '0' : '') + n; }, timer;
+    var tick = function(){
+      var ms = END - Date.now();
+      if (ms <= 0) {
+        root.classList.add('ended');
+        $$('[data-dl-label]').forEach(function(el){ el.textContent = 'The VIP price ended ' + (C.offerEndsLabel || ''); });
+        $$('[data-dl-count]').forEach(function(el){ el.textContent = ''; });
+        clearInterval(timer); return;
+      }
+      var s = Math.floor(ms / 1000), d = Math.floor(s / 86400), hh = Math.floor(s % 86400 / 3600), m = Math.floor(s % 3600 / 60);
+      var txt = 'Ends in ' + (d ? d + 'd ' : '') + hh + 'h ' + pad(m) + 'm ' + pad(s % 60) + 's';
+      $$('[data-dl-count]').forEach(function(el){ el.textContent = txt; });
+    };
+    timer = setInterval(tick, 1000); tick();
+  }
+
+  // draft bar
+  var gaps = [];
+  if (!C.priceConfirmed) gaps.push('VIP price ' + usd(C.price) + ' (floated in the plan, not locked). The 3 payment total follows from it.');
+  if (!C.offerEnds || !C.offerEndsLabel) gaps.push('Exact end date, time and time zone of the VIP price.');
+  if (!C.checkoutUrl) gaps.push('Checkout link with the $500 deposit (buttons show an error until it is set).');
+  if (gaps.length) {
+    var ul = document.getElementById('draftList');
+    gaps.forEach(function(g){ var li = document.createElement('li'); li.textContent = g; ul.appendChild(li); });
+    document.getElementById('draft').classList.add('on');
+  }
+})();
+
+/* Scroll reveals and the tagline word reveal, both on IntersectionObserver. */
+(function(){
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var secs = [].slice.call(document.querySelectorAll('.reveal'));
+  if (!('IntersectionObserver' in window)) { secs.forEach(function(s){ s.classList.add('in'); }); }
+  else {
+    var io = new IntersectionObserver(function(es){
+      es.forEach(function(e){ if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { rootMargin: '0px 0px -12% 0px' });
+    secs.forEach(function(s){ io.observe(s); });
+  }
+
+  // split the tagline into words; each lights up as it crosses a line 40% up the viewport
+  var p = document.querySelector('[data-reveal-words]');
+  if (!p) return;
+  var words = [];
+  var split = function(node, gold){
+    [].slice.call(node.childNodes).forEach(function(n){
+      if (n.nodeType === 3) {
+        var frag = document.createDocumentFragment();
+        n.textContent.split(/(\s+)/).forEach(function(t){
+          if (!t) return;
+          if (/^\s+$/.test(t)) { frag.appendChild(document.createTextNode(t)); return; }
+          var s = document.createElement('span'); s.className = 'w' + (gold ? ' g' : ''); s.textContent = t;
+          frag.appendChild(s); words.push(s);
+        });
+        n.parentNode.replaceChild(frag, n);
+      } else if (n.nodeType === 1) {
+        var g = gold || n.classList.contains('g');
+        split(n, g);
+        if (n.classList.contains('g')) { while (n.firstChild) n.parentNode.insertBefore(n.firstChild, n); n.parentNode.removeChild(n); }
+      }
+    });
+  };
+  split(p, false);
+  if (reduce || !('IntersectionObserver' in window)) { words.forEach(function(w){ w.classList.add('on'); }); return; }
+  var wio = new IntersectionObserver(function(es){
+    es.forEach(function(e){ if (e.isIntersecting) { e.target.classList.add('on'); wio.unobserve(e.target); } });
+  }, { rootMargin: '0px 0px -40% 0px', threshold: 1 });
+  words.forEach(function(w){ wio.observe(w); });
+})();
+</script>
+<script>(function(){if(window.self!==window.top){var st=document.createElement('style');st.textContent='.cv{content-visibility:visible !important}';document.head.appendChild(st);}function reportHeight(){var h=document.documentElement.scrollHeight;window.parent.postMessage({type:'aob-embed-resize',height:h},'*');}window.addEventListener('load',reportHeight);window.addEventListener('resize',reportHeight);var mo=new MutationObserver(reportHeight);mo.observe(document.body,{childList:true,subtree:true,attributes:true});setInterval(reportHeight,800);})();</script>
+</body>
+</html>
