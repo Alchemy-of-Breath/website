@@ -114,5 +114,21 @@
     "pm_photo": "https://cdn.jsdelivr.net/gh/Alchemy-of-Breath/website@main/assets/btw/anthony.jpg",
     "video": "https://assets.cdn.filesafe.space/5lz2Wm44CNDwLSZWgAPf/media/6ae340a5ce53a65ab279f0fe.mp4",
     "poster": "https://cdn.jsdelivr.net/gh/Alchemy-of-Breath/website@main/assets/btw/amy-w44-poster.jpg"
+  },
+  {
+    "date": "2026-11-08",
+    "title": "The Secret to Health & Wealth",
+    "title_html": "The Secret to <em>Health &amp;&nbsp;Wealth</em>",
+    "description": "The secret to health & wealth. Breathe The World with Amy Rachelle, guiding both sessions, followed by her one-hour masterclass.",
+    "am_host": "Amy",
+    "am_role": "co-founder of Alchemy of Breath",
+    "pm_host": "Amy",
+    "pm_role": "co-founder of Alchemy of Breath",
+    "closing": "What if we could have both?",
+    "letter": "2026-45.html",
+    "am_photo": "https://cdn.jsdelivr.net/gh/Alchemy-of-Breath/website@main/assets/btw/amy.jpg",
+    "pm_photo": "https://cdn.jsdelivr.net/gh/Alchemy-of-Breath/website@main/assets/btw/amy.jpg",
+    "video": "https://cdn.jsdelivr.net/gh/Alchemy-of-Breath/website@main/assets/btw/amy-w45.mp4",
+    "poster": "https://cdn.jsdelivr.net/gh/Alchemy-of-Breath/website@main/assets/btw/amy-w45-poster.jpg"
   }
 ]
