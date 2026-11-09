@@ -1,0 +1,28 @@
+name: Application contract
+
+on:
+  pull_request:
+    paths:
+      - 'facilitator-application/**'
+      - 'tools/application/**'
+      - '.github/workflows/application-contract.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'facilitator-application/**'
+      - 'tools/application/**'
+      - '.github/workflows/application-contract.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  application-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --test tools/application/test.mjs
