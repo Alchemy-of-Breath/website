@@ -2,14 +2,20 @@
 // and explicit fake GHL/Meta providers. NEVER use this as a production server.
 import http from 'node:http';
 import {DatabaseSync} from 'node:sqlite';
-import {readFileSync,existsSync} from 'node:fs';
+import {readFileSync,existsSync,readdirSync} from 'node:fs';
 import {resolve,extname} from 'node:path';
 import {onRequestPost as submit} from '../../functions/api/application/submit.js';
 import {onRequestPost as events} from '../../functions/api/application/events.js';
 const root=resolve(new URL('../..',import.meta.url).pathname);
 const filename=process.env.APPLICATION_TEST_DB;
 if(!filename)throw new Error('APPLICATION_TEST_DB must name a private test database');
-const sql=new DatabaseSync(filename);sql.exec(readFileSync(resolve(root,'migrations/0001_applications.sql'),'utf8'));
+const sql=new DatabaseSync(filename);
+sql.exec('CREATE TABLE IF NOT EXISTS fixture_migrations (name TEXT PRIMARY KEY)');
+for(const name of readdirSync(resolve(root,'migrations')).filter(n=>n.endsWith('.sql')).sort()) {
+ if(!sql.prepare('SELECT name FROM fixture_migrations WHERE name=?').get(name)) {
+  sql.exec('BEGIN');try{sql.exec(readFileSync(resolve(root,'migrations',name),'utf8'));sql.prepare('INSERT INTO fixture_migrations VALUES (?)').run(name);sql.exec('COMMIT');}catch(e){sql.exec('ROLLBACK');throw e;}
+ }
+}
 sql.exec('CREATE TABLE IF NOT EXISTS fixture_requests (kind TEXT, body TEXT); CREATE TABLE IF NOT EXISTS fixture_contacts (id TEXT PRIMARY KEY, email TEXT UNIQUE, source TEXT, fields TEXT)');
 const db={prepare(query){return{bind(...args){const s=sql.prepare(query);return{first:async()=>s.get(...args)||null,all:async()=>({results:s.all(...args)}),run:async()=>({meta:{changes:Number(s.run(...args).changes)}})};}};},async batch(statements){sql.exec('BEGIN');try{const results=[];for(const s of statements)results.push(await s.run());sql.exec('COMMIT');return results;}catch(e){sql.exec('ROLLBACK');throw e;}}};
 const env={APPLICATIONS_DB:db,APPLICATION_GHL_TOKEN:'LOCAL-FAKE-TOKEN',APPLICATION_GHL_LOCATION_ID:'local-test-location',APPLICATION_GHL_WEBHOOK_URL:'https://services.leadconnectorhq.com/hooks/local-test-location/webhook-trigger/local-test',APPLICATION_META_CAPI_ENABLED:'true',APPLICATION_META_TOKEN:'LOCAL-FAKE-META',APPLICATION_META_PIXEL_ID:'713374525487066',APPLICATION_META_API_VERSION:'v26.0',APPLICATION_META_TEST_EVENT_CODE:'LOCAL_TEST_ONLY'};

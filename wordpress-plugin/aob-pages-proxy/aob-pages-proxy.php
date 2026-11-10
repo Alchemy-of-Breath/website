@@ -2,7 +2,7 @@
 /**
  * Plugin Name:  AoB Pages Proxy
  * Description:  Serves selected Alchemy of Breath pages directly from the Cloudflare Pages deployment on this domain — full content on the real URL, no iframes. Deactivate to instantly fall back to the previous pages.
- * Version:      1.2.0
+ * Version:      1.2.1
  * Author:       Alchemy of Breath
  */
 
@@ -174,4 +174,12 @@ function aob_pages_proxy_serve() {
 
 	echo $body; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- full trusted document passthrough.
 	exit;
+}
+
+/** Application iframe consent bridge. Install together with the matching Pages release. */
+add_action( 'wp_enqueue_scripts', 'aob_application_enqueue_consent' );
+function aob_application_enqueue_consent() {
+    if ( is_page( 'facilitator-application' ) ) {
+        wp_enqueue_script( 'aob-application-consent', 'https://website-5h3.pages.dev/assets/aob-application-consent.js', array(), '1.0.0', true );
+    }
 }

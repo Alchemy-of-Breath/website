@@ -70,7 +70,7 @@ usable deployment config. wrangler.local.jsonc uses a dummy ID for local tests o
 
 - Create D1 `aob-facilitator-applications` in the AoB account. Bind it as
   APPLICATIONS_DB in production and use a separate database in preview.
-- Apply migrations/0001_applications.sql before publishing the new form.
+- Apply both D1 migrations before publishing the new form. Migration 0002 adds consent state; existing records default to unknown, never assumed granted.
 - Set APPLICATION_GHL_LOCATION_ID to 5lz2Wm44CNDwLSZWgAPf.
 - Set APPLICATION_GHL_TOKEN as a scoped server-side GHL integration secret with
   contacts read/write permissions. Never expose it to the form or source control.
@@ -118,7 +118,7 @@ browser deliveries, the endpoint returns the existing record and never resends G
 ## Verification
 
 ```
-node --test tools/application/test.mjs tools/application/receiver.test.mjs
+node --test tools/application/test.mjs tools/application/receiver.test.mjs tools/application/meta.test.mjs tools/application/reconcile.test.mjs
 npx wrangler pages functions build --outdir /private/tmp/aob-application-build
 npx wrangler d1 migrations apply aob-application-local-check --local --config tools/application/wrangler.local.jsonc
 ```
@@ -151,8 +151,45 @@ node tools/application/reconcile.mjs private-complete-export.json
 
 This checks one confirmed SubmitApplication event per CRM-confirmed application and
 one Lead per qualified application by application ID. Missing/uncertain receipts
-produce an explicit gap and a nonzero exit. It does not claim that Ads Manager's
+produce an explicit gap and a nonzero exit. It reports all CRM applications separately from Meta-eligible (consented) applications, preserves consent exclusions, and labels Test/Live provider receipts. It does not claim that Ads Manager's
 attributed totals equal all GHL submissions. Attribution windows, view-through events,
 consent and event-date settings remain distinct. Historical counts cannot be repaired
 by deploying new code. A live test requires a real GHL receipt and Meta Test Events
 acceptance with matching event IDs, followed by a like-for-like production cohort.
+
+
+## Consent and advanced matching release
+
+The inspected production WordPress page uses WPConsent 1.1.8 to gate its parent
+pixel, while the old embedded form initializes a separate pixel without that gate.
+The updated form accepts marketing consent only through postMessage from its actual
+alchemyofbreath.com parent window. Unknown, declined or GPC consent loads no pixel.
+The parent bridge uses WPConsent's installed shouldUnlockContent logic, including
+per-service refusal, and supports changes after the iframe has loaded.
+
+The SDK may load after a trusted consent grant, but pixel init is deferred until a
+confirmed application receipt provides the applicant details and GHL contact ID.
+Matching email/phone/name/external_id belong in init, not event custom data or URLs.
+The form disables automatic pixel configuration before init, following Meta's own
+GTM template (meta/GoogleTagManager-WebTemplate-For-FacebookPixel, template.tpl).
+This confines the iframe to explicit submission/qualification events rather than
+inferring conversions from its buttons or metadata. The dataset-wide automatic
+events setting is left unchanged because other AoB products may depend on it.
+A missing or blocked tracking module does not prevent a confirmed application's
+success screen. Changing consent does not create another application or enroll the
+workflow again. The optional direct CAPI adapter also requires granted consent.
+
+Install the reviewed AoB Pages Proxy 1.2.1 parent bridge alongside the form release;
+the source and ZIP in wordpress-plugin are kept together. The bridge is enqueued only
+on the facilitator-application WordPress page. Production WordPress installation is
+a separate authorized release action with a before snapshot and readback, not part
+of pushing this PR. Do not deploy the new form with no parent bridge: it will correctly
+keep tracking off while consent is unknown.
+
+Meta already shows this dataset connected to Conversions API with Meta. Keep the
+optional direct sender disabled until current provider/deduplication ownership has
+been checked; do not add another sender just to clear the warning. The outbox's
+pending direct-provider receipt does not prove Meta's existing connection failed.
+Actual Meta acceptance still needs Test Events evidence for matching application
+and event IDs. Manual matching and server coverage warnings may remain visible
+until Meta processes fresh events; do not ignore warnings to manufacture a pass.

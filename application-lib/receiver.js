@@ -4,7 +4,7 @@ const FIELDS = ['source','variant','outcome','outcome_tag','submitted_at','first
   'facilitator_intent','what_pulled_you','twelve_months','current_work','tried_so_far','why_now','time_commitment','investment_readiness','call_commitment',
   'practitioner_type','clients_per_month','work_details','session_price',
   'utm_source','utm_medium','utm_campaign','utm_content','utm_term','utm_id','gclid','fbclid','msclkid','campaign_id','adset_id','ad_id',
-  'meta_campaign_id','meta_adset_id','meta_ad_id','h_ad_id','fbc_id','referrer','page_url','identity_persistence'];
+  'meta_consent','meta_campaign_id','meta_adset_id','meta_ad_id','h_ad_id','fbc_id','referrer','page_url','identity_persistence'];
 const OUTCOMES = ['booking','not_facilitator','not_ready_to_invest','cannot_commit'];
 export class InputError extends Error { constructor(message, status=400) { super(message); this.status=status; } }
 export async function normalize(input) {
@@ -18,6 +18,8 @@ export async function normalize(input) {
     if (value.length > (k==='summary' ? 20000 : 4000)) throw new InputError('Application field too long');
     p[k] = value;
   }
+  p.meta_consent = p.meta_consent || 'unknown';
+  if (!['unknown','granted','denied'].includes(p.meta_consent)) throw new InputError('Invalid Meta consent');
   p.email = p.email.trim().toLowerCase();
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(p.email) || !p.first_name.trim() || !p.last_name.trim()) throw new InputError('Missing contact details');
   if (!Number.isFinite(Date.parse(p.submitted_at))) throw new InputError('Invalid submission date');
@@ -27,13 +29,13 @@ export async function normalize(input) {
   p.meta_event_name = 'SubmitApplication';
   p.meta_event_id = p.application_id+':SubmitApplication';
   p.qualified_lead_event_id = p.outcome==='booking' ? p.application_id+':Lead' : '';
-  const digest = await crypto.subtle.digest('SHA-256',new TextEncoder().encode(JSON.stringify(p)));
+  const digest = await crypto.subtle.digest('SHA-256',new TextEncoder().encode(JSON.stringify(Object.fromEntries(Object.entries(p).filter(([k])=>k!=='meta_consent')))));
   return { payload:p, hash:Array.from(new Uint8Array(digest),x=>x.toString(16).padStart(2,'0')).join('') };
 }
 const now = () => new Date().toISOString();
 const stmt = (db,sql,...args) => db.prepare(sql).bind(...args);
 export async function receipt(db,id) {
-  const row = await stmt(db,'SELECT application_id, received_at, ghl_contact_id, status, crm_state, workflow_state FROM facilitator_applications WHERE application_id = ?',id).first();
+  const row = await stmt(db,'SELECT application_id, received_at, ghl_contact_id, status, crm_state, workflow_state, meta_consent FROM facilitator_applications WHERE application_id = ?',id).first();
   if (!row) return null;
   const events = await stmt(db,'SELECT event_id,event_name,delivery_state FROM facilitator_application_events WHERE application_id = ? ORDER BY event_name',id).all();
   return { ...row, events:events.results };
@@ -44,11 +46,12 @@ export async function receipt(db,id) {
 export async function accept(db,input,adapters) {
   const {payload:p,hash} = await normalize(input); const t=now();
   await stmt(db,`INSERT INTO facilitator_applications
-    (application_id,payload_hash,submitted_at,received_at,variant,outcome,application_lead_source,attribution_status,campaign_id,adset_id,ad_id,payload_json,updated_at)
-    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(application_id) DO NOTHING`,
-    p.application_id,hash,p.submitted_at,t,p.variant,p.outcome,p.application_lead_source,p.attribution_status,p.meta_campaign_id,p.meta_adset_id,p.meta_ad_id,JSON.stringify(p),t).run();
+    (application_id,payload_hash,submitted_at,received_at,variant,outcome,application_lead_source,attribution_status,campaign_id,adset_id,ad_id,payload_json,updated_at,meta_consent,meta_consent_updated_at)
+    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(application_id) DO NOTHING`,
+    p.application_id,hash,p.submitted_at,t,p.variant,p.outcome,p.application_lead_source,p.attribution_status,p.meta_campaign_id,p.meta_adset_id,p.meta_ad_id,JSON.stringify(p),t,p.meta_consent,t).run();
   const row=await stmt(db,'SELECT * FROM facilitator_applications WHERE application_id = ?',p.application_id).first();
   if (row.payload_hash!==hash) throw new InputError('Application ID already belongs to different answers',409);
+  await stmt(db,'UPDATE facilitator_applications SET meta_consent=?,meta_consent_updated_at=? WHERE application_id=?',p.meta_consent,now(),p.application_id).run();
   // A process crash leaves processing visible; an operator must inspect the saved stages.
   const claim=await stmt(db,"UPDATE facilitator_applications SET status='processing',updated_at=? WHERE application_id=? AND status='received'",now(),p.application_id).run();
   if (!claim.meta.changes) return receipt(db,p.application_id);

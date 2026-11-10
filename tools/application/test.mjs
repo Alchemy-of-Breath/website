@@ -110,7 +110,8 @@ test('preview/local hosts cannot call the live webhook or bootstrap the producti
   const isDemo = main.match(/function isDemo\(\) \{[^}]+\}/)[0];
   const context = vm.createContext({ CONFIG: { webhookUrl: 'https://example.invalid/hook' }, window: { AoBApplication: api }, location: { hostname: 'localhost' } });
   vm.runInContext(isDemo, context); assert.equal(vm.runInContext('isDemo()', context), true);
-  assert.match(html, /var live=window\.AoBApplication\.productionHost\(location\.hostname\) &&/);
+  assert.match(html, /assets\/aob-application-meta\.js/);
+  assert.ok(!html.includes("fbq('init'"), 'pixel initialization is deferred to the consent-aware module');
 });
 
 test('actual submission handler retries one payload, blocks double submit, and does not turn pixel failure into a CRM retry', async () => {
@@ -124,7 +125,7 @@ test('actual submission handler retries one payload, blocks double submit, and d
     buildPayload: () => ({ ...input, variant: 'coaches' }), isDemo: () => false,
     fetch: async (url, opts) => { calls.push(JSON.parse(opts.body)); if (failFirst) { failFirst = false; throw new Error('ambiguous network failure'); } return { ok: true, json: async () => ({ application_id: calls.at(-1).application_id, status: 'accepted', ghl_contact_id: 'contact-test', crm_state: 'saved', workflow_state: 'acknowledged' }) }; },
     AbortController, setTimeout: (fn, ms) => { if (ms === 1500) queueMicrotask(fn); return 1; }, clearTimeout: () => {},
-    clearDraft: () => {}, window: { fbq: () => { throw new Error('pixel blocked'); } },
+    clearDraft: () => {}, window: { AoBMeta: { consent: () => 'granted', initialize: () => true }, fbq: () => { throw new Error('pixel blocked'); } },
     renderEnd: () => {}, show: () => resolveEnd(),
     setError: () => assert.fail('pixel failure must not report a failed application')
   });
@@ -151,7 +152,7 @@ test('failed delivery emits no conversion and preserves identity for a later man
       return { ok: !fail, status: fail ? 503 : 200, json: async () => ({ application_id: sent.application_id, status: 'accepted', ghl_contact_id: 'contact-test', crm_state: 'saved', workflow_state: 'acknowledged' }) };
     },
     AbortController, setTimeout: (fn, ms) => { if (ms === 1500) queueMicrotask(fn); return 1; }, clearTimeout: () => {},
-    clearDraft: () => {}, window: { fbq: (...args) => pixels.push(args) },
+    clearDraft: () => {}, window: { AoBMeta: { consent: () => 'granted', initialize: () => true }, fbq: (...args) => pixels.push(args) },
     renderEnd: () => {}, show: () => done(), setError: () => done()
   });
   vm.runInContext(code, context); vm.runInContext("submit({ id: 'email', type: 'email' });", context);
@@ -190,4 +191,22 @@ test('browser and server agree on current Meta traffic, future sources, unknowns
     const server = serverAttribution(Object.fromEntries(params));
     for (const [key, value] of Object.entries(server)) assert.equal(browser[key], value, key + ': ' + query);
   }
+});
+
+test('a consent change does not invent another logical application identity',async()=>{
+ const {make}=setup();const controller=make();
+ const a=await controller.prepare({...input,meta_consent:'unknown'});
+ const b=await controller.prepare({...input,meta_consent:'denied'});
+ assert.equal(a.application_id,b.application_id);assert.equal(a.meta_event_id,b.meta_event_id);
+});
+
+test('missing or throwing tracking module cannot strand a CRM-confirmed application',async()=>{
+ for(const meta of [undefined,{consent:()=> 'granted',initialize:()=>{throw new Error('matching blocked');}}]) {
+  const {make}=setup();let done;const terminal=new Promise(resolve=>{done=resolve;});
+  const code=main.slice(main.indexOf('  function post(payload)'),main.indexOf('  function calendarLink(p)'));
+  const context=vm.createContext({application:make(),busy:false,submitted:false,CONFIG:{webhookUrl:'https://example.invalid'},screens:{email:{btn:{},status:{}}},outcome:()=> 'booking',buildPayload:()=>({...input}),isDemo:()=>false,
+   fetch:async(url,opts)=>({ok:true,json:async()=>({application_id:JSON.parse(opts.body).application_id,status:'accepted',ghl_contact_id:'contact-test',crm_state:'saved',workflow_state:'acknowledged'})}),
+   window:{AoBMeta:meta,fbq:()=>assert.fail('No pixel event should be sent')},AbortController,setTimeout:()=>1,clearTimeout:()=>{},clearDraft:()=>{},renderEnd:()=>{},show:()=>done(),setError:()=>assert.fail('CRM success must remain success')});
+  vm.runInContext(code,context);vm.runInContext("submit({id:'email',type:'email'})",context);await terminal;
+ }
 });

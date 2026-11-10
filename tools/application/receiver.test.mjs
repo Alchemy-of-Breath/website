@@ -7,7 +7,7 @@ import {providers,deliverMeta} from '../../application-lib/providers.js';
 import {attribution} from '../../application-lib/attribution.js';
 import {onRequestPost} from '../../functions/api/application/submit.js';
 function database() {
-  const sql=new DatabaseSync(':memory:');sql.exec(readFileSync(new URL('../../migrations/0001_applications.sql',import.meta.url),'utf8'));
+  const sql=new DatabaseSync(':memory:');sql.exec(readFileSync(new URL('../../migrations/0001_applications.sql',import.meta.url),'utf8'));sql.exec(readFileSync(new URL('../../migrations/0002_meta_consent.sql',import.meta.url),'utf8'));
   const prepare=query=>({bind(...args){const st=sql.prepare(query);return {
     first:async()=>st.get(...args)||null,
     all:async()=>({results:st.all(...args)}),
@@ -15,7 +15,7 @@ function database() {
   };}});
   return {prepare,batch:async statements=>{sql.exec('BEGIN');try{const results=[];for(const s of statements)results.push(await s.run());sql.exec('COMMIT');return results;}catch(e){sql.exec('ROLLBACK');throw e;}},sql};
 }
-const input=(extra={})=>({application_id:'aob-'+crypto.randomUUID(),submitted_at:'2026-11-10T12:00:00Z',variant:'default',source:'facilitator-application',outcome:'booking',email:'synthetic@example.invalid',first_name:'Synthetic',last_name:'Application',utm_source:'facebook',utm_medium:'ppc',utm_id:'120254405385540483',utm_term:'120254405387700483',...extra});
+const input=(extra={})=>({application_id:'aob-'+crypto.randomUUID(),submitted_at:'2026-11-10T12:00:00Z',variant:'default',meta_consent:'granted',source:'facilitator-application',outcome:'booking',email:'synthetic@example.invalid',first_name:'Synthetic',last_name:'Application',utm_source:'facebook',utm_medium:'ppc',utm_id:'120254405385540483',utm_term:'120254405387700483',...extra});
 const adapters=()=>{const counts={contact:0,workflow:0};return {counts,contact:async()=>{counts.contact++;return{id:'ghl-test-contact'};},workflow:async()=>{counts.workflow++;}};};
 
 test('concurrent retries create one durable application, one workflow effect and stable event IDs',async()=>{
@@ -119,4 +119,15 @@ test('a newly created contact captures paid Meta even if GHL supplies an API def
  const writes=[];const fetcher=async(url,opts)=>{writes.push([String(url),opts]);if(String(url).endsWith('/upsert'))return Response.json({new:true,contact:{id:'new-contact'}});return Response.json({contact:{id:'new-contact',email:'synthetic@example.invalid',source:'API',customFields:[]}});};
  await providers({APPLICATION_GHL_TOKEN:'fake',APPLICATION_GHL_LOCATION_ID:'loc'},fetcher).contact((await normalize(input())).payload);
  assert.equal(JSON.parse(writes.at(-1)[1].body).source,'Meta Ads');
+});
+
+test('consent changes keep the application ID and workflow effect but stop CAPI delivery',async()=>{
+ const db=database(),p=input({meta_consent:'unknown'}),api=adapters();await accept(db,p,api);
+ let sent=0;const fetcher=async()=>{sent++;return Response.json({events_received:1});};
+ const env={APPLICATION_META_CAPI_ENABLED:'true',APPLICATION_META_TOKEN:'fake',APPLICATION_META_PIXEL_ID:'123',APPLICATION_META_API_VERSION:'v26.0'};
+ await deliverMeta(db,(await normalize(p)).payload,env,fetcher);assert.equal(sent,0);
+ await accept(db,{...p,meta_consent:'denied'},api);assert.equal(api.counts.workflow,1);assert.equal((await receipt(db,p.application_id)).meta_consent,'denied');
+ await deliverMeta(db,(await normalize(p)).payload,env,fetcher);assert.equal(sent,0);
+ await accept(db,{...p,meta_consent:'granted'},api);assert.equal(api.counts.workflow,1);
+ await deliverMeta(db,(await normalize(p)).payload,env,fetcher);assert.equal(sent,2);
 });

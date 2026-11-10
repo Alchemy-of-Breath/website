@@ -45,9 +45,12 @@ export function providers(env,fetcher=fetch) {
 export async function deliverMeta(db,p,env,fetcher=fetch) {
   if (env.APPLICATION_META_CAPI_ENABLED!=='true') return;
   if (!env.APPLICATION_META_TOKEN || !/^\d+$/.test(env.APPLICATION_META_PIXEL_ID||'') || !/^v\d+\.0$/.test(env.APPLICATION_META_API_VERSION||'')) throw new Error('meta_not_configured');
-  const r=await db.prepare('SELECT received_at,ghl_contact_id FROM facilitator_applications WHERE application_id=?').bind(p.application_id).first();
+  const r=await db.prepare('SELECT received_at,ghl_contact_id,meta_consent FROM facilitator_applications WHERE application_id=?').bind(p.application_id).first();
+  if (!r || r.meta_consent !== 'granted') return;
   const rows=await db.prepare("SELECT * FROM facilitator_application_events WHERE application_id=? AND delivery_state='pending'").bind(p.application_id).all();
   for (const event of rows.results) {
+    const consent=await db.prepare('SELECT meta_consent FROM facilitator_applications WHERE application_id=?').bind(p.application_id).first();
+    if (consent.meta_consent !== 'granted') return;
     const claimed=await db.prepare("UPDATE facilitator_application_events SET delivery_state='sending' WHERE event_id=? AND delivery_state='pending'").bind(event.event_id).run();
     if (!claimed.meta.changes) continue;
     try {
