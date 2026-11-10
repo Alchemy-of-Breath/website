@@ -30,7 +30,8 @@ test('the SDK loads only when granted and the init includes manual matching fiel
  const c=child();delete c.root.fbq;assert.equal(c.root.AoBMeta.initialize(payload),false);assert.equal(c.scripts.length,0);
  c.consent('granted');assert.equal(c.root.AoBMeta.initialize(payload),true);assert.equal(c.scripts.length,1);assert.equal(c.scripts[0].src,'https://connect.facebook.net/en_US/fbevents.js');
  assert.deepEqual(Array.from(c.root.fbq.queue[0]),['set','autoConfig',false,'713374525487066']);
- assert.equal(c.root.fbq.queue[1][0],'init');assert.equal(c.root.fbq.queue[1][2].em,'synthetic@example.invalid');
+ assert.deepEqual(Array.from(c.root.fbq.queue[1]),['optinMetaEnabledCapi','713374525487066']);
+ assert.equal(c.root.fbq.queue[2][0],'init');assert.equal(c.root.fbq.queue[2][2].em,'synthetic@example.invalid');
 });
 function bridge(preferences,manual=false,gpc=false) {
  const windowEvents={},documentEvents={},sent=[];const child={postMessage:(data,origin)=>sent.push({data,origin})};

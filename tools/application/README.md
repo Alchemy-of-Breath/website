@@ -187,6 +187,10 @@ of pushing this PR. Do not deploy the new form with no parent bridge: it will co
 keep tracking off while consent is unknown.
 
 Meta already shows this dataset connected to Conversions API with Meta. Keep the
+browser's existing integration explicit with optinMetaEnabledCapi before init,
+as in Meta's official GTM template; the trusted consent gate still applies.
+That queued command is not proof of provider acceptance. It uses the connected
+integration and does not require a separate Meta token in this form. Keep the
 optional direct sender disabled until current provider/deduplication ownership has
 been checked; do not add another sender just to clear the warning. The outbox's
 pending direct-provider receipt does not prove Meta's existing connection failed.

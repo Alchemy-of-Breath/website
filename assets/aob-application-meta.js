@@ -34,6 +34,9 @@
       // This form has explicit submission/qualification events; do not infer
       // extra conversions from its buttons or page metadata.
       root.fbq('set', 'autoConfig', false, '713374525487066');
+      // Use the dataset's already-connected Conversions API with Meta. Meta's
+      // official pixel template signals this before init; no second sender/token.
+      root.fbq('optinMetaEnabledCapi', '713374525487066');
       // Matching fields go in init, never in custom event data or a URL.
       root.fbq('init', '713374525487066', {
         em: String(payload.email || '').trim().toLowerCase(),
