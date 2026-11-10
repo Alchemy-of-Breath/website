@@ -5,6 +5,7 @@ import { readFileSync } from 'node:fs';
 import { webcrypto } from 'node:crypto';
 import { test } from 'node:test';
 import vm from 'node:vm';
+import { attribution as serverAttribution } from '../../application-lib/attribution.js';
 
 const html = readFileSync(new URL('../../facilitator-application/index.html', import.meta.url), 'utf8');
 const helper = html.match(/<script id="application-tracking">([\s\S]*?)<\/script>/)[1];
@@ -62,13 +63,13 @@ test('corrupt and expired pending metadata cannot reuse a stale identity', async
   assert.notEqual((await make().prepare(input)).application_id, a.application_id);
 });
 
-test('both variants emit one application event; only qualified coaches also emit a distinct Lead event', async () => {
+test('both variants emit one application event; qualified applicants also emit a distinct Lead event', async () => {
   for (const variant of ['default', 'coaches']) for (const outcome of ['booking', 'not_facilitator']) {
     const controller = setup(variant).make(); const calls = [];
     const p = await controller.prepare({ ...input, variant, outcome });
     const pixel = (...args) => calls.push(args);
     controller.events(p, pixel); controller.events(p, pixel);
-    const qualified = variant === 'coaches' && outcome === 'booking';
+    const qualified = outcome === 'booking';
     assert.equal(calls.length, qualified ? 2 : 1);
     assert.equal(calls[0][1], 'SubmitApplication');
     assert.equal(calls[0][3].eventID, p.meta_event_id);
@@ -85,17 +86,17 @@ test('paid Meta, organic social, other sources and missing attribution remain di
   const cases = [
     ['utm_source=meta&utm_medium=paid_social', 'Meta Ads', 'captured_utm'],
     ['utm_source=facebook&utm_medium=organic', 'Social Direct', 'captured_utm'],
-    ['utm_source=facebook', 'Other', 'captured_utm'],
-    ['utm_source=newsletter&utm_medium=email', 'Other', 'captured_utm'],
-    ['fbclid=synthetic-click', 'Other', 'unknown'],
-    ['for=coaches', 'Other', 'unknown']
+    ['utm_source=facebook', 'facebook', 'captured_utm'],
+    ['utm_source=newsletter&utm_medium=email', 'newsletter', 'captured_utm'],
+    ['fbclid=synthetic-click', 'Unknown', 'unknown'],
+    ['for=coaches', 'Unknown', 'unknown']
   ];
   for (const [query, source, status] of cases) {
     const data = api.attribution(new URLSearchParams(query));
     assert.equal(data.application_lead_source, source); assert.equal(data.attribution_status, status);
   }
-  const ids = api.attribution(new URLSearchParams('campaign_id=111&adset_id=222&ad_id=333&utm_content=copy&fbc_id=legacy&utm_id=raw'));
-  assert.equal(ids.meta_campaign_id, '111'); assert.equal(ids.meta_adset_id, '222'); assert.equal(ids.meta_ad_id, '333');
+  const ids = api.attribution(new URLSearchParams('campaign_id=11111&adset_id=22222&ad_id=33333&utm_content=copy&fbc_id=legacy&utm_id=raw'));
+  assert.equal(ids.meta_campaign_id, '11111'); assert.equal(ids.meta_adset_id, '22222'); assert.equal(ids.meta_ad_id, '33333');
   assert.equal(ids.fbc_id, 'legacy'); assert.equal(ids.utm_id, 'raw'); assert.equal(ids.utm_content, 'copy');
   assert.equal(api.attribution(new URLSearchParams('utm_id=raw&fbc_id=legacy')).meta_campaign_id, '');
 });
@@ -121,7 +122,7 @@ test('actual submission handler retries one payload, blocks double submit, and d
     application: controller, busy: false, submitted: false, CONFIG: { webhookUrl: 'https://example.invalid/hook' },
     screens: { email: { btn: {}, status: {} } }, outcome: () => 'booking',
     buildPayload: () => ({ ...input, variant: 'coaches' }), isDemo: () => false,
-    fetch: async (url, opts) => { calls.push(JSON.parse(opts.body)); if (failFirst) { failFirst = false; throw new Error('ambiguous network failure'); } return { ok: true }; },
+    fetch: async (url, opts) => { calls.push(JSON.parse(opts.body)); if (failFirst) { failFirst = false; throw new Error('ambiguous network failure'); } return { ok: true, json: async () => ({ application_id: calls.at(-1).application_id, status: 'accepted', ghl_contact_id: 'contact-test', crm_state: 'saved', workflow_state: 'acknowledged' }) }; },
     AbortController, setTimeout: (fn, ms) => { if (ms === 1500) queueMicrotask(fn); return 1; }, clearTimeout: () => {},
     clearDraft: () => {}, window: { fbq: () => { throw new Error('pixel blocked'); } },
     renderEnd: () => {}, show: () => resolveEnd(),
@@ -144,7 +145,11 @@ test('failed delivery emits no conversion and preserves identity for a later man
   const context = vm.createContext({ application: controller, busy: false, submitted: false,
     CONFIG: { webhookUrl: 'https://example.invalid/hook' }, screens: { email: { btn: {}, status: {} } },
     outcome: () => 'booking', buildPayload: () => ({ ...input }), isDemo: () => false,
-    fetch: async (url, opts) => { calls.push(JSON.parse(opts.body)); return { ok: !fail, status: fail ? 503 : 200 }; },
+    fetch: async (url, opts) => {
+      if (url === '/api/application/events') return { ok: true };
+      const sent = JSON.parse(opts.body); calls.push(sent);
+      return { ok: !fail, status: fail ? 503 : 200, json: async () => ({ application_id: sent.application_id, status: 'accepted', ghl_contact_id: 'contact-test', crm_state: 'saved', workflow_state: 'acknowledged' }) };
+    },
     AbortController, setTimeout: (fn, ms) => { if (ms === 1500) queueMicrotask(fn); return 1; }, clearTimeout: () => {},
     clearDraft: () => {}, window: { fbq: (...args) => pixels.push(args) },
     renderEnd: () => {}, show: () => done(), setError: () => done()
@@ -153,7 +158,7 @@ test('failed delivery emits no conversion and preserves identity for a later man
   await terminal; assert.equal(pixels.length, 0); assert.equal(calls.length, 2);
   fail = false; terminal = new Promise(resolve => { done = resolve; });
   vm.runInContext("submit({ id: 'email', type: 'email' });", context); await terminal;
-  assert.equal(calls[0].application_id, calls[2].application_id); assert.equal(pixels.length, 1);
+  assert.equal(calls[0].application_id, calls[2].application_id); assert.equal(pixels.filter(x => x[1] === 'SubmitApplication').length, 1); assert.equal(pixels.filter(x => x[1] === 'Lead').length, 1);
 });
 
 test('all shipped inline JavaScript parses, and calendar handoff carries correlation IDs', () => {
@@ -168,4 +173,21 @@ test('all shipped inline JavaScript parses, and calendar handoff carries correla
   const url = new URL(vm.runInContext("calendarLink({ application_id: 'aob-synthetic', campaign_id: '111', ad_id: '333' })", context));
   assert.equal(url.searchParams.get('application_id'), 'aob-synthetic');
   assert.equal(url.searchParams.get('ad_id'), '333');
+});
+
+
+test('browser and server agree on current Meta traffic, future sources, unknowns and legacy numeric IDs', () => {
+  const { api } = setup();
+  for (const query of [
+    'utm_source=facebook&utm_medium=ppc&utm_id=120254405385540483&utm_term=120254405387700483',
+    'utm_source=facebook&utm_medium=paid', 'utm_source=meta&utm_medium=paid_social',
+    'utm_source=meta-ads&utm_medium=paid_social', 'utm_source=newsletter&utm_medium=email',
+    'utm_source=google&utm_medium=cpc', 'utm_source=facebook&utm_medium=organic',
+    'fbclid=synthetic', '', 'utm_source=facebook&utm_medium=ppc&campaign_id=123456&adset_id=234567&ad_id=345678'
+  ]) {
+    const params = new URLSearchParams(query);
+    const browser = api.attribution(params);
+    const server = serverAttribution(Object.fromEntries(params));
+    for (const [key, value] of Object.entries(server)) assert.equal(browser[key], value, key + ': ' + query);
+  }
 });

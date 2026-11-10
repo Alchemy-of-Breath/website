@@ -1,127 +1,158 @@
-# Application identity and attribution contract
+# Durable facilitator applications
 
-## What this change does
+This branch replaces the browser's direct GHL webhook POST with a same-origin
+Cloudflare Pages Function. It needs a D1 binding and server-side credentials before
+it can serve production. Do not merge or deploy an unconfigured receiver.
 
-Both form variants now carry a random application ID and a stable submission timestamp.
-Unchanged retries (including a reload in the same browser with storage available) reuse
-that identity for up to 14 days. Edited answers or attribution are a different logical
-application, with a new identity. On acceptance, the form prevents a second submit in
-the current page. Restarting the demo explicitly starts a new application.
+## Application and attribution contract
 
-The browser stores only ID/timestamp/status and a SHA-256 digest in its pending-identity
-entry. The pre-existing answer draft is separate and unchanged. If embedded storage is
-blocked, `identity_persistence=memory` makes the reduced guarantee explicit; identity
-then survives retries in that document but not reloads. The form requires HTTPS (or a
-secure localhost context) for Web Crypto. Failure to prepare identity does not post a
-submission or send a conversion.
+1. The form prepares a UUID and stable timestamp for one logical application.
+   Identical pending retries reuse that ID, including after a browser reload when
+   storage is available. Pending browser metadata holds a digest, not form answers.
+2. The receiver validates the payload and derives source/event IDs itself. D1 has
+   a unique application_id, original payload, server received_at, qualification,
+   attribution and processing states. Existing rows cannot be replaced by different
+   answers under the same ID. Concurrent requests claim processing once.
+3. GHL resolves the contact by email. Its returned ID is verified against the email
+   and linked to the application. Original acquisition source and Lead Source are
+   populated only if blank and attribution is explicit. Existing values are kept.
+4. The existing GHL workflow receives the application and resolved contact ID once.
+   Only after CRM confirmation and workflow HTTP acknowledgement does the browser
+   receive an accepted receipt. This is not proof that every downstream email or
+   workflow action completed; those remain visible in GHL execution logs.
+5. Both variants use SubmitApplication for every accepted application and Lead for
+   qualified applications only. `outcome=booking` means calendar eligibility, not
+   an appointment. Each event ID is `application_id:event_name`.
+6. The Meta outbox sends the same IDs through CAPI when explicitly enabled and
+   configured. It records Meta events_received receipts. Browser dispatch is a
+   separate attempted timestamp: it never marks provider acceptance.
 
-The current webhook still responds before the GHL workflow completes. **An ID is a
-correlation key, not server-side deduplication or a durable receipt.** This PR does not
-make the webhook idempotent, prove a contact was saved, or implement an application ledger.
+Standard SubmitApplication behavior is retained; coaches now also emit it. Standard
+qualified applications now also emit Lead, matching coaches. Both event types remain
+separate; do not add them as applicants or rename either as a Schedule event.
 
-## Identifier ownership
+## Source rules
 
-| Field | Owner and meaning |
-| --- | --- |
-| `application_id` | Form-generated UUID, identifies one logical submission |
-| `submitted_at` | First attempt's browser timestamp (UTC); retain server receipt time separately |
-| `meta_event_id` | `application_id:SubmitApplication`, also passed as Pixel `eventID` |
-| `qualified_lead_event_id` | `application_id:Lead` for qualified coaches only |
-| GHL contact ID | Assigned/resolved by GHL after the contact action, never fabricated in the browser or accepted from a URL |
-| `meta_campaign_id`, `meta_adset_id`, `meta_ad_id` | Captured explicit URL IDs, empty if absent |
+Use the submitted UTMs, not form version, campaign name or old contact fields:
 
-The payload preserves raw `campaign_id`, `adset_id`, `ad_id`, `utm_*`, click IDs,
-`h_ad_id` and `fbc_id`. Legacy `fbc_id` and `utm_id` are not guessed to be campaign IDs.
-The calendar handoff retains the application ID and captured ad parameters, but the
-calendar must separately persist the application ID to make a durable appointment join.
+| Captured input | Application source |
+|---|---|
+| facebook/ppc, facebook/paid, meta/paid_social | Meta Ads |
+| meta-ads/paid_social and explicit Meta aliases | Meta Ads |
+| facebook/organic | Social Direct |
+| google/organic | Website Organic |
+| newsletter/email, partner/referral, google/cpc | Preserve the source name |
+| No utm_source, even with fbclid | Unknown |
 
-Configure actual Meta ad URL parameters (in Ads Manager, separately from this PR), e.g.:
+The application ledger preserves the raw source/medium. The existing GHL Lead Source
+picklist uses Other for explicitly captured sources outside its named categories;
+GHL native source and the application ledger retain their actual source name. An
+existing contact's original source is not a per-application source and is preserved.
 
-```text
+Capture numeric campaign_id/adset_id/ad_id (or meta_* equivalents). Existing Meta
+ads' numeric utm_id and utm_term are retained as campaign/adset IDs when utm_source
+explicitly names Meta/Facebook/Instagram. Non-Meta utm_id is not reclassified as Meta.
+No ad ID can be recovered if it was never supplied. Configure future ad URL tags:
+
+```
 utm_source=meta&utm_medium=paid_social&utm_campaign={{campaign.name}}&utm_content={{ad.name}}&campaign_id={{campaign.id}}&adset_id={{adset.id}}&ad_id={{ad.id}}
 ```
 
-The form cannot recover IDs the ad never supplied. UTMs are captured claims, not proof
-of an ad impression, and must not be treated as Meta's advertising attribution model.
+The inspected WordPress embed forwards the full URLSearchParams into the iframe,
+including legacy and explicit IDs. Recheck the deployed embed before release.
 
-## GHL follow-up — not applied by this PR
+## Required release configuration
 
-Open **Facilitator Application – Web Form (Typeform replacement)** in the account's
-Automation workflow list. Existing actions map webhook fields into contact fields.
-The unconditional **Update contact field → Lead Source = Meta Ads** must be removed.
-Also remove the unconditional **Create/update opportunity → source = Meta Ads –
-Application Funnel – Indirect**. Changing form code cannot change those actions.
+Use the Cloudflare account that owns website-5h3.pages.dev, not another account.
+Keep all existing Pages environment variables and bindings. Do not overwrite the
+booking project's configuration. deployment.example.jsonc is a reference, not a
+usable deployment config. wrangler.local.jsonc uses a dummy ID for local tests only.
 
-Use the following receiver contract after separate approval:
+- Create D1 `aob-facilitator-applications` in the AoB account. Bind it as
+  APPLICATIONS_DB in production and use a separate database in preview.
+- Apply migrations/0001_applications.sql before publishing the new form.
+- Set APPLICATION_GHL_LOCATION_ID to 5lz2Wm44CNDwLSZWgAPf.
+- Set APPLICATION_GHL_TOKEN as a scoped server-side GHL integration secret with
+  contacts read/write permissions. Never expose it to the form or source control.
+- Set APPLICATION_GHL_WEBHOOK_URL to the existing facilitator workflow's inbound
+  webhook, retained in GHL. Preview must use an isolated workflow without customer
+  communications; never point synthetic tests at the live workflow.
+- Set APPLICATION_REPORT_TOKEN as an independent random secret of at least 32
+  characters. The report endpoint is unavailable without it.
+- CAPI: set APPLICATION_META_PIXEL_ID, APPLICATION_META_API_VERSION to an API version
+  verified against the connected account, and APPLICATION_META_TOKEN as a secret.
+  Set APPLICATION_META_CAPI_ENABLED=true only after the site's consent behavior and
+  CAPI event delivery have been verified. Default is off; pending events are gaps,
+  not silently successful conversions. Use APPLICATION_META_TEST_EVENT_CODE in
+  isolated testing, then remove it before live traffic. A test receipt is not a live
+  attributed conversion. Do not backfill old pending events automatically.
+- Verify GHL no longer has an unconditional Meta Lead Source action, fixed contact
+  source field, or fixed Meta opportunity source. The live source changes are
+  snapshotted outside Git; this repository does not mutate workflow definitions.
 
-1. Store a separate application record per `application_id` with server receipt time,
-   `submitted_at`, variant, outcome, raw attribution, event IDs and processing status.
-   Enforce ID uniqueness at the receiver; repeated deliveries return the same receipt.
-   Do not use mutable contact fields as the historical ledger.
-2. Create/update the contact, then bind the application to the **resolved `contact.id`**.
-   The receipt/ledger owns `application_id → contact_id`; do not send a GHL API token
-   to the browser. A webhook acknowledgement without this result is still pending CRM
-   processing, not proof of a saved contact.
-3. Store `application_lead_source` on the application. Its proposed labels match the
-   current contact picklist: explicit paid Meta UTMs → `Meta Ads`, explicit organic
-   social → `Social Direct`, other organic → `Website Organic`, otherwise `Other`.
-   Missing attribution remains `attribution_status=unknown`; do not equate it with
-   organic traffic. Preserve raw source/medium so future sources remain distinguishable.
-4. Keep original contact acquisition source separate from application source. If the
-   business chooses to populate the contact's Lead Source from this value, do so only
-   when the original field is blank. Do not overwrite an existing contact's history.
-5. Store `utm_source`, `utm_medium`, `utm_campaign`, `utm_content`, `utm_term`, `utm_id`,
-   campaign/ad-set/ad IDs and click IDs per application. The current workflow retains
-   only source/medium/campaign on the contact; adding payload fields alone does not save them.
-6. Keep receipt recording separate from follow-up email enrollment. Do not enable
-   re-entry blindly: retries must not send additional emails or create opportunities.
+Production release remains gated on the repository's PR acceptance. Preparing or
+passing this branch's tests does not publish the form. Do not reopen PR #1; this
+branch replaces the incomplete client-only proposal.
 
-The smallest complete durable receiver is one server-side application table with a
-unique application ID and a recorded GHL delivery/contact result. That requires an
-approved receiver/storage deployment beyond this form-only PR. A transitional set of
-contact custom fields improves visibility but is **not** a historical application ledger.
+## Recovery and failure handling
 
-## Meta events and pixel scope
+D1 records the workflow attempt before the external POST. A timeout after GHL might
+have accepted the request is needs_review/uncertain. It must not be retried blindly,
+because an email/opportunity workflow is not an idempotent API. A crash can leave
+processing or attempting visible in the report. No new application or Meta event is
+invented to hide the gap.
 
-After a successful webhook HTTP response, both variants send `SubmitApplication`.
-Qualified coaches also retain their existing `Lead` event and `coach-ad` content
-category. The two event types have different IDs; do not sum them as unique applicants.
-Existing campaign optimization settings are unchanged. Reporting must name the exact
-action type, variant, attribution window, timezone and date basis. Record the rollout
-date: coach `SubmitApplication` coverage starts with this release and is not backfilled.
+For each stuck ID, inspect the original GHL inbound payload in execution logs and
+match its applicationId, workflowStatusId and successful contact action. If the run
+exists, reconcile its receipt into the ledger after checking the resolved contact;
+if absence cannot be established, leave the delivery uncertain. A CRM-only failure
+can be retried after checking the exact normalized email and contact. Do not reset
+workflow_state without independent evidence that enrollment did not happen. Recovery
+is an operator action, not a public HTTP endpoint. Back up D1 before any repair.
 
-Browser events are suppressed on local/preview hosts, even when `embed_page` claims a
-production URL. Only the production WordPress hosts and the stable Pages origin may
-post to the live webhook. Preview/local paths use the existing demo ending.
+CAPI uncertain events retain stable IDs for a controlled retry within Meta's current
+allowed event and deduplication window. Verify those limits before replay; an old
+pending event must not be sent as a new conversion today. For duplicate/pending
+browser deliveries, the endpoint returns the existing record and never resends GHL.
 
-This PR does not change WordPress PixelYourSite, its server-side integration, cookie
-consent, GTM, or account-wide event rules. Inspect those separately. If a server later
-sends an application conversion, it must use the corresponding event name and ID;
-an unrelated PageView ID cannot deduplicate an application conversion. Do not assume
-the presence of server-side pixel configuration proves duplicate applications.
+## Verification
 
-## Validation and deployment
+```
+node --test tools/application/test.mjs tools/application/receiver.test.mjs
+npx wrangler pages functions build --outdir /private/tmp/aob-application-build
+npx wrangler d1 migrations apply aob-application-local-check --local --config tools/application/wrangler.local.jsonc
+```
 
-Run `node --test tools/application/test.mjs`. The suite executes the shipped inline
-helper and actual submit handler with synthetic responses; it checks retry identity,
-failure handling, event semantics, attribution and preview safety without live traffic.
-The proposed **Application contract / application-contract** CI workflow is provided at
-`tools/application/application-contract.yml`. It is not installed: the available GitHub
-OAuth credential lacks the `workflow` scope. A repository administrator must review and
-copy it to `.github/workflows/application-contract.yml`, then require its passing check.
-Local tests pass independently of hosted CI. This is not a browser
-UI acceptance test or end-to-end GHL/Meta proof. There is no `.reticle.json`, so there
-is no Reticle verdict; UI behavior remains unverified by Reticle. Reticle can be wired
-with `reticle init` in a separate verification setup.
+The tests use actual SQLite schema/constraints with deterministic provider doubles.
+They cover 25 parallel retries, altered-payload conflicts, both variants and all
+outcomes, current Meta UTMs, future/unknown sources, original acquisition protection,
+missing CRM receipt, ambiguous workflow delivery and CAPI failure/receipt handling.
+They are not live GHL or Meta acceptance evidence.
 
-Keep this PR draft until the receiver/mappings and reporting definitions are agreed.
-No production workflow, ad, pixel setting, infrastructure or WordPress install is changed
-by opening the PR. Branches may receive Cloudflare preview builds, which run demo mode.
-Production promotion depends on the actual Cloudflare production-branch configuration,
-not on a successful PR test alone. Check it before merging. Required reviews/checks must
-be configured as repository rules; adding a CI YAML does not enforce a merge gate.
+Run local-harness.mjs with APPLICATION_TEST_DB pointing outside Git to a private test
+SQLite file. It is localhost-only, uses production receiver/provider code with fake
+GHL and Meta responses, and refuses unexpected external fetches. For browser checks,
+proxy the virtual website-5h3.pages.dev origin to this local server in an isolated
+browser; abort every other origin and install a pixel test double. Never navigate
+that origin for this test without the proxy first. browser-journey.mjs drives both
+qualified form variants; browser-finish.mjs covers the rejected coach ending.
+The local fixture is test tooling, not an alternative production receiver.
 
-After approval and coordinated rollout, verify the persisted application/contact link,
-one event per declared conversion, failed-delivery visibility, and campaign joins in a
-bounded test. Compare historical data separately; missing IDs and submission dates cannot
-be reconstructed just by deploying this change.
+## Reporting and parity
+
+GET /api/application/report requires Bearer APPLICATION_REPORT_TOKEN. Use inclusive
+from and exclusive to ISO timestamps; reporting is by server received_at, not mutable
+contact creation date. Follow every next cursor before claiming complete counts.
+Export all pages to one JSON with applications and events arrays and next=null, then:
+
+```
+node tools/application/reconcile.mjs private-complete-export.json
+```
+
+This checks one confirmed SubmitApplication event per CRM-confirmed application and
+one Lead per qualified application by application ID. Missing/uncertain receipts
+produce an explicit gap and a nonzero exit. It does not claim that Ads Manager's
+attributed totals equal all GHL submissions. Attribution windows, view-through events,
+consent and event-date settings remain distinct. Historical counts cannot be repaired
+by deploying new code. A live test requires a real GHL receipt and Meta Test Events
+acceptance with matching event IDs, followed by a like-for-like production cohort.

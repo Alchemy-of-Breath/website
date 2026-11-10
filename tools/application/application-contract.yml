@@ -5,12 +5,18 @@ on:
     paths:
       - 'facilitator-application/**'
       - 'tools/application/**'
+      - 'application-lib/**'
+      - 'functions/api/application/**'
+      - 'migrations/**'
       - '.github/workflows/application-contract.yml'
   push:
     branches: [main]
     paths:
       - 'facilitator-application/**'
       - 'tools/application/**'
+      - 'application-lib/**'
+      - 'functions/api/application/**'
+      - 'migrations/**'
       - '.github/workflows/application-contract.yml'
 
 permissions:
@@ -24,5 +30,5 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
-      - run: node --test tools/application/test.mjs
+          node-version: '24'
+      - run: node --test tools/application/test.mjs tools/application/receiver.test.mjs

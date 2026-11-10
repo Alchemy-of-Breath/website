@@ -255,17 +255,16 @@ button{font:inherit;color:inherit}
   function attribution(params) {
     var data = {};
     TRACK_KEYS.forEach(function (k) { data[k] = (params.get(k) || '').slice(0, 250); });
-    data.meta_campaign_id = data.meta_campaign_id || data.campaign_id;
-    data.meta_adset_id = data.meta_adset_id || data.adset_id;
-    data.meta_ad_id = data.meta_ad_id || data.ad_id;
-    // A click ID alone does not prove paid traffic. Retain the raw UTMs as evidence.
+    function numeric(value) { return /^\d{5,25}$/.test(value) ? value : ''; }
     var source = data.utm_source.trim().toLowerCase();
     var medium = data.utm_medium.trim().toLowerCase();
-    var social = ['meta', 'facebook', 'fb', 'instagram', 'ig'].indexOf(source) !== -1;
-    var paid = ['paid_social', 'paid', 'ppc', 'cpc'].indexOf(medium) !== -1;
+    var social = ['meta', 'meta-ads', 'meta_ads', 'facebook', 'facebook_ads', 'fb', 'instagram', 'ig'].indexOf(source) !== -1;
+    var paid = ['paid_social', 'paid-social', 'paid', 'ppc', 'cpc'].indexOf(medium) !== -1;
     var organicSocial = ['organic', 'social', 'organic_social', 'social_media'].indexOf(medium) !== -1;
-    data.application_lead_source = social ? (paid ? 'Meta Ads' : (organicSocial ? 'Social Direct' : 'Other')) :
-      (medium === 'organic' ? 'Website Organic' : 'Other');
+    data.meta_campaign_id = numeric(data.meta_campaign_id) || numeric(data.campaign_id) || (social ? numeric(data.utm_id) : '');
+    data.meta_adset_id = numeric(data.meta_adset_id) || numeric(data.adset_id) || (social ? numeric(data.utm_term) : '');
+    data.meta_ad_id = numeric(data.meta_ad_id) || numeric(data.ad_id);
+    data.application_lead_source = source ? (social && paid ? 'Meta Ads' : social && organicSocial ? 'Social Direct' : medium === 'organic' ? 'Website Organic' : source) : 'Unknown';
     data.attribution_status = source ? 'captured_utm' : 'unknown';
     return data;
   }
@@ -299,7 +298,7 @@ button{font:inherit;color:inherit}
       var persisted = write(saved);
       return Object.assign({}, payload, { application_id: saved.application_id, submitted_at: saved.submitted_at,
         meta_event_name: 'SubmitApplication', meta_event_id: saved.application_id + ':SubmitApplication',
-        qualified_lead_event_id: options.variant === 'coaches' && payload.outcome === 'booking' ? saved.application_id + ':Lead' : '',
+        qualified_lead_event_id: payload.outcome === 'booking' ? saved.application_id + ':Lead' : '',
         identity_persistence: persisted ? 'browser' : 'memory' });
     }
     function accepted(payload) {
@@ -323,12 +322,9 @@ button{font:inherit;color:inherit}
   root.AoBApplication = { trackingKeys: TRACK_KEYS, attribution: attribution, create: create, productionHost: productionHost };
 })(window);
 </script>
-<!-- Meta Pixel 713374525487066: SubmitApplication after webhook acceptance for both
-     variants; coaches also retain the qualified-only Lead event. Acceptance is not
-     proof of completed GHL processing. Local and preview hosts send neither event.
-     PageView is not sent here: the WordPress page that frames this form already
-     sends it (behind its cookie-consent banner). Loads only when the form is shown
-     on alchemyofbreath.com, embedded (embed_page) or served directly. -->
+<!-- Meta Pixel 713374525487066: one SubmitApplication for each confirmed application,
+     and one Lead for each qualified application, on both form versions.
+     Bootstraps only on the production domain or its production embedded form. -->
 <script>
 (function(){
   var ep=new URLSearchParams(location.search).get('embed_page')||'';
@@ -373,9 +369,9 @@ button{font:inherit;color:inherit}
 
   /* ================= SETTINGS ================= */
   var CONFIG = {
-    // GHL: Automation → Workflows → new workflow → trigger "Inbound Webhook" → copy its URL here.
-    // Leave empty for demo mode: nothing is sent and the last screen shows the payload instead.
-    webhookUrl: 'https://services.leadconnectorhq.com/hooks/5lz2Wm44CNDwLSZWgAPf/webhook-trigger/9ee817cd-6f28-49af-8b32-57e6f4cfd150',
+    // Same-origin receiver stores one application and confirms the GHL contact.
+    // No browser credential and no direct webhook acknowledgement as a save receipt.
+    webhookUrl: '/api/application/submit',
     // Step 2, the speak-with-a-graduate booking page. Name, email and phone ride along as query
     // params so the calendar form arrives prefilled and the booking lands on the same GHL contact.
     calendarUrl: 'https://go.alchemyofbreath.com/speak-with-graduate',
@@ -386,7 +382,7 @@ button{font:inherit;color:inherit}
   };
 
   // ?for=coaches → the version for the coaches Meta ad: its own welcome copy and questions, sent as
-  // variant "coaches" (GHL tags it fa-coach-ad). Qualified applications also send Lead.
+  // variant "coaches" (GHL tags it fa-coach-ad). Both variants track qualification separately.
   var COACHES = new URLSearchParams(location.search).get('for') === 'coaches';
   if (COACHES) {
     CONFIG.source = 'facilitator-application-coaches';
@@ -830,6 +826,13 @@ button{font:inherit;color:inherit}
     }).then(function (r) {
       clearTimeout(timer);
       if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json().then(function (receipt) {
+        if (receipt.application_id !== payload.application_id || receipt.status !== 'accepted' ||
+            !receipt.ghl_contact_id || receipt.crm_state !== 'saved' || receipt.workflow_state !== 'acknowledged') {
+          throw new Error('Application is still awaiting confirmation');
+        }
+        return receipt;
+      });
     }, function (e) { clearTimeout(timer); throw e; });
   }
 
@@ -861,7 +864,16 @@ button{font:inherit;color:inherit}
       if (s.btn) s.btn.disabled = false;
       clearDraft();
       // Pixel errors must not turn an accepted webhook into an apparent failed form.
-      if (!isDemo()) { try { application.events(payload, window.fbq); } catch (e) {} }
+      if (!isDemo()) {
+        try {
+          application.events(payload, window.fbq);
+          if (typeof window.fbq === 'function') fetch('/api/application/events', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' }, keepalive: true,
+            body: JSON.stringify({ application_id: payload.application_id,
+              events: [payload.meta_event_id].concat(payload.qualified_lead_event_id ? [payload.qualified_lead_event_id] : []) })
+          }).catch(function () {});
+        } catch (e) {}
+      }
       renderEnd(o, payload);
       show('end', 1);
     }, function () {
