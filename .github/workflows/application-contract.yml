@@ -8,6 +8,8 @@ on:
       - 'application-lib/**'
       - 'functions/api/application/**'
       - 'migrations/**'
+      - 'assets/aob-application-*.js'
+      - 'wordpress-plugin/aob-pages-proxy/**'
       - '.github/workflows/application-contract.yml'
   push:
     branches: [main]
@@ -17,6 +19,8 @@ on:
       - 'application-lib/**'
       - 'functions/api/application/**'
       - 'migrations/**'
+      - 'assets/aob-application-*.js'
+      - 'wordpress-plugin/aob-pages-proxy/**'
       - '.github/workflows/application-contract.yml'
 
 permissions:
@@ -31,4 +35,4 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - run: node --test tools/application/test.mjs tools/application/receiver.test.mjs
+      - run: node --test tools/application/test.mjs tools/application/receiver.test.mjs tools/application/meta.test.mjs tools/application/reconcile.test.mjs
