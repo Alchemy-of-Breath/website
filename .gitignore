@@ -4,9 +4,3 @@ Thumbs.db
 node_modules/
 .wrangler/
 .dev.vars
-
-.playwright-cli/
-output/
-*.sqlite
-*.sqlite-shm
-*.sqlite-wal
