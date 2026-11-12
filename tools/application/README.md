@@ -157,6 +157,32 @@ consent and event-date settings remain distinct. Historical counts cannot be rep
 by deploying new code. A live test requires a real GHL receipt and Meta Test Events
 acceptance with matching event IDs, followed by a like-for-like production cohort.
 
+### Existing Meta-managed CAPI: independent test observations
+
+The direct outbox cannot observe receipts from Conversions API with Meta. Do not
+enable a second sender to make this report turn green. Instead, an operator can
+record independently observed **processed** events from the authenticated Meta
+Test Events UI, retaining the screenshot/detail artifact as evidence, and compare:
+
+```
+node tools/application/reconcile.mjs private-complete-export.json --meta-observations private-meta-test-observations.json
+```
+
+The observation JSON must contain `source: "meta_test_events"`,
+`dataset_id: "713374525487066"`, ISO `captured_at`, a nonempty `evidence_reference`
+pointing to the retained independent UI artifact, `cohort_application_ids` matching
+every application in the CRM export, and `events` containing unique
+`{event_id, event_name, status: "processed"}` records. Copy actual IDs/statuses from
+Meta, not the expected IDs from the ledger or queued browser calls. Include both
+SubmitApplication and Lead when qualified. Missing/extra/inconsistent events fail.
+
+This mode records the observation file SHA-256 and provenance in its output. It
+compares the declared test cohort's IDs and labels its scope **test**, never Live
+or Ads Manager attribution. Evidence references require human review: the CLI
+cannot authenticate an operator-authored JSON file or verify its screenshot.
+It does not change outbox rows or manufacture direct-provider receipts, and it
+does not independently establish browser/server deduplication or production parity.
+
 
 ## Consent and advanced matching release
 
