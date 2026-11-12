@@ -241,27 +241,90 @@ button{font:inherit;color:inherit}
   .choice.blink,.shake{animation:none}
 }
 </style>
-<!-- Meta Pixel 713374525487066: SubmitApplication when an application reaches GHL
-     (coach version, ?for=coaches: Lead instead, for qualified applications only).
-     PageView is not sent here: the WordPress page that frames this form already
-     sends it (behind its cookie-consent banner). Loads only when the form is shown
-     on alchemyofbreath.com, embedded (embed_page) or served directly. -->
-<script>
-(function(){
-  var ep=new URLSearchParams(location.search).get('embed_page')||'';
-  var live=/(^|\.)alchemyofbreath\.com$/.test(location.hostname)||/^https:\/\/(www\.)?alchemyofbreath\.com\//.test(ep);
-  if(!live) return;
-  !function(f,b,e,v,n,t,s)
-  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-  n.queue=[];t=b.createElement(e);t.async=!0;
-  t.src=v;s=b.getElementsByTagName(e)[0];
-  s.parentNode.insertBefore(t,s)}(window, document,'script',
-  'https://connect.facebook.net/en_US/fbevents.js');
-  fbq('init', '713374525487066');
-})();
+<!-- Submission identity and attribution. Kept inline so the page stays self-contained.
+     This helper stores only identity metadata and a digest, not answers or contact IDs. -->
+<script id="application-tracking">
+(function (root) {
+  'use strict';
+  var TRACK_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'utm_id',
+    'gclid', 'fbclid', 'msclkid', 'campaign_id', 'adset_id', 'ad_id',
+    'meta_campaign_id', 'meta_adset_id', 'meta_ad_id', 'h_ad_id', 'fbc_id'];
+  function productionHost(host) {
+    return host === 'alchemyofbreath.com' || host === 'www.alchemyofbreath.com' || host === 'website-5h3.pages.dev';
+  }
+  function attribution(params) {
+    var data = {};
+    TRACK_KEYS.forEach(function (k) { data[k] = (params.get(k) || '').slice(0, 250); });
+    function numeric(value) { return /^\d{5,25}$/.test(value) ? value : ''; }
+    var source = data.utm_source.trim().toLowerCase();
+    var medium = data.utm_medium.trim().toLowerCase();
+    var social = ['meta', 'meta-ads', 'meta_ads', 'facebook', 'facebook_ads', 'fb', 'instagram', 'ig'].indexOf(source) !== -1;
+    var paid = ['paid_social', 'paid-social', 'paid', 'ppc', 'cpc'].indexOf(medium) !== -1;
+    var organicSocial = ['organic', 'social', 'organic_social', 'social_media'].indexOf(medium) !== -1;
+    data.meta_campaign_id = numeric(data.meta_campaign_id) || numeric(data.campaign_id) || (social ? numeric(data.utm_id) : '');
+    data.meta_adset_id = numeric(data.meta_adset_id) || numeric(data.adset_id) || (social ? numeric(data.utm_term) : '');
+    data.meta_ad_id = numeric(data.meta_ad_id) || numeric(data.ad_id);
+    data.application_lead_source = source ? (social && paid ? 'Meta Ads' : social && organicSocial ? 'Social Direct' : medium === 'organic' ? 'Website Organic' : source) : 'Unknown';
+    data.attribution_status = source ? 'captured_utm' : 'unknown';
+    return data;
+  }
+  function create(options) {
+    var key = 'aob-application-pending-v1-' + options.variant;
+    var memory = null;
+    var emitted = {};
+    function read() {
+      try { return JSON.parse(options.storage.getItem(key) || 'null') || memory; }
+      catch (e) { return memory; }
+    }
+    function write(value) {
+      memory = value;
+      try { options.storage.setItem(key, JSON.stringify(value)); return true; }
+      catch (e) { return false; }
+    }
+    async function prepare(payload) {
+      var bytes = new TextEncoder().encode(JSON.stringify(Object.keys(payload).filter(function (k) { return k !== 'meta_consent'; }).reduce(function (obj, k) { obj[k] = payload[k]; return obj; }, {})));
+      var digest = await options.crypto.subtle.digest('SHA-256', bytes);
+      var fingerprint = Array.from(new Uint8Array(digest)).map(function (b) { return b.toString(16).padStart(2, '0'); }).join('');
+      var saved = read();
+      var now = options.now();
+      if (!saved || saved.status !== 'pending' || saved.fingerprint !== fingerprint ||
+          !/^aob-[0-9a-f-]{36}$/.test(saved.application_id || '') ||
+          !Number.isFinite(Date.parse(saved.submitted_at)) ||
+          Date.parse(saved.submitted_at) > now ||
+          now - Date.parse(saved.submitted_at) > 14 * 864e5) {
+        saved = { application_id: 'aob-' + options.crypto.randomUUID(), submitted_at: new Date(now).toISOString(),
+          fingerprint: fingerprint, status: 'pending' };
+      }
+      var persisted = write(saved);
+      return Object.assign({}, payload, { application_id: saved.application_id, submitted_at: saved.submitted_at,
+        meta_event_name: 'SubmitApplication', meta_event_id: saved.application_id + ':SubmitApplication',
+        qualified_lead_event_id: payload.outcome === 'booking' ? saved.application_id + ':Lead' : '',
+        identity_persistence: persisted ? 'browser' : 'memory' });
+    }
+    function accepted(payload) {
+      var saved = read();
+      if (saved && saved.application_id === payload.application_id) { saved.status = 'webhook_accepted'; write(saved); }
+    }
+    function events(payload, fbq) {
+      if (typeof fbq !== 'function') return;
+      var data = { content_name: options.variant === 'coaches' ? 'Coach Application' : 'Facilitator Application',
+        content_category: options.variant === 'coaches' ? 'coach-ad' : 'facilitator-application',
+        variant: options.variant, outcome: payload.outcome, application_id: payload.application_id };
+      function emit(name, id) {
+        if (!emitted[id]) { fbq('track', name, data, { eventID: id }); emitted[id] = true; }
+      }
+      emit('SubmitApplication', payload.meta_event_id);
+      if (payload.qualified_lead_event_id) emit('Lead', payload.qualified_lead_event_id);
+    }
+    function reset() { memory = null; try { options.storage.removeItem(key); } catch (e) {} }
+    return { prepare: prepare, accepted: accepted, events: events, reset: reset };
+  }
+  root.AoBApplication = { trackingKeys: TRACK_KEYS, attribution: attribution, create: create, productionHost: productionHost };
+})(window);
 </script>
+<!-- Consent and matching are initialized after a confirmed application receipt.
+     The WordPress parent supplies its WPConsent decision through the consent bridge. -->
+<script src="/assets/aob-application-meta.js"></script>
 </head>
 <body class="no-anim">
 
@@ -289,9 +352,9 @@ button{font:inherit;color:inherit}
 
   /* ================= SETTINGS ================= */
   var CONFIG = {
-    // GHL: Automation → Workflows → new workflow → trigger "Inbound Webhook" → copy its URL here.
-    // Leave empty for demo mode: nothing is sent and the last screen shows the payload instead.
-    webhookUrl: 'https://services.leadconnectorhq.com/hooks/5lz2Wm44CNDwLSZWgAPf/webhook-trigger/9ee817cd-6f28-49af-8b32-57e6f4cfd150',
+    // Same-origin receiver stores one application and confirms the GHL contact.
+    // No browser credential and no direct webhook acknowledgement as a save receipt.
+    webhookUrl: '/api/application/submit',
     // Step 2, the speak-with-a-graduate booking page. Name, email and phone ride along as query
     // params so the calendar form arrives prefilled and the booking lands on the same GHL contact.
     calendarUrl: 'https://go.alchemyofbreath.com/speak-with-graduate',
@@ -302,7 +365,7 @@ button{font:inherit;color:inherit}
   };
 
   // ?for=coaches → the version for the coaches Meta ad: its own welcome copy and questions, sent as
-  // variant "coaches" (GHL tags it fa-coach-ad) and to Meta as a Lead. Webhook and calendar are shared.
+  // variant "coaches" (GHL tags it fa-coach-ad). Both variants track qualification separately.
   var COACHES = new URLSearchParams(location.search).get('for') === 'coaches';
   if (COACHES) {
     CONFIG.source = 'facilitator-application-coaches';
@@ -419,14 +482,17 @@ button{font:inherit;color:inherit}
   var screens = {};
   var currentId = null;
   var busy = false;
+  var submitted = false;
   var advanceTimer = null;
 
   var params = new URLSearchParams(location.search);
-  var tracking = {};
-  var TRACK_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'utm_id', 'gclid', 'fbclid', 'msclkid'];
-  TRACK_KEYS.forEach(function (k) {
-    tracking[k] = (params.get(k) || '').slice(0, 250);
-  });
+  var tracking = window.AoBApplication.attribution(params);
+  var TRACK_KEYS = window.AoBApplication.trackingKeys;
+  // Storage may be disabled in an embedded browser; retain identity in memory then.
+  var identityStorage;
+  try { identityStorage = window.localStorage; } catch (e) { identityStorage = null; }
+  var application = window.AoBApplication.create({ storage: identityStorage, crypto: window.crypto,
+    now: Date.now, variant: COACHES ? 'coaches' : 'default' });
   // When embedded on alchemyofbreath.com the parent page forwards its own URL, referrer and query string.
   tracking.referrer = params.get('embed_ref') || document.referrer || '';
   tracking.page_url = params.get('embed_page') || (location.origin + location.pathname);
@@ -462,7 +528,7 @@ button{font:inherit;color:inherit}
   var ARROW = 'M3 8h9M8.5 4.5 12 8l-3.5 3.5';
   var CHECK = 'M3 8.5l3.2 3.2L13 4.8';
 
-  function isDemo() { return !CONFIG.webhookUrl; }
+  function isDemo() { return !CONFIG.webhookUrl || !window.AoBApplication.productionHost(location.hostname); }
   function qById(id) { for (var i = 0; i < QUESTIONS.length; i++) if (QUESTIONS[i].id === id) return QUESTIONS[i]; return null; }
   function visibleList() { return QUESTIONS.filter(isVisible); }
   function val(id) {
@@ -722,7 +788,7 @@ button{font:inherit;color:inherit}
 
   /* ================= SUBMIT ================= */
   function buildPayload(o) {
-    var p = { source: CONFIG.source, variant: COACHES ? 'coaches' : 'default', outcome: o, outcome_tag: 'fa-' + o.replace(/_/g, '-'), submitted_at: new Date().toISOString() };
+    var p = { meta_consent: window.AoBMeta ? window.AoBMeta.consent() : 'unknown', source: CONFIG.source, variant: COACHES ? 'coaches' : 'default', outcome: o, outcome_tag: 'fa-' + o.replace(/_/g, '-') };
     QUESTIONS.forEach(function (q) { p[q.id] = isVisible(q) ? val(q.id) : ''; });
     if (p.phone) p.phone = '+' + p.phone.replace(/\D/g, '');
     p.summary = QUESTIONS.filter(function (q) { return isVisible(q) && !q.contact; })
@@ -732,6 +798,7 @@ button{font:inherit;color:inherit}
   }
 
   function post(payload) {
+    payload.meta_consent = window.AoBMeta ? window.AoBMeta.consent() : 'unknown';
     var ctrl = window.AbortController ? new AbortController() : null;
     var timer = setTimeout(function () { if (ctrl) ctrl.abort(); }, 10000);
     return fetch(CONFIG.webhookUrl, {
@@ -743,6 +810,14 @@ button{font:inherit;color:inherit}
     }).then(function (r) {
       clearTimeout(timer);
       if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json().then(function (receipt) {
+        if (receipt.application_id !== payload.application_id || receipt.status !== 'accepted' ||
+            !receipt.ghl_contact_id || receipt.crm_state !== 'saved' || receipt.workflow_state !== 'acknowledged') {
+          throw new Error('Application is still awaiting confirmation');
+        }
+        payload.ghl_contact_id = receipt.ghl_contact_id;
+        return receipt;
+      });
     }, function (e) { clearTimeout(timer); throw e; });
   }
 
@@ -754,22 +829,37 @@ button{font:inherit;color:inherit}
   }
 
   function submit(q) {
+    if (busy || submitted) return;
     busy = true;
     var s = screens[q.id];
     var o = outcome();
-    var payload = buildPayload(o);
+    var payload;
     if (s.btn) { s.btn.disabled = true; s.btn.textContent = 'Sending…'; }
     s.status.textContent = 'Sending your answers…';
     s.status.hidden = false;
-    send(payload).then(function () {
+    // Prepare once; automatic/manual retries of unchanged answers reuse the same ID.
+    application.prepare(buildPayload(o)).then(function (p) {
+      payload = p;
+      return send(payload);
+    }).then(function () {
+      submitted = true;
       busy = false;
+      application.accepted(payload);
       s.status.hidden = true;
       if (s.btn) s.btn.disabled = false;
       clearDraft();
-      if (window.fbq && !isDemo()) {
-        // Coach ad: a standard Lead, only for qualified applicants (Q1 "Yes"), so Meta learns from them.
-        if (COACHES) { if (o === 'booking') fbq('track', 'Lead', { content_name: 'Coach Application', content_category: 'coach-ad' }); }
-        else fbq('track', 'SubmitApplication', { content_name: 'Facilitator Application', outcome: o });
+      // Pixel errors must not turn an accepted webhook into an apparent failed form.
+      if (!isDemo()) {
+        try {
+          if (window.AoBMeta && window.AoBMeta.initialize(payload)) {
+            application.events(payload, window.fbq);
+            if (typeof window.fbq === 'function') fetch('/api/application/events', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' }, keepalive: true,
+            body: JSON.stringify({ application_id: payload.application_id,
+              events: [payload.meta_event_id].concat(payload.qualified_lead_event_id ? [payload.qualified_lead_event_id] : []) })
+          }).catch(function () {});
+          }
+        } catch (e) {}
       }
       renderEnd(o, payload);
       show('end', 1);
@@ -790,6 +880,7 @@ button{font:inherit;color:inherit}
       ['first_name', 'last_name', 'email', 'phone'].forEach(function (k) { if (p[k]) u.searchParams.set(k, p[k]); });
     }
     TRACK_KEYS.forEach(function (k) { if (p[k]) u.searchParams.set(k, p[k]); });
+    if (p.application_id) u.searchParams.set('application_id', p.application_id);
     return u.toString();
   }
 
@@ -849,6 +940,8 @@ button{font:inherit;color:inherit}
   }
 
   function restart() {
+    submitted = false;
+    application.reset();
     answers = {};
     clearDraft();
     QUESTIONS.forEach(function (q) {
