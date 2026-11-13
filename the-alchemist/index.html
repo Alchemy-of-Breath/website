@@ -616,8 +616,7 @@ section>.wrap{position:relative;z-index:1}
     {"@type":"CourseInstance","name":"The Inner Journey","courseMode":"Online","courseWorkload":"P15W"}
   ],
   "offers":[
-    {"@type":"Offer","name":"The Inner Journey, 15 week live cohort, Super Early Bird","price":"2297","priceCurrency":"USD","availability":"https://schema.org/InStock","validThrough":"2026-09-25T23:59:59+01:00"},
-    {"@type":"Offer","name":"The Inner Journey, 15 week live cohort, Early Bird","price":"2497","priceCurrency":"USD","availability":"https://schema.org/InStock","validFrom":"2026-09-26T00:00:00+01:00"}
+    {"@type":"Offer","name":"The Inner Journey, 15 week live cohort","price":"3097.00","priceCurrency":"USD","availability":"https://schema.org/InStock"}
   ]
 }
 </script>
@@ -871,15 +870,13 @@ section>.wrap{position:relative;z-index:1}
 
     <div class="paths-grid solo">
       <div class="path-card feat reveal d1">
-        <span class="tag">Next cohort &middot; September 2026</span>
+        <span class="tag">Next cohort &middot; November 19th</span>
         <h3>The Inner Journey</h3>
         <p class="lede">Fifteen weeks of live classes, walked together. The seven chapters opened in real time, with a teacher and a circle of others doing the same work.</p>
-        <span class="pp-flag" id="ppFlag">Super Early Bird &middot; until 25 September</span>
         <div class="path-price">
-          <span class="was">$3,097</span>
-          <span class="now" id="ppNow"><sup>$</sup>2,297</span>
+          <span class="now"><sup>$</sup>3,097.00</span>
         </div>
-        <p class="path-price-note" id="ppNote">Then $2,497 Early Bird from 26 September. Place held exclusively for you.</p>
+        <p class="path-price-note">Place held exclusively for you.</p>
         <ul class="path-list">
           <li>Weekly live classes, the seven chapters in real time</li>
           <li>Held in a small cohort for the full fifteen weeks</li>
@@ -1117,16 +1114,5 @@ section>.wrap{position:relative;z-index:1}
 })();
 </script>
 <script>(function(){if(window.self!==window.top){var st=document.createElement('style');st.textContent='.cv{content-visibility:visible !important}';document.head.appendChild(st);}function reportHeight(){var h=document.documentElement.scrollHeight;window.parent.postMessage({type:'aob-embed-resize',height:h},'*');}window.addEventListener('load',reportHeight);window.addEventListener('resize',reportHeight);var mo=new MutationObserver(reportHeight);mo.observe(document.body,{childList:true,subtree:true,attributes:true});setInterval(reportHeight,800);})();</script>
-<script>
-(function(){
-  /* Super Early Bird ends 25 Sep 2026 23:59 UK, then Early Bird $2,497 */
-  if(Date.now() > Date.UTC(2026, 8, 25, 22, 59, 59)){
-    var f=document.getElementById('ppFlag'), n=document.getElementById('ppNow'), t=document.getElementById('ppNote');
-    if(f) f.textContent='Early Bird';
-    if(n) n.innerHTML='<sup>$</sup>2,497';
-    if(t) t.textContent='Early Bird tuition. Place held exclusively for you.';
-  }
-})();
-</script>
 </body>
 </html>
