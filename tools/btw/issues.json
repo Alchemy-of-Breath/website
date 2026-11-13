@@ -130,5 +130,19 @@
     "pm_photo": "https://cdn.jsdelivr.net/gh/Alchemy-of-Breath/website@main/assets/btw/amy.jpg",
     "video": "https://cdn.jsdelivr.net/gh/Alchemy-of-Breath/website@main/assets/btw/amy-w45.mp4",
     "poster": "https://cdn.jsdelivr.net/gh/Alchemy-of-Breath/website@main/assets/btw/amy-w45-poster.jpg"
+  },
+  {
+    "date": "2026-11-15",
+    "title": "From Turmoil to Transformation",
+    "title_html": "From Turmoil to <em>Transformation</em>",
+    "subtitle": "What if the very thing you’re resisting is the doorway to your freedom?",
+    "description": "From turmoil to transformation. Breathe The World with Amy Rachelle, Alchemy of Breath graduate Sapphire and facilitator Angela.",
+    "am_host": "Sapphire",
+    "am_role": "longtime Alchemy of Breath graduate",
+    "pm_host": "Angela",
+    "pm_role": "Alchemy of Breath facilitator",
+    "closing": "May turmoil become transformation.",
+    "letter": "2026-46.html",
+    "pm_photo": "https://cdn.jsdelivr.net/gh/Alchemy-of-Breath/website@main/assets/btw/angela.jpg"
   }
 ]

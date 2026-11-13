@@ -212,6 +212,10 @@ h1,h2,h3{font-family:var(--serif);font-weight:400;color:var(--ink);line-height:1
 /* a call to action inside the letter */
 .letter-card .cta{text-align:center;margin:1.7em 0 1.9em}
 .letter-card .cta .zoom-btn{display:inline-flex;margin:0;text-align:center}
+/* a ticked list inside the letter */
+.letter-card .ticks{list-style:none;margin:-.3em 0 1.3em;padding:0}
+.letter-card .ticks li{position:relative;padding-left:1.7em;font-size:1.02rem;line-height:1.75}
+.letter-card .ticks li::before{content:"\2713";position:absolute;left:.2em;color:var(--gold-deep);font-weight:500}
 .ps p + p{margin-top:.7em}
 .past{position:relative;z-index:2;max-width:820px;margin:-8px auto 0;padding:0 26px}
 .past-card{background:var(--paper);border:1px solid rgba(225,182,104,.45);border-radius:22px;box-shadow:var(--shadow-soft);padding:30px 34px;text-align:center}
@@ -260,7 +264,7 @@ h1,h2,h3{font-family:var(--serif);font-weight:400;color:var(--ink);line-height:1
 .portrait-frame .play:hover span{transform:scale(1.06)}
 .portrait-frame .play:focus-visible span{outline:2px solid var(--ink);outline-offset:6px}
 /* optional line under the hero title */
-.hero .sub{font-family:var(--serif);font-size:clamp(1.05rem,2.2vw,1.3rem);color:var(--slate);max-width:28em;margin:-6px auto 18px}
+.hero .sub{font-family:var(--serif);font-size:clamp(1.05rem,2.2vw,1.3rem);color:var(--slate);max-width:28em;margin:-6px auto 18px;text-wrap:balance}
 /* facilitator photo on a session */
 .host.with-ph{display:flex;align-items:center;gap:12px}
 .host .av{width:52px;height:52px;border-radius:50%;object-fit:cover;flex:none;outline:1px solid rgba(225,182,104,.55);outline-offset:3px}
