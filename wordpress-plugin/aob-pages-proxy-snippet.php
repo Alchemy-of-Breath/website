@@ -43,6 +43,7 @@ function aob_pages_proxy_serve() {
 		'breathcamps'          => '/breathcamps/',
 		'breathcamps/guide'    => '/breathcamps/guide/',
 		'calendar-2026'        => '/calendar-2026/',
+		'calendar-2027'        => '/calendar-2027/',
 		'alchemy-regulation-method' => '/arm/',
 		'masterclass'          => '/masterclass/',
 		'legacy-scholarship'   => '/legacy-scholarship/',

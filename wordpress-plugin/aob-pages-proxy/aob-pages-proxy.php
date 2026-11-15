@@ -2,7 +2,7 @@
 /**
  * Plugin Name:  AoB Pages Proxy
  * Description:  Serves selected Alchemy of Breath pages directly from the Cloudflare Pages deployment on this domain — full content on the real URL, no iframes. Deactivate to instantly fall back to the previous pages.
- * Version:      1.2.0
+ * Version:      1.3.0
  * Author:       Alchemy of Breath
  */
 
@@ -41,6 +41,7 @@ function aob_pages_proxy_serve() {
 		'breathcamps'          => '/breathcamps/',
 		'breathcamps/guide'    => '/breathcamps/guide/',
 		'calendar-2026'        => '/calendar-2026/',
+		'calendar-2027'        => '/calendar-2027/',
 		'alchemy-regulation-method' => '/arm/',
 		'masterclass'          => '/masterclass/',
 		'legacy-scholarship'   => '/legacy-scholarship/',
