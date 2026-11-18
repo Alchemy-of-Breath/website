@@ -1010,6 +1010,20 @@ html:not(.ph-before):not(.ph-during):not(.ph-after) [data-show~="before"]{displa
 .lock .pr strong{font-family:var(--serif);font-weight:400;font-size:1.9rem}
 .qa-strip{max-width:900px;margin:20px auto 0;text-align:center;font-size:.95rem;color:#3d393a}
 @media(max-width:760px){.lock-grid{grid-template-columns:1fr}.bring ul{columns:1}}
+.cmp2-wrap{max-width:1000px;margin:44px auto 0;background:#fff;border:1px solid rgba(225,182,104,.35);border-radius:20px;overflow:hidden;box-shadow:var(--shadow-soft)}
+.cmp2{width:100%;border-collapse:collapse;font-size:.95rem;table-layout:fixed}
+.cmp2 thead th:first-child{width:22%}
+.cmp2 .sr{position:absolute;left:-9999px}
+.cmp2 thead th{font-family:var(--serif);font-weight:400;font-size:1.3rem;text-align:left;padding:22px 24px;background:var(--paper-2);border-bottom:1px solid rgba(225,182,104,.35)}
+.cmp2 thead th small{display:block;font-family:var(--sans);font-size:.68rem;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--slate);margin-top:4px}
+.cmp2 tbody th{text-align:left;font-weight:500;font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--slate);padding:16px 24px;width:22%;vertical-align:top}
+.cmp2 td{padding:16px 24px;vertical-align:top;line-height:1.55;color:#3d393a;border-left:1px solid rgba(225,182,104,.2)}
+.cmp2 tbody tr+tr th,.cmp2 tbody tr+tr td{border-top:1px solid rgba(225,182,104,.2)}
+.cmp2 .c-price s{font-family:var(--serif);font-size:1.15rem;color:var(--slate);text-decoration-color:#c8322a;text-decoration-thickness:2px}
+.cmp2 .c-bf{background:var(--gold-wash)}
+.cmp2 .c-bf strong{font-family:var(--serif);font-weight:400;font-size:1.7rem;color:var(--ink);margin-right:8px}
+.cmp2 .c-bf .ft-save{font-size:.66rem;vertical-align:4px}
+@media(max-width:760px){.cmp2 thead{display:none}.cmp2,.cmp2 tbody,.cmp2 tr,.cmp2 th,.cmp2 td{display:block;width:100%}.cmp2 tbody th{padding:16px 18px 4px;border-top:1px solid rgba(225,182,104,.25)}.cmp2 td{border-left:0;border-top:0!important;padding:4px 18px 8px}.cmp2 td::before{content:attr(data-l);display:block;font-size:.66rem;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-deep)}.cmp2 tbody tr+tr th{border-top:1px solid rgba(225,182,104,.25)}}
 </style>
 </head>
 <body>
@@ -1029,6 +1043,7 @@ html:not(.ph-before):not(.ph-during):not(.ph-after) [data-show~="before"]{displa
     <div class="nav-right">
       <a class="nav-link" href="#why">Why call first</a>
       <a class="nav-link" href="#saturday">Saturday</a>
+      <a class="nav-link" href="#compare">Compare</a>
       <a class="nav-link" href="#faq">FAQ</a>
       <a class="nav-cta" href="#book" data-show="before after">Book your call</a>
       <a class="nav-cta" href="/tg-facilitator-training-black-friday/" data-show="during">See the offer</a>
@@ -1150,6 +1165,41 @@ html:not(.ph-before):not(.ph-during):not(.ph-after) [data-show~="before"]{displa
       <div class="lock reveal d1"><span class="k">Live Residential &middot; June 2027</span><h3>21 days in Tuscany</h3><p>June 20 to July 10, 2027, plus 4 months online. A $997 deposit holds your place. Accommodation booked separately.</p><div class="pr"><s>$7,200</s><strong>$5,040</strong></div></div>
     </div>
     <p class="qa-strip reveal">Plus a live Q&amp;A with Amy and Anthony on Saturday at 9am Pacific. <span data-qa-local></span></p>
+  </div>
+</section>
+
+<!-- COMPARE -->
+<section class="alt" id="compare">
+  <div class="wrap">
+    <div class="center">
+      <span class="eyebrow reveal">Side by side</span>
+      <h2 class="reveal d1">Online or Tuscany: <em>which fits you?</em></h2>
+      <p class="lede reveal d2" style="margin:16px auto 0">Both lead to the same 400-hour, triple accredited certification, and both are $5,040 on Black Friday.</p>
+    </div>
+    <div class="cmp2-wrap reveal">
+      <table class="cmp2">
+        <thead><tr><th scope="col"><span class="sr">Detail</span></th><th scope="col">Online<small>T35 cohort</small></th><th scope="col">Live Residential<small>June 2027 cohort</small></th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Format</th><td data-l="Online">8 months online, with weekly live calls on Zoom and course content on our learning platform</td><td data-l="Live Residential">21 days living and training at ASHA, then 4 months online with follow-up classes and mentorship</td></tr>
+          <tr><th scope="row">Dates</th><td data-l="Online">Starts Tuesday, February 16, 2027. Live calls on Tuesdays at 7:00 pm EST, or 5:30 pm UK time</td><td data-l="Live Residential">June 20 to July 10, 2027</td></tr>
+          <tr><th scope="row">Where</th><td data-l="Online">From anywhere, then a 7-day graduation BreathCamp at ASHA, Tuscany</td><td data-l="Live Residential">ASHA, Tuscany, about 2.5 hours from Rome Fiumicino airport</td></tr>
+          <tr><th scope="row">Teaching</th><td data-l="Online">Weekly calls with Master Trainers, Q&amp;A and feedback on your case studies</td><td data-l="Live Residential">Breathe and practice every day with Anthony, Amy and our Master Trainers</td></tr>
+          <tr><th scope="row">Your own work</th><td data-l="Online">The Inner Journey, included</td><td data-l="Live Residential">The Inner Journey and the Seeds of Alchemy workshop, included</td></tr>
+          <tr><th scope="row">Certification</th><td data-l="Online">400 hours, triple accredited</td><td data-l="Live Residential">400 hours, triple accredited</td></tr>
+          <tr class="c-price"><th scope="row">Regular tuition</th><td data-l="Online"><s>$7,200</s></td><td data-l="Live Residential"><s>$7,200</s></td></tr>
+          <tr class="c-price c-bf"><th scope="row">Black Friday tuition</th><td data-l="Online"><strong>$5,040</strong> <span class="ft-save">Save $2,160</span></td><td data-l="Live Residential"><strong>$5,040</strong> <span class="ft-save">Save $2,160</span></td></tr>
+          <tr><th scope="row">Ways to pay</th><td data-l="Online">Pay in full $5,040, or a $500 deposit to hold the price</td><td data-l="Live Residential">A $997 deposit to hold your place</td></tr>
+          <tr><th scope="row">Booked separately</th><td data-l="Online">Your graduation BreathCamp at ASHA</td><td data-l="Live Residential">Your accommodation at ASHA</td></tr>
+          <tr><th scope="row">A good fit if</th><td data-l="Online">You want to train from home, alongside your work and life</td><td data-l="Live Residential">You want to step away and learn in person, on the land</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="cta-row reveal" data-show="before after" style="justify-content:center;margin-top:34px">
+      <a class="btn btn-primary" href="#book" data-ev="call_compare_book">Not sure which fits? Book a free call <span class="arr">&rarr;</span></a>
+    </div>
+    <div class="cta-row reveal" data-show="during" style="justify-content:center;margin-top:34px">
+      <a class="btn btn-primary" href="/tg-facilitator-training-black-friday/" data-ev="call_compare_to_offer">Choose your format <span class="arr">&rarr;</span></a>
+    </div>
   </div>
 </section>
 
