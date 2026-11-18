@@ -17,6 +17,15 @@ New pages prepared by Tania Glavey (TG) for review. Every folder starts with `tg
 | `/tg-homepage-black-friday/` | The current homepage with its hero swapped for the Black Friday week hero: dark background with gold orbs, countdown, waitlist button and a flipping five-day window (Fri BreathCamp, Sat Facilitator Training, Sun Breathe the World with a surprise gift, Mon ASHA retreats incl. Intuition with Amy, Tue surprise). Everything below the hero is unchanged. Set to noindex. To go live, swap this hero into `/index.html` for November 18 to December 1, then switch it back |
 | `/tg-facilitator-training-brochure/` | Facilitator Training brochure (web version) plus the PDF download |
 
+## Live on alchemyofbreath.com
+
+Pushed to `main` on November 18, 2026 (commit 9330463). The `tg-` copies here stay as the review versions; edit the live files on `main` for changes from now on.
+
+- Homepage (`/index.html`): the Black Friday week hero from `/tg-homepage-black-friday/` is live, indexable as before. Its waitlist button goes to `/offer/black-friday/#join`. Switch the hero back after December 1 (the previous hero is in commit 2d795ed).
+- `/offer/black-friday/`: the waitlist page from `/tg-black-friday-waitlist/`, with the GHL form.
+- `/offer/facilitator-training-brochure/`: the brochure from `/tg-facilitator-training-brochure/`. Its images and the PDF moved to `/assets/brochure/`, because the live site only serves page files from `/assets/`. The PDF is at alchemyofbreath.com/assets/brochure/alchemy-of-breath-facilitator-training-brochure.pdf.
+- When the BreathCamp Black Friday page goes live, point its waitlist buttons at `/offer/black-friday/#join`.
+
 ## Before going live
 
 - BreathCamp booking buttons on the public and graduate pages still use Retreat Guru preview links (`/program/preview/717`, `718`, `719`). Swap for the live booking links.
