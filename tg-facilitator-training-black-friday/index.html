@@ -1004,6 +1004,14 @@ html.ph-before .lock-cta[data-show~="before"],html.ph-during .lock-cta[data-show
 /* center every button row on these pages */
 .cta-row{justify-content:center}
 .final .eyebrow,.bc-hero .eyebrow{justify-content:center}
+/* checkout buttons through the page */
+.buy-row{display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px;margin:46px auto 0}
+.buy-btns{display:flex;flex-wrap:wrap;justify-content:center;gap:14px}
+.buy-note{margin:0;font-size:.84rem;color:var(--slate)}
+.buy-note a{color:var(--ink);text-underline-offset:3px}
+.buy-note a:hover{color:var(--gold-deep)}
+.bf-offer .buy-note{color:rgba(244,239,230,.7)}.bf-offer .buy-note a{color:#fff}
+@media(max-width:560px){.buy-btns{flex-direction:column;align-items:stretch;width:100%}}
 </style>
 </head>
 <body>
@@ -1053,6 +1061,7 @@ html.ph-before .lock-cta[data-show~="before"],html.ph-during .lock-cta[data-show
     </div>
     <div class="lock-cta reveal d3" data-show="before during">
       <a class="btn btn-primary btn-lock" href="#offer" data-ev="hero_lock_price">Lock in your price: $5,040 <span class="arr">&rarr;</span></a>
+      <p class="lock-sub">Or go straight to checkout: <a href="#checkout-online-full" data-ev="checkout_online_full_hero">enroll online</a> &middot; <a href="#checkout-residential-deposit" data-ev="checkout_residential_deposit_hero">reserve Tuscany</a></p>
       <p class="lock-sub" data-show="before">Questions first? <a href="/tg-facilitator-training-black-friday-call/" data-ev="hero_book_call">Book a free call</a></p>
       <p class="lock-sub" data-show="during">Then <a href="#qa">join the live Q&amp;A</a> with Amy and Anthony</p>
     </div>
@@ -1075,6 +1084,10 @@ html.ph-before .lock-cta[data-show~="before"],html.ph-during .lock-cta[data-show
       <div class="step glow reveal d2"><div class="sn">3</div><span class="when">Saturday, 9am Pacific</span><h3>Join the live Q&amp;A</h3><p>Meet Amy and Anthony live, ask what is on your mind, and hear what the training will ask of you.</p></div>
     </div>
   </div>
+  <div class="wrap"><div class="buy-row reveal">
+    <div class="buy-btns"><a class="btn btn-primary" href="#checkout-online-full" data-ev="checkout_online_full_how">Enroll online: $5,040 <span class="arr">&rarr;</span></a><a class="btn btn-primary" href="#checkout-residential-deposit" data-ev="checkout_residential_deposit_how">Reserve Tuscany: $997 deposit <span class="arr">&rarr;</span></a></div>
+    <p class="buy-note">Black Friday &middot; Saturday, November 28 only &middot; $5,040 instead of $7,200 &middot; or <a href="#checkout-online-deposit" data-ev="checkout_online_deposit_how">hold the online price with a $500 deposit</a></p>
+  </div></div>
 </section>
 
 <!-- OFFER -->
@@ -1167,8 +1180,8 @@ html.ph-before .lock-cta[data-show~="before"],html.ph-during .lock-cta[data-show
       </table>
     </div>
     <div class="cta-row reveal" style="justify-content:center;margin-top:34px">
-      <a class="btn btn-primary" href="#offer">Choose your format <span class="arr">&rarr;</span></a>
-      <a class="btn btn-ghost" href="/tg-facilitator-training-black-friday-call/" data-show="before after">Not sure which fits? Book a call</a>
+      <a class="btn btn-primary" href="#checkout-online-full" data-ev="checkout_online_full_compare">Enroll online: $5,040 <span class="arr">&rarr;</span></a>
+      <a class="btn btn-primary" href="#checkout-residential-deposit" data-ev="checkout_residential_deposit_compare">Reserve Tuscany: $997 deposit <span class="arr">&rarr;</span></a>
     </div>
   </div>
 </section>
@@ -1187,6 +1200,10 @@ html.ph-before .lock-cta[data-show~="before"],html.ph-during .lock-cta[data-show
       </div>
     </div>
   </div>
+  <div class="wrap"><div class="buy-row reveal">
+    <div class="buy-btns"><a class="btn btn-primary" href="#checkout-online-full" data-ev="checkout_online_full_qa">Enroll online: $5,040 <span class="arr">&rarr;</span></a><a class="btn btn-primary" href="#checkout-residential-deposit" data-ev="checkout_residential_deposit_qa">Reserve Tuscany: $997 deposit <span class="arr">&rarr;</span></a></div>
+    <p class="buy-note">Black Friday &middot; Saturday, November 28 only &middot; $5,040 instead of $7,200 &middot; or <a href="#checkout-online-deposit" data-ev="checkout_online_deposit_qa">hold the online price with a $500 deposit</a></p>
+  </div></div>
 </section>
 
 <!-- INCLUDED -->
@@ -1209,6 +1226,10 @@ html.ph-before .lock-cta[data-show~="before"],html.ph-during .lock-cta[data-show
     </div>
     <p class="ft-video-cap reveal">A message from Anthony Abbagnano, founder of Alchemy of Breath</p>
   </div>
+  <div class="wrap"><div class="buy-row reveal">
+    <div class="buy-btns"><a class="btn btn-primary" href="#checkout-online-full" data-ev="checkout_online_full_included">Enroll online: $5,040 <span class="arr">&rarr;</span></a><a class="btn btn-primary" href="#checkout-residential-deposit" data-ev="checkout_residential_deposit_included">Reserve Tuscany: $997 deposit <span class="arr">&rarr;</span></a></div>
+    <p class="buy-note">Black Friday &middot; Saturday, November 28 only &middot; $5,040 instead of $7,200 &middot; or <a href="#checkout-online-deposit" data-ev="checkout_online_deposit_included">hold the online price with a $500 deposit</a></p>
+  </div></div>
 </section>
 
 <!-- FAQ -->
@@ -1230,6 +1251,10 @@ html.ph-before .lock-cta[data-show~="before"],html.ph-during .lock-cta[data-show
       <details class="reveal"><summary>Is breathwork safe for everyone?<span class="pl">+</span></summary><div class="faq-a">No. Breathwork is not suitable for everyone. Please read our <a href="https://alchemyofbreath.com/waiver-and-release/">disclaimer</a>, and talk to your Success Advisor or doctor if you have any health concerns.</div></details>
     </div>
   </div>
+  <div class="wrap"><div class="buy-row reveal">
+    <div class="buy-btns"><a class="btn btn-primary" href="#checkout-online-full" data-ev="checkout_online_full_faq">Enroll online: $5,040 <span class="arr">&rarr;</span></a><a class="btn btn-primary" href="#checkout-residential-deposit" data-ev="checkout_residential_deposit_faq">Reserve Tuscany: $997 deposit <span class="arr">&rarr;</span></a></div>
+    <p class="buy-note">Black Friday &middot; Saturday, November 28 only &middot; $5,040 instead of $7,200 &middot; or <a href="#checkout-online-deposit" data-ev="checkout_online_deposit_faq">hold the online price with a $500 deposit</a></p>
+  </div></div>
 </section>
 
 <!-- FINAL -->
@@ -1241,6 +1266,7 @@ html.ph-before .lock-cta[data-show~="before"],html.ph-during .lock-cta[data-show
     <p class="lede reveal d2" style="margin:18px auto 34px">$5,040 instead of $7,200, online or in Tuscany. Questions? Email us at info@alchemyofbreath.com.</p>
     <div class="lock-cta reveal d3" data-show="before during">
       <a class="btn btn-primary btn-lock" href="#offer" data-ev="final_lock_price">Lock in your price: $5,040 <span class="arr">&rarr;</span></a>
+      <p class="lock-sub">Or go straight to checkout: <a href="#checkout-online-full" data-ev="checkout_online_full_final">enroll online</a> &middot; <a href="#checkout-residential-deposit" data-ev="checkout_residential_deposit_final">reserve Tuscany</a></p>
       <p class="lock-sub" data-show="before">Questions first? <a href="/tg-facilitator-training-black-friday-call/" data-ev="final_book_call">Book a free call</a></p>
       <p class="lock-sub" data-show="during">Then <a href="#qa">join the live Q&amp;A</a> with Amy and Anthony</p>
     </div>

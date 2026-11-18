@@ -902,6 +902,13 @@ html{scroll-padding-top:calc(var(--barh) + 70px)}
 @media(prefers-reduced-motion:reduce){.ff{display:none}.bfb-btn::after,.bf-free-tag::after,.bfb-clock i::before,.bfb-lbl{animation:none}}
 /* center every button row */
 .final .cta-row{justify-content:center}
+/* booking buttons through the page */
+.buy-row{display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px;margin:46px auto 0}
+.buy-btns{display:flex;flex-wrap:wrap;justify-content:center;gap:14px}
+.buy-note{margin:0;font-size:.84rem;color:var(--slate)}
+.buy-note a{color:var(--ink);text-underline-offset:3px}
+.buy-note a:hover{color:var(--gold-deep)}
+@media(max-width:560px){.buy-btns{flex-direction:column;align-items:stretch;width:100%}}
 </style>
 </head>
 <body>
@@ -945,9 +952,9 @@ html{scroll-padding-top:calc(var(--barh) + 70px)}
       </div>
       <p class="bft-note" data-bft-note>Ends at midnight your time, Friday, November 27</p>
     </div>
-    <div class="cta-row reveal d3">
-      <a class="btn btn-primary" href="#bf-offer">See the Black Friday offer <span class="arr">&rarr;</span></a>
-      <a class="btn btn-ghost" href="#stay">See rooms and prices</a>
+    <div class="buy-row reveal d3" style="margin-top:0">
+      <div class="buy-btns"><a class="btn btn-primary" href="https://asha.secure.retreat.guru/program/breathcamp-6-oct-3-oct-9-2027-new-members/?form=1&amp;lang=en" data-checkout="june" data-ev="bc_book_june_hero">Book June 6 to 12 <span class="arr">&rarr;</span></a><a class="btn btn-primary" href="#checkout-july-2027" data-checkout="july" data-ev="bc_book_july_hero">Book July 11 to 17 <span class="arr">&rarr;</span></a></div>
+      <p class="buy-note"><a href="#bf-offer">See the offer</a> &middot; <a href="#stay">See rooms and prices</a></p>
     </div>
   </div>
   <div class="wrap">
@@ -1026,6 +1033,10 @@ html{scroll-padding-top:calc(var(--barh) + 70px)}
       <div class="qa glow reveal d2"><h3>Is it a training?</h3><p>Not for retreat guests. BreathCamp is a retreat for you. If it sparks something, you can explore our Facilitator Training afterward.</p></div>
     </div>
   </div>
+  <div class="wrap"><div class="buy-row reveal">
+    <div class="buy-btns"><a class="btn btn-primary" href="https://asha.secure.retreat.guru/program/breathcamp-6-oct-3-oct-9-2027-new-members/?form=1&amp;lang=en" data-checkout="june" data-ev="bc_book_june_what">Book June 6 to 12 <span class="arr">&rarr;</span></a><a class="btn btn-primary" href="#checkout-july-2027" data-checkout="july" data-ev="bc_book_july_what">Book July 11 to 17 <span class="arr">&rarr;</span></a></div>
+    <p class="buy-note">Black Friday &middot; Friday, November 27 only &middot; 15% off every room</p>
+  </div></div>
 </section>
 
 <!-- OUTCOMES -->
@@ -1045,6 +1056,10 @@ html{scroll-padding-top:calc(var(--barh) + 70px)}
       <div class="am glow reveal d2"><b>People who get it</b><span>A small community from around the world, sharing the same week, the same meals and the same practice.</span></div>
     </div>
   </div>
+  <div class="wrap"><div class="buy-row reveal">
+    <div class="buy-btns"><a class="btn btn-primary" href="https://asha.secure.retreat.guru/program/breathcamp-6-oct-3-oct-9-2027-new-members/?form=1&amp;lang=en" data-checkout="june" data-ev="bc_book_june_outcomes">Book June 6 to 12 <span class="arr">&rarr;</span></a><a class="btn btn-primary" href="#checkout-july-2027" data-checkout="july" data-ev="bc_book_july_outcomes">Book July 11 to 17 <span class="arr">&rarr;</span></a></div>
+    <p class="buy-note">Black Friday &middot; Friday, November 27 only &middot; 15% off every room</p>
+  </div></div>
 </section>
 
 <!-- THE WEEK -->
@@ -1086,6 +1101,10 @@ html{scroll-padding-top:calc(var(--barh) + 70px)}
     </div>
     <p class="rhythm-note reveal" style="text-align:center;margin-top:18px">Check in Sunday from 2:30 pm. The final session ends around 1:00 pm Saturday. A detailed schedule is sent closer to the date.</p>
   </div>
+  <div class="wrap"><div class="buy-row reveal">
+    <div class="buy-btns"><a class="btn btn-primary" href="https://asha.secure.retreat.guru/program/breathcamp-6-oct-3-oct-9-2027-new-members/?form=1&amp;lang=en" data-checkout="june" data-ev="bc_book_june_week">Book June 6 to 12 <span class="arr">&rarr;</span></a><a class="btn btn-primary" href="#checkout-july-2027" data-checkout="july" data-ev="bc_book_july_week">Book July 11 to 17 <span class="arr">&rarr;</span></a></div>
+    <p class="buy-note">Black Friday &middot; Friday, November 27 only &middot; 15% off every room</p>
+  </div></div>
 </section>
 
 <!-- THE LAND -->
@@ -1113,6 +1132,10 @@ html{scroll-padding-top:calc(var(--barh) + 70px)}
       <div class="am reveal d2"><b>About 2.5 hours from Rome</b><span>Fly into Rome Fiumicino, then drive, or take the train and a local taxi.</span></div>
     </div>
   </div>
+  <div class="wrap"><div class="buy-row reveal">
+    <div class="buy-btns"><a class="btn btn-primary" href="https://asha.secure.retreat.guru/program/breathcamp-6-oct-3-oct-9-2027-new-members/?form=1&amp;lang=en" data-checkout="june" data-ev="bc_book_june_land">Book June 6 to 12 <span class="arr">&rarr;</span></a><a class="btn btn-primary" href="#checkout-july-2027" data-checkout="july" data-ev="bc_book_july_land">Book July 11 to 17 <span class="arr">&rarr;</span></a></div>
+    <p class="buy-note">Black Friday &middot; Friday, November 27 only &middot; 15% off every room</p>
+  </div></div>
 </section>
 
 <!-- FOUNDERS + TEAM -->
@@ -1146,6 +1169,10 @@ html{scroll-padding-top:calc(var(--barh) + 70px)}
       <div class="tm reveal d3"><div class="ph"><img src="https://alchemyofbreath.com/wp-content/uploads/1000050015-1.jpg" alt="Nick Garrow-Fisher"></div><strong>Nick Garrow-Fisher</strong><span>Trainer. Authentic relating, movement, IFS and consent work.</span></div>
     </div>
   </div>
+  <div class="wrap"><div class="buy-row reveal">
+    <div class="buy-btns"><a class="btn btn-primary" href="https://asha.secure.retreat.guru/program/breathcamp-6-oct-3-oct-9-2027-new-members/?form=1&amp;lang=en" data-checkout="june" data-ev="bc_book_june_team">Book June 6 to 12 <span class="arr">&rarr;</span></a><a class="btn btn-primary" href="#checkout-july-2027" data-checkout="july" data-ev="bc_book_july_team">Book July 11 to 17 <span class="arr">&rarr;</span></a></div>
+    <p class="buy-note">Black Friday &middot; Friday, November 27 only &middot; 15% off every room</p>
+  </div></div>
 </section>
 
 <!-- QUOTE -->
@@ -1180,6 +1207,10 @@ html{scroll-padding-top:calc(var(--barh) + 70px)}
     </div>
     <p class="rooms-note reveal">2027 prices in euros, before and after the 15% Black Friday saving. Final prices are shown at checkout, and payment plans are available. Rooms can sell out, and tents and glamping are at your own risk in changeable weather. If you book at the same time as a friend or partner, you can ask to share a room.</p>
   </div>
+  <div class="wrap"><div class="buy-row reveal">
+    <div class="buy-btns"><a class="btn btn-primary" href="https://asha.secure.retreat.guru/program/breathcamp-6-oct-3-oct-9-2027-new-members/?form=1&amp;lang=en" data-checkout="june" data-ev="bc_book_june_rooms">Book June 6 to 12 <span class="arr">&rarr;</span></a><a class="btn btn-primary" href="#checkout-july-2027" data-checkout="july" data-ev="bc_book_july_rooms">Book July 11 to 17 <span class="arr">&rarr;</span></a></div>
+    <p class="buy-note">Black Friday &middot; Friday, November 27 only &middot; 15% off every room</p>
+  </div></div>
 </section>
 
 <!-- INCLUDED -->
@@ -1205,6 +1236,10 @@ html{scroll-padding-top:calc(var(--barh) + 70px)}
       </ul></div>
     </div>
   </div>
+  <div class="wrap"><div class="buy-row reveal">
+    <div class="buy-btns"><a class="btn btn-primary" href="https://asha.secure.retreat.guru/program/breathcamp-6-oct-3-oct-9-2027-new-members/?form=1&amp;lang=en" data-checkout="june" data-ev="bc_book_june_included">Book June 6 to 12 <span class="arr">&rarr;</span></a><a class="btn btn-primary" href="#checkout-july-2027" data-checkout="july" data-ev="bc_book_july_included">Book July 11 to 17 <span class="arr">&rarr;</span></a></div>
+    <p class="buy-note">Black Friday &middot; Friday, November 27 only &middot; 15% off every room</p>
+  </div></div>
 </section>
 
 <!-- VOICES -->
@@ -1270,6 +1305,10 @@ html{scroll-padding-top:calc(var(--barh) + 70px)}
       <div class="vc-dots" aria-hidden="true"></div>
     </div>
   </div>
+  <div class="wrap"><div class="buy-row reveal">
+    <div class="buy-btns"><a class="btn btn-primary" href="https://asha.secure.retreat.guru/program/breathcamp-6-oct-3-oct-9-2027-new-members/?form=1&amp;lang=en" data-checkout="june" data-ev="bc_book_june_voices">Book June 6 to 12 <span class="arr">&rarr;</span></a><a class="btn btn-primary" href="#checkout-july-2027" data-checkout="july" data-ev="bc_book_july_voices">Book July 11 to 17 <span class="arr">&rarr;</span></a></div>
+    <p class="buy-note">Black Friday &middot; Friday, November 27 only &middot; 15% off every room</p>
+  </div></div>
 </section>
 
 <!-- FAQ -->
@@ -1296,6 +1335,10 @@ html{scroll-padding-top:calc(var(--barh) + 70px)}
       <details class="reveal"><summary>Is breathwork safe for everyone?<span class="pl">+</span></summary><div class="faq-a">No. Breathwork is not suitable for everyone. Please read our <a href="https://alchemyofbreath.com/medical-disclaimer-contraindications/" target="_blank" rel="noopener" style="color:var(--gold-deep);text-decoration:underline">Medical Disclaimer and Contraindications</a> before you book.</div></details>
     </div>
   </div>
+  <div class="wrap"><div class="buy-row reveal">
+    <div class="buy-btns"><a class="btn btn-primary" href="https://asha.secure.retreat.guru/program/breathcamp-6-oct-3-oct-9-2027-new-members/?form=1&amp;lang=en" data-checkout="june" data-ev="bc_book_june_faq">Book June 6 to 12 <span class="arr">&rarr;</span></a><a class="btn btn-primary" href="#checkout-july-2027" data-checkout="july" data-ev="bc_book_july_faq">Book July 11 to 17 <span class="arr">&rarr;</span></a></div>
+    <p class="buy-note">Black Friday &middot; Friday, November 27 only &middot; 15% off every room</p>
+  </div></div>
 </section>
 
 <!-- FINAL -->
