@@ -435,15 +435,13 @@ main p em,main li em{color:var(--gold-text)}
 /* trainings already underway: greyed like past events, labelled "Underway" until they end */
 .cal-ev.closed .cal-tag::before{content:"Underway \00b7  "}
 
-/* 2027: two booking paths per week */
-.cal-book{display:flex;flex-direction:column;align-items:center;gap:12px}
-.cal-with{display:block;font-size:.84rem;color:var(--slate);margin-top:6px;letter-spacing:.01em}
-.cal-grad{font-size:.8rem;color:var(--slate);text-decoration:underline;text-decoration-color:rgba(214,166,82,.6);text-underline-offset:4px;text-align:center;line-height:1.4;transition:color .2s}
-.cal-grad:hover{color:var(--ink);text-decoration-color:var(--gold-deep)}
-.cal-ev.past .cal-grad{display:none}
+/* 2027: booking not open yet */
+.cal-soon{display:inline-flex;align-items:center;gap:10px;font-size:.72rem;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-text);background:var(--gold-wash);border:1px solid rgba(214,166,82,.5);border-radius:999px;padding:11px 20px;white-space:nowrap}
+.cal-soon .dot{width:7px;height:7px;border-radius:50%;background:var(--gold-deep);box-shadow:0 0 0 0 rgba(214,166,82,.55);animation:soonPulse 2.4s ease-out infinite}
+@keyframes soonPulse{0%{box-shadow:0 0 0 0 rgba(214,166,82,.55)}70%{box-shadow:0 0 0 9px rgba(214,166,82,0)}100%{box-shadow:0 0 0 0 rgba(214,166,82,0)}}
+@media(prefers-reduced-motion:reduce){.cal-soon .dot{animation:none}}
+.cal-ev.past .cal-soon{display:none}
 .cal-note{text-align:center;max-width:36em;margin:56px auto 0;font-size:.95rem;color:var(--slate)}
-@media(max-width:960px){.cal-book{display:flex;flex-direction:column;align-items:flex-end;gap:10px}.cal-grad{text-align:right}}
-@media(max-width:560px){.cal-book{align-items:flex-start}.cal-grad{text-align:left}}
 </style>
 <script type="application/ld+json">
 {
@@ -486,11 +484,6 @@ main p em,main li em{color:var(--gold-text)}
               "@type": "Organization",
               "name": "Alchemy of Breath",
               "url": "https://alchemyofbreath.com/"
-            },
-            "offers": {
-              "@type": "Offer",
-              "url": "https://asha.secure.retreat.guru/program/breathcamp-6-oct-3-oct-9-2027-new-members/?form=1&lang=en",
-              "availability": "https://schema.org/InStock"
             }
           }
         },
@@ -515,11 +508,6 @@ main p em,main li em{color:var(--gold-text)}
               "@type": "Organization",
               "name": "Alchemy of Breath",
               "url": "https://alchemyofbreath.com/"
-            },
-            "offers": {
-              "@type": "Offer",
-              "url": "https://asha.secure.retreat.guru/program/live-residential-1-jun-20-jul-10-2027/?form=1&lang=en",
-              "availability": "https://schema.org/InStock"
             }
           }
         },
@@ -544,11 +532,6 @@ main p em,main li em{color:var(--gold-text)}
               "@type": "Organization",
               "name": "Alchemy of Breath",
               "url": "https://alchemyofbreath.com/"
-            },
-            "offers": {
-              "@type": "Offer",
-              "url": "https://asha.secure.retreat.guru/program/breathcamp-1-jul-11-jul-17-2027-new-members/?form=1&lang=en",
-              "availability": "https://schema.org/InStock"
             }
           }
         },
@@ -573,11 +556,6 @@ main p em,main li em{color:var(--gold-text)}
               "@type": "Organization",
               "name": "Alchemy of Breath",
               "url": "https://alchemyofbreath.com/"
-            },
-            "offers": {
-              "@type": "Offer",
-              "url": "https://asha.secure.retreat.guru/program/intuition-with-amy-aug-29-sep-4-2027/?form=1&lang=en",
-              "availability": "https://schema.org/InStock"
             },
             "performer": {
               "@type": "Person",
@@ -607,11 +585,6 @@ main p em,main li em{color:var(--gold-text)}
               "name": "Alchemy of Breath",
               "url": "https://alchemyofbreath.com/"
             },
-            "offers": {
-              "@type": "Offer",
-              "url": "https://asha.secure.retreat.guru/program/alchemist-with-anthony-sep-5-11-2027-new-members/?form=1&lang=en",
-              "availability": "https://schema.org/InStock"
-            },
             "performer": {
               "@type": "Person",
               "name": "Anthony Abbagnano"
@@ -639,11 +612,6 @@ main p em,main li em{color:var(--gold-text)}
               "@type": "Organization",
               "name": "Alchemy of Breath",
               "url": "https://alchemyofbreath.com/"
-            },
-            "offers": {
-              "@type": "Offer",
-              "url": "https://asha.secure.retreat.guru/program/live-residential-2-sep-12-oct-2-2027/?form=1&lang=en",
-              "availability": "https://schema.org/InStock"
             }
           }
         }
@@ -778,7 +746,7 @@ main p em,main li em{color:var(--gold-text)}
   <div class="wrap">
     <span class="eyebrow reveal">ASHA &middot; Tuscany &middot; 2027 calendar</span>
     <h1 class="reveal d1">Your 2027 season <em>at ASHA</em>.</h1>
-    <p class="hero-sub reveal d2">The first 2027 dates are open: two 21-day live residential facilitator trainings, BreathCamps in June and July, and two weeks with our founders as summer turns to fall. All on ancient Etruscan land in central Italy, with the world&rsquo;s most accredited breathwork school. Find the dates that are calling you.</p>
+    <p class="hero-sub reveal d2">The first 2027 dates are set: two 21-day live residential facilitator trainings, BreathCamps in June and July, and two weeks with our founders as summer turns to fall. All on ancient Etruscan land in central Italy, with the world&rsquo;s most accredited breathwork school. Find the dates that are calling you.</p>
     <div class="hero-actions reveal d3">
       <a class="btn btn-primary" href="#schedule">See the 2027 dates <span class="arr">&darr;</span></a>
       <a class="btn btn-ghost" href="/breathcamps/">Explore BreathCamps</a>
@@ -786,7 +754,7 @@ main p em,main li em{color:var(--gold-text)}
     <nav class="mo-index reveal d3" aria-label="Jump to month">
       <a href="#m-jun">June</a><a href="#m-jul">July</a><a href="#m-aug">August</a><a href="#m-sep">September</a>
     </nav>
-    <p class="hero-open reveal d3">Season 2027 &middot; <strong>first dates now open</strong></p>
+    <p class="hero-open reveal d3">Season 2027 &middot; <strong>booking opens soon</strong></p>
   </div>
 </section>
 
@@ -797,7 +765,7 @@ main p em,main li em{color:var(--gold-text)}
   <div class="wrap">
     <div style="text-align:center;max-width:44em;margin:0 auto 74px">
       <span class="eyebrow reveal" style="justify-content:center">The 2027 schedule</span>
-      <h2 class="reveal d1">Six dates open now. <em>More to come.</em></h2>
+      <h2 class="reveal d1">Six dates set. <em>Booking opens soon.</em></h2>
       <p class="reveal d2" style="margin-top:16px;font-size:1.02rem;color:var(--slate)">Everything runs Sunday to Saturday at ASHA in the golden hills of Tuscany.</p>
     </div>
 
@@ -812,10 +780,7 @@ main p em,main li em{color:var(--gold-text)}
         </div>
         <div class="cal-side">
           <span class="cal-when"><span class="cw-yr">2027 &middot; Sun&ndash;Sat</span><span class="cw-d">Jun 6 &ndash; 12</span></span>
-          <span class="cal-book">
-            <a class="btn btn-primary btn-sm" href="https://asha.secure.retreat.guru/program/breathcamp-6-oct-3-oct-9-2027-new-members/?form=1&amp;lang=en">Book your place <span class="arr">&rarr;</span></a>
-            <a class="cal-grad" href="https://asha.secure.retreat.guru/program/breathcamp-6-oct-3-oct-9-2027-graduates/?form=1&amp;lang=en">Graduating AoB student? Book here</a>
-          </span><span class="cal-past">This one has passed</span>
+          <span class="cal-soon"><span class="dot" aria-hidden="true"></span>Booking opens soon</span><span class="cal-past">This one has passed</span>
         </div>
       </article>
       <article id="live-residential-1" data-end="2027-07-10" class="cal-ev reveal">
@@ -827,10 +792,7 @@ main p em,main li em{color:var(--gold-text)}
         </div>
         <div class="cal-side">
           <span class="cal-when"><span class="cw-yr">2027 &middot; Sun&ndash;Sat</span><span class="cw-d">Jun 20 &ndash; Jul 10</span></span>
-          <span class="cal-book">
-            <a class="btn btn-primary btn-sm" href="https://asha.secure.retreat.guru/program/live-residential-1-jun-20-jul-10-2027/?form=1&amp;lang=en">Book your place <span class="arr">&rarr;</span></a>
-            <a class="cal-grad" href="/live-residential-breathwork-facilitator-training/">About the 21-day training</a>
-          </span><span class="cal-past">This one has passed</span>
+          <span class="cal-soon"><span class="dot" aria-hidden="true"></span>Booking opens soon</span><span class="cal-past">This one has passed</span>
         </div>
       </article>
     </div>
@@ -845,10 +807,7 @@ main p em,main li em{color:var(--gold-text)}
         </div>
         <div class="cal-side">
           <span class="cal-when"><span class="cw-yr">2027 &middot; Sun&ndash;Sat</span><span class="cw-d">Jul 11 &ndash; 17</span></span>
-          <span class="cal-book">
-            <a class="btn btn-primary btn-sm" href="https://asha.secure.retreat.guru/program/breathcamp-1-jul-11-jul-17-2027-new-members/?form=1&amp;lang=en">Book your place <span class="arr">&rarr;</span></a>
-            <a class="cal-grad" href="https://asha.secure.retreat.guru/program/breathcamp-1-jul-11-jul-17-2027-graduates/?form=1&amp;lang=en">Graduating AoB student? Book here</a>
-          </span><span class="cal-past">This one has passed</span>
+          <span class="cal-soon"><span class="dot" aria-hidden="true"></span>Booking opens soon</span><span class="cal-past">This one has passed</span>
         </div>
       </article>
     </div>
@@ -863,10 +822,7 @@ main p em,main li em{color:var(--gold-text)}
         </div>
         <div class="cal-side">
           <span class="cal-when"><span class="cw-yr">2027 &middot; Sun&ndash;Sat</span><span class="cw-d">Aug 29 &ndash; Sep 4</span></span>
-          <span class="cal-book">
-            <a class="btn btn-primary btn-sm" href="https://asha.secure.retreat.guru/program/intuition-with-amy-aug-29-sep-4-2027/?form=1&amp;lang=en">Book your place <span class="arr">&rarr;</span></a>
-            <a class="cal-grad" href="https://asha.secure.retreat.guru/program/preview/711/">Graduating AoB student? Book here</a>
-          </span><span class="cal-past">This one has passed</span>
+          <span class="cal-soon"><span class="dot" aria-hidden="true"></span>Booking opens soon</span><span class="cal-past">This one has passed</span>
         </div>
       </article>
     </div>
@@ -881,10 +837,7 @@ main p em,main li em{color:var(--gold-text)}
         </div>
         <div class="cal-side">
           <span class="cal-when"><span class="cw-yr">2027 &middot; Sun&ndash;Sat</span><span class="cw-d">Sep 5 &ndash; 11</span></span>
-          <span class="cal-book">
-            <a class="btn btn-primary btn-sm" href="https://asha.secure.retreat.guru/program/alchemist-with-anthony-sep-5-11-2027-new-members/?form=1&amp;lang=en">Book your place <span class="arr">&rarr;</span></a>
-            <a class="cal-grad" href="https://asha.secure.retreat.guru/program/alchemist-with-anthony-sep-5-11-2027-graduates/?form=1&amp;lang=en">Graduating AoB student? Book here</a>
-          </span><span class="cal-past">This one has passed</span>
+          <span class="cal-soon"><span class="dot" aria-hidden="true"></span>Booking opens soon</span><span class="cal-past">This one has passed</span>
         </div>
       </article>
       <article id="live-residential-2" data-end="2027-10-02" class="cal-ev reveal">
@@ -896,15 +849,12 @@ main p em,main li em{color:var(--gold-text)}
         </div>
         <div class="cal-side">
           <span class="cal-when"><span class="cw-yr">2027 &middot; Sun&ndash;Sat</span><span class="cw-d">Sep 12 &ndash; Oct 2</span></span>
-          <span class="cal-book">
-            <a class="btn btn-primary btn-sm" href="https://asha.secure.retreat.guru/program/live-residential-2-sep-12-oct-2-2027/?form=1&amp;lang=en">Book your place <span class="arr">&rarr;</span></a>
-            <a class="cal-grad" href="/live-residential-breathwork-facilitator-training/">About the 21-day training</a>
-          </span><span class="cal-past">This one has passed</span>
+          <span class="cal-soon"><span class="dot" aria-hidden="true"></span>Booking opens soon</span><span class="cal-past">This one has passed</span>
         </div>
       </article>
     </div>
 
-    <p class="cal-note reveal">More 2027 weeks will be added to this calendar as the season fills.</p>
+    <p class="cal-note reveal">Booking for these dates opens soon, and more 2027 weeks will be added as the season fills.</p>
 
     <div class="mid-cta reveal">
       <a class="btn btn-primary" href="https://go.alchemyofbreath.com/book-a-conversation">Not sure which week is yours? Let's talk <span class="arr">&rarr;</span></a>
