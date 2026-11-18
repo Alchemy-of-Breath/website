@@ -1014,6 +1014,29 @@ html.ph-before .lock-cta[data-show~="before"],html.ph-during .lock-cta[data-show
 .buy-note a:hover{color:var(--gold-deep)}
 .bf-offer .buy-note{color:rgba(244,239,230,.7)}.bf-offer .buy-note a{color:#fff}
 @media(max-width:560px){.buy-btns{flex-direction:column;align-items:stretch;width:100%}}
+
+/* Online pay in full: US or UK class time popup */
+.tz-pop{border:none;padding:0;margin:auto;width:min(440px,calc(100% - 32px));max-height:calc(100% - 32px);overflow:auto;border-radius:22px;background:var(--paper);color:var(--ink);box-shadow:var(--shadow-lift);font-family:var(--sans)}
+.tz-pop[open]{animation:tzIn .35s var(--ease)}
+.tz-pop::backdrop{background:rgba(25,22,23,.55);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
+@keyframes tzIn{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion: reduce){.tz-pop[open]{animation:none}}
+.tz-in{position:relative;padding:30px 24px 22px}
+.tz-x{position:absolute;top:12px;right:12px;width:36px;height:36px;border-radius:999px;border:none;background:transparent;color:var(--ink);font-size:1.5rem;line-height:1;cursor:pointer;opacity:.55;transition:opacity .2s,background-color .2s}
+.tz-x:hover,.tz-x:focus-visible{opacity:1;background:var(--gold-wash)}
+.tz-k{display:block;font-size:.7rem;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--gold-deep)}
+.tz-pop h3{font-size:1.6rem;margin:10px 40px 8px 0}
+.tz-sub{font-size:.92rem;line-height:1.55;color:var(--slate);margin-bottom:16px}
+.tz-opt{display:flex;align-items:center;gap:14px;text-decoration:none;color:var(--ink);border:1px solid rgba(34,31,32,.14);border-radius:16px;padding:16px 18px;margin-top:10px;transition:border-color .25s,background-color .25s,transform .3s var(--spring)}
+.tz-opt:hover,.tz-opt:focus-visible{border-color:var(--gold-deep);background:var(--gold-wash);transform:translateY(-1px)}
+.tz-opt b{display:block;font-weight:500;font-size:1rem}
+.tz-d{display:block;font-size:.87rem;line-height:1.45;color:var(--slate);margin-top:3px}
+.tz-loc{display:block;font-size:.8rem;color:var(--ink);opacity:.72;margin-top:4px}
+.tz-loc:empty{display:none}
+.tz-arr{margin-left:auto;font-size:1.15rem;color:var(--gold-deep);transition:transform .3s var(--spring)}
+.tz-opt:hover .tz-arr{transform:translateX(4px)}
+.tz-note{font-size:.8rem;color:var(--slate);text-align:center;margin-top:14px}
+html.tz-open{overflow:hidden}
 </style>
 </head>
 <body>
@@ -1063,7 +1086,7 @@ html.ph-before .lock-cta[data-show~="before"],html.ph-during .lock-cta[data-show
     </div>
     <div class="lock-cta reveal d3" data-show="before during">
       <a class="btn btn-primary btn-lock" href="#offer" data-ev="hero_lock_price">Lock in your price: $5,040 <span class="arr">&rarr;</span></a>
-      <p class="lock-sub">Or go straight to checkout: <a href="#checkout-online-full" data-ev="checkout_online_full_hero">enroll online</a> &middot; <a href="#checkout-residential-deposit" data-ev="checkout_residential_deposit_hero">reserve Tuscany</a></p>
+      <p class="lock-sub">Or go straight to checkout: <a href="#choose-class-time" data-tz-pick data-ev="checkout_online_full_hero">enroll online</a> &middot; <a href="#checkout-residential-deposit" data-ev="checkout_residential_deposit_hero">reserve Tuscany</a></p>
       <p class="lock-sub" data-show="before">Questions first? <a href="/offer/facilitator-training-black-friday-call/" data-ev="hero_book_call">Book a free call</a></p>
       <p class="lock-sub" data-show="during">Then <a href="#qa">join the live Q&amp;A</a> with Amy and Anthony</p>
     </div>
@@ -1087,7 +1110,7 @@ html.ph-before .lock-cta[data-show~="before"],html.ph-during .lock-cta[data-show
     </div>
   </div>
   <div class="wrap"><div class="buy-row reveal">
-    <div class="buy-btns"><a class="btn btn-primary" href="#checkout-online-full" data-ev="checkout_online_full_how">Enroll online: $5,040 <span class="arr">&rarr;</span></a><a class="btn btn-primary" href="#checkout-residential-deposit" data-ev="checkout_residential_deposit_how">Reserve Tuscany: $997 deposit <span class="arr">&rarr;</span></a></div>
+    <div class="buy-btns"><a class="btn btn-primary" href="#choose-class-time" data-tz-pick data-ev="checkout_online_full_how">Enroll online: $5,040 <span class="arr">&rarr;</span></a><a class="btn btn-primary" href="#checkout-residential-deposit" data-ev="checkout_residential_deposit_how">Reserve Tuscany: $997 deposit <span class="arr">&rarr;</span></a></div>
     <p class="buy-note">Black Friday &middot; Saturday, November 28 only &middot; $5,040 instead of $7,200 &middot; or <a href="#checkout-online-deposit" data-ev="checkout_online_deposit_how">hold the online price with a $500 deposit</a></p>
   </div></div>
 </section>
@@ -1119,7 +1142,7 @@ html.ph-before .lock-cta[data-show~="before"],html.ph-during .lock-cta[data-show
           <div class="pay-opt"><b>Deposit to hold the price</b><span>$500</span></div>
         </div>
         <div class="acts">
-          <a class="btn btn-primary" href="#checkout-online-full" data-ev="checkout_online_full">Pay in full: $5,040 <span class="arr">&rarr;</span></a>
+          <a class="btn btn-primary" href="#choose-class-time" data-tz-pick data-ev="checkout_online_full">Pay in full: $5,040 <span class="arr">&rarr;</span></a>
           <a class="btn btn-ghost" href="#checkout-online-deposit" data-ev="checkout_online_deposit">Hold the price with a $500 deposit</a>
         </div>
       </div>
@@ -1182,7 +1205,7 @@ html.ph-before .lock-cta[data-show~="before"],html.ph-during .lock-cta[data-show
       </table>
     </div>
     <div class="cta-row reveal" style="justify-content:center;margin-top:34px">
-      <a class="btn btn-primary" href="#checkout-online-full" data-ev="checkout_online_full_compare">Enroll online: $5,040 <span class="arr">&rarr;</span></a>
+      <a class="btn btn-primary" href="#choose-class-time" data-tz-pick data-ev="checkout_online_full_compare">Enroll online: $5,040 <span class="arr">&rarr;</span></a>
       <a class="btn btn-primary" href="#checkout-residential-deposit" data-ev="checkout_residential_deposit_compare">Reserve Tuscany: $997 deposit <span class="arr">&rarr;</span></a>
     </div>
   </div>
@@ -1203,7 +1226,7 @@ html.ph-before .lock-cta[data-show~="before"],html.ph-during .lock-cta[data-show
     </div>
   </div>
   <div class="wrap"><div class="buy-row reveal">
-    <div class="buy-btns"><a class="btn btn-primary" href="#checkout-online-full" data-ev="checkout_online_full_qa">Enroll online: $5,040 <span class="arr">&rarr;</span></a><a class="btn btn-primary" href="#checkout-residential-deposit" data-ev="checkout_residential_deposit_qa">Reserve Tuscany: $997 deposit <span class="arr">&rarr;</span></a></div>
+    <div class="buy-btns"><a class="btn btn-primary" href="#choose-class-time" data-tz-pick data-ev="checkout_online_full_qa">Enroll online: $5,040 <span class="arr">&rarr;</span></a><a class="btn btn-primary" href="#checkout-residential-deposit" data-ev="checkout_residential_deposit_qa">Reserve Tuscany: $997 deposit <span class="arr">&rarr;</span></a></div>
     <p class="buy-note">Black Friday &middot; Saturday, November 28 only &middot; $5,040 instead of $7,200 &middot; or <a href="#checkout-online-deposit" data-ev="checkout_online_deposit_qa">hold the online price with a $500 deposit</a></p>
   </div></div>
 </section>
@@ -1229,7 +1252,7 @@ html.ph-before .lock-cta[data-show~="before"],html.ph-during .lock-cta[data-show
     <p class="ft-video-cap reveal">A message from Anthony Abbagnano, founder of Alchemy of Breath</p>
   </div>
   <div class="wrap"><div class="buy-row reveal">
-    <div class="buy-btns"><a class="btn btn-primary" href="#checkout-online-full" data-ev="checkout_online_full_included">Enroll online: $5,040 <span class="arr">&rarr;</span></a><a class="btn btn-primary" href="#checkout-residential-deposit" data-ev="checkout_residential_deposit_included">Reserve Tuscany: $997 deposit <span class="arr">&rarr;</span></a></div>
+    <div class="buy-btns"><a class="btn btn-primary" href="#choose-class-time" data-tz-pick data-ev="checkout_online_full_included">Enroll online: $5,040 <span class="arr">&rarr;</span></a><a class="btn btn-primary" href="#checkout-residential-deposit" data-ev="checkout_residential_deposit_included">Reserve Tuscany: $997 deposit <span class="arr">&rarr;</span></a></div>
     <p class="buy-note">Black Friday &middot; Saturday, November 28 only &middot; $5,040 instead of $7,200 &middot; or <a href="#checkout-online-deposit" data-ev="checkout_online_deposit_included">hold the online price with a $500 deposit</a></p>
   </div></div>
 </section>
@@ -1254,7 +1277,7 @@ html.ph-before .lock-cta[data-show~="before"],html.ph-during .lock-cta[data-show
     </div>
   </div>
   <div class="wrap"><div class="buy-row reveal">
-    <div class="buy-btns"><a class="btn btn-primary" href="#checkout-online-full" data-ev="checkout_online_full_faq">Enroll online: $5,040 <span class="arr">&rarr;</span></a><a class="btn btn-primary" href="#checkout-residential-deposit" data-ev="checkout_residential_deposit_faq">Reserve Tuscany: $997 deposit <span class="arr">&rarr;</span></a></div>
+    <div class="buy-btns"><a class="btn btn-primary" href="#choose-class-time" data-tz-pick data-ev="checkout_online_full_faq">Enroll online: $5,040 <span class="arr">&rarr;</span></a><a class="btn btn-primary" href="#checkout-residential-deposit" data-ev="checkout_residential_deposit_faq">Reserve Tuscany: $997 deposit <span class="arr">&rarr;</span></a></div>
     <p class="buy-note">Black Friday &middot; Saturday, November 28 only &middot; $5,040 instead of $7,200 &middot; or <a href="#checkout-online-deposit" data-ev="checkout_online_deposit_faq">hold the online price with a $500 deposit</a></p>
   </div></div>
 </section>
@@ -1268,7 +1291,7 @@ html.ph-before .lock-cta[data-show~="before"],html.ph-during .lock-cta[data-show
     <p class="lede reveal d2" style="margin:18px auto 34px">$5,040 instead of $7,200, online or in Tuscany. Questions? Email us at info@alchemyofbreath.com.</p>
     <div class="lock-cta reveal d3" data-show="before during">
       <a class="btn btn-primary btn-lock" href="#offer" data-ev="final_lock_price">Lock in your price: $5,040 <span class="arr">&rarr;</span></a>
-      <p class="lock-sub">Or go straight to checkout: <a href="#checkout-online-full" data-ev="checkout_online_full_final">enroll online</a> &middot; <a href="#checkout-residential-deposit" data-ev="checkout_residential_deposit_final">reserve Tuscany</a></p>
+      <p class="lock-sub">Or go straight to checkout: <a href="#choose-class-time" data-tz-pick data-ev="checkout_online_full_final">enroll online</a> &middot; <a href="#checkout-residential-deposit" data-ev="checkout_residential_deposit_final">reserve Tuscany</a></p>
       <p class="lock-sub" data-show="before">Questions first? <a href="/offer/facilitator-training-black-friday-call/" data-ev="final_book_call">Book a free call</a></p>
       <p class="lock-sub" data-show="during">Then <a href="#qa">join the live Q&amp;A</a> with Amy and Anthony</p>
     </div>
@@ -1296,6 +1319,23 @@ html.ph-before .lock-cta[data-show~="before"],html.ph-during .lock-cta[data-show
   <span class="pill-ring" id="pillRing"><span class="inner"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></span>
 </a>
 
+<dialog class="tz-pop" id="tzPop" aria-labelledby="tzTitle">
+  <div class="tz-in">
+    <form method="dialog"><button class="tz-x" aria-label="Close">&times;</button></form>
+    <span class="tz-k">Online &middot; T35 &middot; $5,040</span>
+    <h3 id="tzTitle">Choose your class time</h3>
+    <p class="tz-sub">Live calls are every Tuesday on Zoom, starting February 16, 2027. Pick the time that fits your week.</p>
+    <a class="tz-opt" href="https://link.alchemyofbreath.com/payment-link/6aef66dd3633bac76e8706f9" data-ev="checkout_online_full_us">
+      <span><b>US time zone</b><span class="tz-d">Tuesdays at 7:00 pm EST (New York). Also suits Australia.</span><span class="tz-loc" data-tz-loc="2027-02-17T00:00:00Z"></span></span>
+      <span class="tz-arr" aria-hidden="true">&rarr;</span>
+    </a>
+    <a class="tz-opt" href="https://link.alchemyofbreath.com/payment-link/6aef66f13633bac76e87070e" data-ev="checkout_online_full_uk">
+      <span><b>UK time zone</b><span class="tz-d">Tuesdays at 5:30 pm UK time (London).</span><span class="tz-loc" data-tz-loc="2027-02-16T17:30:00Z"></span></span>
+      <span class="tz-arr" aria-hidden="true">&rarr;</span>
+    </a>
+    <p class="tz-note">Same $5,040 price and the same 400-hour certification.</p>
+  </div>
+</dialog>
 <script>
 /* Phases, countdowns, Q&A local time. Black Friday runs on each visitor's own clock:
    local midnight at the start of Saturday, November 28, 2026 to local midnight at the end of it. */
@@ -1365,6 +1405,18 @@ html.ph-before .lock-cta[data-show~="before"],html.ph-during .lock-cta[data-show
       box.appendChild(f);
     }
   });
+})();
+</script>
+<script>
+/* Online pay in full: choose the US or UK class time before checkout. */
+(function(){
+  var d=document.getElementById('tzPop'); if(!d) return;
+  try{var f=new Intl.DateTimeFormat(undefined,{weekday:'long',hour:'numeric',minute:'2-digit',timeZoneName:'short'});
+    d.querySelectorAll('[data-tz-loc]').forEach(function(el){el.textContent='First call in your time: '+f.format(new Date(el.getAttribute('data-tz-loc')));});}catch(e){}
+  function show(e){e.preventDefault();if(typeof d.showModal==='function'){if(!d.open)d.showModal();}else{d.setAttribute('open','');}document.documentElement.classList.add('tz-open');}
+  document.querySelectorAll('[data-tz-pick]').forEach(function(a){a.addEventListener('click',show);});
+  d.addEventListener('close',function(){document.documentElement.classList.remove('tz-open');});
+  d.addEventListener('click',function(e){if(e.target===d)d.close();});
 })();
 </script>
 </body>
