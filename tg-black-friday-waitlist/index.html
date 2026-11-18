@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Black Friday Waitlist | Alchemy of Breath</title>
-<meta name="description" content="Join the Alchemy of Breath Black Friday waitlist and be first to hear when our offers open: BreathCamp 2027 on Friday, November 27, and the Facilitator Training on Saturday, November 28.">
+<meta name="description" content="Join the Alchemy of Breath Black Friday waitlist: five days, a new offer each day, from BreathCamp 2027 on Friday, November 27, to a surprise on Tuesday, December 1.">
 <meta name="robots" content="index, follow">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Alchemy of Breath">
@@ -66,12 +66,6 @@ h1 em{color:var(--gold);font-style:italic;white-space:nowrap}
 .btn .arr{transition:transform .3s var(--spring)}
 .btn:hover .arr{transform:translateX(4px)}
 
-.offers{display:grid;grid-template-columns:1fr 1fr;gap:18px;max-width:860px;margin:56px auto 0;text-align:left}
-.offer{background:rgba(255,255,255,.05);border:1px solid rgba(225,182,104,.32);border-radius:18px;padding:24px 26px}
-.offer small{font-size:.68rem;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
-.offer h2{font-family:var(--serif);font-weight:400;font-size:1.45rem;color:#fff;margin:6px 0 6px}
-.offer p{font-size:.94rem;color:var(--muted);line-height:1.6}
-.offer b{color:#fff;font-weight:500}
 
 .form-card{max-width:620px;margin:56px auto 0;background:#fff;color:var(--ink);border-radius:22px;padding:30px 26px 14px;box-shadow:0 30px 80px -30px rgba(0,0,0,.7),0 0 0 1px rgba(225,182,104,.5);scroll-margin-top:30px}
 .form-card h2{font-family:var(--serif);font-weight:400;font-size:1.7rem;color:var(--ink)}
@@ -82,8 +76,50 @@ footer{position:relative;z-index:1;text-align:center;padding:26px 20px 34px;font
 footer a{color:rgba(244,239,230,.6);text-decoration:none;margin:0 10px}
 footer a:hover{color:var(--gold)}
 
-@media(max-width:700px){.offers{grid-template-columns:1fr}.clock div{min-width:64px}.clock b{font-size:1.6rem}main{padding-top:10px}}
+@media(max-width:700px){.clock div{min-width:64px}.clock b{font-size:1.6rem}main{padding-top:10px}}
 @media(prefers-reduced-motion:reduce){.orb,.btn::after{animation:none}.ff{display:none}}
+
+/* ===== Black Friday week: flipping window ===== */
+.bfw{max-width:760px;margin:44px auto 0;text-align:left;font-family:'Roboto',-apple-system,'Segoe UI',Helvetica,Arial,sans-serif}
+.bfw-tabs{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.bfw-tab{position:relative;cursor:pointer;border:1px solid rgba(225,182,104,.35);background:rgba(255,255,255,.04);color:rgba(244,239,230,.75);font:500 .72rem/1 'Roboto',sans-serif;letter-spacing:.14em;text-transform:uppercase;padding:9px 12px;border-radius:999px;overflow:hidden;transition:transform .3s cubic-bezier(.34,1.56,.64,1),opacity .3s}
+.bfw-tab::before{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(135deg,#E1B668,#D6A652);opacity:0;transition:opacity .35s;z-index:-1}
+.bfw-tab{isolation:isolate}
+.bfw-tab:hover{transform:translateY(-1px)}
+.bfw-tab:active{transform:scale(.97)}
+.bfw-tab:focus-visible{outline:2px solid #E1B668;outline-offset:3px}
+.bfw-tab[aria-selected="true"]{color:#1c1a1b;border-color:transparent}
+.bfw-tab[aria-selected="true"]::before{opacity:1}
+.bfw-tab .bfw-live{display:inline-block;width:6px;height:6px;border-radius:50%;background:#c8322a;margin-left:6px;vertical-align:1px;box-shadow:0 0 0 0 rgba(200,50,42,.6);animation:bfwPing 1.6s ease-out infinite}
+@keyframes bfwPing{0%{box-shadow:0 0 0 0 rgba(200,50,42,.6)}100%{box-shadow:0 0 0 8px rgba(200,50,42,0)}}
+.bfw-stage{perspective:1400px}
+.bfw-card{position:relative;display:grid;grid-template-columns:150px 1fr;min-height:190px;border-radius:22px;overflow:hidden;background:linear-gradient(135deg,rgba(38,34,35,.96),rgba(28,26,27,.96));border:1px solid rgba(225,182,104,.55);box-shadow:0 30px 70px -30px rgba(0,0,0,.75),0 0 40px -12px rgba(225,182,104,.35);transform-origin:50% 50%;transition:transform .45s cubic-bezier(.6,0,.4,1),opacity .45s}
+.bfw-card.out{transform:rotateX(-88deg);opacity:0}
+.bfw-card.pre{transform:rotateX(88deg);opacity:0;transition:none}
+.bfw-card::after{content:"";position:absolute;top:0;bottom:0;left:0;width:40%;background:linear-gradient(100deg,transparent,rgba(255,236,190,.12),transparent);transform:translateX(-160%) skewX(-18deg);animation:bfwSheen 5s cubic-bezier(.5,0,.2,1) infinite;pointer-events:none}
+@keyframes bfwSheen{0%,60%{transform:translateX(-160%) skewX(-18deg)}100%{transform:translateX(380%) skewX(-18deg)}}
+.bfw-date{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;background:linear-gradient(160deg,#E1B668,#D6A652);color:#1c1a1b;padding:18px 10px}
+.bfw-date small{font:500 .72rem/1 'Roboto',sans-serif;letter-spacing:.2em;text-transform:uppercase}
+.bfw-date b{font:400 3.6rem/1 'Marcellus',Georgia,serif;letter-spacing:-.03em}
+.bfw-date span{font:500 .78rem/1 'Roboto',sans-serif;letter-spacing:.14em;text-transform:uppercase}
+.bfw-body{padding:24px 28px;display:flex;flex-direction:column;justify-content:center;gap:8px}
+.bfw-k{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.bfw-pill{font:500 .66rem/1 'Roboto',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#E1B668;border:1px solid rgba(225,182,104,.5);padding:5px 10px;border-radius:999px}
+.bfw-state{font:500 .66rem/1 'Roboto',sans-serif;letter-spacing:.14em;text-transform:uppercase;padding:5px 10px;border-radius:999px;background:#c8322a;color:#fff}
+.bfw-state.ended{background:rgba(255,255,255,.12);color:rgba(244,239,230,.7)}
+.bfw-state:empty{display:none}
+.bfw-body h3{font:400 clamp(1.5rem,3vw,2rem)/1.15 'Marcellus',Georgia,serif;color:#fff;margin:2px 0 0;letter-spacing:-.01em}
+.bfw-body p{margin:0;font-size:.98rem;line-height:1.6;color:rgba(244,239,230,.8)}
+.bfw-body p b{color:#fff;font-weight:500}
+.bfw-bar{height:2px;margin-top:14px;border-radius:2px;background:rgba(225,182,104,.18);overflow:hidden}
+.bfw-bar i{display:block;height:100%;width:100%;background:linear-gradient(90deg,#E1B668,#D6A652);transform-origin:0 50%;transform:scaleX(0)}
+.bfw-bar i.run{animation:bfwFill var(--bfw-ms,4800ms) linear forwards}
+@keyframes bfwFill{to{transform:scaleX(1)}}
+.bfw-surprise .bfw-date b{font-size:3rem}
+.bfw-q{display:inline-block;animation:bfwWobble 2.4s ease-in-out infinite}
+@keyframes bfwWobble{0%,100%{transform:rotate(0)}25%{transform:rotate(-8deg)}75%{transform:rotate(8deg)}}
+@media(max-width:560px){.bfw-card{grid-template-columns:96px 1fr;min-height:210px}.bfw-date b{font-size:2.6rem}.bfw-body{padding:18px 18px}.bfw-tab{padding:8px 9px;font-size:.64rem;letter-spacing:.1em}}
+@media(prefers-reduced-motion:reduce){.bfw-card,.bfw-card.out,.bfw-card.pre{transition:none;transform:none;opacity:1}.bfw-card::after,.bfw-q,.bfw-tab .bfw-live{animation:none}.bfw-bar{display:none}}
 </style>
 </head>
 <body>
@@ -98,7 +134,7 @@ footer a:hover{color:var(--gold)}
   <main>
     <span class="label"><i aria-hidden="true"></i>Black Friday waitlist</span>
     <h1>Be first to hear about <em>Black Friday</em></h1>
-    <p class="sub">Join the waitlist and we will email you the moment our Black Friday offers open. Each one runs for 24 hours only.</p>
+    <p class="sub">Five days, a new offer each day. Join the waitlist and we will email you the moment each one opens. Every offer runs for 24 hours only.</p>
 
     <div id="timer" aria-live="polite">
       <p class="clock-lbl" data-lbl>Black Friday opens in</p>
@@ -110,9 +146,19 @@ footer a:hover{color:var(--gold)}
 
     <a class="btn" href="#join" data-ev="waitlist_hero_join">Join the waitlist <span class="arr" aria-hidden="true">&rarr;</span></a>
 
-    <div class="offers">
-      <div class="offer"><small>Friday, November 27</small><h2>BreathCamp 2027</h2><p>Save up to <b>&euro;1,224</b> on 7 days in Tuscany, plus two bonus Quantum Shift recordings.</p></div>
-      <div class="offer"><small>Saturday, November 28</small><h2>Facilitator Training</h2><p><b>$5,040</b> instead of $7,200, online or Live Residential in Tuscany.</p></div>
+    <div class="bfw" data-bfw aria-label="Black Friday week, day by day">
+      <div class="bfw-tabs" role="tablist"></div>
+      <div class="bfw-stage">
+        <div class="bfw-card" role="tabpanel" aria-live="polite">
+          <div class="bfw-date"><small data-f="dow">Friday</small><b data-f="num">27</b><span data-f="mon">Nov</span></div>
+          <div class="bfw-body">
+            <div class="bfw-k"><span class="bfw-pill" data-f="pill">24 hours only</span><span class="bfw-state" data-f="state"></span></div>
+            <h3 data-f="title">BreathCamp 2027</h3>
+            <p data-f="text">Save up to <b>&euro;1,224</b> on 7 days in Tuscany, plus two bonus Quantum Shift recordings.</p>
+          </div>
+        </div>
+      </div>
+      <div class="bfw-bar" aria-hidden="true"><i></i></div>
     </div>
 
     <div class="form-card" id="join">
@@ -145,10 +191,48 @@ footer a:hover{color:var(--gold)}
 </div>
 
 <script>
-/* Countdown on each visitor's own clock: Black Friday opens at their local midnight on Friday, November 27, 2026
-   and the offers run through the end of Saturday, November 28. */
+/* Black Friday week window: one card per day, flips every few seconds. Uses each visitor's own date
+   to mark today as live and earlier days as ended. */
 (function(){
-  var START=new Date(2026,10,27,0,0,0).getTime(), END=new Date(2026,10,29,0,0,0).getTime();
+  var root=document.querySelector('[data-bfw]'); if(!root) return;
+  var D=[
+    {y:2026,m:10,d:27,dow:'Friday',tab:'Fri 27',mon:'Nov',pill:'24 hours only',title:'BreathCamp 2027',text:'Save up to <b>&euro;1,224</b> on 7 days in Tuscany, plus two bonus Quantum Shift recordings.'},
+    {y:2026,m:10,d:28,dow:'Saturday',tab:'Sat 28',mon:'Nov',pill:'24 hours only',title:'Facilitator Training',text:'<b>$5,040</b> instead of $7,200, online or Live Residential in Tuscany.'},
+    {y:2026,m:10,d:29,dow:'Sunday',tab:'Sun 29',mon:'Nov',pill:'Free session',title:'Breathe the World',text:'Join our free Breathe the World session and simply enjoy. Every attendee receives a <b>surprise gift</b>.'},
+    {y:2026,m:10,d:30,dow:'Monday',tab:'Mon 30',mon:'Nov',pill:'24 hours only',title:'ASHA retreats 2027',text:'Our retreats at ASHA in Tuscany, including <b>Intuition with Amy</b>.'},
+    {y:2026,m:11,d:1,dow:'Tuesday',tab:'Tue 1',mon:'Dec',pill:'Stay tuned',title:'A surprise',text:'Something special to close the week. Join the waitlist to be <b>first to know</b>.',surprise:true}
+  ];
+  var MS=4800, tabs=root.querySelector('.bfw-tabs'), card=root.querySelector('.bfw-card'), bar=root.querySelector('.bfw-bar i'),
+      f={}, i=0, timer=null, paused=false, user=false, reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+  card.querySelectorAll('[data-f]').forEach(function(el){f[el.getAttribute('data-f')]=el;});
+  root.style.setProperty('--bfw-ms',MS+'ms');
+  function state(x){var s=new Date(x.y,x.m,x.d).getTime(),e=s+86400000,n=Date.now();return n<s?'':(n<e?'live':'ended');}
+  D.forEach(function(x,k){var b=document.createElement('button');b.type='button';b.className='bfw-tab';b.setAttribute('role','tab');b.innerHTML=x.tab+(state(x)==='live'?'<span class="bfw-live" aria-label="live now"></span>':'');
+    b.addEventListener('click',function(){user=true;go(k);});tabs.appendChild(b);});
+  var tb=tabs.querySelectorAll('.bfw-tab');
+  function paint(k){var x=D[k],st=state(x);
+    f.dow.textContent=x.dow;f.num.innerHTML=x.surprise?'<span class="bfw-q">?</span>':x.d;f.mon.textContent=x.mon;f.pill.textContent=x.pill;f.title.textContent=x.title;f.text.innerHTML=x.text;
+    f.state.textContent=st==='live'?'Live now':(st==='ended'?'Ended':'');f.state.className='bfw-state'+(st==='ended'?' ended':'');
+    card.classList.toggle('bfw-surprise',!!x.surprise);
+    tb.forEach(function(t,j){t.setAttribute('aria-selected',j===k?'true':'false');});}
+  function runBar(){if(!bar)return;bar.classList.remove('run');void bar.offsetWidth;if(!paused&&!user&&!reduce)bar.classList.add('run');}
+  function go(k){if(k===i&&card.dataset.ready){runBar();return;}i=k;
+    if(reduce||!card.dataset.ready){paint(k);card.dataset.ready='1';runBar();return;}
+    card.classList.add('out');
+    setTimeout(function(){paint(k);card.classList.remove('out');card.classList.add('pre');void card.offsetWidth;card.classList.remove('pre');runBar();},450);}
+  function loop(){clearInterval(timer);if(reduce)return;timer=setInterval(function(){if(paused||user)return;go((i+1)%D.length);},MS);}
+  root.addEventListener('mouseenter',function(){paused=true;if(bar)bar.style.animationPlayState='paused';});
+  root.addEventListener('mouseleave',function(){paused=false;if(bar)bar.style.animationPlayState='running';});
+  root.addEventListener('focusin',function(){paused=true;});root.addEventListener('focusout',function(){paused=false;});
+  var start=0;D.forEach(function(x,k){if(state(x)==='live')start=k;});
+  go(start);loop();
+})();
+</script>
+<script>
+/* Countdown on each visitor's own clock: Black Friday opens at their local midnight on Friday, November 27, 2026
+   and the week of offers runs through the end of Tuesday, December 1. */
+(function(){
+  var START=new Date(2026,10,27,0,0,0).getTime(), END=new Date(2026,11,2,0,0,0).getTime();
   var t=document.getElementById('timer'), lbl=t.querySelector('[data-lbl]'), note=t.querySelector('[data-note]');
   function pad(n){return (n<10?'0':'')+n;}
   function tick(){
@@ -156,8 +240,8 @@ footer a:hover{color:var(--gold)}
     var sec=Math.max(0,Math.floor(((live?END:START)-now)/1000));
     var v={d:Math.floor(sec/86400),h:Math.floor(sec%86400/3600),m:Math.floor(sec%3600/60),s:sec%60};
     ['d','h','m','s'].forEach(function(u){t.querySelector('[data-u="'+u+'"]').textContent=pad(v[u]);});
-    lbl.textContent=over?'Black Friday has ended':(live?'Black Friday is live. Offers end in':'Black Friday opens in');
-    note.textContent=over?'Join the waitlist to hear about our next offers.':(live?'Check your inbox for the offer links.':'Opens at midnight your time, Friday, November 27');
+    lbl.textContent=over?'Black Friday week has ended':(live?'Black Friday week is live. It ends in':'Black Friday opens in');
+    note.textContent=over?'Join the waitlist to hear about our next offers.':(live?'Check your inbox for today\'s offer.':'Opens at midnight your time, Friday, November 27');
     t.classList.toggle('ended',over);
     if(over) clearInterval(iv);
   }
