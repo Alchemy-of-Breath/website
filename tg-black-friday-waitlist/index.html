@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Black Friday Waitlist | Alchemy of Breath</title>
-<meta name="description" content="Join the Alchemy of Breath Black Friday waitlist: five days, a new offer each day, from BreathCamp 2027 on Friday, November 27, to a surprise on Tuesday, December 1.">
+<meta name="description" content="Five days, five invitations from Alchemy of Breath, from Friday, November 27, to Tuesday, December 1. Join the Black Friday waitlist.">
 <meta name="robots" content="index, follow">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Alchemy of Breath">
-<meta property="og:title" content="Be first to hear about Black Friday">
-<meta property="og:description" content="Join the waitlist and we will email you the moment our Black Friday offers open.">
+<meta property="og:title" content="Five days. Five invitations.">
+<meta property="og:description" content="From Friday, November 27, a new invitation opens each day, for 24 hours only. Join the Black Friday waitlist.">
 <meta name="theme-color" content="#1c1a1b">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -133,8 +133,8 @@ footer a:hover{color:var(--gold)}
 
   <main>
     <span class="label"><i aria-hidden="true"></i>Black Friday waitlist</span>
-    <h1>Be first to hear about <em>Black Friday</em></h1>
-    <p class="sub">Five days, a new offer each day. Join the waitlist and we will email you the moment each one opens. Every offer runs for 24 hours only.</p>
+    <h1>Five days. Five <em>invitations.</em></h1>
+    <p class="sub">From Friday, November 27, a new invitation opens each day, for 24 hours only. Join the waitlist and be the first to receive each one.</p>
 
     <div id="timer" aria-live="polite">
       <p class="clock-lbl" data-lbl>Black Friday opens in</p>
@@ -152,9 +152,9 @@ footer a:hover{color:var(--gold)}
         <div class="bfw-card" role="tabpanel" aria-live="polite">
           <div class="bfw-date"><small data-f="dow">Friday</small><b data-f="num">27</b><span data-f="mon">Nov</span></div>
           <div class="bfw-body">
-            <div class="bfw-k"><span class="bfw-pill" data-f="pill">24 hours only</span><span class="bfw-state" data-f="state"></span></div>
+            <div class="bfw-k"><span class="bfw-pill" data-f="pill">Day 1 &middot; 24 hours</span><span class="bfw-state" data-f="state"></span></div>
             <h3 data-f="title">BreathCamp 2027</h3>
-            <p data-f="text">Save up to <b>&euro;1,224</b> on 7 days in Tuscany, plus two bonus Quantum Shift recordings.</p>
+            <p data-f="text">Seven days on the land in Tuscany, to slow down and come home to yourself.</p>
           </div>
         </div>
       </div>
@@ -196,11 +196,11 @@ footer a:hover{color:var(--gold)}
 (function(){
   var root=document.querySelector('[data-bfw]'); if(!root) return;
   var D=[
-    {y:2026,m:10,d:27,dow:'Friday',tab:'Fri 27',mon:'Nov',pill:'24 hours only',title:'BreathCamp 2027',text:'Save up to <b>&euro;1,224</b> on 7 days in Tuscany, plus two bonus Quantum Shift recordings.'},
-    {y:2026,m:10,d:28,dow:'Saturday',tab:'Sat 28',mon:'Nov',pill:'24 hours only',title:'Facilitator Training',text:'<b>$5,040</b> instead of $7,200, online or Live Residential in Tuscany.'},
-    {y:2026,m:10,d:29,dow:'Sunday',tab:'Sun 29',mon:'Nov',pill:'Free session',title:'Breathe the World',text:'Join our free Breathe the World session and simply enjoy. Every attendee receives a <b>surprise gift</b>.'},
-    {y:2026,m:10,d:30,dow:'Monday',tab:'Mon 30',mon:'Nov',pill:'24 hours only',title:'ASHA retreats 2027',text:'Our retreats at ASHA in Tuscany, including <b>Intuition with Amy</b>.'},
-    {y:2026,m:11,d:1,dow:'Tuesday',tab:'Tue 1',mon:'Dec',pill:'Stay tuned',title:'A surprise',text:'Something special to close the week. Join the waitlist to be <b>first to know</b>.',surprise:true}
+    {y:2026,m:10,d:27,dow:'Friday',tab:'Fri 27',mon:'Nov',pill:'Day 1 &middot; 24 hours',title:'BreathCamp 2027',text:'Seven days on the land in Tuscany, to slow down and come home to yourself.'},
+    {y:2026,m:10,d:28,dow:'Saturday',tab:'Sat 28',mon:'Nov',pill:'Day 2 &middot; 24 hours',title:'Facilitator Training',text:'For those who feel called to guide others with the breath.'},
+    {y:2026,m:10,d:29,dow:'Sunday',tab:'Sun 29',mon:'Nov',pill:'Day 3 &middot; Free',title:'Breathe the World',text:'A free session to simply breathe together, with a <b>surprise gift</b> for everyone who joins.'},
+    {y:2026,m:10,d:30,dow:'Monday',tab:'Mon 30',mon:'Nov',pill:'Day 4 &middot; 24 hours',title:'ASHA retreats 2027',text:'Time on the land at ASHA, including <b>Intuition with Amy</b>.'},
+    {y:2026,m:11,d:1,dow:'Tuesday',tab:'Tue 1',mon:'Dec',pill:'Day 5 &middot; 24 hours',title:'A surprise',text:'Something special to close the week. Join the waitlist to be <b>first to know</b>.',surprise:true}
   ];
   var MS=4800, tabs=root.querySelector('.bfw-tabs'), card=root.querySelector('.bfw-card'), bar=root.querySelector('.bfw-bar i'),
       f={}, i=0, timer=null, paused=false, user=false, reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -211,7 +211,7 @@ footer a:hover{color:var(--gold)}
     b.addEventListener('click',function(){user=true;go(k);});tabs.appendChild(b);});
   var tb=tabs.querySelectorAll('.bfw-tab');
   function paint(k){var x=D[k],st=state(x);
-    f.dow.textContent=x.dow;f.num.innerHTML=x.surprise?'<span class="bfw-q">?</span>':x.d;f.mon.textContent=x.mon;f.pill.textContent=x.pill;f.title.textContent=x.title;f.text.innerHTML=x.text;
+    f.dow.textContent=x.dow;f.num.innerHTML=x.surprise?'<span class="bfw-q">?</span>':x.d;f.mon.textContent=x.mon;f.pill.innerHTML=x.pill;f.title.textContent=x.title;f.text.innerHTML=x.text;
     f.state.textContent=st==='live'?'Live now':(st==='ended'?'Ended':'');f.state.className='bfw-state'+(st==='ended'?' ended':'');
     card.classList.toggle('bfw-surprise',!!x.surprise);
     tb.forEach(function(t,j){t.setAttribute('aria-selected',j===k?'true':'false');});}
@@ -241,7 +241,7 @@ footer a:hover{color:var(--gold)}
     var v={d:Math.floor(sec/86400),h:Math.floor(sec%86400/3600),m:Math.floor(sec%3600/60),s:sec%60};
     ['d','h','m','s'].forEach(function(u){t.querySelector('[data-u="'+u+'"]').textContent=pad(v[u]);});
     lbl.textContent=over?'Black Friday week has ended':(live?'Black Friday week is live. It ends in':'Black Friday opens in');
-    note.textContent=over?'Join the waitlist to hear about our next offers.':(live?'Check your inbox for today\'s offer.':'Opens at midnight your time, Friday, November 27');
+    note.textContent=over?'Join the waitlist to hear about our next offers.':(live?'Check your inbox for today\'s invitation.':'Opens at midnight your time, Friday, November 27');
     t.classList.toggle('ended',over);
     if(over) clearInterval(iv);
   }
