@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<!-- AOB-UTM:start -->
+<script>
+/* AoB UTM keeper: remembers the campaign tags a visitor arrived with and hands
+   them to GoHighLevel on whatever page they later sign up on.
+   - Stores utm_*, fbclid, gclid, msclkid from the landing URL for 90 days
+     (latest campaign wins), in localStorage and an .alchemyofbreath.com cookie.
+   - Seeds GHL's own form_embed.js memory (sessionStorage "UPS"), so GHL forms
+     attribute the contact to the campaign even when the form page has no tags.
+   - Adds the tags to GHL form/booking iframes and to links into GHL funnels
+     (go. / breathcamp. / link.alchemyofbreath.com), so hidden fields with a
+     matching query key are filled too.
+   - Adds them to links into the facilitator application (/facilitator-application/),
+     whose embed forwards its own query string into the form.
+   Source: tools/utm/aob-utm.js. Inlined into every page by tools/utm/inject.py. */
+(function(){
+  var KEYS=['utm_source','utm_medium','utm_campaign','utm_term','utm_content','utm_id','fbclid','gclid','msclkid'];
+  var STORE='aob_utm', DAYS=90, MS=DAYS*864e5;
+  var ls=function(k,v){ try{ if(v===undefined) return localStorage.getItem(k); localStorage.setItem(k,v); }catch(e){ return null; } };
+  var qs=new URLSearchParams(location.search), got={}, any=false;
+  KEYS.forEach(function(k){ var v=qs.get(k); if(v){ got[k]=v.slice(0,250); any=true; } });
+  var rec=null;
+  if(any){
+    rec={p:got,t:Date.now(),landing:location.origin+location.pathname};
+    ls(STORE,JSON.stringify(rec));
+    try{ document.cookie=STORE+'='+encodeURIComponent(JSON.stringify(got))+';path=/;max-age='+(DAYS*86400)+';SameSite=Lax'+
+      (/(^|\.)alchemyofbreath\.com$/.test(location.hostname)?';domain=.alchemyofbreath.com':''); }catch(e){}
+  } else {
+    try{ rec=JSON.parse(ls(STORE)||'null'); }catch(e){ rec=null; }
+    if(!rec || !rec.p || Date.now()-rec.t>MS) return;
+  }
+  var P=rec.p;
+
+  // GHL form_embed.js falls back to sessionStorage "UPS" when the page URL has no utm_ tags
+  try{
+    var ups=new URLSearchParams(sessionStorage.getItem('UPS')||''), changed=false;
+    for(var k in P){ if(k.indexOf('utm_')===0 && ups.get(k)!==P[k]){ ups.set(k,P[k]); changed=true; } }
+    if(changed) sessionStorage.setItem('UPS','?'+ups.toString());
+  }catch(e){}
+
+  var GHL=/^https:\/\/((link|api)\.(alchemyofbreath\.com|leadconnectorhq\.com)\/widget\/(form|survey|booking|quiz)\/|(go|breathcamp)\.alchemyofbreath\.com\/)/;
+  var APPLY=/^https:\/\/(www\.)?alchemyofbreath\.com\/facilitator-application\/?$/;
+  var withTags=function(url){
+    var u; try{ u=new URL(url,location.href); }catch(e){ return null; }
+    if(!GHL.test(u.href) && !APPLY.test(u.origin+u.pathname)) return null;
+    var ch=false;
+    for(var k in P){ if(!u.searchParams.has(k)){ u.searchParams.set(k,P[k]); ch=true; } }
+    return ch?u.href:null;
+  };
+  var fixFrame=function(f){
+    ['src','data-src'].forEach(function(a){ var v=f.getAttribute(a), n=v&&withTags(v); if(n) f.setAttribute(a,n); });
+  };
+  var scan=function(root){
+    if(root.tagName==='IFRAME'){ fixFrame(root); return; }
+    if(root.querySelectorAll) [].forEach.call(root.querySelectorAll('iframe'),fixFrame);
+  };
+  scan(document);
+  if('MutationObserver' in window){
+    new MutationObserver(function(ms){ ms.forEach(function(m){ [].forEach.call(m.addedNodes,function(n){ if(n.nodeType===1) scan(n); }); }); })
+      .observe(document.documentElement,{childList:true,subtree:true});
+  }
+  // links into GHL funnels: tag them at click time (covers links built by scripts too)
+  var tagLink=function(e){
+    var a=e.target && e.target.closest && e.target.closest('a[href]'); if(!a) return;
+    var n=withTags(a.getAttribute('href')); if(n) a.setAttribute('href',n);
+  };
+  document.addEventListener('mousedown',tagLink,true);
+  document.addEventListener('touchstart',tagLink,{capture:true,passive:true});
+  document.addEventListener('keydown',function(e){ if(e.key==='Enter') tagLink(e); },true);
+  document.addEventListener('click',tagLink,true);
+})();
+</script>
+<!-- AOB-UTM:end -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>You&rsquo;re on the Black Friday waitlist | Alchemy of Breath</title>
+<meta name="description" content="Your place on the Alchemy of Breath Black Friday waitlist is confirmed. Five invitations, one a day, from Friday, November 27, to Tuesday, December 1.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="canonical" href="https://alchemyofbreath.com/offer/black-friday-waitlist/">
+<meta name="theme-color" content="#1c1a1b">
+<link rel="icon" type="image/png" href="https://alchemyofbreath.com/wp-content/uploads/AOB-Gold-Black-Transparant-symbol.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<style>html,body{margin:0;padding:0;background:#1c1a1b}</style>
+<!-- Meta Pixel 713374525487066: PageView, like the other thank-you pages. Loads only on alchemyofbreath.com. -->
+<script>
+(function(){
+  if(!/(^|\.)alchemyofbreath\.com$/.test(location.hostname)) return;
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', '713374525487066');
+  fbq('track', 'PageView');
+})();
+</script>
+</head>
+<body>
+
+<!-- BFW:start  (paste-ready block: everything down to BFW:end works on its own, e.g. in a GHL custom code element) -->
+<link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+#bfw{
+  --bg:#1c1a1b;--card-a:rgba(38,34,35,.96);--card-b:rgba(28,26,27,.96);--line:rgba(225,182,104,.3);
+  --gold:#E1B668;--gold-deep:#D6A652;--cream:#f4efe6;--muted:rgba(244,239,230,.72);--soft:rgba(244,239,230,.55);
+  --ink:#1c1a1b;--red:#c8322a;
+  --grad-gold:linear-gradient(135deg,#E1B668 0%,#D6A652 100%);
+  --serif:'Marcellus',Georgia,'Times New Roman',serif;
+  --sans:'Roboto',-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;
+  --curve:cubic-bezier(.22,1,.36,1);--spring:cubic-bezier(.34,1.56,.64,1);
+  position:relative;overflow:hidden;min-height:100vh;display:flex;flex-direction:column;
+  background:radial-gradient(60% 40% at 15% 4%,rgba(225,182,104,.16),transparent 70%),radial-gradient(55% 35% at 90% 60%,rgba(225,182,104,.09),transparent 70%),var(--bg);
+  color:var(--cream);font-family:var(--sans);font-weight:300;font-size:17px;line-height:1.7;
+  -webkit-font-smoothing:antialiased;text-align:center
+}
+#bfw *,#bfw *::before,#bfw *::after{box-sizing:border-box}
+#bfw h1,#bfw h2,#bfw h3,#bfw p,#bfw ol{margin:0;padding:0}
+#bfw a{color:inherit}
+#bfw [hidden]{display:none !important}
+#bfw ::selection{background:rgba(225,182,104,.35);color:#fff}
+#bfw :focus-visible{outline:2px solid var(--gold);outline-offset:4px;border-radius:6px}
+#bfw .bfw-wrap{position:relative;z-index:1;width:100%;max-width:760px;margin:0 auto;padding:0 24px}
+
+/* top */
+#bfw .bfw-top{padding:28px 0 0}
+#bfw .bfw-logo{display:inline-block}
+#bfw .bfw-logo img{display:block;height:40px;width:auto;margin:0 auto}
+
+/* hero */
+#bfw .bfw-hero{position:relative;padding:52px 0 0;flex:1}
+#bfw .bfw-breath{position:absolute;left:50%;top:86px;width:0;height:0;pointer-events:none}
+#bfw .bfw-breath span{position:absolute;left:0;top:0;border-radius:50%;border:1px solid rgba(225,182,104,.32);transform:translate(-50%,-50%) scale(.86);animation:bfwBreathe 9s ease-in-out infinite}
+#bfw .bfw-breath span:nth-child(1){width:200px;height:200px;background:radial-gradient(circle,rgba(225,182,104,.16) 0%,rgba(225,182,104,0) 70%)}
+#bfw .bfw-breath span:nth-child(2){width:360px;height:360px;animation-delay:.5s;border-color:rgba(225,182,104,.16)}
+#bfw .bfw-breath span:nth-child(3){width:540px;height:540px;animation-delay:1s;border-color:rgba(225,182,104,.08)}
+@keyframes bfwBreathe{0%,100%{transform:translate(-50%,-50%) scale(.86);opacity:.5}50%{transform:translate(-50%,-50%) scale(1.04);opacity:1}}
+#bfw .bfw-seal{position:relative;width:68px;height:68px;margin:0 auto 26px;border-radius:50%;background:var(--grad-gold);display:grid;place-items:center;box-shadow:0 14px 40px rgba(214,166,82,.35),0 0 0 8px rgba(225,182,104,.08)}
+#bfw .bfw-seal svg{width:32px;height:32px;stroke:var(--ink);stroke-width:2.4;fill:none;stroke-linecap:round;stroke-linejoin:round}
+#bfw .bfw-kicker{display:inline-flex;align-items:center;gap:12px;font-size:12px;line-height:16px;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--gold)}
+#bfw .bfw-kicker::before,#bfw .bfw-kicker::after{content:"";width:28px;height:1px;background:rgba(225,182,104,.6)}
+#bfw h1{font-family:var(--serif);font-weight:400;font-size:clamp(2.3rem,7vw,3.75rem);line-height:1.1;letter-spacing:-.02em;color:#fff;margin:18px auto 0;max-width:13em;text-wrap:balance}
+#bfw h1 em{font-style:normal;color:var(--gold)}
+#bfw .bfw-lede{font-size:1.1rem;line-height:1.7;max-width:32em;margin:20px auto 0;color:var(--muted);text-wrap:pretty}
+
+/* countdown panel */
+#bfw .bfw-panel{position:relative;max-width:640px;margin:40px auto 0;padding:32px 28px 30px;border-radius:22px;overflow:hidden;
+  background:linear-gradient(135deg,var(--card-a),var(--card-b));border:1px solid rgba(225,182,104,.55);
+  box-shadow:0 30px 70px -30px rgba(0,0,0,.75),0 0 40px -12px rgba(225,182,104,.35)}
+#bfw .bfw-panel::after{content:"";position:absolute;top:0;bottom:0;left:0;width:40%;background:linear-gradient(100deg,transparent,rgba(255,236,190,.10),transparent);transform:translateX(-160%) skewX(-18deg);animation:bfwSheen 6s cubic-bezier(.5,0,.2,1) infinite;pointer-events:none}
+@keyframes bfwSheen{0%,60%{transform:translateX(-160%) skewX(-18deg)}100%{transform:translateX(380%) skewX(-18deg)}}
+#bfw .bfw-eyebrow{font-size:1.02rem;color:var(--muted)}
+#bfw .bfw-badge{display:inline-flex;align-items:center;gap:9px;font-size:.7rem;line-height:1;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);border:1px solid rgba(225,182,104,.5);padding:8px 14px;border-radius:999px}
+#bfw .bfw-badge i,#bfw .bfw-day-state i{width:7px;height:7px;border-radius:50%;background:var(--red);box-shadow:0 0 0 0 rgba(200,50,42,.6);animation:bfwPing 1.6s ease-out infinite}
+@keyframes bfwPing{0%{box-shadow:0 0 0 0 rgba(200,50,42,.6)}100%{box-shadow:0 0 0 8px rgba(200,50,42,0)}}
+#bfw .bfw-panel h2{font-family:var(--serif);font-weight:400;font-size:clamp(1.6rem,4.4vw,2.2rem);line-height:1.2;color:#fff;margin-top:12px;text-wrap:balance}
+#bfw .bfw-panel-text{font-size:1rem;line-height:1.6;color:var(--muted);max-width:30em;margin:10px auto 0;text-wrap:pretty}
+#bfw .bfw-clock{display:flex;justify-content:center;gap:10px;margin-top:22px}
+#bfw .bfw-clock div{min-width:84px;padding:14px 8px 12px;border-radius:14px;background:rgba(255,255,255,.05);border:1px solid rgba(225,182,104,.4)}
+#bfw .bfw-clock b{display:block;font-family:var(--serif);font-weight:400;font-size:2.3rem;line-height:1;color:#fff;font-variant-numeric:tabular-nums}
+#bfw .bfw-clock span{display:block;margin-top:8px;font-size:.64rem;line-height:1;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--soft)}
+#bfw .bfw-clock-note{font-size:.9rem;line-height:1.55;color:var(--muted);margin-top:14px;text-wrap:balance}
+#bfw .bfw-btn{position:relative;overflow:hidden;isolation:isolate;display:inline-flex;align-items:center;justify-content:center;gap:10px;margin-top:22px;text-decoration:none;font-weight:500;font-size:1rem;letter-spacing:.03em;color:var(--ink);background:var(--grad-gold);padding:16px 34px;border-radius:999px;box-shadow:0 14px 36px rgba(214,166,82,.38);transition:transform .3s var(--spring),box-shadow .3s}
+#bfw .bfw-btn:hover{transform:translateY(-2px);box-shadow:0 18px 44px rgba(214,166,82,.5)}
+#bfw .bfw-btn:active{transform:translateY(1px) scale(.98)}
+#bfw .bfw-btn::after{content:"";position:absolute;top:0;bottom:0;left:0;width:45%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.6),transparent);transform:translateX(-160%) skewX(-18deg);animation:bfwBtnSheen 3.6s cubic-bezier(.5,0,.2,1) infinite;z-index:-1}
+@keyframes bfwBtnSheen{0%,55%{transform:translateX(-160%) skewX(-18deg)}100%{transform:translateX(360%) skewX(-18deg)}}
+#bfw .bfw-arr{transition:transform .3s var(--spring)}
+#bfw a:hover .bfw-arr{transform:translateX(4px)}
+#bfw .bfw-next{font-size:.86rem;color:var(--soft);margin-top:16px}
+
+/* the week: one tile per day */
+#bfw .bfw-week{margin-top:64px}
+#bfw .bfw-week-head h2{font-family:var(--serif);font-weight:400;font-size:clamp(1.7rem,4.6vw,2.3rem);line-height:1.2;color:#fff}
+#bfw .bfw-week-head p{font-size:1rem;color:var(--muted);margin:8px auto 0;max-width:30em;text-wrap:balance}
+#bfw .bfw-days{list-style:none;display:grid;gap:14px;margin-top:28px;text-align:left}
+#bfw .bfw-day{position:relative;display:grid;grid-template-columns:118px 1fr;border-radius:20px;overflow:hidden;
+  background:linear-gradient(135deg,var(--card-a),var(--card-b));border:1px solid var(--line);
+  box-shadow:0 24px 60px -34px rgba(0,0,0,.8);transition:border-color .4s,box-shadow .4s,opacity .4s}
+#bfw .bfw-day-date{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:18px 8px;background:linear-gradient(160deg,#E1B668,#D6A652);color:var(--ink);transition:filter .4s}
+#bfw .bfw-day-date small{font-size:.68rem;line-height:1;font-weight:500;letter-spacing:.2em;text-transform:uppercase}
+#bfw .bfw-day-date b{font-family:var(--serif);font-weight:400;font-size:3rem;line-height:1;letter-spacing:-.03em}
+#bfw .bfw-day-date span{font-size:.74rem;line-height:1;font-weight:500;letter-spacing:.16em;text-transform:uppercase}
+#bfw .bfw-day-body{padding:20px 24px 22px;display:flex;flex-direction:column;align-items:flex-start;gap:6px}
+#bfw .bfw-day-k{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+#bfw .bfw-pill,#bfw .bfw-day-state{display:inline-flex;align-items:center;gap:7px;font-size:.64rem;line-height:1;font-weight:500;letter-spacing:.15em;text-transform:uppercase;padding:5px 10px;border-radius:999px}
+#bfw .bfw-pill{color:var(--gold);border:1px solid rgba(225,182,104,.5)}
+#bfw .bfw-day-state{color:var(--soft);background:rgba(255,255,255,.07)}
+#bfw .bfw-day-state:empty{display:none}
+#bfw .bfw-day-state i{display:none}
+#bfw .bfw-day h3{font-family:var(--serif);font-weight:400;font-size:1.5rem;line-height:1.2;color:#fff;margin-top:4px}
+#bfw .bfw-day-text{font-size:.95rem;line-height:1.6;color:var(--muted)}
+#bfw .bfw-day-offer{font-size:.95rem;line-height:1.5;font-weight:500;color:var(--gold)}
+#bfw .bfw-day-cta{display:inline-flex;align-items:center;gap:8px;margin-top:6px;font-size:.93rem;font-weight:500;color:var(--gold);text-decoration:none}
+#bfw .bfw-day-cta:hover{text-decoration:underline;text-underline-offset:4px}
+#bfw .bfw-day-ends{font-size:.84rem;color:var(--soft);font-variant-numeric:tabular-nums}
+/* states */
+#bfw .bfw-day.is-live{border-color:rgba(225,182,104,.75);box-shadow:0 30px 70px -30px rgba(0,0,0,.75),0 0 44px -10px rgba(225,182,104,.45)}
+#bfw .bfw-day.is-live .bfw-day-state{background:var(--red);color:#fff}
+#bfw .bfw-day.is-live .bfw-day-state i{display:inline-block;background:#fff;animation:none}
+#bfw .bfw-day.is-live .bfw-day-cta{margin-top:10px;padding:12px 24px;border-radius:999px;background:var(--grad-gold);color:var(--ink);box-shadow:0 10px 26px rgba(214,166,82,.35);transition:transform .3s var(--spring),box-shadow .3s}
+#bfw .bfw-day.is-live .bfw-day-cta:hover{text-decoration:none;transform:translateY(-2px);box-shadow:0 14px 32px rgba(214,166,82,.48)}
+#bfw .bfw-day.is-ended{opacity:.55}
+#bfw .bfw-day.is-ended .bfw-day-date{filter:grayscale(.85) brightness(.75)}
+/* surprise day */
+#bfw .bfw-day.is-surprise .bfw-day-date b{display:inline-block;animation:bfwWobble 2.4s ease-in-out infinite}
+@keyframes bfwWobble{0%,100%{transform:rotate(0)}25%{transform:rotate(-8deg)}75%{transform:rotate(8deg)}}
+
+/* next steps card */
+#bfw .bfw-card{margin:56px auto 0;max-width:640px;background:linear-gradient(135deg,var(--card-a),var(--card-b));border:1px solid var(--line);border-radius:20px;padding:34px 34px 10px;text-align:left}
+#bfw .bfw-card h2{font-family:var(--serif);font-weight:400;font-size:1.5rem;line-height:1.3;color:#fff;text-align:center;margin-bottom:8px}
+#bfw .bfw-steps{list-style:none}
+#bfw .bfw-steps li{display:grid;grid-template-columns:40px 1fr;gap:18px;padding:22px 0;border-top:1px solid rgba(225,182,104,.18)}
+#bfw .bfw-steps li:first-child{border-top:0}
+#bfw .bfw-n{width:40px;height:40px;border-radius:50%;border:1px solid rgba(225,182,104,.6);display:grid;place-items:center;font-family:var(--serif);font-size:1.1rem;line-height:1;color:var(--gold)}
+#bfw .bfw-steps h3{font-family:var(--sans);font-weight:500;font-size:1rem;line-height:1.5;color:#fff;margin-top:8px}
+#bfw .bfw-steps p{font-size:.95rem;line-height:1.65;color:var(--muted);margin-top:4px}
+#bfw .bfw-link{display:inline-flex;align-items:center;gap:8px;margin-top:10px;font-size:.95rem;font-weight:500;color:var(--gold);text-decoration:none}
+#bfw .bfw-link:hover{text-decoration:underline;text-underline-offset:4px}
+
+/* sign-off */
+#bfw .bfw-sign{margin:56px auto 0;max-width:30em}
+#bfw .bfw-sign-line{font-family:var(--serif);font-size:1.4rem;line-height:1.4;color:var(--gold);text-wrap:balance}
+#bfw .bfw-sign-from{margin-top:14px;font-size:.98rem;color:var(--muted)}
+#bfw .bfw-sign-from b{display:block;font-weight:500;color:#fff}
+
+/* footer */
+#bfw .bfw-foot{padding:64px 0 40px;font-size:.85rem;color:var(--soft)}
+#bfw .bfw-rule{width:56px;height:1px;background:rgba(225,182,104,.5);margin:0 auto 24px}
+#bfw .bfw-social{display:flex;justify-content:center;flex-wrap:wrap;gap:6px 14px}
+#bfw .bfw-social a{color:var(--gold);text-decoration:none}
+#bfw .bfw-social a:hover{text-decoration:underline;text-underline-offset:4px}
+#bfw .bfw-social span{color:rgba(225,182,104,.35)}
+#bfw .bfw-copy{margin-top:12px}
+#bfw .bfw-copy a{color:var(--muted)}
+
+/* gentle entrance; everything is visible at rest without it */
+@media (prefers-reduced-motion:no-preference){
+  #bfw .bfw-rise{animation:bfwRise .9s var(--curve) both}
+  #bfw .bfw-d1{animation-delay:.08s}#bfw .bfw-d2{animation-delay:.16s}#bfw .bfw-d3{animation-delay:.24s}#bfw .bfw-d4{animation-delay:.34s}#bfw .bfw-d5{animation-delay:.44s}
+  @keyframes bfwRise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+}
+@media (prefers-reduced-motion:reduce){
+  #bfw .bfw-breath span,#bfw .bfw-panel::after,#bfw .bfw-btn::after,#bfw .bfw-badge i,#bfw .bfw-day.is-surprise .bfw-day-date b{animation:none}
+  #bfw .bfw-arr,#bfw .bfw-btn,#bfw .bfw-day-cta{transition:none}
+}
+
+@media (max-width:640px){
+  #bfw{font-size:16px}
+  #bfw .bfw-wrap{padding:0 16px}
+  #bfw .bfw-top{padding-top:24px}
+  #bfw .bfw-logo img{height:34px}
+  #bfw .bfw-hero{padding-top:40px}
+  #bfw .bfw-breath{top:74px}
+  #bfw .bfw-kicker{font-size:11px;letter-spacing:.16em}
+  #bfw .bfw-kicker::before,#bfw .bfw-kicker::after{display:none}
+  #bfw .bfw-lede{font-size:1.02rem}
+  #bfw .bfw-panel{margin-top:32px;padding:26px 16px 24px;border-radius:18px}
+  #bfw .bfw-clock{gap:8px}
+  #bfw .bfw-clock div{min-width:0;flex:1 1 0;max-width:84px;padding:12px 4px 10px}
+  #bfw .bfw-clock b{font-size:1.85rem}
+  #bfw .bfw-clock span{font-size:.58rem;letter-spacing:.12em}
+  #bfw .bfw-btn{width:100%;padding:16px 20px}
+  #bfw .bfw-week{margin-top:52px}
+  #bfw .bfw-day{grid-template-columns:76px 1fr;border-radius:16px}
+  #bfw .bfw-day-date{padding:14px 4px}
+  #bfw .bfw-day-date small{font-size:.58rem;letter-spacing:.12em}
+  #bfw .bfw-day-date b{font-size:2.2rem}
+  #bfw .bfw-day-date span{font-size:.64rem}
+  #bfw .bfw-day-body{padding:16px 16px 18px}
+  #bfw .bfw-day h3{font-size:1.3rem}
+  #bfw .bfw-day-text,#bfw .bfw-day-offer{font-size:.9rem}
+  #bfw .bfw-card{margin-top:44px;padding:28px 20px 6px;border-radius:16px}
+  #bfw .bfw-steps li{grid-template-columns:36px 1fr;gap:14px;padding:20px 0}
+  #bfw .bfw-n{width:36px;height:36px;font-size:1rem}
+  #bfw .bfw-steps h3{margin-top:6px}
+  #bfw .bfw-sign{margin-top:44px}
+  #bfw .bfw-foot{padding:52px 0 32px}
+}
+</style>
+
+<div id="bfw">
+  <header class="bfw-top">
+    <div class="bfw-wrap">
+      <a class="bfw-logo" href="https://alchemyofbreath.com/" aria-label="Alchemy of Breath home">
+        <img src="https://alchemyofbreath.com/wp-content/uploads/AoB-emblem-web-white.png" alt="Alchemy of Breath" height="40">
+      </a>
+    </div>
+  </header>
+
+  <main class="bfw-hero">
+    <div class="bfw-breath" aria-hidden="true"><span></span><span></span><span></span></div>
+    <div class="bfw-wrap">
+      <div class="bfw-seal bfw-rise" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 12.5l5 5L20 6.5"/></svg></div>
+      <p class="bfw-kicker bfw-rise bfw-d1">Black Friday waitlist &middot; Confirmed</p>
+      <h1 class="bfw-rise bfw-d2">Thank you<span id="bfw-name"></span>. <em>You&rsquo;re on the list.</em></h1>
+      <p class="bfw-lede bfw-rise bfw-d3">Your place is saved. From Friday, November 27, a new invitation opens each day at midnight your time, for 24 hours only, and you&rsquo;ll be the first to receive each one.</p>
+
+      <!-- Countdown panel. The script below switches it between: before Black Friday, a live day, and after the week. -->
+      <section class="bfw-panel bfw-rise bfw-d4" id="bfw-panel" aria-live="polite" aria-labelledby="bfw-panel-title">
+        <p class="bfw-eyebrow" data-p="eyebrow">Something good is coming your way</p>
+        <span class="bfw-badge" data-p="badge" hidden><i aria-hidden="true"></i><span data-p="badge-text">Today&rsquo;s offer is live</span></span>
+        <h2 id="bfw-panel-title" data-p="title">Your first offer unlocks in</h2>
+        <p class="bfw-panel-text" data-p="text" hidden></p>
+        <div class="bfw-clock" data-p="clock" role="timer">
+          <div data-unit="d"><b>00</b><span>days</span></div>
+          <div><b data-u="h">00</b><span>hours</span></div>
+          <div><b data-u="m">00</b><span>min</span></div>
+          <div><b data-u="s">00</b><span>sec</span></div>
+        </div>
+        <p class="bfw-clock-note" data-p="note">Day 1, BreathCamp 2027, opens at midnight your time on Friday, November 27.</p>
+        <a class="bfw-btn" data-p="btn" href="https://alchemyofbreath.com/offer/breathcamp-2027-black-friday/" hidden><span data-p="btn-text">Explore today&rsquo;s offer</span> <span class="bfw-arr" aria-hidden="true">&rarr;</span></a>
+        <p class="bfw-next" data-p="next" hidden></p>
+      </section>
+
+      <!-- The week. Each tile opens at the visitor's local midnight on data-day and lasts 24 hours.
+           data-back: the offer returns on Tuesday, December 1 (last chance). data-soon-*: the link shown before the day. -->
+      <section class="bfw-week bfw-rise bfw-d5" aria-labelledby="bfw-week-title">
+        <div class="bfw-week-head">
+          <h2 id="bfw-week-title">Your Black Friday week</h2>
+          <p>Five invitations, one a day. Each opens at midnight your time and lasts 24 hours.</p>
+        </div>
+        <ol class="bfw-days">
+          <li class="bfw-day" data-day="2026-11-27" data-back
+              data-href="https://alchemyofbreath.com/offer/breathcamp-2027-black-friday/" data-live-label="Explore today&rsquo;s offer" data-soon-label="Take a first look">
+            <div class="bfw-day-date" aria-hidden="true"><small>Friday</small><b>27</b><span>Nov</span></div>
+            <div class="bfw-day-body">
+              <div class="bfw-day-k"><span class="bfw-pill">Day 1 &middot; 24 hours</span><span class="bfw-day-state" data-state></span></div>
+              <h3>BreathCamp 2027</h3>
+              <p class="bfw-day-text">Seven days at ASHA in Tuscany to slow down, breathe and come home to yourself. June 6 to 12 or July 11 to 17, 2027.</p>
+              <p class="bfw-day-offer">Save up to &euro;1,275: 15% off every room, plus two bonus Quantum Shift recordings.</p>
+              <a class="bfw-day-cta" href="https://alchemyofbreath.com/offer/breathcamp-2027-black-friday/"><span data-cta>Take a first look</span> <span class="bfw-arr" aria-hidden="true">&rarr;</span></a>
+              <p class="bfw-day-ends" data-ends hidden></p>
+            </div>
+          </li>
+          <li class="bfw-day" data-day="2026-11-28" data-back
+              data-href="https://alchemyofbreath.com/offer/facilitator-training-black-friday/" data-live-label="Explore today&rsquo;s offer"
+              data-soon-href="https://alchemyofbreath.com/offer/facilitator-training-black-friday-call/" data-soon-label="Book a free call first">
+            <div class="bfw-day-date" aria-hidden="true"><small>Saturday</small><b>28</b><span>Nov</span></div>
+            <div class="bfw-day-body">
+              <div class="bfw-day-k"><span class="bfw-pill">Day 2 &middot; 24 hours</span><span class="bfw-day-state" data-state></span></div>
+              <h3>Facilitator Training</h3>
+              <p class="bfw-day-text">Learn to guide others with the breath. Online from February 16, 2027, or Live Residential in Tuscany, June 20 to July 10, 2027.</p>
+              <p class="bfw-day-offer">$5,040 instead of $7,200. Save $2,160.</p>
+              <a class="bfw-day-cta" href="https://alchemyofbreath.com/offer/facilitator-training-black-friday-call/"><span data-cta>Book a free call first</span> <span class="bfw-arr" aria-hidden="true">&rarr;</span></a>
+              <p class="bfw-day-ends" data-ends hidden></p>
+            </div>
+          </li>
+          <li class="bfw-day" data-day="2026-11-29" data-free
+              data-href="https://alchemyofbreath.com/free-breathwork-sessions/" data-live-label="Join the free session" data-soon-label="Save your free seat">
+            <div class="bfw-day-date" aria-hidden="true"><small>Sunday</small><b>29</b><span>Nov</span></div>
+            <div class="bfw-day-body">
+              <div class="bfw-day-k"><span class="bfw-pill">Day 3 &middot; Free</span><span class="bfw-day-state" data-state></span></div>
+              <h3>Breathe the World</h3>
+              <p class="bfw-day-text">A free session to simply breathe together, online with our community.</p>
+              <p class="bfw-day-offer">With a surprise gift for everyone who joins.</p>
+              <a class="bfw-day-cta" href="https://alchemyofbreath.com/free-breathwork-sessions/"><span data-cta>Save your free seat</span> <span class="bfw-arr" aria-hidden="true">&rarr;</span></a>
+              <p class="bfw-day-ends" data-ends hidden></p>
+            </div>
+          </li>
+          <li class="bfw-day" data-day="2026-11-30" data-back
+              data-href="https://alchemyofbreath.com/offer/intuition-black-friday/" data-live-label="Explore today&rsquo;s offer" data-soon-label="Take a first look">
+            <div class="bfw-day-date" aria-hidden="true"><small>Monday</small><b>30</b><span>Nov</span></div>
+            <div class="bfw-day-body">
+              <div class="bfw-day-k"><span class="bfw-pill">Day 4 &middot; 24 hours</span><span class="bfw-day-state" data-state></span></div>
+              <h3>Intuition with Amy</h3>
+              <p class="bfw-day-text">A weeklong deep dive into the art of intuition with Amy Rachelle. August 29 to September 4, 2027, at ASHA in Tuscany.</p>
+              <p class="bfw-day-offer">15% off every room. Everything included except travel.</p>
+              <a class="bfw-day-cta" href="https://alchemyofbreath.com/offer/intuition-black-friday/"><span data-cta>Take a first look</span> <span class="bfw-arr" aria-hidden="true">&rarr;</span></a>
+              <p class="bfw-day-ends" data-ends hidden></p>
+            </div>
+          </li>
+          <li class="bfw-day is-surprise" data-day="2026-12-01" data-surprise
+              data-href="https://alchemyofbreath.com/offer/black-friday-last-chance/" data-live-label="See every offer" data-soon-label=""
+              data-reveal-title="Last chance" data-reveal-text="If an invitation passed you by this week, every Black Friday offer opens again for one final day."
+              data-reveal-offer="BreathCamp 2027, the Facilitator Training and Intuition with Amy.">
+            <div class="bfw-day-date" aria-hidden="true"><small>Tuesday</small><b data-num>?</b><span>Dec</span></div>
+            <div class="bfw-day-body">
+              <div class="bfw-day-k"><span class="bfw-pill">Day 5 &middot; 24 hours</span><span class="bfw-day-state" data-state></span></div>
+              <h3>A surprise</h3>
+              <p class="bfw-day-text">Something special to close the week. Watch your inbox on Tuesday.</p>
+              <p class="bfw-day-offer" hidden></p>
+              <a class="bfw-day-cta" href="https://alchemyofbreath.com/offer/black-friday-last-chance/" hidden><span data-cta>See every offer</span> <span class="bfw-arr" aria-hidden="true">&rarr;</span></a>
+              <p class="bfw-day-ends" data-ends hidden></p>
+            </div>
+          </li>
+        </ol>
+      </section>
+
+      <section class="bfw-card" aria-labelledby="bfw-next-title">
+        <h2 id="bfw-next-title">What happens next</h2>
+        <ol class="bfw-steps">
+          <li>
+            <span class="bfw-n" aria-hidden="true">1</span>
+            <div>
+              <h3>Watch your inbox</h3>
+              <p>We&rsquo;ll email you each invitation the moment it opens. Each one lasts only 24 hours, so keep an eye out for our message.</p>
+            </div>
+          </li>
+          <li>
+            <span class="bfw-n" aria-hidden="true">2</span>
+            <div>
+              <h3>Make sure our email reaches you</h3>
+              <p>Add our email address to your contacts. If you use Gmail, drag our email into your Primary tab so it doesn&rsquo;t land in Promotions.</p>
+            </div>
+          </li>
+          <li>
+            <span class="bfw-n" aria-hidden="true">3</span>
+            <div>
+              <h3>Breathe with us in the meantime</h3>
+              <p>Our free Breathe The World sessions run every Sunday. Come and breathe with the community while you wait.</p>
+              <a class="bfw-link" href="https://alchemyofbreath.com/free-breathwork-sessions/">Join a free session <span class="bfw-arr" aria-hidden="true">&rarr;</span></a>
+            </div>
+          </li>
+        </ol>
+      </section>
+
+      <div class="bfw-sign">
+        <p class="bfw-sign-line">Here&rsquo;s to making room for what matters.</p>
+        <p class="bfw-sign-from">With love and blessings,<b>The Alchemy of Breath Team</b></p>
+      </div>
+    </div>
+  </main>
+
+  <footer class="bfw-foot">
+    <div class="bfw-wrap">
+      <div class="bfw-rule" aria-hidden="true"></div>
+      <nav class="bfw-social" aria-label="Alchemy of Breath elsewhere">
+        <a href="https://www.instagram.com/alchemyofbreath/" target="_blank" rel="noopener">Instagram</a><span aria-hidden="true">&middot;</span>
+        <a href="https://www.facebook.com/AOB.Breathwork/" target="_blank" rel="noopener">Facebook</a><span aria-hidden="true">&middot;</span>
+        <a href="https://alchemyofbreath.com/">Website</a>
+      </nav>
+      <p class="bfw-copy">Questions? <a href="mailto:support@alchemyofbreath.com">support@alchemyofbreath.com</a></p>
+      <p class="bfw-copy">&copy; Alchemy of Breath</p>
+    </div>
+  </footer>
+</div>
+
+<script>
+/* Black Friday week, on each visitor's own clock, matching the offer pages: every day opens at local midnight
+   and lasts 24 hours (Fri Nov 27 to Tue Dec 1, 2026). BreathCamp, the Facilitator Training and Intuition
+   (data-back) return on Tuesday, December 1. Preview any moment with ?preview=2026-11-28T10:00 */
+(function(){
+  var root=document.getElementById('bfw'); if(!root) return;
+  var q=null; try{ q=new URLSearchParams(location.search); }catch(e){}
+
+  /* optional greeting: ?first_name=Anna (or ?name=Anna) */
+  var nm=document.getElementById('bfw-name');
+  if(nm && q){
+    var n=(q.get('first_name')||q.get('name')||'').trim().split(/\s+/)[0]||'';
+    if(n && n.length<=30 && !/[{}<>]/.test(n)) nm.textContent=', '+n.charAt(0).toUpperCase()+n.slice(1);
+  }
+
+  var off=0, pv=q&&q.get('preview'), m=pv&&pv.match(/^(\d{4})-(\d{2})-(\d{2})(?:T(\d{2}):(\d{2}))?$/);
+  if(m) off=new Date(+m[1],m[2]-1,+m[3],+(m[4]||0),+(m[5]||0)).getTime()-Date.now();
+  function now(){ return Date.now()+off; }
+  function at(s){ var p=s.split('-'); return new Date(+p[0],p[1]-1,+p[2]).getTime(); }
+  function next(t){ var d=new Date(t); return new Date(d.getFullYear(),d.getMonth(),d.getDate()+1).getTime(); } /* local midnight after t (DST-safe) */
+  function pad(x){ return (x<10?'0':'')+x; }
+  function parts(ms){ var s=Math.max(0,Math.floor(ms/1000)); return {d:Math.floor(s/86400),h:Math.floor(s%86400/3600),m:Math.floor(s%3600/60),s:s%60}; }
+  function hms(ms){ var p=parts(ms); return pad(p.d*24+p.h)+':'+pad(p.m)+':'+pad(p.s); }
+  function ev(name){ try{ if(window.fbq) fbq('trackCustom',name); if(window.clarity) clarity('event',name); }catch(e){} }
+
+  var START=at('2026-11-27'), END=at('2026-12-02'), LS=at('2026-12-01');
+  var days=[].slice.call(root.querySelectorAll('.bfw-day')).map(function(li,i){
+    var s=at(li.getAttribute('data-day'));
+    return {li:li,i:i,s:s,e:next(s),back:li.hasAttribute('data-back'),free:li.hasAttribute('data-free'),surprise:li.hasAttribute('data-surprise'),
+      href:li.getAttribute('data-href'),liveLabel:li.getAttribute('data-live-label'),
+      soonHref:li.getAttribute('data-soon-href')||li.getAttribute('data-href'),soonLabel:li.getAttribute('data-soon-label'),
+      h3:li.querySelector('h3'),text:li.querySelector('.bfw-day-text'),offer:li.querySelector('.bfw-day-offer'),
+      cta:li.querySelector('.bfw-day-cta'),ctaText:li.querySelector('[data-cta]'),state:li.querySelector('[data-state]'),ends:li.querySelector('[data-ends]'),num:li.querySelector('[data-num]')};
+  });
+  var LE=next(LS);
+
+  function phase(d,t){
+    if(t<d.s) return 'soon';
+    if(t<d.e) return 'live';
+    if(d.back && t>=LS && t<LE) return 'back';
+    return 'ended';
+  }
+  function reveal(d){
+    if(!d.surprise || d.revealed) return;
+    d.revealed=true; d.li.classList.remove('is-surprise');
+    if(d.num) d.num.textContent='1';
+    d.h3.textContent=d.li.getAttribute('data-reveal-title');
+    d.text.textContent=d.li.getAttribute('data-reveal-text');
+    d.offer.textContent=d.li.getAttribute('data-reveal-offer'); d.offer.hidden=false;
+  }
+
+  function paintDay(d,t,isNext){
+    var ph=phase(d,t), li=d.li;
+    if(ph!=='soon') reveal(d);
+    if(li.getAttribute('data-phase')!==ph){
+      li.setAttribute('data-phase',ph);
+      li.classList.toggle('is-live',ph==='live'||ph==='back');
+      li.classList.toggle('is-ended',ph==='ended');
+      if(ph==='soon'){
+        d.cta.hidden=!d.soonLabel; d.cta.href=d.soonHref; d.ctaText.textContent=d.soonLabel||'';
+      }else if(ph==='live'||ph==='back'){
+        d.cta.hidden=false; d.cta.href=d.href; d.ctaText.textContent=ph==='back'?'See the offer again':d.liveLabel;
+      }else{
+        d.cta.hidden=true;
+      }
+    }
+    var st='', ends='';
+    if(ph==='soon'){
+      var today=new Date(t), dd=Math.round((d.s-new Date(today.getFullYear(),today.getMonth(),today.getDate()).getTime())/864e5);
+      st=dd<=1?'Opens at midnight':(isNext?'Next up':'');
+    }else if(ph==='live'){
+      st='Live now'; ends=(d.free?'Today only, ends in ':'Ends in ')+hms(d.e-t);
+    }else if(ph==='back'){
+      st='Back today'; ends='Last chance, ends in '+hms(LE-t);
+    }else{
+      st='Ended';
+    }
+    d.state.innerHTML=(ph==='live'||ph==='back'?'<i aria-hidden="true"></i>':'')+st;
+    d.ends.textContent=ends; d.ends.hidden=!ends;
+  }
+
+  var P={}; root.querySelectorAll('[data-p]').forEach(function(el){ P[el.getAttribute('data-p')]=el; });
+  var U={h:P.clock.querySelector('[data-u="h"]'),m:P.clock.querySelector('[data-u="m"]'),s:P.clock.querySelector('[data-u="s"]')},
+      dayBox=P.clock.querySelector('[data-unit="d"]'), dayVal=dayBox.querySelector('b');
+
+  function paintPanel(t){
+    var mode, d=null, k=-1;
+    if(t<START) mode='before';
+    else if(t>=END) mode='after';
+    else { mode='live'; days.forEach(function(x){ if(t>=x.s&&t<x.e){ d=x; k=x.i; } }); if(!d) mode='after'; }
+    var key=mode+k;
+    if(P.panel!==key){
+      P.panel=key;
+      P.eyebrow.hidden=mode==='live';
+      P.badge.hidden=mode!=='live';
+      P.text.hidden=mode==='before';
+      P.clock.hidden=mode==='after';
+      P.btn.hidden=mode==='before';
+      P.next.hidden=mode!=='live';
+      dayBox.hidden=mode==='live';
+      if(mode==='before'){
+        P.eyebrow.textContent='Something good is coming your way';
+        P.title.textContent='Your first offer unlocks in';
+        P.note.textContent='Day 1, BreathCamp 2027, opens at midnight your time on Friday, November 27.';
+      }else if(mode==='live'){
+        P['badge-text'].textContent=d.free?'Today is free':(d.surprise?'Last chance, today only':'Today’s offer is live');
+        P.title.textContent='Day '+(k+1)+': '+d.h3.textContent;
+        P.text.textContent=d.offer.textContent;
+        P.note.textContent=d.free?'Time left today':(d.surprise?'Time left to claim any offer':'Time left to claim today’s offer');
+        P.btn.href=d.href; P['btn-text'].textContent=d.liveLabel;
+        var nx=days[k+1];
+        P.next.textContent=nx?'Next: '+(nx.surprise?'a surprise':nx.h3.textContent)+' opens at midnight your time.':'This is the final day of Black Friday week.';
+      }else{
+        P.eyebrow.textContent='Black Friday week has ended';
+        P.title.textContent='Thank you for being part of it';
+        P.text.textContent='Our free Breathe The World sessions continue every Sunday. Come and breathe with us.';
+        P.note.textContent='';
+        P.btn.href='https://alchemyofbreath.com/free-breathwork-sessions/'; P['btn-text'].textContent='Join a free session';
+      }
+    }
+    P.note.hidden=!P.note.textContent;
+    if(mode==='after') return;
+    var p=parts((mode==='before'?START:d.e)-t);
+    dayVal.textContent=pad(p.d);
+    U.h.textContent=pad(mode==='live'?p.d*24+p.h:p.h); U.m.textContent=pad(p.m); U.s.textContent=pad(p.s);
+  }
+
+  function tick(){
+    var t=now();
+    var nx=-1; days.forEach(function(d){ if(nx<0 && t<d.s) nx=d.i; });
+    days.forEach(function(d){ paintDay(d,t,d.i===nx); });
+    paintPanel(t);
+    if(t>=END && iv){ clearInterval(iv); iv=null; }
+  }
+  var iv=setInterval(tick,1000); tick();
+
+  P.btn.addEventListener('click',function(){ ev('bf_thankyou_panel_click'); });
+  days.forEach(function(d){ d.cta.addEventListener('click',function(){ ev('bf_thankyou_day'+(d.i+1)+'_'+(d.li.getAttribute('data-phase')||'soon')); }); });
+})();
+</script>
+<!-- BFW:end -->
+
+<script>(function(){if(window.self!==window.top){var st=document.createElement('style');st.textContent='.cv{content-visibility:visible !important}';document.head.appendChild(st);}function reportHeight(){var h=document.documentElement.scrollHeight;window.parent.postMessage({type:'aob-embed-resize',height:h},'*');}window.addEventListener('load',reportHeight);window.addEventListener('resize',reportHeight);var mo=new MutationObserver(reportHeight);mo.observe(document.body,{childList:true,subtree:true,attributes:true});setInterval(reportHeight,800);})();</script>
+</body>
+</html>
