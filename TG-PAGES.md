@@ -23,7 +23,7 @@ Pushed to `main` on November 18, 2026 (commit 9330463). The `tg-` copies here st
 
 - Homepage (`/index.html`): the Black Friday week hero from `/tg-homepage-black-friday/` is live, indexable as before. Its waitlist button goes to `/offer/black-friday/#join`. Switch the hero back after December 1 (the previous hero is in commit 2d795ed).
 - `/offer/black-friday/`: the waitlist page from `/tg-black-friday-waitlist/`, with the GHL form.
-- `/offer/facilitator-training-brochure/`: the brochure from `/tg-facilitator-training-brochure/`. Its images and the PDF moved to `/assets/brochure/`, because the live site only serves page files from `/assets/`. The PDF is at alchemyofbreath.com/assets/brochure/alchemy-of-breath-facilitator-training-brochure.pdf.
+- `/offer/facilitator-training-brochure/`: the brochure from `/tg-facilitator-training-brochure/`. Its images and the PDF moved to `/assets/brochure/` and load through jsDelivr, because alchemyofbreath.com doesn't serve the repo's image or PDF files itself. PDF link: https://cdn.jsdelivr.net/gh/Alchemy-of-Breath/website@9330463ce50865d33b178370d75e23356c047e5b/assets/brochure/alchemy-of-breath-facilitator-training-brochure.pdf
 - When the BreathCamp Black Friday page goes live, point its waitlist buttons at `/offer/black-friday/#join`.
 
 ## Before going live
