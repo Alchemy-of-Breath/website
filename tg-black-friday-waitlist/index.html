@@ -271,12 +271,16 @@ footer a:hover{color:var(--gold)}
 })();
 </script>
 <script>
-/* Arriving from another page with #join: scroll to the form once it has loaded and sized itself */
+/* Arriving from another page with #join: keep the form in view while the page and the GHL form finish loading
+   (the form script can reset the scroll). Stops as soon as the visitor scrolls themselves. */
 (function(){
   if(location.hash!=='#join') return;
   var el=document.getElementById('join'); if(!el) return;
-  function go(){el.scrollIntoView({behavior:'auto',block:'start'});}
-  window.addEventListener('load',function(){go();setTimeout(go,600);setTimeout(go,1500);});
+  var userMoved=false, t0=Date.now();
+  ['wheel','touchstart','keydown'].forEach(function(e){window.addEventListener(e,function(){userMoved=true;},{passive:true,once:true});});
+  function go(){if(userMoved)return;var top=el.getBoundingClientRect().top;if(Math.abs(top-20)>40)window.scrollTo(0,window.scrollY+top-20);}
+  var iv=setInterval(function(){go();if(Date.now()-t0>6000||userMoved)clearInterval(iv);},250);
+  var f=el.querySelector('iframe'); if(f) f.addEventListener('load',function(){setTimeout(go,100);});
 })();
 </script>
 </body>
