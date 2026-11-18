@@ -958,6 +958,12 @@ html:not(.ph-before):not(.ph-during):not(.ph-after) [data-show~="before"]{displa
 .cmp2 .c-bf strong{font-family:var(--serif);font-weight:400;font-size:1.7rem;color:var(--ink);margin-right:8px}
 .cmp2 .c-bf .ft-save{font-size:.66rem;vertical-align:4px}
 @media(max-width:760px){.cmp2 thead{display:none}.cmp2,.cmp2 tbody,.cmp2 tr,.cmp2 th,.cmp2 td{display:block;width:100%}.cmp2 tbody th{padding:16px 18px 4px;border-top:1px solid rgba(225,182,104,.25)}.cmp2 td{border-left:0;border-top:0!important;padding:4px 18px 8px}.cmp2 td::before{content:attr(data-l);display:block;font-size:.66rem;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-deep)}.cmp2 tbody tr+tr th{border-top:1px solid rgba(225,182,104,.25)}}
+.lock-cta{display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px;margin:6px auto 0}
+html.ph-before .lock-cta[data-show~="before"],html.ph-during .lock-cta[data-show~="during"]{display:flex!important}
+.btn-lock{font-size:1.08rem;padding:20px 40px;box-shadow:0 16px 40px rgba(214,166,82,.5)}
+.lock-sub{margin:0;font-size:.92rem;color:var(--slate)}
+.lock-sub a{color:var(--ink);text-underline-offset:3px}
+.lock-sub a:hover{color:var(--gold-deep)}
 .ft-same{max-width:780px;margin:26px auto 0;text-align:center;font-family:var(--serif);font-size:1.2rem;color:#fff}
 
 /* Q&A */
@@ -1036,13 +1042,10 @@ html:not(.ph-before):not(.ph-during):not(.ph-after) [data-show~="before"]{displa
       </div>
       <p class="bft-note" data-bft-note>Opens at midnight your time, Saturday, November 28</p>
     </div>
-    <div class="cta-row reveal d3" data-show="before">
-      <a class="btn btn-primary" href="#offer" data-ev="hero_lock_price">Lock in $5,040 <span class="arr">&rarr;</span></a>
-      <a class="btn btn-ghost" href="/tg-facilitator-training-black-friday-call/" data-ev="hero_book_call">Book a call first</a>
-    </div>
-    <div class="cta-row reveal d3" data-show="during">
-      <a class="btn btn-primary" href="#offer" data-ev="hero_lock_price">Lock in $5,040 <span class="arr">&rarr;</span></a>
-      <a class="btn btn-ghost" href="#qa">Join the live Q&amp;A</a>
+    <div class="lock-cta reveal d3" data-show="before during">
+      <a class="btn btn-primary btn-lock" href="#offer" data-ev="hero_lock_price">Lock in your price: $5,040 <span class="arr">&rarr;</span></a>
+      <p class="lock-sub" data-show="before">Questions first? <a href="/tg-facilitator-training-black-friday-call/" data-ev="hero_book_call">Book a free call</a></p>
+      <p class="lock-sub" data-show="during">Then <a href="#qa">join the live Q&amp;A</a> with Amy and Anthony</p>
     </div>
     <div class="cta-row reveal d3" data-show="after">
       <a class="btn btn-primary" href="/tg-facilitator-training-black-friday-call/" data-ev="hero_book_call_after">Book a call with a Success Advisor <span class="arr">&rarr;</span></a>
@@ -1227,13 +1230,10 @@ html:not(.ph-before):not(.ph-during):not(.ph-after) [data-show~="before"]{displa
     <span class="eyebrow reveal" style="justify-content:center">Black Friday &middot; Saturday, November 28 only</span>
     <h2 class="reveal d1">Lock in your <em>price</em></h2>
     <p class="lede reveal d2" style="margin:18px auto 34px">$5,040 instead of $7,200, online or in Tuscany. Questions? Email us at info@alchemyofbreath.com.</p>
-    <div class="cta-row reveal d3" data-show="before">
-      <a class="btn btn-primary" href="#offer" data-ev="final_lock_price">Lock in $5,040 <span class="arr">&rarr;</span></a>
-      <a class="btn btn-ghost" href="/tg-facilitator-training-black-friday-call/" data-ev="final_book_call">Book a call first</a>
-    </div>
-    <div class="cta-row reveal d3" data-show="during">
-      <a class="btn btn-primary" href="#offer" data-ev="final_lock_price">Lock in $5,040 <span class="arr">&rarr;</span></a>
-      <a class="btn btn-ghost" href="#qa">Join the live Q&amp;A</a>
+    <div class="lock-cta reveal d3" data-show="before during">
+      <a class="btn btn-primary btn-lock" href="#offer" data-ev="final_lock_price">Lock in your price: $5,040 <span class="arr">&rarr;</span></a>
+      <p class="lock-sub" data-show="before">Questions first? <a href="/tg-facilitator-training-black-friday-call/" data-ev="final_book_call">Book a free call</a></p>
+      <p class="lock-sub" data-show="during">Then <a href="#qa">join the live Q&amp;A</a> with Amy and Anthony</p>
     </div>
     <div class="cta-row reveal d3" data-show="after">
       <a class="btn btn-primary" href="/tg-facilitator-training-black-friday-call/">Book a call with a Success Advisor <span class="arr">&rarr;</span></a>
