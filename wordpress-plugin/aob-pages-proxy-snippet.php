@@ -79,7 +79,7 @@ function aob_pages_proxy_serve() {
 	$lower = strtolower( $key );
 	if ( $lower !== $key && (
 		isset( $routes[ $lower ] ) || isset( $redirects[ $lower ] )
-		|| preg_match( '#^(btw/[a-z0-9/-]+|tuition-grants(/[a-z0-9-]+)?|thank-you-(ft|ij)-t(3[4-9]|[4-9][0-9])-(am|pm)|offer/[a-z0-9-]+)$#', $lower )
+		|| preg_match( '#^(btw/[a-z0-9/-]+|tuition-grants(/[a-z0-9-]+)?|thank-you-(ft|ij)-t(3[4-9]|[4-9][0-9])-(am|pm|uspm|ukpm)|offer/[a-z0-9-]+)$#', $lower )
 	) ) {
 		$query = wp_parse_url( $request_uri, PHP_URL_QUERY );
 		$to    = home_url( isset( $redirects[ $lower ] ) ? $redirects[ $lower ] : '/' . $lower . '/' );
@@ -127,8 +127,8 @@ function aob_pages_proxy_serve() {
 		// so new weeks go live without a plugin update.
 		$upstream = $origin . '/' . $key . '/';
 		$is_html  = true;
-	} elseif ( preg_match( '#^thank-you-(ft|ij)-t(3[4-9]|[4-9][0-9])-(am|pm)$#', $key ) ) {
-		// Post-purchase thank-you pages from cohort T34 on (FT and IJ, AM and PM)
+	} elseif ( preg_match( '#^thank-you-(ft|ij)-t(3[4-9]|[4-9][0-9])-(am|pm|uspm|ukpm)$#', $key ) ) {
+		// Post-purchase thank-you pages from cohort T34 on (FT and IJ; AM, PM, USPM and UKPM)
 		// live on Pages, so each new cohort's pages go live without a plugin update.
 		// T31 to T33 stay WordPress pages.
 		$upstream = $origin . '/' . $key . '/';
