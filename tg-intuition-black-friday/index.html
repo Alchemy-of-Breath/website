@@ -1039,6 +1039,8 @@ html.ph-before .lock-cta[data-show~="before"],html.ph-during .lock-cta[data-show
 .book-card .save{display:inline-block;margin:18px 0;font-size:.8rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:#fff;background:#c8322a;padding:7px 14px;border-radius:999px}
 .book-card .btn{width:100%;justify-content:center}
 .book-card .fine{margin-top:12px;font-size:.82rem;color:var(--slate)}
+.buy-row{display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;margin:44px auto 0}
+.buy-note{margin:0;font-size:.84rem;color:var(--slate)}
 .note-entity{max-width:820px;margin:26px auto 0;text-align:center;font-size:.82rem;color:var(--slate)}
 @media(max-width:860px){.guide,.inc-two,.tst{grid-template-columns:1fr}.gal{grid-template-columns:1fr 1fr}.gal img{height:180px}}
 </style>
@@ -1050,7 +1052,7 @@ html.ph-before .lock-cta[data-show~="before"],html.ph-during .lock-cta[data-show
     <div class="bfb-count"><span class="bfb-lbl" data-bf-mini-lbl>Black Friday opens in</span><span class="bfb-clock" data-bf-mini><i><b>0</b>d</i><i><b>00</b>h</i><i><b>00</b>m</i><i><b>00</b>s</i></span></div>
     <span class="bfb-msg">Intuition with Amy: <b>15% off</b></span>
     <a class="bfb-btn" href="/tg-black-friday-waitlist/#join" data-show="before" data-ev="int_bar_waitlist">Join the waitlist <span aria-hidden="true">&rarr;</span></a>
-    <a class="bfb-btn" href="#offer" data-show="during" data-ev="int_bar_book">Save 15% now <span aria-hidden="true">&rarr;</span></a>
+    <a class="bfb-btn" href="#checkout-intuition-2027" data-show="during" data-ev="checkout_intuition_bar">Book with 15% off <span aria-hidden="true">&rarr;</span></a>
   </div>
 </div>
 
@@ -1062,7 +1064,7 @@ html.ph-before .lock-cta[data-show~="before"],html.ph-during .lock-cta[data-show
       <a class="nav-link" href="#amy">Amy</a>
       <a class="nav-link" href="#week">The week</a>
       <a class="nav-link" href="#faq">FAQ</a>
-      <a class="nav-cta" href="#offer">Save 15%</a>
+      <a class="nav-cta" href="#checkout-intuition-2027" data-ev="checkout_intuition_nav">Book with 15% off</a>
     </div>
   </div>
 </header>
@@ -1087,8 +1089,8 @@ html.ph-before .lock-cta[data-show~="before"],html.ph-during .lock-cta[data-show
       <p class="bft-note" data-bft-note>Opens at midnight your time, Monday, November 30</p>
     </div>
     <div class="lock-cta reveal d3">
-      <a class="btn btn-primary btn-lock" href="#offer" data-ev="int_hero_offer">Save 15% on Intuition <span class="arr">&rarr;</span></a>
-      <p class="lock-sub" data-show="before">Want a reminder? <a href="/tg-black-friday-waitlist/#join" data-ev="int_hero_waitlist">Join the Black Friday waitlist</a></p>
+      <a class="btn btn-primary btn-lock" href="#checkout-intuition-2027" data-ev="checkout_intuition_hero">Book with 15% off <span class="arr">&rarr;</span></a>
+      <p class="lock-sub"><a href="#offer">See what is included</a> &middot; <span data-show="before">Want a reminder? <a href="/tg-black-friday-waitlist/#join" data-ev="int_hero_waitlist">Join the waitlist</a></span></p>
     </div>
   </div>
   <div class="wrap">
@@ -1156,6 +1158,10 @@ html.ph-before .lock-cta[data-show~="before"],html.ph-during .lock-cta[data-show
     </div>
     <div class="vf reveal"><video controls preload="none" playsinline poster="https://static.wixstatic.com/media/c2dd9b_f276ede6342843abbaa1b7f98e2b2175~mv2.png" src="https://video.wixstatic.com/video/c2dd9b_af5512ba7ee643b0b43e0f31c8a3a45f/1080p/mp4/file.mp4"></video></div>
     <p class="pull reveal">&ldquo;Intuition is our inner compass. Our GPS. Yet you and I have been heavily conditioned not to listen to it.&rdquo;<cite>Amy Rachelle</cite></p>
+    <div class="buy-row reveal">
+      <a class="btn btn-primary" href="#checkout-intuition-2027" data-ev="checkout_intuition_video">Book with 15% off <span class="arr">&rarr;</span></a>
+      <p class="buy-note">Black Friday &middot; Monday, November 30 only &middot; 15% off every room</p>
+    </div>
   </div>
 </section>
 
@@ -1174,6 +1180,10 @@ html.ph-before .lock-cta[data-show~="before"],html.ph-during .lock-cta[data-show
       <div class="qa glow reveal d1"><h3>Nourishing relationships</h3><p>Attract empathic, like-minded people and a community who get you, without losing yourself in the process.</p></div>
       <div class="qa glow reveal d2"><h3>Challenges become openings</h3><p>Turn difficulty into opportunity. Sensitivity, transformed into sovereignty.</p></div>
     </div>
+    <div class="buy-row reveal">
+      <a class="btn btn-primary" href="#checkout-intuition-2027" data-ev="checkout_intuition_trust">Book with 15% off <span class="arr">&rarr;</span></a>
+      <p class="buy-note">Black Friday &middot; Monday, November 30 only &middot; 15% off every room</p>
+    </div>
   </div>
 </section>
 
@@ -1188,6 +1198,10 @@ html.ph-before .lock-cta[data-show~="before"],html.ph-during .lock-cta[data-show
         <p style="margin-top:16px">Before Alchemy of Breath, before ASHA, this was Amy&rsquo;s whole life: a naturopath and medical medium who reads people like a map, tracing physical symptoms back to their emotional roots and offering insight, inspiration and direction.</p>
         <blockquote>&ldquo;My greatest gift is helping people find their way home to themselves.&rdquo;</blockquote>
         <p>She has guided thousands back into a deeper relationship with themselves through breathwork, intuition and profound self-trust. This retreat returns her to those original roots, teaching not only how to listen inside, but how to interpret what you hear and act on it.</p>
+        <div class="buy-row reveal" style="justify-content:flex-start;text-align:left;align-items:flex-start">
+          <a class="btn btn-primary" href="#checkout-intuition-2027" data-ev="checkout_intuition_amy">Book with 15% off <span class="arr">&rarr;</span></a>
+          <p class="buy-note">Black Friday &middot; Monday, November 30 only &middot; 15% off every room</p>
+        </div>
       </div>
     </div>
   </div>
@@ -1234,6 +1248,10 @@ html.ph-before .lock-cta[data-show~="before"],html.ph-during .lock-cta[data-show
       <img class="reveal d2" src="https://static.wixstatic.com/media/c2dd9b_f47adc4e1a234b7abdf0cabeb745d34b~mv2.jpg/v1/fill/w_900,h_600,al_c,q_88,enc_avif,quality_auto/c2dd9b_f47adc4e1a234b7abdf0cabeb745d34b~mv2.jpg" alt="A previous Intuition Retreat cohort at ASHA" loading="lazy">
       <img class="reveal d3" src="https://static.wixstatic.com/media/c2dd9b_5e8c982e066e4408a64b8e4e9063ceb5~mv2.jpg/v1/fill/w_900,h_900,al_c,q_88,enc_avif,quality_auto/c2dd9b_5e8c982e066e4408a64b8e4e9063ceb5~mv2.jpg" alt="Amy connecting with people outside" loading="lazy">
     </div>
+    <div class="buy-row reveal">
+      <a class="btn btn-primary" href="#checkout-intuition-2027" data-ev="checkout_intuition_week">Book with 15% off <span class="arr">&rarr;</span></a>
+      <p class="buy-note">Black Friday &middot; Monday, November 30 only &middot; 15% off every room</p>
+    </div>
   </div>
 </section>
 
@@ -1252,6 +1270,10 @@ html.ph-before .lock-cta[data-show~="before"],html.ph-during .lock-cta[data-show
       <div class="qa glow reveal d1"><h3>New to this work?</h3><p>You are welcome exactly as you are. You will be among people at every stage, held by expert teachers.</p></div>
       <div class="qa glow reveal d2"><h3>Ready for more?</h3><p>If you already sense your gift, this is the week to deepen it, refine it, and learn to live by it.</p></div>
     </div>
+    <div class="buy-row reveal">
+      <a class="btn btn-primary" href="#checkout-intuition-2027" data-ev="checkout_intuition_who">Book with 15% off <span class="arr">&rarr;</span></a>
+      <p class="buy-note">Black Friday &middot; Monday, November 30 only &middot; 15% off every room</p>
+    </div>
   </div>
 </section>
 
@@ -1267,6 +1289,10 @@ html.ph-before .lock-cta[data-show~="before"],html.ph-during .lock-cta[data-show
       <figure class="reveal d1"><blockquote>&ldquo;I cannot say enough how much growth I have experienced. I am living a life I did not even know was possible. She has a way of bringing out in me the knowing of trusting myself, and the intuition I was born with but had no idea how to use.&rdquo;</blockquote><figcaption>Tricia Dimon &middot; 63 &middot; Atlanta</figcaption></figure>
       <figure class="reveal"><blockquote>&ldquo;Amy&rsquo;s intuitive insights have been incredibly accurate. She has this remarkable ability to tap into what is really going on, and at the same time helps you reconnect to your own intuition and empowers you to find the answers within.&rdquo;</blockquote><figcaption>Anna Myers &middot; 30 &middot; Milan</figcaption></figure>
       <figure class="reveal d1"><blockquote>&ldquo;Amy&rsquo;s deep intuitive abilities, her presence, and her expertise inspire me again and again on my path. She always sees straight to the bottom of things, in a very special and nurturing way.&rdquo;</blockquote><figcaption>Angela Luft &middot; 40 &middot; Germany</figcaption></figure>
+    </div>
+    <div class="buy-row reveal">
+      <a class="btn btn-primary" href="#checkout-intuition-2027" data-ev="checkout_intuition_stories">Book with 15% off <span class="arr">&rarr;</span></a>
+      <p class="buy-note">Black Friday &middot; Monday, November 30 only &middot; 15% off every room</p>
     </div>
   </div>
 </section>
@@ -1290,6 +1316,10 @@ html.ph-before .lock-cta[data-show~="before"],html.ph-during .lock-cta[data-show
       <details class="reveal"><summary>Can I bring my dog?<span class="pl">+</span></summary><div class="faq-a">Yes. Dogs are welcome and must be kept on a leash to protect the resident cats. There is a &euro;40 donation per pet per retreat.</div></details>
       <details class="reveal"><summary>Who do I contact with anything else?<span class="pl">+</span></summary><div class="faq-a">The ASHA team, at info@asha.global or on WhatsApp at +39 353 452 7348.</div></details>
     </div>
+    <div class="buy-row reveal">
+      <a class="btn btn-primary" href="#checkout-intuition-2027" data-ev="checkout_intuition_faq">Book with 15% off <span class="arr">&rarr;</span></a>
+      <p class="buy-note">Black Friday &middot; Monday, November 30 only &middot; 15% off every room</p>
+    </div>
   </div>
 </section>
 
@@ -1301,7 +1331,7 @@ html.ph-before .lock-cta[data-show~="before"],html.ph-during .lock-cta[data-show
     <h2 class="reveal d1">Find your way home to <em>yourself</em></h2>
     <p class="lede reveal d2" style="margin:18px auto 34px">15% off the 2027 Intuition Retreat with Amy, on every room, for 24 hours.</p>
     <div class="lock-cta reveal d3">
-      <a class="btn btn-primary btn-lock" href="#offer" data-ev="int_final_offer">Save 15% on Intuition <span class="arr">&rarr;</span></a>
+      <a class="btn btn-primary btn-lock" href="#checkout-intuition-2027" data-ev="checkout_intuition_final">Book with 15% off <span class="arr">&rarr;</span></a>
     </div>
     <p class="note-entity reveal">The Intuition Retreat is an Alchemy of Breath program, hosted at ASHA.</p>
   </div>
@@ -1320,8 +1350,8 @@ html.ph-before .lock-cta[data-show~="before"],html.ph-during .lock-cta[data-show
   </div>
 </footer>
 
-<a class="pill" id="pill" href="#offer" aria-label="See the Black Friday offer">
-  <span class="pill-label">Save 15% on Intuition</span>
+<a class="pill" id="pill" href="#checkout-intuition-2027" data-ev="checkout_intuition_pill" aria-label="Book Intuition with 15% off">
+  <span class="pill-label">Book with 15% off</span>
   <span class="pill-ring" id="pillRing"><span class="inner"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></span>
 </a>
 
