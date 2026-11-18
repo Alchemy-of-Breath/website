@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Black Friday Waitlist | Alchemy of Breath</title>
+<meta name="description" content="Join the Alchemy of Breath Black Friday waitlist and be first to hear when our offers open: BreathCamp 2027 on Friday, November 27, and the Facilitator Training on Saturday, November 28.">
+<meta name="robots" content="index, follow">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Alchemy of Breath">
+<meta property="og:title" content="Be first to hear about Black Friday">
+<meta property="og:description" content="Join the waitlist and we will email you the moment our Black Friday offers open.">
+<meta name="theme-color" content="#1c1a1b">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1c1a1b;--ink-2:#262223;--cream:#f4efe6;--muted:rgba(244,239,230,.72);
+  --gold:#E1B668;--gold-deep:#D6A652;--grad-gold:linear-gradient(135deg,#E1B668 0%,#D6A652 100%);
+  --serif:'Marcellus',Georgia,serif;--sans:'Roboto',-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;
+  --spring:cubic-bezier(.34,1.56,.64,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);font-weight:300;font-size:18px;line-height:1.7;color:var(--cream);background:var(--ink);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:6px}
+
+/* background: dark with soft gold orbs and fireflies */
+.bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;
+  background:radial-gradient(60% 50% at 15% 10%,rgba(225,182,104,.16),transparent 70%),radial-gradient(55% 45% at 90% 85%,rgba(225,182,104,.12),transparent 70%),var(--ink)}
+.orb{position:absolute;border-radius:50%;filter:blur(10px);background:radial-gradient(circle,rgba(225,182,104,.28) 0%,rgba(225,182,104,0) 70%);animation:orbFloat 22s ease-in-out infinite}
+.orb.o1{width:620px;height:620px;top:-220px;left:-200px}
+.orb.o2{width:520px;height:520px;bottom:-200px;right:-160px;animation-delay:-8s}
+.orb.o3{width:300px;height:300px;top:40%;left:55%;opacity:.6;animation-delay:-14s}
+@keyframes orbFloat{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(30px,-24px) scale(1.06)}}
+.ff span{position:absolute;width:var(--sz);height:var(--sz);border-radius:50%;background:radial-gradient(circle,#ffe6a8 0%,#e1b668 45%,rgba(225,182,104,0) 72%);box-shadow:0 0 calc(var(--sz)*2) rgba(232,190,110,.75);opacity:0;animation:ffDrift var(--dur) ease-in-out var(--delay) infinite,ffGlow calc(var(--dur)/3) ease-in-out var(--delay) infinite}
+@keyframes ffDrift{0%{transform:translate(0,0)}25%{transform:translate(var(--dx1),var(--dy1))}50%{transform:translate(var(--dx2),var(--dy2))}75%{transform:translate(var(--dx3),var(--dy3))}100%{transform:translate(0,0)}}
+@keyframes ffGlow{0%,100%{opacity:0}40%{opacity:var(--op)}60%{opacity:calc(var(--op)*.6)}}
+
+.page{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column}
+header{padding:26px 28px;display:flex;justify-content:center}
+header img{height:40px;width:auto}
+main{flex:1;width:100%;max-width:1080px;margin:0 auto;padding:30px 24px 70px;text-align:center}
+
+.label{display:inline-flex;align-items:center;gap:10px;font-size:.72rem;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);border:1px solid rgba(225,182,104,.45);padding:8px 16px;border-radius:999px}
+.label i{width:8px;height:8px;border-radius:50%;background:var(--gold);box-shadow:0 0 10px var(--gold)}
+h1{font-family:var(--serif);font-weight:400;font-size:clamp(2.4rem,6vw,4rem);line-height:1.1;letter-spacing:-.03em;color:#fff;margin:22px auto 0;max-width:13em}
+h1 em{color:var(--gold);font-style:italic;white-space:nowrap}
+.sub{font-size:1.1rem;color:var(--muted);max-width:34em;margin:18px auto 0}
+
+.clock-lbl{margin:34px 0 10px;font-size:.74rem;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
+.clock{display:flex;justify-content:center;gap:10px}
+.clock div{min-width:76px;padding:12px 8px 10px;border-radius:14px;background:rgba(255,255,255,.06);border:1px solid rgba(225,182,104,.4)}
+.clock b{display:block;font-family:var(--serif);font-weight:400;font-size:2rem;line-height:1;color:#fff;font-variant-numeric:tabular-nums}
+.clock span{display:block;margin-top:6px;font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.clock-note{font-size:.84rem;color:var(--muted);margin-top:10px}
+.ended .clock{display:none}
+
+.btn{display:inline-flex;align-items:center;gap:12px;text-decoration:none;font-weight:500;font-size:.98rem;letter-spacing:.04em;color:var(--ink);background:var(--grad-gold);padding:18px 36px;border-radius:999px;margin-top:30px;box-shadow:0 14px 36px rgba(214,166,82,.4);position:relative;overflow:hidden;isolation:isolate;transition:transform .3s var(--spring),box-shadow .3s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 18px 44px rgba(214,166,82,.55)}
+.btn:active{transform:translateY(1px) scale(.98)}
+.btn::after{content:"";position:absolute;top:0;bottom:0;left:0;width:45%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.65),transparent);transform:translateX(-160%) skewX(-18deg);animation:sheen 3.6s cubic-bezier(.5,0,.2,1) infinite;z-index:-1}
+@keyframes sheen{0%,55%{transform:translateX(-160%) skewX(-18deg)}100%{transform:translateX(360%) skewX(-18deg)}}
+.btn .arr{transition:transform .3s var(--spring)}
+.btn:hover .arr{transform:translateX(4px)}
+
+.offers{display:grid;grid-template-columns:1fr 1fr;gap:18px;max-width:860px;margin:56px auto 0;text-align:left}
+.offer{background:rgba(255,255,255,.05);border:1px solid rgba(225,182,104,.32);border-radius:18px;padding:24px 26px}
+.offer small{font-size:.68rem;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
+.offer h2{font-family:var(--serif);font-weight:400;font-size:1.45rem;color:#fff;margin:6px 0 6px}
+.offer p{font-size:.94rem;color:var(--muted);line-height:1.6}
+.offer b{color:#fff;font-weight:500}
+
+.form-card{max-width:620px;margin:56px auto 0;background:#fff;color:var(--ink);border-radius:22px;padding:30px 26px 14px;box-shadow:0 30px 80px -30px rgba(0,0,0,.7),0 0 0 1px rgba(225,182,104,.5);scroll-margin-top:30px}
+.form-card h2{font-family:var(--serif);font-weight:400;font-size:1.7rem;color:var(--ink)}
+.form-card p{font-size:.92rem;color:#5B7889;margin:4px 0 14px}
+.form-card iframe{display:block;width:100%;border:none;min-height:560px}
+
+footer{position:relative;z-index:1;text-align:center;padding:26px 20px 34px;font-size:.78rem;color:rgba(244,239,230,.5)}
+footer a{color:rgba(244,239,230,.6);text-decoration:none;margin:0 10px}
+footer a:hover{color:var(--gold)}
+
+@media(max-width:700px){.offers{grid-template-columns:1fr}.clock div{min-width:64px}.clock b{font-size:1.6rem}main{padding-top:10px}}
+@media(prefers-reduced-motion:reduce){.orb,.btn::after{animation:none}.ff{display:none}}
+</style>
+</head>
+<body>
+<div class="bg" aria-hidden="true">
+  <div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div>
+  <div class="ff" data-ff="40"></div>
+</div>
+
+<div class="page">
+  <header><img src="https://alchemyofbreath.com/wp-content/uploads/AoB-emblem-web-white.png" alt="Alchemy of Breath"></header>
+
+  <main>
+    <span class="label"><i aria-hidden="true"></i>Black Friday waitlist</span>
+    <h1>Be first to hear about <em>Black Friday</em></h1>
+    <p class="sub">Join the waitlist and we will email you the moment our Black Friday offers open. Each one runs for 24 hours only.</p>
+
+    <div id="timer" aria-live="polite">
+      <p class="clock-lbl" data-lbl>Black Friday opens in</p>
+      <div class="clock">
+        <div><b data-u="d">00</b><span>days</span></div><div><b data-u="h">00</b><span>hours</span></div><div><b data-u="m">00</b><span>min</span></div><div><b data-u="s">00</b><span>sec</span></div>
+      </div>
+      <p class="clock-note" data-note>Opens at midnight your time, Friday, November 27</p>
+    </div>
+
+    <a class="btn" href="#join" data-ev="waitlist_hero_join">Join the waitlist <span class="arr" aria-hidden="true">&rarr;</span></a>
+
+    <div class="offers">
+      <div class="offer"><small>Friday, November 27</small><h2>BreathCamp 2027</h2><p>Save up to <b>&euro;1,224</b> on 7 days in Tuscany, plus two bonus Quantum Shift recordings.</p></div>
+      <div class="offer"><small>Saturday, November 28</small><h2>Facilitator Training</h2><p><b>$5,040</b> instead of $7,200, online or Live Residential in Tuscany.</p></div>
+    </div>
+
+    <div class="form-card" id="join">
+      <h2>Join the waitlist</h2>
+      <p>We will only email you about Black Friday.</p>
+      <iframe
+        src="https://link.alchemyofbreath.com/widget/form/8N8JN6yKbRFFhwSrDV96"
+        style="width:100%;height:100%;border:none;border-radius:3px"
+        id="inline-8N8JN6yKbRFFhwSrDV96"
+        data-layout="{'id':'INLINE'}"
+        data-trigger-type="alwaysShow"
+        data-trigger-value=""
+        data-activation-type="alwaysActivated"
+        data-activation-value=""
+        data-deactivation-type="neverDeactivate"
+        data-deactivation-value=""
+        data-form-name="Black Friday 2027 Waitlist form"
+        data-height="874"
+        data-layout-iframe-id="inline-8N8JN6yKbRFFhwSrDV96"
+        data-form-id="8N8JN6yKbRFFhwSrDV96"
+        title="Black Friday 2027 Waitlist form"></iframe>
+      <script src="https://link.alchemyofbreath.com/js/form_embed.js"></script>
+    </div>
+  </main>
+
+  <footer>
+    <p>All rights reserved &copy; Alchemy of Breath</p>
+    <p style="margin-top:8px"><a href="https://alchemyofbreath.com/waiver-and-release/">Disclaimer</a><a href="https://alchemyofbreath.com/privacy-policy/">Privacy Policy</a><a href="https://alchemyofbreath.com/terms-and-conditions/">Refund Policy</a></p>
+  </footer>
+</div>
+
+<script>
+/* Countdown on each visitor's own clock: Black Friday opens at their local midnight on Friday, November 27, 2026
+   and the offers run through the end of Saturday, November 28. */
+(function(){
+  var START=new Date(2026,10,27,0,0,0).getTime(), END=new Date(2026,10,29,0,0,0).getTime();
+  var t=document.getElementById('timer'), lbl=t.querySelector('[data-lbl]'), note=t.querySelector('[data-note]');
+  function pad(n){return (n<10?'0':'')+n;}
+  function tick(){
+    var now=Date.now(), live=now>=START&&now<END, over=now>=END;
+    var sec=Math.max(0,Math.floor(((live?END:START)-now)/1000));
+    var v={d:Math.floor(sec/86400),h:Math.floor(sec%86400/3600),m:Math.floor(sec%3600/60),s:sec%60};
+    ['d','h','m','s'].forEach(function(u){t.querySelector('[data-u="'+u+'"]').textContent=pad(v[u]);});
+    lbl.textContent=over?'Black Friday has ended':(live?'Black Friday is live. Offers end in':'Black Friday opens in');
+    note.textContent=over?'Join the waitlist to hear about our next offers.':(live?'Check your inbox for the offer links.':'Opens at midnight your time, Friday, November 27');
+    t.classList.toggle('ended',over);
+    if(over) clearInterval(iv);
+  }
+  var iv=setInterval(tick,1000); tick();
+})();
+/* Gold fireflies */
+(function(){
+  if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  function r(a,b){return a+Math.random()*(b-a);}
+  document.querySelectorAll('[data-ff]').forEach(function(box){
+    var n=+box.getAttribute('data-ff'); if(window.innerWidth<560) n=Math.round(n*.6);
+    for(var i=0;i<n;i++){
+      var f=document.createElement('span'), m=60;
+      f.style.left=r(0,100)+'%'; f.style.top=r(0,100)+'%';
+      var st={'--sz':r(2.5,6).toFixed(1)+'px','--dur':r(9,18).toFixed(1)+'s','--delay':(-r(0,18)).toFixed(1)+'s','--op':r(.5,1).toFixed(2),
+        '--dx1':r(-m*2,m*2)+'px','--dy1':r(-m,m)+'px','--dx2':r(-m*2,m*2)+'px','--dy2':r(-m,m)+'px','--dx3':r(-m*2,m*2)+'px','--dy3':r(-m,m)+'px'};
+      for(var k in st) f.style.setProperty(k,st[k]);
+      box.appendChild(f);
+    }
+  });
+})();
+/* Analytics */
+(function(){
+  function ev(n){try{if(window.clarity)clarity('event',n);if(window.fbq)fbq('trackCustom',n);}catch(e){}}
+  try{if(window.clarity)clarity('set','page_version','black-friday-waitlist');}catch(e){}
+  document.querySelectorAll('[data-ev]').forEach(function(a){a.addEventListener('click',function(){ev(a.getAttribute('data-ev'));});});
+})();
+</script>
+</body>
+</html>

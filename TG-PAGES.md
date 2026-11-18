@@ -11,6 +11,7 @@ New pages prepared by Tania Glavey (TG) for review. Every folder starts with `tg
 | `/tg-breathcamp-2027-black-friday/` | Black Friday BreathCamp 2027 page for new members (Friday, November 27): sticky banner with countdown and waitlist button, 15% off every room (save up to €1,224), two bonus Quantum Shift recordings, timer ends at each visitor's local midnight |
 | `/tg-facilitator-training-black-friday-call/` | Facilitator Training Black Friday pre-sale page: book a free Success Advisor call before Saturday, November 28. Countdown, call calendar (GHL HIsztrgjz5xPddzyqeSe); on the day the calendar hides and buttons point to the sales page |
 | `/tg-facilitator-training-black-friday/` | Facilitator Training Black Friday sales page (Saturday, November 28): $5,040 instead of $7,200, online (T35) or Live Residential (June 2027), online vs Tuscany comparison table, checkout buttons, live Q&A with Amy and Anthony at 9am Pacific |
+| `/tg-black-friday-waitlist/` | Black Friday waitlist: dark page with gold orbs, countdown to Friday, November 27 (visitor's local midnight), the two offers, and the GHL form "Black Friday 2027 Waitlist form" (8N8JN6yKbRFFhwSrDV96) embedded inline. The BreathCamp Black Friday banner's waitlist button links here |
 | `/tg-facilitator-training-brochure/` | Facilitator Training brochure (web version) plus the PDF download |
 
 ## Before going live
