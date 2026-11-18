@@ -1360,18 +1360,21 @@ html.ph-before .lock-cta[data-show~="before"],html.ph-during .lock-cta[data-show
    local midnight at the start of Monday, November 30, 2026 to local midnight at the end of it. */
 (function(){
   var START=new Date(2026,10,30,0,0,0).getTime(), END=new Date(2026,11,1,0,0,0).getTime();
+  var LS=new Date(2026,11,1,0,0,0).getTime(), LE=new Date(2026,11,2,0,0,0).getTime(); /* last chance: Tuesday, December 1, visitor's local day */
   var QA=Date.UTC(2026,10,28,17,0,0); /* 9:00 am Pacific (PST, UTC-8) */
   var html=document.documentElement, timers=document.querySelectorAll('[data-bf-timer]');
   function pad(n){return (n<10?'0':'')+n;}
   try{var ql=document.querySelector('[data-qa-local]');if(ql){ql.textContent='Saturday, November 28, at 9:00 am Pacific. That is '+new Intl.DateTimeFormat(undefined,{weekday:'long',hour:'numeric',minute:'2-digit',timeZoneName:'short'}).format(new Date(QA))+' where you are.';}}catch(e){}
   var phase='';
   function tick(){
-    var now=Date.now(), ph=now<START?'before':(now<END?'during':'after');
+    var now=Date.now(), last=now>=LS&&now<LE, ph=last?'during':(now<START?'before':(now<END?'during':'after'));
     if(ph!==phase){html.classList.remove('ph-before','ph-during','ph-after');html.classList.add('ph-'+ph);phase=ph;}
-    var target=ph==='before'?START:END, sec=Math.max(0,Math.floor((target-now)/1000));
+    var target=ph==='before'?START:(last?LE:END), sec=Math.max(0,Math.floor((target-now)/1000));
     var v={d:Math.floor(sec/86400),h:Math.floor(sec%86400/3600),m:Math.floor(sec%3600/60),s:sec%60};
     var label=ph==='before'?'Black Friday opens in':(ph==='during'?'Black Friday pricing ends in':'Black Friday pricing has ended');
     var note=ph==='before'?'Opens at midnight your time, Monday, November 30':(ph==='during'?'Ends at midnight your time, Monday, November 30':'Join the waitlist to hear about future retreats.');
+    if(last){label='Last chance: pricing ends in';note='Back for one last day. Ends at midnight your time, Tuesday, December 1';}
+    else if(ph==='after'&&now<LS){note='Back for one last day on Tuesday, December 1.';}
     timers.forEach(function(t){
       t.classList.toggle('ended',ph==='after');
       t.querySelector('[data-bft-label]').textContent=label;
@@ -1380,11 +1383,11 @@ html.ph-before .lock-cta[data-show~="before"],html.ph-during .lock-cta[data-show
     });
     var mini=document.querySelector('[data-bf-mini]'),ml=document.querySelector('[data-bf-mini-lbl]');
     if(mini){var bs=mini.querySelectorAll('b');bs[0].textContent=v.d;bs[1].textContent=pad(v.h);bs[2].textContent=pad(v.m);bs[3].textContent=pad(v.s);
-      ml.textContent=ph==='after'?'Black Friday has ended':label.replace(' pricing','');
+      ml.textContent=ph==='after'?'Black Friday has ended':label.replace(' pricing','').replace('chance: ','chance ');
       document.getElementById('bfBar').classList.toggle('ended',ph==='after');}
     var dl=document.querySelector('[data-days-left]');
     if(dl&&ph==='before'){var days=Math.floor((START-now)/86400000);dl.textContent=days<1?'Black Friday is tomorrow':(days===1?'1 day until Black Friday':days+' days until Black Friday');}
-    if(ph==='after') clearInterval(iv);
+    if(now>=LE) clearInterval(iv);
   }
   var iv=setInterval(tick,1000); tick();
 })();

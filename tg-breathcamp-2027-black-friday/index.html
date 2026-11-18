@@ -1617,13 +1617,15 @@ html{scroll-padding-top:calc(var(--barh) + 70px)}
    at the start of Friday, November 27, 2026 and ends at their local midnight at the end of it. */
 (function(){
   var START=new Date(2026,10,27,0,0,0).getTime(), END=new Date(2026,10,28,0,0,0).getTime();
+  var LS=new Date(2026,11,1,0,0,0).getTime(), LE=new Date(2026,11,2,0,0,0).getTime(); /* last chance: Tuesday, December 1, visitor's local day */
   var timers=document.querySelectorAll('[data-bf-timer]'); if(!timers.length) return;
   function pad(n){return (n<10?'0':'')+n;}
   function tick(){
     var now=Date.now(), target, label, note, ended=false;
-    if(now<START){target=START;label='Black Friday pricing opens in';note='Opens at midnight your time, Friday, November 27';}
+    if(now>=LS&&now<LE){target=LE;label='Last chance: pricing ends in';note='Back for one last day. Ends at midnight your time, Tuesday, December 1';}
+    else if(now<START){target=START;label='Black Friday pricing opens in';note='Opens at midnight your time, Friday, November 27';}
     else if(now<END){target=END;label='Black Friday pricing ends in';note='Ends at midnight your time, Friday, November 27';}
-    else{ended=true;label='Black Friday pricing has ended';note='Email us at info@alchemyofbreath.com and we will help you find the right BreathCamp.';}
+    else{ended=true;label='Black Friday pricing has ended';note=now<LS?'Back for one last day on Tuesday, December 1.':'Email us at info@alchemyofbreath.com and we will help you find the right BreathCamp.';}
     var diff=Math.max(0,(target||now)-now), sec=Math.floor(diff/1000);
     var v={d:Math.floor(sec/86400),h:Math.floor(sec%86400/3600),m:Math.floor(sec%3600/60),s:sec%60};
     timers.forEach(function(t){
@@ -1634,9 +1636,9 @@ html{scroll-padding-top:calc(var(--barh) + 70px)}
     });
     var mini=document.querySelector('[data-bf-mini]'), ml=document.querySelector('[data-bf-mini-lbl]');
     if(mini){var bs=mini.querySelectorAll('b');bs[0].textContent=v.d;bs[1].textContent=pad(v.h);bs[2].textContent=pad(v.m);bs[3].textContent=pad(v.s);
-      ml.textContent=ended?'Black Friday has ended':(now<START?'Black Friday opens in':'Black Friday ends in');
+      ml.textContent=ended?'Black Friday has ended':(now>=LS&&now<LE?'Last chance ends in':(now<START?'Black Friday opens in':'Black Friday ends in'));
       document.getElementById('bfBar').classList.toggle('ended',ended);}
-    if(ended) clearInterval(iv);
+    if(now>=LE) clearInterval(iv);
   }
   var iv=setInterval(tick,1000); tick();
 })();
