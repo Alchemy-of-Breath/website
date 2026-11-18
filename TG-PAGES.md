@@ -30,16 +30,17 @@ Pushed to `main` on November 18, 2026 (commit 9330463). The `tg-` copies here st
   - `/offer/facilitator-training-black-friday/` (from `/tg-facilitator-training-black-friday/`)
   - `/offer/intuition-black-friday/` (from `/tg-intuition-black-friday/`)
   - `/offer/black-friday-last-chance/` (from `/tg-black-friday-last-chance/`)
-- Still placeholders on the live pages: July BreathCamp checkout, Intuition checkout, the three Facilitator Training checkouts and the Q&A registration button.
+- July BreathCamp and Intuition checkouts went live on November 18 (commit b1755ff): July buttons go to Retreat Guru "BreathCamp 2 (Jul 11 – Jul 17, 2027) | New Members", Intuition buttons to "Intuition with Amy (Aug 29 – Sep 4, 2027)".
+- Still placeholders on the live pages: the three Facilitator Training checkouts and the Q&A registration button.
 
 ## Before going live
 
 - BreathCamp booking buttons on the public and graduate pages still use Retreat Guru preview links (`/program/preview/717`, `718`, `719`). Swap for the live booking links.
 - The online page's booking calendar and details form are GoHighLevel embeds and expect to run on alchemyofbreath.com.
-- Black Friday BreathCamp page: the waitlist button links to `/tg-black-friday-waitlist/`. The June camp buttons go to the Retreat Guru program "BreathCamp 1 (June 6 - June 12, 2027) | New Members", which is the regular new-member checkout, so check that the 15% Black Friday price is applied there on November 27. The July camp buttons (`#checkout-july-2027`) are still placeholders.
+- Black Friday BreathCamp page: the waitlist button links to `/tg-black-friday-waitlist/`. The June camp buttons go to the Retreat Guru program "BreathCamp 1 (June 6 - June 12, 2027) | New Members", which is the regular new-member checkout, so check that the 15% Black Friday price is applied there on November 27. The July camp buttons go to "BreathCamp 2 (Jul 11 – Jul 17, 2027) | New Members"; check the 15% there too.
 - Prices: 2027 new-member BreathCamp prices updated on November 18, 2026 (from €2,061 for your own tent to €8,500 for the private cottage for two). Black Friday prices are 15% off those, so the most you can save is €1,275. Student prices on the graduate page are unchanged.
 - The public BreathCamp page covers July 11 to 17 but calls it BreathCamp 1. On the live 2027 calendar, BreathCamp 1 is June 6 to 12 and July 11 to 17 is BreathCamp 2.
 - Facilitator Training Black Friday pages: checkout buttons (`#checkout-online-full`, `#checkout-online-deposit`, `#checkout-residential-deposit`) and the Q&A registration button (`#qa-register`) are placeholders. The two pages link to each other by their `/tg-` paths; update those links if the pages move. Online class times still show the single Tuesday slot until the morning and 2pm times are confirmed.
-- Intuition Black Friday page: the booking button (`#checkout-intuition-2027`) is a placeholder. No euro prices are shown until the 2027 Intuition room prices are confirmed.
+- Intuition Black Friday page: the booking buttons go to Retreat Guru "Intuition with Amy (Aug 29 – Sep 4, 2027)"; check the 15% there on November 30. No euro prices are shown until the 2027 Intuition room prices are confirmed.
 - Last-chance page: in the GHL copy the three cards use `#offer-breathcamp`, `#offer-facilitator-training` and `#offer-intuition`; swap for the final page URLs. Retreat Guru and GHL checkouts must also accept the Black Friday prices again on Tuesday, December 1.
 - Page analytics events (Clarity and Meta Pixel) fire only once those tracking codes are installed.
