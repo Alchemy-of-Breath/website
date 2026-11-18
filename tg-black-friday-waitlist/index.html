@@ -270,5 +270,14 @@ footer a:hover{color:var(--gold)}
   document.querySelectorAll('[data-ev]').forEach(function(a){a.addEventListener('click',function(){ev(a.getAttribute('data-ev'));});});
 })();
 </script>
+<script>
+/* Arriving from another page with #join: scroll to the form once it has loaded and sized itself */
+(function(){
+  if(location.hash!=='#join') return;
+  var el=document.getElementById('join'); if(!el) return;
+  function go(){el.scrollIntoView({behavior:'auto',block:'start'});}
+  window.addEventListener('load',function(){go();setTimeout(go,600);setTimeout(go,1500);});
+})();
+</script>
 </body>
 </html>
