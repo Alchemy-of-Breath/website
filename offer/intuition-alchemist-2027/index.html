@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<!-- AOB-UTM:start -->
+<script>
+/* AoB UTM keeper: remembers the campaign tags a visitor arrived with and hands
+   them to GoHighLevel on whatever page they later sign up on.
+   - Stores utm_*, fbclid, gclid, msclkid from the landing URL for 90 days
+     (latest campaign wins), in localStorage and an .alchemyofbreath.com cookie.
+   - Seeds GHL's own form_embed.js memory (sessionStorage "UPS"), so GHL forms
+     attribute the contact to the campaign even when the form page has no tags.
+   - Adds the tags to GHL form/booking iframes and to links into GHL funnels
+     (go. / breathcamp. / link.alchemyofbreath.com), so hidden fields with a
+     matching query key are filled too.
+   - Adds them to links into the facilitator application (/facilitator-application/),
+     whose embed forwards its own query string into the form.
+   Source: tools/utm/aob-utm.js. Inlined into every page by tools/utm/inject.py. */
+(function(){
+  var KEYS=['utm_source','utm_medium','utm_campaign','utm_term','utm_content','utm_id','fbclid','gclid','msclkid'];
+  var STORE='aob_utm', DAYS=90, MS=DAYS*864e5;
+  var ls=function(k,v){ try{ if(v===undefined) return localStorage.getItem(k); localStorage.setItem(k,v); }catch(e){ return null; } };
+  var qs=new URLSearchParams(location.search), got={}, any=false;
+  KEYS.forEach(function(k){ var v=qs.get(k); if(v){ got[k]=v.slice(0,250); any=true; } });
+  var rec=null;
+  if(any){
+    rec={p:got,t:Date.now(),landing:location.origin+location.pathname};
+    ls(STORE,JSON.stringify(rec));
+    try{ document.cookie=STORE+'='+encodeURIComponent(JSON.stringify(got))+';path=/;max-age='+(DAYS*86400)+';SameSite=Lax'+
+      (/(^|\.)alchemyofbreath\.com$/.test(location.hostname)?';domain=.alchemyofbreath.com':''); }catch(e){}
+  } else {
+    try{ rec=JSON.parse(ls(STORE)||'null'); }catch(e){ rec=null; }
+    if(!rec || !rec.p || Date.now()-rec.t>MS) return;
+  }
+  var P=rec.p;
+
+  // GHL form_embed.js falls back to sessionStorage "UPS" when the page URL has no utm_ tags
+  try{
+    var ups=new URLSearchParams(sessionStorage.getItem('UPS')||''), changed=false;
+    for(var k in P){ if(k.indexOf('utm_')===0 && ups.get(k)!==P[k]){ ups.set(k,P[k]); changed=true; } }
+    if(changed) sessionStorage.setItem('UPS','?'+ups.toString());
+  }catch(e){}
+
+  var GHL=/^https:\/\/((link|api)\.(alchemyofbreath\.com|leadconnectorhq\.com)\/widget\/(form|survey|booking|quiz)\/|(go|breathcamp)\.alchemyofbreath\.com\/)/;
+  var APPLY=/^https:\/\/(www\.)?alchemyofbreath\.com\/facilitator-application\/?$/;
+  var withTags=function(url){
+    var u; try{ u=new URL(url,location.href); }catch(e){ return null; }
+    if(!GHL.test(u.href) && !APPLY.test(u.origin+u.pathname)) return null;
+    var ch=false;
+    for(var k in P){ if(!u.searchParams.has(k)){ u.searchParams.set(k,P[k]); ch=true; } }
+    return ch?u.href:null;
+  };
+  var fixFrame=function(f){
+    ['src','data-src'].forEach(function(a){ var v=f.getAttribute(a), n=v&&withTags(v); if(n) f.setAttribute(a,n); });
+  };
+  var scan=function(root){
+    if(root.tagName==='IFRAME'){ fixFrame(root); return; }
+    if(root.querySelectorAll) [].forEach.call(root.querySelectorAll('iframe'),fixFrame);
+  };
+  scan(document);
+  if('MutationObserver' in window){
+    new MutationObserver(function(ms){ ms.forEach(function(m){ [].forEach.call(m.addedNodes,function(n){ if(n.nodeType===1) scan(n); }); }); })
+      .observe(document.documentElement,{childList:true,subtree:true});
+  }
+  // links into GHL funnels: tag them at click time (covers links built by scripts too)
+  var tagLink=function(e){
+    var a=e.target && e.target.closest && e.target.closest('a[href]'); if(!a) return;
+    var n=withTags(a.getAttribute('href')); if(n) a.setAttribute('href',n);
+  };
+  document.addEventListener('mousedown',tagLink,true);
+  document.addEventListener('touchstart',tagLink,{capture:true,passive:true});
+  document.addEventListener('keydown',function(e){ if(e.key==='Enter') tagLink(e); },true);
+  document.addEventListener('click',tagLink,true);
+})();
+</script>
+<!-- AOB-UTM:end -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Intuition and Alchemist Retreats 2027 | Alchemy of Breath</title>
+<meta name="description" content="Two retreat weeks at ASHA in Tuscany: Intuition with Amy Rachelle, August 29 to September 4, 2027, and Alchemist with Anthony Abbagnano, September 5 to 11, 2027. Book one week or both.">
+<!-- Kept out of search on purpose: do not switch to index -->
+<meta name="robots" content="noindex, nofollow">
+<link rel="canonical" href="https://alchemyofbreath.com/offer/intuition-alchemist-2027/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Alchemy of Breath">
+<meta property="og:title" content="Intuition and Alchemist retreats, Tuscany 2027">
+<meta property="og:description" content="Intuition with Amy Rachelle, then Alchemist with Anthony Abbagnano. August 29 to September 11, 2027 at ASHA, Tuscany. Come for one week or stay for both.">
+<meta property="og:image" content="https://alchemyofbreath.com/wp-content/uploads/Anthony-Amy-900x600.jpg">
+<meta property="og:url" content="https://alchemyofbreath.com/offer/intuition-alchemist-2027/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#FBF7EF">
+<link rel="icon" type="image/png" href="https://alchemyofbreath.com/wp-content/uploads/AOB-Gold-Black-Transparant-symbol.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://static.wixstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+<script>document.documentElement.classList.add('js');</script>
+<style>
+/* Alchemy of Breath brand (Marcellus + Roboto, paper, gold, deep teal) on the
+   landing page system: Tailwind type steps, fixed spacing steps, flat backgrounds. */
+:root{
+  --paper:#FBF7EF;--card:#FFFFFF;--wash:#F4ECDC;
+  --ink:#221F20;--body:#4B4547;--muted:#6B6466;
+  --gold:#E1B668;--gold-deep:#C99A45;--gold-text:#8A6420;
+  --teal:#1C3638;--teal-soft:#28484B;--on-teal:#E9E4D8;
+  --line:rgba(34,31,32,.12);--line-gold:rgba(225,182,104,.55);
+  --serif:'Marcellus',Georgia,'Times New Roman',serif;
+  --sans:'Roboto',-apple-system,'Segoe UI',sans-serif;
+  --ease:cubic-bezier(0.22,1,0.36,1);
+  --s25:2px;--s50:4px;--s75:8px;--s100:12px;--s200:16px;--s300:24px;--s400:32px;--s500:40px;--s600:48px;--s700:64px;--s800:80px;--s900:96px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;overflow-x:clip;scroll-padding-top:96px}
+body{font-family:var(--sans);font-weight:300;font-size:16px;line-height:24px;color:var(--body);background:var(--paper);-webkit-font-smoothing:antialiased}
+img{max-width:100%;height:auto;display:block}
+a{color:inherit}
+::selection{background:var(--gold);color:var(--ink)}
+.skip{position:absolute;left:var(--s200);top:-64px;z-index:100;background:var(--ink);color:#fff;padding:var(--s75) var(--s200);border-radius:8px;text-decoration:none;font-size:14px;line-height:20px;font-weight:500}
+.skip:focus{top:var(--s200)}
+
+/* text styles */
+.heading-1{font-family:var(--serif);font-weight:400;font-size:60px;line-height:60px;letter-spacing:-.01em}
+.heading-2{font-family:var(--serif);font-weight:400;font-size:48px;line-height:48px;letter-spacing:-.01em}
+.heading-3{font-family:var(--serif);font-weight:400;font-size:36px;line-height:40px}
+.heading-5{font-family:var(--serif);font-weight:400;font-size:24px;line-height:32px}
+.title-1{font-size:20px;line-height:28px;font-weight:500}
+.title-3{font-size:16px;line-height:24px;font-weight:500}
+.body-lg{font-size:18px;line-height:28px;font-weight:300}
+.body-3{font-size:16px;line-height:24px;font-weight:300}
+.body-6{font-size:14px;line-height:20px;font-weight:400}
+.caption-4{font-size:12px;line-height:16px;font-weight:500;letter-spacing:.16em;text-transform:uppercase}
+h1,h2,h3{color:var(--ink);text-wrap:balance}
+p{text-wrap:pretty}
+
+.wrap{max-width:1120px;margin:0 auto;padding:0 var(--s300)}
+section{padding:var(--s900) 0}
+.eyebrow{display:inline-flex;align-items:center;gap:var(--s100);color:var(--gold-text);margin-bottom:var(--s200)}
+.eyebrow::before{content:"";width:24px;height:1px;background:var(--gold-deep)}
+.center{text-align:center}
+.center .eyebrow::after{content:"";width:24px;height:1px;background:var(--gold-deep)}
+.lead{max-width:680px}
+.center .lead{margin-left:auto;margin-right:auto}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--s75);padding:var(--s100) var(--s300);border-radius:9999px;border:1px solid transparent;background:var(--gold);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:24px;font-weight:500;text-decoration:none;cursor:pointer;transition:transform .5s var(--ease),background-color .3s var(--ease),border-color .3s var(--ease)}
+.btn svg{width:16px;height:16px;flex:none;transition:transform .5s var(--ease)}
+.btn:hover{background:#EBC57F;transform:translateY(-2px)}
+.btn:hover svg{transform:translateX(4px)}
+.btn:active{transform:scale(.98)}
+.btn:focus-visible,.nav a:focus-visible,.faq summary:focus-visible,.menu-btn:focus-visible{outline:2px solid var(--teal);outline-offset:4px}
+.btn-sm{padding:var(--s75) var(--s200);font-size:14px;line-height:20px;white-space:nowrap;flex:none}
+.btn-line{background:transparent;border-color:var(--ink);color:var(--ink)}
+.btn-line:hover{background:var(--ink);color:#fff}
+.btn-block{display:flex;width:100%}
+.on-dark .btn:focus-visible{outline-color:var(--gold)}
+.btn.is-off{background:transparent;border:1px dashed var(--line-gold);color:var(--muted);cursor:default;pointer-events:none}
+.on-dark .btn.is-off{color:rgba(233,228,216,.75)}
+
+/* nav: compact floating bar */
+.nav{position:fixed;top:var(--s200);left:50%;transform:translateX(-50%);z-index:50;display:flex;align-items:center;gap:var(--s400);padding:var(--s75) var(--s75) var(--s75) var(--s300);border-radius:9999px;background:rgba(251,247,239,.82);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border:1px solid var(--line);max-width:calc(100% - 32px)}
+.nav-logo,.menu-btn{flex:none}
+.nav-logo img{height:24px;width:auto;max-width:none}
+.nav-links{display:flex;gap:var(--s300);list-style:none}
+.nav-links a{font-size:14px;line-height:20px;font-weight:400;color:var(--ink);text-decoration:none;white-space:nowrap;border-radius:4px;transition:color .3s var(--ease)}
+.nav-links a:hover{color:var(--gold-text)}
+.menu-btn{display:none;width:40px;height:40px;border-radius:9999px;border:1px solid var(--line);background:transparent;cursor:pointer;position:relative}
+.menu-btn span{position:absolute;left:12px;right:12px;height:1.5px;background:var(--ink);transition:transform .5s var(--ease)}
+.menu-btn span:first-child{top:16px}.menu-btn span:last-child{top:23px}
+.menu-open .menu-btn span:first-child{transform:translateY(3.5px) rotate(45deg)}
+.menu-open .menu-btn span:last-child{transform:translateY(-3.5px) rotate(-45deg)}
+.panel{position:fixed;inset:0;z-index:45;background:rgba(251,247,239,.96);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);display:flex;flex-direction:column;justify-content:center;gap:var(--s300);padding:var(--s900) var(--s400) var(--s600);opacity:0;visibility:hidden;transition:opacity .3s var(--ease),visibility 0s linear .3s}
+.menu-open .panel{opacity:1;visibility:visible;transition:opacity .3s var(--ease)}
+.panel a{font-family:var(--serif);font-size:30px;line-height:36px;color:var(--ink);text-decoration:none;opacity:0;transform:translateY(24px);transition:opacity .5s var(--ease),transform .5s var(--ease)}
+.menu-open .panel a{opacity:1;transform:none}
+.menu-open .panel a:nth-child(2){transition-delay:60ms}.menu-open .panel a:nth-child(3){transition-delay:120ms}.menu-open .panel a:nth-child(4){transition-delay:180ms}.menu-open .panel a:nth-child(5){transition-delay:240ms}
+.panel .btn{font-family:var(--sans);font-size:16px;line-height:24px;margin-top:var(--s200)}
+
+/* hero */
+.hero{padding:calc(var(--s900) + var(--s600)) 0 var(--s800)}
+.hero-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:var(--s700);align-items:center}
+.hero h1{max-width:680px;margin-bottom:var(--s300);background:linear-gradient(90deg,#221F20 0%,#6B6466 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero .sub{max-width:680px;margin-bottom:var(--s400)}
+.hero-cta{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s200) var(--s300)}
+.hero-proof{display:flex;align-items:center;gap:var(--s100);margin-top:var(--s500);padding-top:var(--s300);border-top:1px solid var(--line);color:var(--muted);max-width:520px}
+.hero-proof img{width:48px;height:48px;border-radius:9999px;object-fit:cover;flex:none}
+.hero-photo{position:relative}
+.hero-photo img{width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:24px}
+.stamp{position:absolute;left:var(--s300);bottom:var(--s300);background:rgba(251,247,239,.92);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border-radius:16px;padding:var(--s100) var(--s200);color:var(--ink)}
+.stamp b{display:block;font-family:var(--serif);font-weight:400;font-size:20px;line-height:28px}
+
+/* choose */
+.choose{background:var(--wash)}
+.choose-head{margin-bottom:var(--s600)}
+.choose-head h2{margin-bottom:var(--s200)}
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s300);align-items:stretch}
+.card{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:24px;padding:var(--s400);transition:transform .5s var(--ease)}
+.card:hover{transform:translateY(-4px)}
+.card .tag{color:var(--gold-text);margin-bottom:var(--s200)}
+.card h3{margin-bottom:var(--s75)}
+.card .dates{color:var(--ink);margin-bottom:var(--s50)}
+.card .nights{color:var(--muted);margin-bottom:var(--s300)}
+.card .desc{margin-bottom:var(--s400)}
+.card .btn{margin-top:auto}
+.card.both{background:var(--teal);border-color:var(--teal);color:var(--on-teal)}
+.card.both h3,.card.both .dates{color:#fff}
+.card.both .tag{color:var(--gold)}
+.card.both .nights{color:rgba(233,228,216,.75)}
+.every{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--s300);margin-top:var(--s600);padding-top:var(--s400);border-top:1px solid var(--line);list-style:none}
+.every li{display:flex;gap:var(--s100);align-items:flex-start;color:var(--ink)}
+.tick{flex:none;width:24px;height:24px;border-radius:9999px;background:rgba(225,182,104,.28);display:grid;place-items:center}
+.tick svg{width:12px;height:12px;color:var(--gold-text)}
+.choose-note{margin-top:var(--s300);color:var(--muted)}
+
+/* tagline reveal */
+.tagline{padding:var(--s900) 0;background:var(--paper)}
+.tagline p{max-width:920px;margin:0 auto;text-align:center;color:var(--ink);text-wrap:balance}
+.tagline .w{opacity:.28;transition:opacity .5s var(--ease)}
+.tagline .w.on{opacity:1}
+
+/* week sections */
+.week-grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:var(--s800);align-items:center}
+.week.flip .week-photo{order:2}
+.week-photo img{width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:24px}
+.week h2{margin-bottom:var(--s300)}
+.week .lead{margin-bottom:var(--s400)}
+.points{list-style:none;display:grid;gap:var(--s300);margin-bottom:var(--s400)}
+.points li{display:grid;grid-template-columns:24px 1fr;gap:var(--s200)}
+.points strong{display:block;color:var(--ink);font-weight:500}
+.quote{margin:0 0 var(--s400);padding:var(--s300);border-radius:16px;background:var(--wash);color:var(--ink)}
+.quote cite{display:block;margin-top:var(--s75);font-style:normal;color:var(--muted)}
+.week-cta{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s200) var(--s300)}
+.week-cta span{color:var(--muted)}
+
+/* both weeks: dark band */
+.both-band{background:var(--teal);color:var(--on-teal)}
+.both-band h2{color:#fff}
+.both-band .eyebrow{color:var(--gold)}
+.both-band .eyebrow::before{background:var(--gold)}
+.incl{list-style:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--s200) var(--s400);margin-bottom:var(--s300)}
+.incl li{display:grid;grid-template-columns:24px 1fr;gap:var(--s100);color:#fff}
+.both-band .tick{background:rgba(225,182,104,.2)}
+.both-band .tick svg{color:var(--gold)}
+.not-incl{color:rgba(233,228,216,.75);margin-bottom:var(--s400)}
+.both-band .week-cta span{color:rgba(233,228,216,.75)}
+
+/* steps */
+.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s300);margin-top:var(--s600);list-style:none;counter-reset:step}
+.steps li{counter-increment:step;background:var(--card);border:1px solid var(--line);border-radius:24px;padding:var(--s400)}
+.steps li::before{content:counter(step);display:grid;place-items:center;width:40px;height:40px;border-radius:9999px;border:1px solid var(--line-gold);font-family:var(--serif);font-size:20px;line-height:28px;color:var(--gold-text);margin-bottom:var(--s300)}
+.steps h3{margin-bottom:var(--s75)}
+
+/* faq */
+.faq{background:var(--wash)}
+.faq-list{max-width:760px;margin:var(--s600) auto 0;display:grid;gap:var(--s100)}
+.faq details{background:var(--card);border:1px solid var(--line);border-radius:16px}
+.faq summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:var(--s200);padding:var(--s300);color:var(--ink);border-radius:16px}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary svg{width:16px;height:16px;flex:none;color:var(--gold-text);transition:transform .5s var(--ease)}
+.faq details[open] summary svg{transform:rotate(45deg)}
+.faq details p{padding:0 var(--s300) var(--s300)}
+.faq a{color:var(--gold-text)}
+
+/* final */
+.final{background:var(--teal);color:var(--on-teal);text-align:center}
+.final h2{color:#fff;max-width:680px;margin:0 auto var(--s200)}
+.final .lead{margin:0 auto var(--s500)}
+.final-btns{display:flex;flex-wrap:wrap;justify-content:center;gap:var(--s200)}
+.final .btn-line{border-color:rgba(233,228,216,.6);color:#fff}
+.final .btn-line:hover{background:#fff;color:var(--ink);border-color:#fff}
+.final small{display:block;margin-top:var(--s300);color:rgba(233,228,216,.75)}
+
+/* footer */
+.foot{background:#162B2D;color:rgba(233,228,216,.75);padding:var(--s600) 0;text-align:center}
+.foot img{height:40px;width:auto;margin:0 auto var(--s200)}
+.foot a{color:var(--gold);text-decoration:none}
+.foot a:hover{text-decoration:underline}
+.foot-links{display:flex;flex-wrap:wrap;justify-content:center;gap:var(--s200) var(--s300);margin-top:var(--s200)}
+
+/* scroll reveals: only when JS runs */
+.js .rv{opacity:0;transform:translateY(32px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
+.js .rv.in{opacity:1;transform:none}
+.js .rv.d1{transition-delay:80ms}.js .rv.d2{transition-delay:160ms}
+
+@media(max-width:1200px){
+  .heading-1{font-size:48px;line-height:48px}
+  .hero-grid{gap:var(--s600)}
+}
+@media(max-width:960px){
+  .heading-2{font-size:36px;line-height:40px}
+  .hero-grid,.week-grid{grid-template-columns:1fr;gap:var(--s600)}
+  .hero-photo img,.week-photo img{aspect-ratio:3/2}
+  .week.flip .week-photo{order:0}
+  .cards,.steps{grid-template-columns:1fr}
+  .every{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .nav{gap:var(--s200);padding-left:var(--s200)}
+  .nav-links{display:none}
+  .menu-btn{display:block}
+}
+@media(max-width:560px){
+  .wrap{padding:0 var(--s200)}
+  section{padding:var(--s700) 0}
+  .hero{padding:calc(var(--s900) + var(--s200)) 0 var(--s700)}
+  .heading-1{font-size:36px;line-height:40px}
+  .heading-2{font-size:30px;line-height:36px}
+  .heading-3{font-size:30px;line-height:36px}
+  .body-lg{font-size:16px;line-height:24px}
+  .card,.steps li{padding:var(--s300)}
+  .every,.incl{grid-template-columns:1fr}
+  .tagline{padding:var(--s700) 0}
+  .hero-cta .btn,.week-cta .btn,.final-btns .btn{width:100%}
+  .nav{gap:var(--s75)}
+  .nav-logo img{height:20px}
+  .nav .btn{padding:var(--s75) var(--s100)}
+}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .js .rv{transform:none;transition:opacity .3s}
+  .btn,.btn svg,.card,.panel a{transition:none;transform:none}
+  .tagline .w{opacity:1;transition:none}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<!-- Phosphor icons, inlined once -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-arrow" viewBox="0 0 256 256"><path fill="currentColor" d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></symbol>
+  <symbol id="i-check" viewBox="0 0 256 256"><path fill="currentColor" d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 256 256"><path fill="currentColor" d="M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z"/></symbol>
+</svg>
+
+<header>
+  <nav class="nav" aria-label="Main">
+    <a class="nav-logo" href="https://alchemyofbreath.com/" aria-label="Alchemy of Breath home">
+      <img src="https://alchemyofbreath.com/wp-content/uploads/AOB-Gold-Black-Transparant.png" alt="Alchemy of Breath" width="112" height="24">
+    </a>
+    <ul class="nav-links">
+      <li><a href="#intuition">Intuition</a></li>
+      <li><a href="#alchemist">Alchemist</a></li>
+      <li><a href="#both">Both weeks</a></li>
+      <li><a href="#faq">Questions</a></li>
+    </ul>
+    <a class="btn btn-sm" href="#choose">Choose your week</a>
+    <button class="menu-btn" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="panel"><span></span><span></span></button>
+  </nav>
+  <div class="panel" id="panel">
+    <a href="#intuition">Intuition with Amy</a>
+    <a href="#alchemist">Alchemist with Anthony</a>
+    <a href="#both">Both weeks</a>
+    <a href="#faq">Questions</a>
+    <a class="btn" href="#choose">Choose your week</a>
+  </div>
+</header>
+
+<main id="main">
+
+<!-- HERO -->
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="eyebrow caption-4">ASHA, Tuscany · Summer 2027</span>
+      <h1 class="heading-1">Two retreat weeks in Tuscany.<br>Come for one, or stay for both.</h1>
+      <p class="sub body-lg">Intuition with Amy Rachelle from August 29, then Alchemist with Anthony Abbagnano from September 5. Your room, your meals and every session are included.</p>
+      <div class="hero-cta">
+        <a class="btn" href="#choose">Choose your week <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+      </div>
+      <p class="hero-proof body-6">
+        <img src="https://alchemyofbreath.com/wp-content/uploads/Anthony-Amy-900x600.jpg" alt="Anthony Abbagnano and Amy Rachelle" width="48" height="48">
+        <span>Hosted by Anthony Abbagnano and Amy Rachelle, founders of Alchemy of Breath, on 42 acres of Tuscan hillside.</span>
+      </p>
+    </div>
+    <div class="hero-photo">
+      <img src="https://static.wixstatic.com/media/c2dd9b_debbe90a0dcd40a1ada4d48fb4d7e2e6~mv2.jpg/v1/fill/w_1200,h_1500,al_c,q_85,enc_avif,quality_auto/asha-session.jpg" alt="A retreat group standing in a circle in the session tent at ASHA" width="1200" height="1500" fetchpriority="high">
+      <p class="stamp body-6"><b>Aug 29 to Sep 11</b>2027 · Sunday to Saturday</p>
+    </div>
+  </div>
+</section>
+
+<!-- CHOOSE -->
+<section class="choose" id="choose">
+  <div class="wrap">
+    <div class="choose-head center rv">
+      <span class="eyebrow caption-4">Three ways to come</span>
+      <h2 class="heading-2">Choose your week</h2>
+      <p class="lead body-lg">Each week stands on its own. Together they make one journey, first inward with Amy, then onward with Anthony.</p>
+    </div>
+    <div class="cards">
+      <article class="card rv">
+        <p class="tag caption-4">Week 1</p>
+        <h3 class="heading-5">Intuition with Amy</h3>
+        <p class="dates title-3">August 29 to September 4, 2027</p>
+        <p class="nights body-6">Sunday to Saturday · 6 nights</p>
+        <p class="desc body-3">Daily intuition classes with Amy Rachelle, woven through breathwork, voice, dance, sound healing and art.</p>
+        <a class="btn btn-line btn-block" href="https://asha.secure.retreat.guru/program/intuition-with-amy-aug-29-sep-4-2027/?form=1&amp;lang=en">Book the Intuition week <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+      </article>
+      <article class="card rv d1">
+        <p class="tag caption-4">Week 2</p>
+        <h3 class="heading-5">Alchemist with Anthony</h3>
+        <p class="dates title-3">September 5 to 11, 2027</p>
+        <p class="nights body-6">Sunday to Saturday · 6 nights</p>
+        <p class="desc body-3">Seven days with founder Anthony Abbagnano, walking the inner journey at the heart of The Alchemist.</p>
+        <a class="btn btn-line btn-block" href="https://asha.secure.retreat.guru/program/alchemist-with-anthony-sep-5-11-2027-graduates/?form=1&amp;lang=en">Book the Alchemist week <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+      </article>
+      <article class="card both rv d2 on-dark">
+        <p class="tag caption-4">Both weeks</p>
+        <h3 class="heading-5">Intuition + Alchemist</h3>
+        <p class="dates title-3">August 29 to September 11, 2027</p>
+        <p class="nights body-6">Two weeks · 13 nights at ASHA</p>
+        <p class="desc body-3">Stay on between the two weeks and take the whole journey, first with Amy, then with Anthony.</p>
+        <a class="btn btn-block" href="https://asha.secure.retreat.guru/program/intuition-alchemist-combo-aug-29-sep-11-2027/?form=1&amp;lang=en">Book both weeks <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+      </article>
+    </div>
+    <ul class="every body-6 rv">
+      <li><span class="tick"><svg aria-hidden="true"><use href="#i-check"/></svg></span>Your room, from your own tent to a private cottage</li>
+      <li><span class="tick"><svg aria-hidden="true"><use href="#i-check"/></svg></span>Three fresh meals a day, all plant based</li>
+      <li><span class="tick"><svg aria-hidden="true"><use href="#i-check"/></svg></span>Every class and session of your week</li>
+      <li><span class="tick"><svg aria-hidden="true"><use href="#i-check"/></svg></span>The pool, the land and all of ASHA&rsquo;s spaces</li>
+    </ul>
+    <p class="choose-note body-6 center">You choose your room and see your price at checkout, on ASHA&rsquo;s secure booking page. Travel is not included.</p>
+  </div>
+</section>
+
+<!-- TAGLINE REVEAL -->
+<section class="tagline" aria-label="The two weeks in one line">
+  <div class="wrap">
+    <p class="heading-2" id="tagline">One week to hear what you already know. One week to learn how to live by it.</p>
+  </div>
+</section>
+
+<!-- INTUITION -->
+<section class="week" id="intuition">
+  <div class="wrap week-grid">
+    <div class="week-photo rv">
+      <img src="https://static.wixstatic.com/media/c2dd9b_e16ec91ab7f54583a9eddbf90d63ba80~mv2.jpg/v1/fill/w_800,h_1000,al_c,q_85,enc_avif,quality_auto/amy-teaching.jpg" alt="Amy Rachelle teaching at a flip chart during an Intuition Retreat" width="800" height="1000" loading="lazy">
+    </div>
+    <div class="rv d1">
+      <span class="eyebrow caption-4">Week 1 · August 29 to September 4, 2027</span>
+      <h2 class="heading-2">Intuition with Amy</h2>
+      <p class="lead body-lg">A weeklong deep dive into the art of intuition with Amy Rachelle, naturopath and medical medium. Everyone has intuition. This is a week to remember how to listen, and to trust what you already know.</p>
+      <ul class="points">
+        <li><span class="tick"><svg aria-hidden="true"><use href="#i-check"/></svg></span><span><strong>Clear direction</strong>Make choices that follow your own insight, instead of second guessing yourself.</span></li>
+        <li><span class="tick"><svg aria-hidden="true"><use href="#i-check"/></svg></span><span><strong>Decisions from the heart</strong>Learn to retrieve and interpret what your body already knows.</span></li>
+        <li><span class="tick"><svg aria-hidden="true"><use href="#i-check"/></svg></span><span><strong>Sensitivity as a strength</strong>Channel your natural gifts into confidence, without taking on everyone else&rsquo;s weather.</span></li>
+      </ul>
+      <blockquote class="quote body-3">&ldquo;Intuition is our inner compass. Our GPS. Yet you and I have been heavily conditioned not to listen to it.&rdquo;<cite class="body-6">Amy Rachelle</cite></blockquote>
+      <div class="week-cta">
+        <a class="btn" href="https://asha.secure.retreat.guru/program/intuition-with-amy-aug-29-sep-4-2027/?form=1&amp;lang=en">Book the Intuition week <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+        <span class="body-6">Choose your room at checkout</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ALCHEMIST -->
+<section class="week flip" id="alchemist" style="padding-top:0">
+  <div class="wrap week-grid">
+    <div class="week-photo rv">
+      <img src="https://alchemyofbreath.com/wp-content/uploads/bg-photo-anthony-1.jpg" alt="Anthony Abbagnano guiding a breathwork session" width="1000" height="719" loading="lazy">
+    </div>
+    <div class="rv d1">
+      <span class="eyebrow caption-4">Week 2 · September 5 to 11, 2027</span>
+      <h2 class="heading-2">Alchemist with Anthony</h2>
+      <p class="lead body-lg">Seven days with founder Anthony Abbagnano, walking the inner journey at the heart of The Alchemist: the hero&rsquo;s journey map he has refined over forty years.</p>
+      <ul class="points">
+        <li><span class="tick"><svg aria-hidden="true"><use href="#i-check"/></svg></span><span><strong>A map for real change</strong>Understanding a pattern is not the same as changing it. This week brings breathwork and the Alchemy of Breath approach to both.</span></li>
+        <li><span class="tick"><svg aria-hidden="true"><use href="#i-check"/></svg></span><span><strong>Descent and return</strong>Walk down into the parts of yourself you have hidden from, and carry back what only that descent can give you.</span></li>
+        <li><span class="tick"><svg aria-hidden="true"><use href="#i-check"/></svg></span><span><strong>In person with the founder</strong>The journey at the core of the Alchemy of Breath facilitator training, guided by Anthony himself.</span></li>
+      </ul>
+      <div class="week-cta">
+        <a class="btn" href="https://asha.secure.retreat.guru/program/alchemist-with-anthony-sep-5-11-2027-graduates/?form=1&amp;lang=en">Book the Alchemist week <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+        <span class="body-6">Choose your room at checkout</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BOTH WEEKS -->
+<section class="week both-band on-dark" id="both">
+  <div class="wrap week-grid">
+    <div class="rv">
+      <span class="eyebrow caption-4">Both weeks · August 29 to September 11, 2027</span>
+      <h2 class="heading-2">Stay for both weeks</h2>
+      <p class="lead body-lg">Begin with Amy, continue with Anthony, and stay at ASHA in between. Thirteen nights, with everything included except travel.</p>
+      <ul class="incl body-3">
+        <li><span class="tick"><svg aria-hidden="true"><use href="#i-check"/></svg></span>Thirteen nights in the room of your choice</li>
+        <li><span class="tick"><svg aria-hidden="true"><use href="#i-check"/></svg></span>Three fresh meals a day, all plant based</li>
+        <li><span class="tick"><svg aria-hidden="true"><use href="#i-check"/></svg></span>Daily Intuition classes with Amy</li>
+        <li><span class="tick"><svg aria-hidden="true"><use href="#i-check"/></svg></span>Breathwork, voice, dance and 6 Step sessions</li>
+        <li><span class="tick"><svg aria-hidden="true"><use href="#i-check"/></svg></span>Sound healing, and art as personal development</li>
+        <li><span class="tick"><svg aria-hidden="true"><use href="#i-check"/></svg></span>The pool, the land and all of ASHA&rsquo;s spaces</li>
+        <li><span class="tick"><svg aria-hidden="true"><use href="#i-check"/></svg></span>Certification in 6 Steps to Yourself, Seeds of Alchemy, Alchemy Meditation and The Bridge</li>
+        <li><span class="tick"><svg aria-hidden="true"><use href="#i-check"/></svg></span>Business in a Box with Amy and Anthony</li>
+      </ul>
+      <p class="not-incl body-6">Not included: flights and transport to ASHA, travel insurance, and optional wellbeing treatments.</p>
+      <div class="week-cta">
+        <a class="btn" href="https://asha.secure.retreat.guru/program/intuition-alchemist-combo-aug-29-sep-11-2027/?form=1&amp;lang=en">Book both weeks <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+        <span class="body-6">Choose your room at checkout</span>
+      </div>
+    </div>
+    <div class="week-photo rv d1">
+      <img src="https://alchemyofbreath.com/wp-content/uploads/Anthony-Amy-900x600.jpg" alt="Anthony Abbagnano and Amy Rachelle at ASHA" width="900" height="600" loading="lazy">
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how">
+  <div class="wrap">
+    <div class="center rv">
+      <span class="eyebrow caption-4">How booking works</span>
+      <h2 class="heading-2">Three steps to your place</h2>
+    </div>
+    <ol class="steps">
+      <li class="rv"><h3 class="title-1">Choose your week</h3><p class="body-3">Intuition, Alchemist, or both. Each button on this page opens the booking page for that choice.</p></li>
+      <li class="rv d1"><h3 class="title-1">Choose your room</h3><p class="body-3">Booking runs on ASHA&rsquo;s secure Retreat Guru page. Pick from your own tent, a camper spot, glamping, a shared room, a private room or a cottage, and see your price there.</p></li>
+      <li class="rv d2"><h3 class="title-1">Arrive on Sunday</h3><p class="body-3">Both weeks run Sunday to Saturday. Shared rides are usually arranged through the retreat WhatsApp group before arrival.</p></li>
+    </ol>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq" id="faq">
+  <div class="wrap">
+    <div class="center rv">
+      <span class="eyebrow caption-4">Questions and answers</span>
+      <h2 class="heading-2">Before you come</h2>
+    </div>
+    <div class="faq-list">
+      <details><summary class="title-3">When exactly are the two weeks?<svg aria-hidden="true"><use href="#i-plus"/></svg></summary><p class="body-3">Intuition with Amy runs from Sunday, August 29 to Saturday, September 4, 2027. Alchemist with Anthony runs from Sunday, September 5 to Saturday, September 11, 2027. If you book both, you stay thirteen nights.</p></details>
+      <details><summary class="title-3">Can I come to just one week?<svg aria-hidden="true"><use href="#i-plus"/></svg></summary><p class="body-3">Yes. Each week is complete on its own, and you can also book the two together as one stay.</p></details>
+      <details><summary class="title-3">What does it cost?<svg aria-hidden="true"><use href="#i-plus"/></svg></summary><p class="body-3">Your price depends on the room you choose, and it is shown at checkout before you pay. Room, meals and all sessions are included. Travel is not.</p></details>
+      <details><summary class="title-3">Where is ASHA?<svg aria-hidden="true"><use href="#i-plus"/></svg></summary><p class="body-3">In Castell&rsquo;Azzara, in the province of Grosseto, Southern Tuscany. A medieval hilltop village surrounded by Etruscan hills. ASHA covers forty two acres, with its own water and solar power.</p></details>
+      <details><summary class="title-3">How do I get there?<svg aria-hidden="true"><use href="#i-plus"/></svg></summary><p class="body-3">A rental car is strongly recommended, as the area is rural. By train, take the line to Chiusi-Chianciano Terme and then a taxi, roughly &euro;100 to &euro;120. Shared rides are usually arranged through the retreat WhatsApp group.</p></details>
+      <details><summary class="title-3">What is the food like?<svg aria-hidden="true"><use href="#i-plus"/></svg></summary><p class="body-3">All meals are plant based, freshly prepared from seasonal Tuscan produce by ASHA&rsquo;s kitchen team. Gluten free and other dietary needs are accommodated, so please tell us in advance.</p></details>
+      <details><summary class="title-3">Do I need any experience?<svg aria-hidden="true"><use href="#i-plus"/></svg></summary><p class="body-3">None at all. You will be among people at every stage, from complete beginners to practitioners deepening work they already do. Come as you are.</p></details>
+      <details><summary class="title-3">What is the weather like?<svg aria-hidden="true"><use href="#i-plus"/></svg></summary><p class="body-3">Late August is usually between 18 and 27&deg;C, warm in the day and cooler in the evenings. September can be more variable, so bring light layers, above all if you plan to camp.</p></details>
+      <details><summary class="title-3">Can I bring my dog?<svg aria-hidden="true"><use href="#i-plus"/></svg></summary><p class="body-3">Yes. Dogs are welcome and must be kept on a leash to protect the resident cats. There is a &euro;40 donation per pet per retreat.</p></details>
+      <details><summary class="title-3">Who do I contact with anything else?<svg aria-hidden="true"><use href="#i-plus"/></svg></summary><p class="body-3">The ASHA team, at <a href="mailto:info@asha.global">info@asha.global</a> or on WhatsApp at <a href="https://wa.me/393534527348">+39 353 452 7348</a>.</p></details>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="final on-dark">
+  <div class="wrap rv">
+    <h2 class="heading-2">Choose your week in Tuscany</h2>
+    <p class="lead body-lg">August 29 to September 11, 2027 at ASHA. Come for one week, or stay for both.</p>
+    <div class="final-btns">
+      <a class="btn btn-line" href="https://asha.secure.retreat.guru/program/intuition-with-amy-aug-29-sep-4-2027/?form=1&amp;lang=en">Book the Intuition week</a>
+      <a class="btn btn-line" href="https://asha.secure.retreat.guru/program/alchemist-with-anthony-sep-5-11-2027-graduates/?form=1&amp;lang=en">Book the Alchemist week</a>
+      <a class="btn" href="https://asha.secure.retreat.guru/program/intuition-alchemist-combo-aug-29-sep-11-2027/?form=1&amp;lang=en">Book both weeks <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+    </div>
+    <small class="body-6">Questions first? Write to <a href="mailto:info@asha.global">info@asha.global</a></small>
+  </div>
+</section>
+
+</main>
+
+<footer class="foot body-6">
+  <div class="wrap">
+    <img src="https://alchemyofbreath.com/wp-content/uploads/AoB-emblem-web-white-150x150.png" alt="" width="40" height="40" loading="lazy">
+    <p>&copy; 2026 Alchemy of Breath. The retreats are held at ASHA, Castell&rsquo;Azzara, Tuscany.</p>
+    <div class="foot-links">
+      <a href="https://alchemyofbreath.com/">Home</a>
+      <a href="https://alchemyofbreath.com/calendar-2027/">2027 calendar</a>
+      <a href="https://alchemyofbreath.com/privacy-policy/">Privacy</a>
+      <a href="https://alchemyofbreath.com/terms-and-conditions/">Terms</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var root=document.documentElement, reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* mobile menu */
+  var btn=document.querySelector('.menu-btn'), panel=document.getElementById('panel');
+  function setMenu(open){
+    root.classList.toggle('menu-open',open);
+    btn.setAttribute('aria-expanded',open?'true':'false');
+    btn.setAttribute('aria-label',open?'Close menu':'Open menu');
+    document.body.style.overflow=open?'hidden':'';
+  }
+  btn.addEventListener('click',function(){ setMenu(!root.classList.contains('menu-open')); });
+  panel.addEventListener('click',function(e){ if(e.target.closest('a')) setMenu(false); });
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') setMenu(false); });
+
+  /* scroll reveals, once each */
+  var rv=[].slice.call(document.querySelectorAll('.rv'));
+  if('IntersectionObserver' in window){
+    var io=new IntersectionObserver(function(es){
+      es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+    },{rootMargin:'0px 0px -8% 0px',threshold:.08});
+    rv.forEach(function(el){ io.observe(el); });
+  } else { rv.forEach(function(el){ el.classList.add('in'); }); }
+  /* safety net: never leave content hidden (embedded frames, background tabs) */
+  setTimeout(function(){ if(window.self!==window.top) rv.forEach(function(el){ el.classList.add('in'); }); },1200);
+
+  /* tagline: words light up one at a time as they cross a line at 72% of the viewport */
+  var tag=document.getElementById('tagline');
+  if(tag){
+    var words=tag.textContent.trim().split(/\s+/);
+    tag.setAttribute('aria-label',tag.textContent.trim());
+    tag.innerHTML=words.map(function(w){ return '<span class="w" aria-hidden="true">'+w+'</span>'; }).join(' ');
+    var spans=[].slice.call(tag.querySelectorAll('.w'));
+    if(reduce){ spans.forEach(function(s){ s.classList.add('on'); }); }
+    else{
+      var queued=false;
+      var paint=function(){
+        queued=false;
+        var r=tag.getBoundingClientRect(), vh=window.innerHeight;
+        var start=vh*.86, end=vh*.42;
+        var p=(start-r.top)/((start-end)+r.height);
+        p=Math.max(0,Math.min(1,p));
+        var n=Math.round(p*spans.length);
+        spans.forEach(function(s,i){ s.classList.toggle('on',i<n); });
+      };
+      var onScroll=function(){ if(queued) return; queued=true; (window.requestAnimationFrame||setTimeout)(paint,16); };
+      window.addEventListener('scroll',onScroll,{passive:true});
+      window.addEventListener('resize',onScroll,{passive:true});
+      paint();
+    }
+  }
+})();
+</script>
+
+<script>(function(){if(window.self!==window.top){var st=document.createElement('style');st.textContent='.cv{content-visibility:visible !important}';document.head.appendChild(st);}function reportHeight(){var h=document.documentElement.scrollHeight;window.parent.postMessage({type:'aob-embed-resize',height:h},'*');}window.addEventListener('load',reportHeight);window.addEventListener('resize',reportHeight);var mo=new MutationObserver(reportHeight);mo.observe(document.body,{childList:true,subtree:true,attributes:true});setInterval(reportHeight,800);})();</script>
+</body>
+</html>
