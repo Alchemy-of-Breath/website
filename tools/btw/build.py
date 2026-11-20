@@ -204,15 +204,16 @@ def hosts(i):
 
 def session(i, which):
     am = which == 'AM'
-    host, role = (i['am_host'], i['am_role']) if am else (i['pm_host'], i['pm_role'])
+    host, role = (i['am_host'], i.get('am_role', '')) if am else (i['pm_host'], i.get('pm_role', ''))
+    who = f'<b>{host}</b>, {role}' if role else f'<b>{host}</b>'  # role may be left blank
     photo = i.get('am_photo' if am else 'pm_photo')
     ics = 'am' if am else 'pm'
     key = 'Am' if am else 'Pm'
     if photo:
         host_html = (f'<p class="host with-ph"><img class="av" src="{photo}" alt="{host}" width="52" height="52" loading="lazy">'
-                     f'<span>Sharing this week: <b>{host}</b>, {role}</span></p>')
+                     f'<span>Sharing this week: {who}</span></p>')
     else:
-        host_html = f'<p class="host">Sharing this week: <b>{host}</b>, {role}</p>'
+        host_html = f'<p class="host">Sharing this week: {who}</p>'
     return f'''      <div class="sess">
         <p class="lbl">{'Morning' if am else 'Evening'} session</p>
         <p class="time">{'9:30 AM' if am else '5:00 PM'}<small>{i['short']} &middot; London time</small></p>
