@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Facilitator Training Brochure | Alchemy of Breath</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Roboto:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FFFFFF;--paper-2:#FBF7EF;--cream:#FDF6E9;--ink:#221F20;
+  --gold:#E1B668;--gold-deep:#D6A652;--gold-soft:#EFDCB6;--gold-wash:#F7EBD2;
+  --teal:#00A5B2;--slate:#5B7889;
+  --grad-gold:linear-gradient(135deg,#E1B668 0%,#D6A652 100%);
+  --serif:'Marcellus',Georgia,serif;--sans:'Roboto',Helvetica,Arial,sans-serif;
+}
+@page{size:A4;margin:0}
+@media print{
+  .page::before,.back::after{display:none}
+  *{box-shadow:none!important}
+  :root{--grad-gold:#DDAE5E}
+  .quote-strip{background:#DDAE5E!important}
+  .quote-strip img{display:none}
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+body{font-family:var(--sans);font-weight:300;font-size:10.5pt;line-height:1.65;color:var(--ink);background:#E9E4DA}
+em{font-style:italic;color:var(--gold-deep)}
+h1,h2,h3,h4{font-family:var(--serif);font-weight:400;line-height:1.15}
+h1{font-size:40pt;letter-spacing:-.025em}
+h2{font-size:26pt;letter-spacing:-.02em;margin-bottom:5mm}
+h3{font-size:14pt;margin-bottom:2mm}
+p+p{margin-top:3mm}
+strong{font-weight:500}
+
+.page{width:210mm;height:297mm;position:relative;overflow:hidden;background:var(--paper);padding:20mm 20mm 22mm;page-break-after:always;break-after:page}
+.page:last-child{page-break-after:auto;break-after:auto}
+@media screen{.page{margin:10mm auto;box-shadow:0 10px 40px rgba(34,31,32,.18)}}
+.page.cream{background:var(--paper-2)}
+.page::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.05;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E")}
+.page>*{position:relative}
+
+.eyebrow{font-size:7.5pt;font-weight:500;letter-spacing:.26em;text-transform:uppercase;color:var(--slate);display:flex;align-items:center;gap:4mm;margin-bottom:5mm}
+.eyebrow::before{content:"";width:10mm;height:1px;background:var(--gold)}
+.lede{font-size:12pt;line-height:1.6;max-width:150mm}
+.muted{color:var(--slate)}
+.small{font-size:9pt}
+
+.folio{position:absolute;left:20mm;right:20mm;bottom:10mm;display:flex;justify-content:space-between;align-items:center;font-size:7.5pt;letter-spacing:.18em;text-transform:uppercase;color:var(--slate)}
+.folio img{height:7mm;opacity:.9}
+
+/* cover */
+.cover{padding:0;background:var(--ink);color:#fff}
+.cover .photo{position:absolute;inset:0;background:#221F20 url('assets/brochure-cover-v2.jpg') center/cover}
+.cover-top{position:absolute;top:16mm;left:20mm;right:20mm;display:flex;justify-content:space-between;align-items:center}
+.cover-top img{height:15mm}
+.cover-top span{font-size:7.5pt;letter-spacing:.26em;text-transform:uppercase;color:rgba(255,255,255,.85)}
+.cover-body{position:absolute;left:20mm;right:20mm;bottom:22mm}
+.cover .eyebrow{color:var(--gold)}
+.cover h1{color:#fff;font-size:42pt;max-width:160mm}
+.cover h1 em{color:var(--gold)}
+.cover p.sub{font-size:12.5pt;color:rgba(255,255,255,.86);max-width:145mm;margin-top:6mm}
+.cover-facts{display:flex;flex-wrap:wrap;gap:2.5mm;margin-top:8mm}
+.cover-facts span{font-size:8.5pt;padding:1.8mm 4mm;border-radius:99px;border:1px solid rgba(225,182,104,.6);color:#fff;background:rgba(255,255,255,.06)}
+.cover-next{margin-top:9mm;display:inline-flex;align-items:center;gap:5mm;padding:4mm 6mm;border-radius:4mm;background:var(--grad-gold);color:var(--ink)}
+.cover-next small{display:block;font-size:7pt;font-weight:500;letter-spacing:.22em;text-transform:uppercase}
+.cover-next strong{font-family:var(--serif);font-weight:400;font-size:15pt}
+.cover-next .dot{width:3mm;height:3mm;border-radius:50%;background:var(--ink)}
+
+/* welcome */
+.welcome-grid{display:grid;grid-template-columns:1fr 62mm;gap:12mm;margin-top:4mm}
+.letter p{font-size:11pt}
+.letter p:first-child::first-letter{font-family:var(--serif);font-size:38pt;float:left;line-height:.9;margin:1.5mm 1mm 0 0;color:var(--gold-deep)}
+.sig{margin-top:6mm;font-family:var(--serif);font-size:13pt}
+.sig span{display:block;font-family:var(--sans);font-size:8.5pt;color:var(--slate);letter-spacing:.04em}
+.portrait{border-radius:32mm 32mm 4mm 4mm;overflow:hidden;aspect-ratio:3/4;box-shadow:0 14px 34px rgba(34,31,32,.16)}
+.portrait img{width:100%;height:100%;object-fit:cover;display:block}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:4mm;margin-top:8mm}
+.stat{background:var(--paper-2);border-radius:4mm;padding:5mm 4mm;text-align:center;border:1px solid rgba(225,182,104,.35)}
+.stat b{display:block;font-family:var(--serif);font-weight:400;font-size:22pt;line-height:1.1}
+.stat span{font-size:8pt;color:var(--slate);letter-spacing:.04em}
+.quote-strip{margin-top:7mm;padding:7mm 9mm;border-radius:4mm;background:linear-gradient(135deg,#E9C47E,#D6A652 60%,#C99540);position:relative;overflow:hidden}
+.quote-strip p{font-family:var(--serif);font-size:14.5pt;line-height:1.35;max-width:135mm}
+.quote-strip cite{display:block;margin-top:3mm;font-style:normal;font-size:8.5pt;letter-spacing:.06em}
+.quote-strip img{position:absolute;right:-14mm;top:50%;transform:translateY(-50%);width:62mm;opacity:.14;mix-blend-mode:multiply}
+
+/* dates */
+.cohort-hero{display:grid;grid-template-columns:1.25fr 1fr;gap:0;border-radius:5mm;overflow:hidden;box-shadow:0 18px 44px rgba(214,166,82,.22);margin:6mm 0 9mm}
+.cohort-hero .l{background:var(--grad-gold);padding:9mm}
+.cohort-hero .r{background:#fff;padding:9mm;border:1px solid rgba(225,182,104,.45);border-left:0}
+.cohort-hero small{display:block;font-size:7.5pt;font-weight:500;letter-spacing:.22em;text-transform:uppercase;margin-bottom:2mm}
+.cohort-hero .big{font-family:var(--serif);font-size:24pt;line-height:1.1}
+.cohort-hero .r p{font-size:10pt}
+.cohort-hero .r .t{font-family:var(--serif);font-size:13pt;margin-top:1mm}
+.dates{width:100%;border-collapse:collapse;font-size:10pt}
+.dates th{text-align:left;font-size:7.5pt;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--slate);padding:0 0 3mm;border-bottom:1px solid var(--gold)}
+.dates td{padding:4mm 0;border-bottom:1px solid rgba(91,120,137,.18);vertical-align:top}
+.dates td:first-child{font-family:var(--serif);font-size:13pt;width:58mm}
+.dates tr.next td{background:var(--gold-wash)}
+.dates tr.next td:first-child{padding-left:3mm}
+.tag{display:inline-block;font-size:6.5pt;font-weight:500;letter-spacing:.16em;text-transform:uppercase;background:var(--ink);color:#fff;padding:.8mm 2.2mm;border-radius:99px;margin-left:2mm;vertical-align:middle}
+.note-box{margin-top:8mm;display:grid;grid-template-columns:repeat(3,1fr);gap:4mm}
+.note-box div{background:var(--paper-2);border-radius:4mm;padding:5mm;font-size:9pt}
+.note-box b{display:block;font-family:var(--serif);font-weight:400;font-size:11.5pt;margin-bottom:1mm}
+
+/* flow */
+.flow{display:grid;grid-template-columns:15fr 24fr 7fr;gap:2mm;margin:7mm 0 3mm}
+.flow div{border-radius:3mm;padding:4mm;min-height:26mm;color:var(--ink)}
+.flow .p1{background:#E7F3F4;border:1px solid rgba(0,165,178,.35)}
+.flow .p2{background:var(--gold-wash);border:1px solid rgba(225,182,104,.6)}
+.flow .p3{background:var(--ink);color:#fff}
+.flow small{display:block;font-size:7pt;font-weight:500;letter-spacing:.18em;text-transform:uppercase;opacity:.75}
+.flow b{display:block;font-family:var(--serif);font-weight:400;font-size:12.5pt;line-height:1.2;margin-top:1mm}
+.flow span{font-size:8.5pt}
+.flow-scale{display:flex;justify-content:space-between;font-size:7.5pt;color:var(--slate);letter-spacing:.08em;margin-bottom:9mm}
+.rhythm{display:grid;grid-template-columns:repeat(2,1fr);gap:5mm 9mm}
+.rhythm .r{display:grid;grid-template-columns:9mm 1fr;gap:3mm}
+.rhythm .ic{width:9mm;height:9mm;border-radius:50%;background:var(--gold-wash);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:10pt;color:var(--gold-deep)}
+.rhythm h4{font-size:12pt;margin-bottom:1mm}
+.rhythm p{font-size:9.5pt}
+.mock{margin-top:9mm;display:grid;grid-template-columns:78mm 1fr;gap:8mm;align-items:center;background:var(--paper-2);border-radius:5mm;padding:6mm}
+.mock img{width:100%;display:block}
+.mock p{font-size:10pt}
+
+/* journeys */
+.qs{display:grid;grid-template-columns:repeat(2,1fr);gap:4mm;margin-top:6mm}
+.q{background:#fff;border-radius:4mm;padding:5mm 5mm 5mm;border:1px solid rgba(225,182,104,.35);box-shadow:0 6px 18px rgba(34,31,32,.05)}
+.q .n{font-family:var(--serif);color:var(--gold-deep);font-size:10pt;letter-spacing:.1em}
+.q h4{font-size:12.5pt;margin:1mm 0 1.5mm;line-height:1.25}
+.q p{font-size:9pt;color:#3c3839}
+.q.wide{grid-column:span 2;background:var(--ink);color:#fff;border:0}
+.q.wide p{color:rgba(255,255,255,.82)}
+.q.wide .n{color:var(--gold)}
+.arc{width:100%;height:24mm;margin:2mm 0 0}
+
+.skills{display:grid;grid-template-columns:repeat(2,1fr);gap:4mm;margin-top:6mm}
+.skill{display:grid;grid-template-columns:11mm 1fr;gap:3mm;padding:4mm 0;border-top:1px solid rgba(225,182,104,.5)}
+.skill .ic{font-family:var(--serif);font-size:17pt;color:var(--gold-deep);line-height:1}
+.skill h4{font-size:12pt;margin-bottom:1mm}
+.skill p{font-size:9pt}
+.milestones{margin-top:8mm;display:flex;align-items:stretch;gap:0;border-radius:4mm;overflow:hidden;border:1px solid rgba(225,182,104,.5)}
+.milestones div{flex:1;padding:5mm;font-size:9pt;background:#fff;position:relative}
+.milestones div+div{border-left:1px solid rgba(225,182,104,.5)}
+.milestones b{display:block;font-family:var(--serif);font-weight:400;font-size:11.5pt;margin-bottom:1mm}
+.milestones div:last-child{background:var(--gold-wash)}
+
+/* breathcamp */
+.bc-photo{height:88mm;margin:-20mm -20mm 10mm;background:#FBF7EF url('assets/brochure-breathcamp.jpg') center/cover;position:relative}
+.bc-soft{border-top:1px solid rgba(225,182,104,.5);padding-top:4mm}
+.bc-soft h3{font-family:var(--serif);font-weight:400;font-size:13pt;margin-bottom:2mm}
+.bc-grid{display:grid;grid-template-columns:1fr 1fr;gap:9mm}
+.ticks{list-style:none}
+.ticks li{position:relative;padding-left:7mm;margin-bottom:2.6mm;font-size:10pt}
+.ticks li::before{content:"";position:absolute;left:0;top:1.6mm;width:3.6mm;height:3.6mm;border-radius:50%;background:var(--grad-gold)}
+.price-box{border:1.5px dashed var(--gold-deep);border-radius:4mm;padding:6mm;background:#fff}
+.price-box .tag{margin:0 0 3mm}
+.price-box .amt{font-family:var(--serif);font-size:20pt;line-height:1.15;margin:1mm 0 2mm}
+
+/* team */
+.founders{display:grid;grid-template-columns:1fr 1fr;gap:8mm;margin-top:6mm}
+.founder img{width:100%;aspect-ratio:4/3.4;object-fit:cover;border-radius:30mm 30mm 3mm 3mm;display:block;margin-bottom:4mm;box-shadow:0 12px 30px rgba(34,31,32,.14)}
+.founder h3{margin-bottom:0}
+.founder .role{font-size:8pt;letter-spacing:.16em;text-transform:uppercase;color:var(--slate);margin-bottom:2mm}
+.founder p{font-size:9.5pt}
+.team{display:grid;grid-template-columns:repeat(4,1fr);gap:5mm;margin-top:9mm}
+.team div{text-align:center;font-size:8.5pt}
+.team img{width:24mm;height:24mm;border-radius:50%;object-fit:cover;display:block;margin:0 auto 2mm;border:1.5px solid var(--gold)}
+.team b{display:block;font-family:var(--serif);font-weight:400;font-size:11pt}
+
+/* choosing a training */
+.wk{display:grid;grid-template-columns:62mm 1fr;gap:7mm;background:#fff;border-radius:5mm;padding:7mm;margin:6mm 0 8mm;border:1px solid rgba(225,182,104,.4);box-shadow:0 10px 26px rgba(34,31,32,.05)}
+.wk-tag{display:block;font-size:7.5pt;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:2.5mm}
+.wk h3{font-family:var(--serif);font-weight:400;font-size:15pt;line-height:1.2}
+.wk-r p{font-size:9.6pt;line-height:1.6}
+.wk-r p+p{margin-top:3mm}
+.sub-h{font-family:var(--serif);font-weight:400;font-size:13pt;margin-bottom:3mm}
+.levels{display:grid;gap:2.4mm}
+.levels div{display:grid;grid-template-columns:38mm 1fr 58mm;gap:4mm;align-items:baseline;background:#fff;border-radius:3mm;padding:3.4mm 5mm;font-size:9pt;line-height:1.45}
+.levels b{font-family:var(--serif);font-weight:400;font-size:11.5pt}
+.levels em{font-style:normal;color:var(--slate);font-size:8.4pt}
+.levels .ours{background:var(--gold-wash)}
+.ask{width:100%;border-collapse:collapse;font-size:8.2pt;line-height:1.42;margin-top:5mm}
+.ask th{text-align:left;font-size:6.8pt;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--slate);padding:0 3mm 2.5mm 0;border-bottom:1px solid var(--gold)}
+.ask td{padding:2.6mm 3mm 2.6mm 0;border-bottom:1px solid rgba(91,120,137,.18);vertical-align:top}
+.ask td:first-child{font-family:var(--serif);font-size:10pt;width:40mm}
+.ask td:nth-child(3){color:#8a5a3c}
+.ask td:last-child{background:var(--gold-wash);padding-left:3mm;width:46mm}
+.ask-cta{margin-top:6mm;background:var(--paper-2);border-radius:4mm;padding:5mm 6mm;font-size:9.6pt}
+.ask-cta b{font-family:var(--serif);font-weight:400;font-size:12pt;margin-right:2mm}
+.cta-strip{display:flex;align-items:center;justify-content:space-between;gap:6mm;margin-top:7mm;padding:5mm 6mm;border-radius:4mm;background:var(--gold-wash);border:1px solid rgba(214,166,82,.45);color:var(--ink);text-decoration:none}
+.cta-strip b{display:block;font-family:var(--serif);font-weight:400;font-size:12.5pt;margin-bottom:.8mm}
+.cta-strip span:first-child{font-size:9.4pt;line-height:1.5}
+.cs-btn{flex:none;background:var(--ink);color:#fff;font-size:9pt;font-weight:500;padding:3mm 5.5mm;border-radius:99px;white-space:nowrap}
+/* voices */
+.voices{columns:2;column-gap:5mm;margin-top:4mm}
+.v{break-inside:avoid;background:#fff;border-radius:4mm;padding:4.2mm 5mm;margin-bottom:4mm;border:1px solid rgba(225,182,104,.35);box-shadow:0 6px 18px rgba(34,31,32,.05)}
+.v:nth-child(3n+2){background:var(--gold-wash);border-color:transparent}
+.v .qm{font-family:var(--serif);font-size:22pt;line-height:.6;color:var(--gold-deep);display:block;height:4.5mm}
+.v p{font-family:var(--serif);font-size:10.2pt;line-height:1.42}
+.v .who{display:flex;align-items:center;gap:3mm;margin-top:2.5mm;font-size:8pt;line-height:1.35}
+.v .who img{width:9mm;height:9mm;border-radius:50%;object-fit:cover}
+.v .who b{display:block;font-weight:500}
+.v .who span{color:var(--slate)}
+.grad-photo{height:34mm;border-radius:4mm;margin-top:4mm;background:#e9e2d4 url('assets/brochure-graduation-strip.jpg') center/100% 100% no-repeat;border:1px solid rgba(225,182,104,.4)}
+.voices.dense .v{padding:3.4mm 4.4mm;margin-bottom:3.2mm}
+.voices.dense .v p{font-size:9.3pt;line-height:1.38}
+.voices.dense .v .qm{font-size:18pt;height:3.6mm}
+.voices.dense .v .who{margin-top:1.8mm}
+.faces{width:62mm;aspect-ratio:192/78;background:url('https://alchemyofbreath.com/wp-content/uploads/people-updated.png') left top/auto 100% no-repeat}
+
+/* investment */
+.inv{display:grid;grid-template-columns:1fr 1fr;gap:8mm;margin-top:6mm}
+.card{background:#fff;border-radius:5mm;padding:7mm;border:1px solid rgba(225,182,104,.4);box-shadow:0 14px 34px rgba(214,166,82,.14)}
+.card .lbl{font-size:7.5pt;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--slate)}
+.card .amt{font-family:var(--serif);font-size:34pt;line-height:1.1;margin:2mm 0}
+.eb{background:var(--gold-wash);border:1px solid rgba(214,166,82,.55);border-radius:3mm;padding:3mm 4mm;margin:1mm 0 4mm;font-size:9pt;line-height:1.45}
+.eb b{display:block;font-family:var(--serif);font-weight:400;font-size:12pt;color:var(--ink)}
+.card .amt sup{font-size:16pt;vertical-align:top;position:relative;top:2mm}
+.badges{height:15mm;width:100%;background:url('https://alchemyofbreath.com/wp-content/uploads/badges-1024x195.jpg') center/contain no-repeat;margin:4mm 0}
+.pract{margin-top:8mm;display:grid;grid-template-columns:repeat(3,1fr);gap:4mm}
+.pract div{background:var(--paper-2);border-radius:4mm;padding:5mm;font-size:9pt}
+.pract b{display:block;font-family:var(--serif);font-weight:400;font-size:11.5pt;margin-bottom:1mm}
+
+/* faq */
+.faq{columns:2;column-gap:9mm;margin-top:5mm}
+.faq div{break-inside:avoid;margin-bottom:5mm}
+.faq h4{font-size:11.5pt;margin-bottom:1mm;line-height:1.3}
+.faq p{font-size:9pt}
+
+/* back */
+.back{background:var(--ink);color:#fff;padding:26mm 22mm}
+.back::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 85% 15%,rgba(225,182,104,.25),transparent 55%),radial-gradient(circle at 10% 90%,rgba(0,165,178,.18),transparent 50%);pointer-events:none}
+.back>*{z-index:1}
+.back .eyebrow{color:var(--gold)}
+.back h2{color:#fff;font-size:32pt}
+.back h2 em{color:var(--gold)}
+.back .lede{color:rgba(255,255,255,.85)}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:5mm;margin:12mm 0}
+.steps div{border:1px solid rgba(225,182,104,.4);border-radius:4mm;padding:6mm;font-size:9.5pt;color:rgba(255,255,255,.85)}
+.steps b{display:block;font-family:var(--serif);font-weight:400;font-size:13pt;color:#fff;margin:1mm 0 2mm}
+.steps .n{font-family:var(--serif);color:var(--gold);font-size:11pt}
+.cta-panel{display:grid;grid-template-columns:1fr 46mm;gap:10mm;align-items:center;background:#fff;color:var(--ink);border-radius:5mm;padding:9mm}
+.cta-panel h3{font-size:18pt}
+.btn{display:inline-block;margin-top:4mm;background:var(--grad-gold);color:var(--ink);text-decoration:none;font-weight:500;font-size:10pt;padding:3.5mm 7mm;border-radius:99px}
+.qr{width:46mm;height:46mm;padding:3mm;border-radius:3mm;background:#fff;border:1px solid var(--gold-soft)}
+.qr svg{width:100%;height:100%;display:block}
+.back-foot{position:absolute;left:22mm;right:22mm;bottom:16mm;display:flex;justify-content:space-between;align-items:flex-end;font-size:8pt;color:rgba(255,255,255,.6)}
+.back-foot img{height:13mm}
+</style>
+</head>
+<body>
+
+<!-- 1. COVER -->
+<section class="page cover">
+  <div class="photo"></div>
+  <div class="cover-top">
+    <img src="https://alchemyofbreath.com/wp-content/uploads/AoB-emblem-web-white.png" alt="Alchemy of Breath">
+    <span>Facilitator Training · 2027</span>
+  </div>
+  <div class="cover-body">
+    <div class="eyebrow">Breathwork facilitator certification</div>
+    <h1>Become a certified <em>breathwork</em> facilitator, online.</h1>
+    <p class="sub">An eight-month, 400-hour training in Conscious Connected Breathwork. Begin with your own inner work, then learn the skills, care, and professional foundations of facilitating for others.</p>
+    <div class="cover-facts"><span>8 months online</span><span>400 hours</span><span>Weekly live classes</span><span>Triple accredited</span><span>7-day BreathCamp graduation</span></div>
+    <a class="cover-next" href="https://go.alchemyofbreath.com/breathwork-facilitator-training" style="text-decoration:none"><span class="dot"></span><span><small>Currently enrolling &middot; book a call</small><strong>November 19, 2026 &middot; February 16, 2027</strong></span></a>
+  </div>
+</section>
+
+<!-- 2. WELCOME -->
+<section class="page">
+  <div class="eyebrow">Welcome</div>
+  <h2>It starts with <em>one breath</em></h2>
+  <div class="welcome-grid">
+    <div class="letter">
+      <p>If you are holding this, something in you is already curious. Maybe breathwork has changed something for you, and you want to understand it more deeply. Maybe you sense you could hold that same space for other people. Maybe you simply want to know yourself better.</p>
+      <p>The Alchemy of Breath Facilitator Training was built for all three. It begins with you, with fifteen weeks of your own inner work, because the steadiness you bring into a room is the most important thing you will ever offer a client.</p>
+      <p>Then we teach you the craft: how to guide a 1:1 session and a full room, online and in person, safely and with care. You graduate on the land at ASHA in Tuscany, facilitating in front of your trainers, surrounded by the people who walked the eight months with you.</p>
+      <p>This brochure is here to give you a clear picture of how it works. The best next step is a conversation with one of our Success Advisors. They will answer your questions honestly, and help you see whether this is the right time.</p>
+      <div class="sig">The Alchemy of Breath team<span>Founded by Anthony Abbagnano and Amy Rachelle</span></div>
+    </div>
+    <div class="portrait"><img src="https://alchemyofbreath.com/wp-content/uploads/anthony-abbagnano-2-1.jpg" alt="Anthony Abbagnano"></div>
+  </div>
+  <div class="stats">
+    <div class="stat"><b>1,500+</b><span>facilitators trained</span></div>
+    <div class="stat"><b>400</b><span>training hours</span></div>
+    <div class="stat"><b>3</b><span>accreditations</span></div>
+    <div class="stat"><b>2012</b><span>founded</span></div>
+  </div>
+  <div class="quote-strip">
+    <p>"If meditation is about clearing your mind, then breathwork is about freeing your ability to feel."</p>
+    <cite>Anthony Abbagnano, founder of Alchemy of Breath</cite>
+    <img src="https://alchemyofbreath.com/wp-content/uploads/AOB-Gold-Black-Transparant-symbol.png" alt="">
+  </div>
+  <div class="folio"><span>Alchemy of Breath Facilitator Training</span><span>02</span></div>
+</section>
+
+<!-- 3. DATES -->
+<section class="page cream">
+  <div class="eyebrow">Currently enrolling</div>
+  <h2>Choose the cohort that <em>fits your life</em></h2>
+  <p class="lede">Every cohort meets live on Zoom, once a week, on a set weekday, with class times that work from almost anywhere in the world. These are the cohorts enrolling now.</p>
+  <div class="cohort-hero">
+    <div class="l">
+      <small>Last few places</small>
+      <div class="big">Thursday,<br>November 19, 2026</div>
+      <p class="small" style="margin-top:3mm">Live on Thursdays. Ask your Success Advisor for class times and whether a place is still open.</p>
+    </div>
+    <div class="r">
+      <small class="muted">Next cohort</small>
+      <div class="big" style="font-size:19pt">Tuesday,<br>February 16, 2027</div>
+      <p class="t" style="margin-top:4mm">US class</p>
+      <p>7:00 pm to 10:00 pm EST, which also suits Australia</p>
+      <p class="t" style="margin-top:3mm">UK class</p>
+      <p>5:30 pm to 8:30 pm UK time</p>
+    </div>
+  </div>
+  <p class="small muted" style="margin-top:3mm">Most classes run 3 hours. Orientations, sharing circles and masterclasses run 2 hours. Cohorts that run through the winter holidays take a short break. Your Success Advisor will confirm times for your cohort.</p>
+  <div class="note-box">
+    <div><b>39 live classes</b>One a week, over eight months, with your trainers and your cohort.</div>
+    <div><b>5 to 7 hours</b>of home study each week: practice, reflection, reading and video.</div>
+    <div><b>Every class recorded</b>Recordings are on the learning platform within 24 hours.</div>
+  </div>
+  <a class="cta-strip" href="https://go.alchemyofbreath.com/breathwork-facilitator-training"><span><b>Not sure which cohort fits?</b>Book a free call with a Success Advisor and talk it through.</span><span class="cs-btn">Book a call &rarr;</span></a>
+  <div class="folio"><span>Alchemy of Breath Facilitator Training</span><span>03</span></div>
+</section>
+
+<!-- 4. HOW IT FLOWS -->
+<section class="page">
+  <div class="eyebrow">How the eight months flow</div>
+  <h2>Two journeys, woven into <em>one training</em></h2>
+  <p class="lede">First you go inward. Then you learn to guide others. Then you bring it all together, in person, in Tuscany.</p>
+  <div class="flow">
+    <div class="p1"><small>Part 1 · 15 weeks</small><b>The Inner Journey</b><span>Your own story, patterns and healing</span></div>
+    <div class="p2"><small>Part 2 · 24 weeks</small><b>Breathwork Facilitation Skills</b><span>The craft of holding safe, trauma-informed sessions</span></div>
+    <div class="p3"><small>7 days</small><b>Graduation BreathCamp</b><span>ASHA, Tuscany</span></div>
+  </div>
+  <div class="flow-scale"><span>Month 1</span><span>Month 4</span><span>Month 8</span><span>Graduation</span></div>
+
+  <div class="rhythm">
+    <div class="r"><div class="ic">i</div><div><h4>Live classes on Zoom</h4><p>A weekly live class with your Master Trainers: teaching, practice, Q&amp;A, and personal feedback on your case studies.</p></div></div>
+    <div class="r"><div class="ic">ii</div><div><h4>The learning platform</h4><p>Everything lives in one place: your modules, recordings, workbook, reading list and supplementary video and audio.</p></div></div>
+    <div class="r"><div class="ic">iii</div><div><h4>Practice between classes</h4><p>Your own daily breath practice, then real sessions with practice clients once you reach the facilitation stage.</p></div></div>
+    <div class="r"><div class="ic">iv</div><div><h4>Study buddy and mentor</h4><p>You share the journey with a study buddy and a mentor, so you are never working through it alone.</p></div></div>
+    <div class="r"><div class="ic">v</div><div><h4>Masterclasses with the founders</h4><p>During the Inner Journey, Amy and Anthony join for masterclasses, alongside three sharing circles.</p></div></div>
+    <div class="r"><div class="ic">vi</div><div><h4>The I Am Alchemy community</h4><p>One year of access to our community platform, to practice, exchange and connect with facilitators worldwide.</p></div></div>
+  </div>
+  <div class="mock">
+    <img src="https://alchemyofbreath.com/wp-content/uploads/mockup-facilitator-training-1015x600.png" alt="The Alchemy of Breath learning platform">
+    <p><strong>Online does not mean learning alone.</strong><br>You learn live with your trainers and your cohort every week, and practice with a study buddy and mentor between classes.</p>
+  </div>
+  <div class="folio"><span>Alchemy of Breath Facilitator Training</span><span>04</span></div>
+</section>
+
+<!-- 5. PART 1 -->
+<section class="page cream">
+  <div class="eyebrow">Part 1 · The Inner Journey</div>
+  <h2>Fifteen weeks with <em>your own story</em></h2>
+  <p class="lede">Before you guide anyone else, you walk the path yourself. These are some of the questions students find themselves sitting with in Part 1.</p>
+  <svg class="arc" viewBox="0 0 600 70" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M10,10 C 160,90 440,90 590,10" fill="none" stroke="#D6A652" stroke-width="1.5" stroke-dasharray="4 5"/>
+    <g fill="#E1B668"><circle cx="10" cy="10" r="5"/><circle cx="100" cy="42" r="5"/><circle cx="200" cy="61" r="5"/><circle cx="300" cy="67" r="6" fill="#00A5B2"/><circle cx="400" cy="61" r="5"/><circle cx="500" cy="42" r="5"/><circle cx="590" cy="10" r="5"/></g>
+  </svg>
+  <div class="qs">
+    <div class="q"><span class="n">I</span><h4>"Where did my patterns really begin?"</h4><p>You look honestly at the story you have been living, from your earliest experiences onward.</p></div>
+    <div class="q"><span class="n">II</span><h4>"What is asking to change in my life?"</h4><p>You meet the part of you that is ready to move, and learn to take responsibility for that change.</p></div>
+    <div class="q"><span class="n">III</span><h4>"What does my younger self still need?"</h4><p>Gentle work with the parts of you that learned to protect themselves early.</p></div>
+    <div class="q"><span class="n">IV</span><h4>"What have I been avoiding in myself?"</h4><p>You learn to turn toward the uncomfortable parts with curiosity, rather than judgment.</p></div>
+    <div class="q"><span class="n">V</span><h4>"What gifts are hidden in my story?"</h4><p>Experiences you carried as wounds often hold your deepest strengths as a facilitator.</p></div>
+    <div class="q"><span class="n">VI</span><h4>"What am I ready to let go of?"</h4><p>Making peace with the past, so you can be fully present with whoever is in front of you.</p></div>
+    <div class="q wide"><span class="n">VII</span><h4>"Who am I bringing back with me?"</h4><p>You come out of Part 1 steadier, clearer and more yourself. That is the ground every session you hold will stand on. Along the way: three sharing circles, masterclasses with Amy and Anthony, and the support of your cohort.</p></div>
+  </div>
+  <div class="folio"><span>Alchemy of Breath Facilitator Training</span><span>05</span></div>
+</section>
+
+<!-- 6. PART 2 -->
+<section class="page">
+  <div class="eyebrow">Part 2 · Breathwork Facilitation Skills</div>
+  <h2>Twenty-four weeks learning <em>the craft</em></h2>
+  <p class="lede">Part 2 turns what you lived into something you can offer. It answers the questions most new facilitators ask: "Will I know what to do? Will I keep people safe? Can I make this my work?"</p>
+  <div class="skills">
+    <div class="skill"><div class="ic">◦</div><div><h4>Guiding 1:1 and group sessions</h4><p>How to open, hold and close a session, from one client to a full room, online and in person.</p></div></div>
+    <div class="skill"><div class="ic">◦</div><div><h4>Safety and trauma-informed care</h4><p>Screening, consent, pacing, and how to respond calmly when strong emotions surface.</p></div></div>
+    <div class="skill"><div class="ic">◦</div><div><h4>The body and the breath</h4><p>The anatomy and physiology behind breathwork, so you understand what is happening and why.</p></div></div>
+    <div class="skill"><div class="ic">◦</div><div><h4>Release and integration</h4><p>Supporting people as stored emotion moves, and helping them make sense of it afterward.</p></div></div>
+    <div class="skill"><div class="ic">◦</div><div><h4>Ethics and your own boundaries</h4><p>The professional standards that protect your clients and you.</p></div></div>
+    <div class="skill"><div class="ic">◦</div><div><h4>Building your practice</h4><p>Bringing breathwork into the work you already do, or growing it into a practice of its own.</p></div></div>
+  </div>
+  <div class="milestones">
+    <div><b>Practice early</b>You begin facilitating 1:1 practice sessions and writing case reports after the seventh seminar.</div>
+    <div><b>Then groups</b>Group sessions follow from the eighth seminar, with feedback on the live calls.</div>
+    <div><b>Then certification</b>You certify once all training hours and your graduation BreathCamp are complete.</div>
+  </div>
+  <div class="quote-strip" style="background:var(--paper-2);border:1px solid rgba(225,182,104,.45)">
+    <p style="font-size:12.5pt">"Will I be ready?" is the question we hear most. The training is paced so that by the time you graduate, you have already held many real sessions, with feedback every step of the way.</p>
+  </div>
+  <div class="folio"><span>Alchemy of Breath Facilitator Training</span><span>06</span></div>
+</section>
+
+<!-- 7. BREATHCAMP -->
+<section class="page cream">
+  <div class="bc-photo"></div>
+  <div class="eyebrow">Graduation</div>
+  <h2>Seven days on the land at <em>ASHA, Tuscany</em></h2>
+  <div class="bc-grid">
+    <div>
+      <p>Your graduation BreathCamp is where everything comes together. After eight months online, you arrive at ASHA Retreat Centre, 15 hectares in the Tuscan hills, and practice in person with the people you have been learning beside.</p>
+      <ul class="ticks" style="margin-top:5mm">
+        <li>Facilitate and lead sessions in person, both 1:1 and in groups, with feedback from your trainers</li>
+        <li>Deepen your personal development directly with your trainers, Amy and Anthony</li>
+        <li>Lots of space for community, rest, integration and fun as you reach the end of your training</li>
+        <li>Facilitate a live breathwork session to graduate, and receive your certification</li>
+      </ul>
+    </div>
+    <div>
+      <div class="bc-soft">
+        <h3>Your stay at ASHA</h3>
+        <p class="small">The BreathCamp is booked separately from tuition and costs €1,649 to €3,995, with student room options from bringing your own tent to a private cottage. Your Success Advisor will walk you through them on your call.</p>
+      </div>
+      <ul class="ticks small" style="margin-top:5mm">
+        <li>Meals are included on site</li>
+        <li>Staying at ASHA during the camp is required</li>
+        <li>Travel to and from ASHA is not included</li>
+        <li>Plan to attend within 6 months of finishing the course</li>
+      </ul>
+    </div>
+  </div>
+  <div class="folio"><span>Alchemy of Breath Facilitator Training</span><span>07</span></div>
+</section>
+
+<!-- 8. TEAM -->
+<section class="page">
+  <div class="eyebrow">Your teachers</div>
+  <h2>Learn from the people who <em>built the school</em></h2>
+  <div class="founders">
+    <div class="founder">
+      <img src="https://alchemyofbreath.com/wp-content/uploads/anthony-abbagnano-2-1.jpg" alt="Anthony Abbagnano">
+      <h3>Anthony Abbagnano</h3>
+      <div class="role">Founder</div>
+      <p>Anthony is a breathwork pioneer and the founder of Alchemy of Breath and ASHA. He founded the school in 2012 and is the creator of The Bridge process and author of <em>Outer Chaos, Inner Calm</em>.</p>
+    </div>
+    <div class="founder">
+      <img src="https://alchemyofbreath.com/wp-content/uploads/amy-rachelle-1.jpg" alt="Amy Rachelle">
+      <h3>Amy Rachelle, ND</h3>
+      <div class="role">Co-founder</div>
+      <p>Amy is the co-founder of Alchemy of Breath, a naturopath and intuition specialist with more than 15 years of facilitating. She leads masterclasses during the Inner Journey.</p>
+    </div>
+  </div>
+  <p class="small muted" style="margin-top:9mm">Your weekly classes are led by our Master and Senior Trainers, including:</p>
+  <div class="team" style="margin-top:4mm">
+    <div><img src="https://alchemyofbreath.com/wp-content/uploads/emily-ray-henderson-2.jpg" alt=""><b>Emily Ray Henderson</b>Reiki master and 500-hour yoga teacher</div>
+    <div><img src="https://alchemyofbreath.com/wp-content/uploads/pablo-castro.jpg" alt=""><b>Pablo Castro</b>Somatic healing and deep listening</div>
+    <div><img src="https://alchemyofbreath.com/wp-content/uploads/simona-dvorackova-400x400-1.jpg" alt=""><b>Simona Dvorackova</b>Bodywork, energy healing and hypnotherapy</div>
+    <div><img src="https://alchemyofbreath.com/wp-content/uploads/Nick.jpg" alt=""><b>Nick Garrow-Fisher</b>Authentic relating, IFS and boundaries</div>
+  </div>
+  <div class="folio"><span>Alchemy of Breath Facilitator Training</span><span>08</span></div>
+</section>
+
+<!-- CHOOSING A TRAINING (1) -->
+<section class="page cream">
+  <div class="eyebrow">Before you choose any training</div>
+  <h2>How to spot a <em>strong training</em></h2>
+  <p class="lede">Breathwork has no single hour standard the way yoga teacher training does. Each school sets its own hours, assessments and standards, so two programs that both say 100 hours can be very different experiences. The number matters less than what is inside it.</p>
+  <div class="wk">
+    <div class="wk-l">
+      <span class="wk-tag">About weekend certifications</span>
+      <h3>Two or three days can open the door. It cannot do the whole job.</h3>
+    </div>
+    <div class="wk-r">
+      <p>A weekend course can be a lovely way to meet the breath for yourself. What a few days cannot hold is time: time to do your own inner work, to guide real people again and again, and to hear honest feedback from a trainer who has watched you work.</p>
+      <p>If a certificate after a weekend says you are ready to guide others through deep emotional release, ask what that is based on.</p>
+    </div>
+  </div>
+  <h3 class="sub-h">What each length of training typically gives you</h3>
+  <div class="levels">
+    <div><b>A weekend</b><span>Techniques to try for yourself, usually with little or no supervised practice.</span><em>Good for: a first taste of breathwork</em></div>
+    <div><b>Around 50 hours</b><span>Often self-paced online, with light supervised practice.</span><em>Good for: adding breath techniques to work you already do</em></div>
+    <div><b>Around 100 hours</b><span>Online or in person. How much mentoring and feedback is built in varies widely.</span><em>Good for: solid foundations with some guidance</em></div>
+    <div><b>200 to 350 hours</b><span>Live sessions across several months, plus a practicum.</span><em>Good for: facilitating for others with structured practice</em></div>
+    <div class="ours"><b>400+ hours</b><span>Months of supervised client work and case studies, often with time in person. Ours is 400 hours over eight months.</span><em>Good for: facilitating professionally</em></div>
+  </div>
+  <p class="small muted" style="margin-top:4mm">Every level can be the right choice. The useful question is what you want to be able to do when you finish.</p>
+  <div class="folio"><span>Alchemy of Breath Facilitator Training</span><span>09</span></div>
+</section>
+
+<!-- CHOOSING A TRAINING (2) -->
+<section class="page">
+  <div class="eyebrow">Questions to ask any school</div>
+  <h2>Ask every school the <em>same questions</em></h2>
+  <p class="lede">A school that is confident in its training will usually answer plainly. A vague answer is information too.</p>
+  <table class="ask">
+    <thead><tr><th>Ask</th><th>A strong answer</th><th>Be careful if</th><th>How we answer</th></tr></thead>
+    <tbody>
+      <tr><td>How many hours are live with a trainer?</td><td>A clear split of live, recorded and practice hours</td><td>You only hear a total</td><td>400 hours over eight months, with weekly live calls throughout</td></tr>
+      <tr><td>Who accredits the program?</td><td>Named bodies you can look up yourself</td><td>The badges cannot be found, or no one is named</td><td>FHT and AADP, with the practitioner program accredited by GPBA. Member of the IBF</td></tr>
+      <tr><td>Will I guide real people and get feedback?</td><td>A set number of 1:1 and group sessions, with written feedback</td><td>The certificate comes with attendance alone</td><td>At least 10 one-to-one and 3 group sessions, each with written reflection and feedback</td></tr>
+      <tr><td>Do I do my own inner work first?</td><td>Structured time for your own process before you guide others</td><td>It goes straight to techniques</td><td>The Inner Journey: seven chapters over 15 weeks, before facilitation begins</td></tr>
+      <tr><td>How is safety handled?</td><td>Trauma-informed teaching and clear contraindications</td><td>No one mentions who should not breathe this way</td><td>Trauma-informed foundations, contraindications taught directly, and a code of ethics</td></tr>
+      <tr><td>Who are the trainers?</td><td>Named trainers with years of supervised experience</td><td>The trainers are not named</td><td>Master Trainers led by Anthony Abbagnano and Amy Rachelle, named on our website</td></tr>
+      <tr><td>Will I practice in person?</td><td>Time in a room with others, guiding and being guided</td><td>Everything happens on a screen</td><td>A seven-day graduation BreathCamp at ASHA in Tuscany</td></tr>
+      <tr><td>What happens after I graduate?</td><td>Community, mentoring and ways to keep growing</td><td>Support ends with the certificate</td><td>One year in the I Am Alchemy community, the alumni network and a marketing toolkit</td></tr>
+      <tr><td>What is the full cost?</td><td>Tuition and every extra named before you enroll</td><td>Costs appear after you sign up</td><td>Tuition covers the eight months. The BreathCamp is booked separately (€1,649 to €3,995), and your advisor explains it upfront</td></tr>
+    </tbody>
+  </table>
+  <a class="cta-strip" href="https://go.alchemyofbreath.com/breathwork-facilitator-training"><span><b>Still comparing?</b>Bring your other options to a free call. We will go through them honestly, including where another program might suit you better.</span><span class="cs-btn">Book a call &rarr;</span></a>
+  <div class="folio"><span>Alchemy of Breath Facilitator Training</span><span>10</span></div>
+</section>
+
+<!-- 9. VOICES -->
+<section class="page cream">
+  <div class="eyebrow">In their own words</div>
+  <h2>From the people who have <em>walked it</em></h2>
+  <div class="voices">
+    <div class="v"><span class="qm">&ldquo;</span><p>An hour later, I knew this had just turned my life around. I feel like my heart has opened up again for the first time in decades, and the training group has become a new little community for all of us.</p><div class="who"><div><b>Nick</b><span>Graduate</span></div></div></div>
+    <div class="v"><span class="qm">&ldquo;</span><p>Starting the training with AoB was one of the best decisions in my life. Anthony's way of teaching and his ability to create such a safe container helped me find the strength to dig deep.</p><div class="who"><div><b>Marianna Manderscheid</b><span>Inner Journey graduate</span></div></div></div>
+    <div class="v"><span class="qm">&ldquo;</span><p>It creates the space for deep insight, connection and transformation in a safe and loving container. I deeply recommend Alchemy of Breath as an incredible experience to harness the power of true presence.</p><div class="who"><img src="https://alchemyofbreath.com/wp-content/uploads/tanya.jpg" alt=""><div><b>Tanya Lopez</b><span>Graduate</span></div></div></div>
+    <div class="v"><span class="qm">&ldquo;</span><p>Breathwork continues to open doors, and the training allows me to fully investigate and be supported in my experiences. I feel like I am growing and opening toward life's untapped potential.</p><div class="who"><img src="https://alchemyofbreath.com/wp-content/uploads/hannah-2.jpg" alt=""><div><b>Hannah Goodman</b><span>Graduate</span></div></div></div>
+    <div class="v"><span class="qm">&ldquo;</span><p>I came to heal. I left ready to serve.</p><div class="who"><div><b>Catalina</b><span>Spain</span></div></div></div>
+    <div class="v"><span class="qm">&ldquo;</span><p>I have attended many retreats, but nothing opened my heart like this.</p><div class="who"><div><b>Livia</b><span>Copenhagen</span></div></div></div>
+    <div class="v"><span class="qm">&ldquo;</span><p>I finally learned how to breathe with my heart.</p><div class="who"><div><b>Pippa</b><span>France</span></div></div></div>
+  </div>
+  <div style="display:flex;align-items:center;gap:5mm;margin-top:2mm"><div class="faces"></div><p class="small muted">Join more than 1,500 facilitators trained by Alchemy of Breath since 2012.</p></div>
+  <div class="folio"><span>Alchemy of Breath Facilitator Training</span><span>11</span></div>
+</section>
+
+<!-- 10. GRADUATE STORIES -->
+<section class="page">
+  <div class="eyebrow">Graduate stories</div>
+  <h2>What surprised them <em>most</em></h2>
+  <div class="voices dense">
+    <div class="v"><span class="qm">&ldquo;</span><p>What really surprised me was the inner journey that we did before. It&rsquo;s magical, it&rsquo;s deep, it&rsquo;s poetic&hellip; When you&rsquo;ve been to that place first, you can then hold space.</p><div class="who"><div><b>Karen</b><span>UK</span></div></div></div>
+    <div class="v"><span class="qm">&ldquo;</span><p>The richness of the training, the richness of the content, the richness of the resources you&rsquo;re given, the wisdom of the trainers, just extraordinary.</p><div class="who"><div><b>Dan</b><span>UK</span></div></div></div>
+    <div class="v"><span class="qm">&ldquo;</span><p>I looked around extensively at providers&hellip; and it was Alchemy of Breath that really stood out for me. That inner journey part is where you actually take the time to understand yourself, so that when you come into the facilitator training, you are able to properly hold space.</p><div class="who"><div><b>Jeff</b><span>Australia</span></div></div></div>
+    <div class="v"><span class="qm">&ldquo;</span><p>It&rsquo;s not a textbook. It&rsquo;s actual lived experience. They ask you to walk through all of this before you give it to someone else. That was powerful.</p><div class="who"><div><b>Angela</b><span>Oregon, USA</span></div></div></div>
+    <div class="v"><span class="qm">&ldquo;</span><p>There was a lot of information, but it was very well portioned. You knew what to do and when to do it, and there was always somebody to reach out to&hellip; The study buddy, the groups and the support teams give you a lot of structure and safety.</p><div class="who"><div><b>Julia</b><span>Germany</span></div></div></div>
+    <div class="v"><span class="qm">&ldquo;</span><p>If someone was on the fence about doing the Alchemy training, I would say that it won&rsquo;t disappoint&hellip; You&rsquo;re coming away with something that is so much greater than a certificate.</p><div class="who"><div><b>Izzy</b><span>UK</span></div></div></div>
+    <div class="v"><span class="qm">&ldquo;</span><p>At the start I wanted to learn for myself, and then later on I was like, okay, maybe I do want to share this with the world&hellip; Try not to overthink it, just get into it, because it is so worth it.</p><div class="who"><div><b>Courtney</b><span>New Zealand</span></div></div></div>
+    <div class="v"><span class="qm">&ldquo;</span><p>Initially I thought I was joining just a breathwork training course. However, it became so much more than that&hellip; skills that I can now pass on to others, and add to my practices, which are yoga and Reiki.</p><div class="who"><div><b>Lisa</b><span>UK</span></div></div></div>
+    <div class="v"><span class="qm">&ldquo;</span><p>When I first started I was quite guarded and closed off, but throughout this past year it&rsquo;s really the community that has helped me open up&hellip; I&rsquo;ve never found a more genuine, authentic community.</p><div class="who"><div><b>Cristina</b><span>USA</span></div></div></div>
+  </div>
+  <div class="folio"><span>Alchemy of Breath Facilitator Training</span><span>12</span></div>
+</section>
+
+<!-- 11. GRADUATE STORIES, CONTINUED -->
+<section class="page cream">
+  <div class="eyebrow">Graduate stories, continued</div>
+  <h2>Where the training <em>led them</em></h2>
+  <div class="grad-photo"></div>
+  <div class="voices dense">
+    <div class="v"><span class="qm">&ldquo;</span><p>I did the 21-day facilitator training after coming here for a BreathCamp&hellip; The people, the place, the teachers just felt so safe, held, and inspired. It really called to me and I can&rsquo;t wait to see where this journey takes me from here.</p><div class="who"><div><b>Scott</b><span>USA &middot; 21-day residential training</span></div></div></div>
+    <div class="v"><span class="qm">&ldquo;</span><p>By the end of the training, when I looked in the mirror, I recognized myself for the first time in my adult life.</p><div class="who"><div><b>Angela</b><span>Maine, USA</span></div></div></div>
+    <div class="v"><span class="qm">&ldquo;</span><p>You think you sign up for a facilitator training, and then you go into an adventure&hellip; of knowing how to hold people, how to hold yourself&hellip; I feel ready to hold space for everyone that needs it.</p><div class="who"><div><b>Jerome</b><span>France</span></div></div></div>
+    <div class="v"><span class="qm">&ldquo;</span><p>The journey doesn&rsquo;t end here&hellip; I&rsquo;m a wellness practitioner, but the breath underpins all that I work with with my clients.</p><div class="who"><div><b>Janette</b><span>UK</span></div></div></div>
+    <div class="v"><span class="qm">&ldquo;</span><p>I&rsquo;m still working in the corporate world and having my business flourish side by side&hellip; People at work know me as the breath girl.</p><div class="who"><div><b>Kelly</b><span>USA</span></div></div></div>
+    <div class="v"><span class="qm">&ldquo;</span><p>There are a lot of different schools, but&hellip; the word that keeps coming is foundation. This beautiful foundation, with commitments and love and empowerment, and then go fly.</p><div class="who"><div><b>Diana</b><span>USA</span></div></div></div>
+    <div class="v"><span class="qm">&ldquo;</span><p>It was nine months together, and then we finished this journey together here at ASHA, so we got to know each other in person, which was just amazing.</p><div class="who"><div><b>Kat</b><span>Czech Republic</span></div></div></div>
+    <div class="v"><span class="qm">&ldquo;</span><p>If I can offer any words of encouragement, it would just be: take a breath and trust yourself.</p><div class="who"><div><b>Margarit</b><span>USA</span></div></div></div>
+    <div class="v"><span class="qm">&ldquo;</span><p>I also connected with many amazing people in our cohort, and I believe that we actually became friends.</p><div class="who"><div><b>Jindriska</b><span>Czech Republic</span></div></div></div>
+  </div>
+  <div class="folio"><span>Alchemy of Breath Facilitator Training</span><span>13</span></div>
+</section>
+
+<!-- 12. INVESTMENT -->
+<section class="page">
+  <div class="eyebrow">Investment and certification</div>
+  <h2>One tuition for the <em>eight months</em> online</h2>
+  <div class="inv">
+    <div class="card">
+      <span class="lbl">8 month comprehensive training</span>
+      <div class="amt"><sup>$</sup>7,200</div>
+      <div class="eb"><b>Early bird tuition available</b>Reach out to your Success Advisor for the latest rates.</div>
+      <p class="small">Standard tuition. Partial scholarships and payment plans are available.</p>
+      <ul class="ticks small" style="margin-top:5mm">
+        <li>The learning platform, with all content and live class links</li>
+        <li>39 weekly live classes with Master Trainers</li>
+        <li>The Inner Journey, included</li>
+        <li>Workbook, case studies and feedback on your practice</li>
+        <li>One year in the I Am Alchemy community</li>
+        <li>Alumni network and marketing toolkit</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Your certification</h3>
+      <p class="small">You receive the Alchemy of Breath Facilitator Certification, qualifying you to offer 1:1 sessions, group workshops and breath journeys, in person or online, in a safe, trauma-informed way. On graduating you may use the title Alchemy of Breath Facilitator and the facilitator logo in your marketing.</p>
+      <div class="badges" role="img" aria-label="Accredited by FHT, GPBA and AADP"></div>
+      <p class="small">Triple accredited by the FHT, GPBA and AADP. Alchemy of Breath is also a member of the International Breathwork Foundation.</p>
+      <p class="small muted" style="margin-top:3mm">Breathwork facilitation is not a licensed profession. The certificate does not confer government licensure or a medical qualification.</p>
+    </div>
+  </div>
+  <div class="pract">
+    <div><b>If you miss a class</b>Catch up with the recording and related exercises. All training hours must be completed to certify.</div>
+    <div><b>If life gets in the way</b>You can move to a later cohort once, with approval. Your advisor can explain how.</div>
+    <div><b>No experience needed</b>An introductory module covers the foundations. What matters is your willingness to do your own work.</div>
+  </div>
+  <a class="cta-strip" href="https://go.alchemyofbreath.com/breathwork-facilitator-training"><span><b>Questions about tuition or scholarships?</b>A Success Advisor will walk you through the options on a free call.</span><span class="cs-btn">Book a call &rarr;</span></a>
+  <div class="folio"><span>Alchemy of Breath Facilitator Training</span><span>14</span></div>
+</section>
+
+<!-- 13. FAQ -->
+<section class="page cream">
+  <div class="eyebrow">Questions, gently</div>
+  <h2>What people <em>often ask</em></h2>
+  <div class="faq">
+    <div><h4>Is this only for people who want to become facilitators?</h4><p>No. Many people join for personal growth and healing. Others bring breathwork into coaching, therapy, bodywork, yoga or wellness work they already do.</p></div>
+    <div><h4>I am already a practitioner. How does this help?</h4><p>Breathwork offers a direct way to help clients release stored emotion and regulate their nervous system. Graduates often add workshops, private sessions and retreats to their practice.</p></div>
+    <div><h4>What is Conscious Connected Breathwork?</h4><p>Breathing with no pause between the inhale and the exhale, often with curated music. It calms the nervous system and helps release held emotion and limiting beliefs.</p></div>
+    <div><h4>Why is the training eight months long?</h4><p>A weekly rhythm gives you time between classes to integrate and practice what you learn. It fits around work and family, and it leaves room for real personal depth.</p></div>
+    <div><h4>What does the 400 hours include?</h4><p>Live classes, home study, reading and viewing, practice sessions and your graduation BreathCamp.</p></div>
+    <div><h4>How much time will I need each week?</h4><p>One live class, plus about 5 to 7 hours of home study: your breath practice, reflection, sharing with your study buddy and mentor, and the reading list.</p></div>
+    <div><h4>Do I have to attend BreathCamp?</h4><p>Yes. Facilitating a live session at BreathCamp is part of certifying for in-person work. In exceptional circumstances, an online certification may be possible. Speak with your trainer.</p></div>
+    <div><h4>What support will I have?</h4><p>Weekly live classes with Master Trainers, Q&amp;A, personal feedback on your case studies, a study buddy and mentor, and your cohort.</p></div>
+    <div><h4>When can I start facilitating?</h4><p>You begin 1:1 practice sessions after the seventh seminar of Part 2 and group sessions after the eighth. You certify after your graduation BreathCamp.</p></div>
+    <div><h4>How do I get started?</h4><p>Book a free call with a Success Advisor. If it is a good fit, you can enroll, and you get immediate access to the learning platform and preparation materials.</p></div>
+  </div>
+  <a class="cta-strip" href="https://go.alchemyofbreath.com/breathwork-facilitator-training"><span><b>Still have questions?</b>Book a free 45 minute call with a Success Advisor. No obligation.</span><span class="cs-btn">Book a call &rarr;</span></a>
+  <div class="folio"><span>Alchemy of Breath Facilitator Training</span><span>15</span></div>
+</section>
+
+<!-- 14. BACK -->
+<section class="page back">
+  <div class="eyebrow">Your next step</div>
+  <h2>A 45 minute conversation, <em>no obligation</em></h2>
+  <p class="lede">The best way to know whether this training is right for you is to talk it through with someone who knows it well. Our Success Advisors are here to answer your questions honestly.</p>
+  <div class="steps">
+    <div><span class="n">01</span><b>Book your call</b>Choose a time that suits you, online, from wherever you are.</div>
+    <div><span class="n">02</span><b>Talk it through</b>Your advisor listens to where you are and answers everything you want to ask.</div>
+    <div><span class="n">03</span><b>Decide in your time</b>If it feels right, your advisor helps you choose a cohort and get started.</div>
+  </div>
+  <div class="cta-panel">
+    <div>
+      <span class="eyebrow" style="margin-bottom:2mm">Now enrolling</span>
+      <h3>Book a call with a Success Advisor</h3>
+      <p class="small">Scan the code, or visit<br><span style="white-space:nowrap;font-size:8.6pt">go.alchemyofbreath.com/breathwork-facilitator-training</span></p>
+      <a class="btn" href="https://go.alchemyofbreath.com/breathwork-facilitator-training">Book your call &rarr;</a>
+    </div>
+    <div class="qr"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 370 370" preserveAspectRatio="xMidYMid meet" class="segno"><path transform="scale(10)" class="qrline" stroke="#221f20" d="M2 2.5h7m2 0h2m1 0h2m2 0h1m2 0h3m1 0h1m2 0h7m-33 1h1m5 0h1m6 0h6m5 0h1m1 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h1m5 0h1m1 0h2m1 0h2m3 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h7m2 0h2m1 0h1m1 0h3m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h4m2 0h1m1 0h4m1 0h1m2 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m1 0h2m4 0h5m1 0h1m5 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h2m1 0h1m2 0h2m2 0h5m1 0h1m-25 1h1m1 0h5m3 0h1m2 0h1m3 0h1m1 0h1m2 0h1m1 0h1m1 0h5m-31 1h1m3 0h2m1 0h1m2 0h2m4 0h5m2 0h1m2 0h2m1 0h2m1 0h1m-32 1h2m1 0h3m1 0h2m1 0h6m4 0h1m3 0h2m1 0h1m1 0h2m-30 1h4m2 0h1m1 0h2m2 0h1m4 0h4m1 0h3m1 0h3m1 0h1m-33 1h2m3 0h2m2 0h1m1 0h1m3 0h1m1 0h1m4 0h1m1 0h2m1 0h3m-30 1h3m1 0h2m5 0h2m3 0h1m2 0h2m2 0h1m1 0h2m2 0h4m-32 1h1m2 0h1m1 0h1m1 0h1m1 0h4m1 0h1m5 0h1m2 0h3m1 0h4m-31 1h1m2 0h2m1 0h2m3 0h2m2 0h1m3 0h2m1 0h1m1 0h2m2 0h2m-31 1h1m1 0h1m1 0h1m1 0h2m2 0h1m2 0h2m2 0h1m4 0h1m1 0h2m1 0h2m3 0h1m-32 1h1m1 0h1m4 0h1m1 0h1m1 0h2m2 0h1m1 0h3m2 0h1m2 0h2m1 0h4m-30 1h6m1 0h4m1 0h1m4 0h3m1 0h1m2 0h2m1 0h2m-32 1h6m2 0h1m4 0h2m1 0h1m1 0h4m1 0h1m2 0h5m1 0h1m-33 1h1m5 0h2m2 0h4m3 0h1m1 0h2m1 0h4m2 0h2m-30 1h1m6 0h1m2 0h1m1 0h1m1 0h1m1 0h1m2 0h3m1 0h1m2 0h1m3 0h1m1 0h1m-33 1h1m1 0h1m1 0h1m1 0h1m1 0h2m2 0h5m1 0h1m1 0h3m2 0h1m1 0h1m1 0h3m-32 1h1m1 0h1m6 0h2m3 0h2m5 0h2m2 0h6m1 0h1m-33 1h1m3 0h3m6 0h2m2 0h1m4 0h8m1 0h2m-25 1h2m1 0h1m1 0h2m4 0h2m3 0h1m3 0h1m1 0h1m1 0h1m-33 1h7m4 0h3m1 0h1m1 0h2m1 0h2m1 0h2m1 0h1m1 0h1m1 0h2m-32 1h1m5 0h1m1 0h1m1 0h1m3 0h2m2 0h1m2 0h2m1 0h1m3 0h5m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h1m1 0h2m3 0h1m1 0h1m2 0h1m1 0h6m1 0h2m-33 1h1m1 0h3m1 0h1m1 0h2m1 0h2m1 0h1m1 0h1m1 0h3m1 0h2m1 0h1m2 0h5m-33 1h1m1 0h3m1 0h1m1 0h2m3 0h1m1 0h2m4 0h3m2 0h2m2 0h1m-31 1h1m5 0h1m2 0h1m1 0h1m1 0h1m1 0h1m2 0h1m1 0h3m3 0h1m1 0h3m-31 1h7m1 0h3m1 0h1m1 0h2m1 0h1m2 0h1m1 0h1m1 0h4m3 0h1"/></svg></div>
+  </div>
+  <div class="back-foot">
+    <img src="https://alchemyofbreath.com/wp-content/uploads/AoB-emblem-web-white.png" alt="Alchemy of Breath">
+    <span>alchemyofbreath.com &nbsp;·&nbsp; It starts with one breath.</span>
+  </div>
+</section>
+
+</body>
+</html>
