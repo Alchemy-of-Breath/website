@@ -850,13 +850,13 @@ main p em,main li em{color:var(--gold-text)}
   <div class="bfh-in">
     <span class="bfh-label"><i aria-hidden="true"></i>Black Friday week</span>
     <h1 id="bfhTitle">Five days. Five <em>invitations.</em></h1>
-    <p class="bfh-sub">From Friday, November 27, a new invitation opens each day, for 24 hours only. Join the waitlist and be the first to receive each one.</p>
+    <p class="bfh-sub">From Friday, November 27, a new invitation opens each day, for 24 hours only. Join our VIP list and get first access to each exclusive offer.</p>
     <div class="bfh-timer" id="bfhTimer" aria-live="polite">
       <p class="bfh-clk-lbl" data-lbl>Black Friday opens in</p>
       <div class="bfh-clock"><div><b data-u="d">00</b><span>days</span></div><div><b data-u="h">00</b><span>hours</span></div><div><b data-u="m">00</b><span>min</span></div><div><b data-u="s">00</b><span>sec</span></div></div>
       <p class="bfh-note" data-note>Opens at midnight your time, Friday, November 27</p>
     </div>
-    <a class="bfh-btn" href="/offer/black-friday/#join">Join the waitlist <span aria-hidden="true">&rarr;</span></a>
+    <a class="bfh-btn" href="/offer/black-friday/#join">Join the VIP Waitlist <span aria-hidden="true">&rarr;</span></a>
     <div class="bfw" data-bfw aria-label="Black Friday week, day by day">
       <div class="bfw-tabs" role="tablist"></div>
       <div class="bfw-stage">
@@ -1587,7 +1587,7 @@ main p em,main li em{color:var(--gold-text)}
     {y:2026,m:10,d:28,dow:'Saturday',tab:'Sat 28',mon:'Nov',pill:'Day 2 &middot; 24 hours',title:'Facilitator Training',text:'For those who feel called to guide others with the breath.'},
     {y:2026,m:10,d:29,dow:'Sunday',tab:'Sun 29',mon:'Nov',pill:'Day 3 &middot; Free',title:'Breathe the World',text:'A free session to simply breathe together, with a <b>surprise gift</b> for everyone who joins.'},
     {y:2026,m:10,d:30,dow:'Monday',tab:'Mon 30',mon:'Nov',pill:'Day 4 &middot; 24 hours',title:'ASHA retreats 2027',text:'Time on the land at ASHA, including <b>Intuition with Amy</b>.'},
-    {y:2026,m:11,d:1,dow:'Tuesday',tab:'Tue 1',mon:'Dec',pill:'Day 5 &middot; 24 hours',title:'A surprise',text:'Something special to close the week. Join the waitlist to be <b>first to know</b>.',surprise:true}
+    {y:2026,m:11,d:1,dow:'Tuesday',tab:'Tue 1',mon:'Dec',pill:'Day 5 &middot; 24 hours',title:'A surprise',text:'Something special to close the week. Join the VIP Waitlist to be <b>first to know</b>.',surprise:true}
   ];
   var MS=4800, tabs=root.querySelector('.bfw-tabs'), card=root.querySelector('.bfw-card'), bar=root.querySelector('.bfw-bar i'),
       f={}, i=0, timer=null, paused=false, user=false, reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -1625,7 +1625,7 @@ main p em,main li em{color:var(--gold-text)}
     var v={d:Math.floor(sec/86400),h:Math.floor(sec%86400/3600),m:Math.floor(sec%3600/60),s:sec%60};
     ['d','h','m','s'].forEach(function(u){t.querySelector('[data-u="'+u+'"]').textContent=pad(v[u]);});
     lbl.textContent=over?'Black Friday week has ended':(live?'Black Friday week is live. It ends in':'Black Friday opens in');
-    note.textContent=over?'':(live?'Join the waitlist for today\'s invitation.':'Opens at midnight your time, Friday, November 27');
+    note.textContent=over?'':(live?'Join the VIP Waitlist for today\'s invitation.':'Opens at midnight your time, Friday, November 27');
     t.classList.toggle('ended',over); if(over) clearInterval(iv);}
   var iv=setInterval(tick,1000); tick();
   if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches) return;
