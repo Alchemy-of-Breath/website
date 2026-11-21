@@ -33,6 +33,7 @@ Pushed to `main` on November 18, 2026 (commit 9330463). The `tg-` copies here st
 - July BreathCamp and Intuition checkouts went live on November 18 (commit b1755ff): July buttons go to Retreat Guru "BreathCamp 2 (Jul 11 – Jul 17, 2027) | New Members", Intuition buttons to "Intuition with Amy (Aug 29 – Sep 4, 2027)".
 - On November 18 the six Black Friday pages under /offer/ were set to `noindex, nofollow` (main 91460c8). The homepage stays indexed.
 - The $5,040 online pay-in-full links now open a small popup to choose the class time (main 7455db9): US time zone (Tuesdays 7:00 pm EST) goes to GHL "Facilitator Training T35 USPM 30% discount", UK time zone (Tuesdays 5:30 pm UK) to "Facilitator Training T35 UKPM Scholarship 30%".
+- November 21, from DK's review notes (main 5017b15): the waitlist is now the "VIP Waitlist" on the homepage hero, the sign-up page, the thank-you page (`/offer/black-friday-waitlist/`, new confirmation copy) and the BreathCamp and Intuition offer pages. The Facilitator Training page links its two earlier Q&A mentions to the Q&A section.
 - Still placeholders on the live pages: FT online deposit, Live Residential deposit and the Q&A registration button.
 
 ## Before going live
