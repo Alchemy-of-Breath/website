@@ -1070,8 +1070,9 @@ section>.wrap{position:relative;z-index:1}
         <span class="tag">8-month online</span>
         <h3>The online training</h3>
         <p class="lede">Train from anywhere, at a steady rhythm over eight months, with weekly live calls and a graduation retreat in Tuscany.</p>
-        <div class="path-price"><span class="now"><sup>$</sup>7,200</span></div>
-        <p class="path-pnote">November 19, 2026 cohort. Payment plans available.</p>
+        <!-- T35 online tuition schedule: this is the Super Early Bird state; the script "T35 online tuition schedule" near the end of the page swaps it on the set dates (same schedule as /breathwork-training/) -->
+        <div class="path-price" id="olPrice"><span class="now"><sup>$</sup>5,900</span><span class="was">$7,200</span></div>
+        <p class="path-pnote" id="olNote">Super Early Bird, ends December 29, 2026. February 16, 2027 cohort. Payment plans available.</p>
         <ul class="path-list">
           <li>400 hour, triple accredited certification</li>
           <li>Weekly live calls with expert coaching</li>
@@ -1372,6 +1373,31 @@ section>.wrap{position:relative;z-index:1}
   });
 })();
 </script>
+  <script>
+  /* T35 online tuition schedule (cohort starts February 16, 2027), the same as on /breathwork-training/.
+     Each tier ends at 11:59 PM UK time on its last day (the UK is on GMT all winter, so changeovers are midnight UTC).
+     To test a date: add ?preview=2027-01-05 to the address. */
+  (function(){
+    var TAIL=' February 16, 2027 cohort. Payment plans available.';
+    var TIERS=[
+      {name:'Super Early Bird',price:'5,900',next:'2026-12-30T00:00:00Z',ends:'December 29, 2026'},
+      {name:'Early Bird',      price:'6,400',next:'2027-01-11T00:00:00Z',ends:'January 10, 2027'},
+      {name:'Last Minute',     price:'6,800',next:'2027-02-03T00:00:00Z',ends:'February 2, 2027'}
+    ];
+    var price=document.getElementById('olPrice'), note=document.getElementById('olNote');
+    if(!price||!note) return;
+    var q=/[?&]preview=(\d{4}-\d{2}-\d{2})/.exec(location.search);
+    var now=q?Date.parse(q[1]+'T12:00:00Z'):Date.now(), t=null;
+    for(var i=0;i<TIERS.length;i++){ if(now<Date.parse(TIERS[i].next)){ t=TIERS[i]; break; } }
+    if(t){
+      price.innerHTML='<span class="now"><sup>$</sup>'+t.price+'</span><span class="was">$7,200</span>';
+      note.textContent=t.name+', ends '+t.ends+'.'+TAIL;
+    } else {
+      price.innerHTML='<span class="now"><sup>$</sup>7,200</span>';
+      note.textContent=TAIL.trim();
+    }
+  })();
+  </script>
   <script>(function(){if(window.self!==window.top){var st=document.createElement('style');st.textContent='.cv{content-visibility:visible !important}';document.head.appendChild(st);}function reportHeight(){var h=document.documentElement.scrollHeight;window.parent.postMessage({type:'aob-embed-resize',height:h},'*');}window.addEventListener('load',reportHeight);window.addEventListener('resize',reportHeight);var mo=new MutationObserver(reportHeight);mo.observe(document.body,{childList:true,subtree:true,attributes:true});setInterval(reportHeight,800);})();</script>
   <script>
   /* Legacy Scholarship banner — hides after applications close 5 Aug 2026, 23:59 UK (BST) */
