@@ -197,6 +197,7 @@
 #bfw .bfw-day-state i{display:none}
 #bfw .bfw-day h3{font-family:var(--serif);font-weight:400;font-size:1.5rem;line-height:1.2;color:#fff;margin-top:4px}
 #bfw .bfw-day-text{font-size:.95rem;line-height:1.6;color:var(--muted)}
+#bfw .bfw-day-text b{font-weight:500;color:var(--gold)}
 #bfw .bfw-day-offer{font-size:.95rem;line-height:1.5;font-weight:500;color:var(--gold)}
 #bfw .bfw-day-cta{display:inline-flex;align-items:center;gap:8px;margin-top:6px;font-size:.93rem;font-weight:500;color:var(--gold);text-decoration:none}
 #bfw .bfw-day-cta:hover{text-decoration:underline;text-underline-offset:4px}
@@ -360,26 +361,26 @@
             <div class="bfw-day-body">
               <div class="bfw-day-k"><span class="bfw-pill">Day 3 &middot; Free</span><span class="bfw-day-state" data-state></span></div>
               <h3>Breathe the World</h3>
-              <p class="bfw-day-text">A free session to simply breathe together, with a surprise gift for everyone who joins.</p>
+              <p class="bfw-day-text">A free session to simply breathe together, with a <b>surprise gift</b> for everyone who joins.</p>
               <a class="bfw-day-cta" href="https://alchemyofbreath.com/free-breathwork-sessions/"><span data-cta>Save your free seat</span> <span class="bfw-arr" aria-hidden="true">&rarr;</span></a>
               <p class="bfw-day-ends" data-ends hidden></p>
             </div>
           </li>
-          <li class="bfw-day" data-day="2026-11-30" data-back
-              data-href="https://alchemyofbreath.com/offer/intuition-black-friday/" data-live-label="Explore today&rsquo;s offer" data-soon-label="">
+          <li class="bfw-day" data-day="2026-11-30"
+              data-href="" data-live-label="Explore today&rsquo;s offer" data-soon-label="">
             <div class="bfw-day-date" aria-hidden="true"><small>Monday</small><b>30</b><span>Nov</span></div>
             <div class="bfw-day-body">
               <div class="bfw-day-k"><span class="bfw-pill">Day 4 &middot; 24 hours</span><span class="bfw-day-state" data-state></span></div>
-              <h3>ASHA retreats 2027</h3>
-              <p class="bfw-day-text">Time on the land at ASHA, including Intuition with Amy.</p>
-              <a class="bfw-day-cta" href="https://alchemyofbreath.com/offer/intuition-black-friday/" hidden><span data-cta>Explore today&rsquo;s offer</span> <span class="bfw-arr" aria-hidden="true">&rarr;</span></a>
+              <h3>Inner Journey</h3>
+              <p class="bfw-day-text">A 15 week personal development path, <b>Anthony&rsquo;s life work all in one course</b>.</p>
+              <a class="bfw-day-cta" hidden><span data-cta>Explore today&rsquo;s offer</span> <span class="bfw-arr" aria-hidden="true">&rarr;</span></a>
               <p class="bfw-day-ends" data-ends hidden></p>
             </div>
           </li>
           <li class="bfw-day is-surprise" data-day="2026-12-01" data-surprise
               data-href="https://alchemyofbreath.com/offer/black-friday-last-chance/" data-live-label="See every offer" data-soon-label=""
               data-reveal-title="Last chance" data-reveal-text="If an invitation passed you by this week, every Black Friday offer opens again for one final day."
-              data-reveal-offer="BreathCamp 2027, the Facilitator Training and Intuition with Amy.">
+              data-reveal-offer="">
             <div class="bfw-day-date" aria-hidden="true"><small>Tuesday</small><b data-num>?</b><span>Dec</span></div>
             <div class="bfw-day-body">
               <div class="bfw-day-k"><span class="bfw-pill">Day 5 &middot; 24 hours</span><span class="bfw-day-state" data-state></span></div>
@@ -444,8 +445,8 @@
 
 <script>
 /* Black Friday week, on each visitor's own clock, matching the offer pages: every day opens at local midnight
-   and lasts 24 hours (Fri Nov 27 to Tue Dec 1, 2026). BreathCamp, the Facilitator Training and Intuition
-   (data-back) return on Tuesday, December 1. Preview any moment with ?preview=2026-11-28T10:00 */
+   and lasts 24 hours (Fri Nov 27 to Tue Dec 1, 2026). BreathCamp and the Facilitator Training
+   (data-back) return on Tuesday, December 1. Monday's Inner Journey tile has no offer page yet, so it shows no button. Preview any moment with ?preview=2026-11-28T10:00 */
 (function(){
   var root=document.getElementById('bfw'); if(!root) return;
   var q=null; try{ q=new URLSearchParams(location.search); }catch(e){}
@@ -490,7 +491,7 @@
     if(d.num) d.num.textContent='1';
     d.h3.textContent=d.li.getAttribute('data-reveal-title');
     d.text.textContent=d.li.getAttribute('data-reveal-text');
-    if(d.offer){ d.offer.textContent=d.li.getAttribute('data-reveal-offer'); d.offer.hidden=false; }
+    var ro=d.li.getAttribute('data-reveal-offer'); if(d.offer && ro){ d.offer.textContent=ro; d.offer.hidden=false; }
   }
 
   function paintDay(d,t,isNext){
@@ -503,7 +504,7 @@
       if(ph==='soon'){
         d.cta.hidden=!d.soonLabel; d.cta.href=d.soonHref; d.ctaText.textContent=d.soonLabel||'';
       }else if(ph==='live'||ph==='back'){
-        d.cta.hidden=false; d.cta.href=d.href; d.ctaText.textContent=ph==='back'?'See the offer again':d.liveLabel;
+        d.cta.hidden=!d.href; if(d.href) d.cta.href=d.href; d.ctaText.textContent=ph==='back'?'See the offer again':d.liveLabel;
       }else{
         d.cta.hidden=true;
       }
@@ -551,7 +552,7 @@
         P.title.textContent='Day '+(k+1)+': '+d.h3.textContent;
         P.text.textContent=d.text.textContent;
         P.note.textContent=d.free?'Time left today':(d.surprise?'Time left to claim any offer':'Time left to claim today’s offer');
-        P.btn.href=d.href; P['btn-text'].textContent=d.liveLabel;
+        P.btn.hidden=!d.href; if(d.href) P.btn.href=d.href; P['btn-text'].textContent=d.liveLabel;
         var nx=days[k+1];
         P.next.textContent=nx?'Next: '+(nx.surprise?'a surprise':nx.h3.textContent)+' opens at midnight your time.':'This is the final day of Black Friday week.';
       }else{
