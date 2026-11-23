@@ -1037,6 +1037,12 @@ html.ph-before .lock-cta[data-show~="before"],html.ph-during .lock-cta[data-show
 .tz-opt:hover .tz-arr{transform:translateX(4px)}
 .tz-note{font-size:.8rem;color:var(--slate);text-align:center;margin-top:14px}
 html.tz-open{overflow:hidden}
+
+/* Live Q&A: save-my-seat popup with the GHL form */
+.qa-pop{width:min(460px,calc(100% - 32px))}
+.qa-pop .tz-sub{margin-bottom:6px}
+.qa-form{margin:0 -22px -14px}
+.qa-form iframe{display:block;width:100%;min-height:255px;border:none}
 </style>
 </head>
 <body>
@@ -1106,7 +1112,7 @@ html.tz-open{overflow:hidden}
     <div class="steps">
       <div class="step glow reveal"><div class="sn">1</div><span class="when">This week</span><h3>Talk to a Success Advisor</h3><p><a href="/tg-facilitator-training-black-friday-call/">Book a free call</a> before Saturday and get every question answered, so you are ready on the day.</p></div>
       <div class="step glow reveal d1"><div class="sn">2</div><span class="when">Saturday, November 28</span><h3>Choose your format and pay in full</h3><p>Online or Live Residential, both at $5,040. Paying in full settles your tuition in one step. A deposit also holds the price.</p></div>
-      <div class="step glow reveal d2"><div class="sn">3</div><span class="when">Saturday, 9am Pacific</span><h3>Join the live Q&amp;A</h3><p>Meet Amy and Anthony live, ask what is on your mind, and hear what the training will ask of you. <a class="qa-jump" href="#qa" data-ev="qa_jump_steps">Save your seat</a></p></div>
+      <div class="step glow reveal d2"><div class="sn">3</div><span class="when">Saturday, 9am Pacific</span><h3>Join the live Q&amp;A</h3><p>Meet Amy and Anthony live, ask what is on your mind, and hear what the training will ask of you. <a class="qa-jump" href="https://link.alchemyofbreath.com/widget/form/ZHzHkPp5dVlOa6IviNFG" data-qa-pop data-ev="qa_jump_steps">Save your seat</a></p></div>
     </div>
   </div>
   <div class="wrap"><div class="buy-row reveal">
@@ -1166,7 +1172,7 @@ html.tz-open{overflow:hidden}
         </div>
       </div>
     </div>
-    <p class="ft-same reveal">Pay in full to lock in $5,040 for good. Then <a class="qa-jump" href="#qa" data-ev="qa_jump_offer">save your seat for the live Q&amp;A</a>.</p>
+    <p class="ft-same reveal">Pay in full to lock in $5,040 for good. Then <a class="qa-jump" href="https://link.alchemyofbreath.com/widget/form/ZHzHkPp5dVlOa6IviNFG" data-qa-pop data-ev="qa_jump_offer">save your seat for the live Q&amp;A</a>.</p>
     <div class="bf-timer dark reveal" data-bf-timer aria-live="polite">
       <p class="bft-label" data-bft-label>Black Friday opens in</p>
       <div class="bft-clock" data-bft-clock>
@@ -1221,7 +1227,7 @@ html.tz-open{overflow:hidden}
         <h2>Ask Amy and Anthony <em>anything</em></h2>
         <p>Join the founders of Alchemy of Breath live on Black Friday Saturday. Bring your questions about the training, the two formats and what the months ahead look like.</p>
         <p class="qa-local" data-qa-local>Saturday, November 28, at 9:00 am Pacific</p>
-        <a class="btn btn-primary" href="#qa-register" data-ev="qa_register">Save my seat for the Q&amp;A <span class="arr">&rarr;</span></a>
+        <a class="btn btn-primary" href="https://link.alchemyofbreath.com/widget/form/ZHzHkPp5dVlOa6IviNFG" data-qa-pop data-ev="qa_register">Save my seat for the Q&amp;A <span class="arr">&rarr;</span></a>
       </div>
     </div>
   </div>
@@ -1319,6 +1325,32 @@ html.tz-open{overflow:hidden}
   <span class="pill-ring" id="pillRing"><span class="inner"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></span>
 </a>
 
+<dialog class="tz-pop qa-pop" id="qaPop" aria-labelledby="qaPopTitle">
+  <div class="tz-in">
+    <form method="dialog"><button class="tz-x" aria-label="Close">&times;</button></form>
+    <span class="tz-k">Live Q&amp;A &middot; Amy and Anthony</span>
+    <h3 id="qaPopTitle">Save your seat</h3>
+    <p class="tz-sub" data-qa-pop-local>Saturday, November 28, at 9:00 am Pacific.</p>
+    <div class="qa-form">
+      <iframe
+        data-src="https://link.alchemyofbreath.com/widget/form/ZHzHkPp5dVlOa6IviNFG"
+        style="width:100%;border:none;border-radius:3px"
+        id="inline-ZHzHkPp5dVlOa6IviNFG"
+        data-layout="{'id':'INLINE'}"
+        data-trigger-type="alwaysShow"
+        data-trigger-value=""
+        data-activation-type="alwaysActivated"
+        data-activation-value=""
+        data-deactivation-type="neverDeactivate"
+        data-deactivation-value=""
+        data-form-name="AOB | Black Friday | Live Q&amp;A with Amy and Anthony (Nov 28)"
+        data-height="255"
+        data-layout-iframe-id="inline-ZHzHkPp5dVlOa6IviNFG"
+        data-form-id="ZHzHkPp5dVlOa6IviNFG"
+        title="Save your seat for the live Q&amp;A"></iframe>
+    </div>
+  </div>
+</dialog>
 <dialog class="tz-pop" id="tzPop" aria-labelledby="tzTitle">
   <div class="tz-in">
     <form method="dialog"><button class="tz-x" aria-label="Close">&times;</button></form>
@@ -1415,6 +1447,25 @@ html.tz-open{overflow:hidden}
     d.querySelectorAll('[data-tz-loc]').forEach(function(el){el.textContent='First call in your time: '+f.format(new Date(el.getAttribute('data-tz-loc')));});}catch(e){}
   function show(e){e.preventDefault();if(typeof d.showModal==='function'){if(!d.open)d.showModal();}else{d.setAttribute('open','');}document.documentElement.classList.add('tz-open');}
   document.querySelectorAll('[data-tz-pick]').forEach(function(a){a.addEventListener('click',show);});
+  d.addEventListener('close',function(){document.documentElement.classList.remove('tz-open');});
+  d.addEventListener('click',function(e){if(e.target===d)d.close();});
+})();
+</script>
+<script>
+/* Live Q&A: open the save-my-seat popup. The GHL form loads the first time it opens. */
+(function(){
+  var d=document.getElementById('qaPop'); if(!d) return;
+  var fr=d.querySelector('iframe'), loaded=false;
+  try{var loc=d.querySelector('[data-qa-pop-local]');
+    loc.textContent='Saturday, November 28, at 9:00 am Pacific. That is '+new Intl.DateTimeFormat(undefined,{weekday:'long',hour:'numeric',minute:'2-digit',timeZoneName:'short'}).format(new Date(Date.UTC(2026,10,28,17,0,0)))+' where you are.';}catch(e){}
+  function show(e){
+    if(typeof d.showModal!=='function') return; /* old browsers follow the link to the form */
+    e.preventDefault();
+    if(!loaded){loaded=true;fr.src=fr.getAttribute('data-src');
+      var s=document.createElement('script');s.src='https://link.alchemyofbreath.com/js/form_embed.js';document.body.appendChild(s);}
+    if(!d.open)d.showModal();document.documentElement.classList.add('tz-open');
+  }
+  document.querySelectorAll('[data-qa-pop]').forEach(function(a){a.addEventListener('click',show);});
   d.addEventListener('close',function(){document.documentElement.classList.remove('tz-open');});
   d.addEventListener('click',function(e){if(e.target===d)d.close();});
 })();
