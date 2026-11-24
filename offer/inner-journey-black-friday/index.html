@@ -1006,6 +1006,29 @@ html.ph-before .lock-cta[data-show~="before"],html.ph-during .lock-cta[data-show
 /* center every button row on these pages */
 .cta-row{justify-content:center}
 .final .eyebrow,.bc-hero .eyebrow{justify-content:center}
+/* Checkout: US or UK class time popup */
+.tz-pop{border:none;padding:0;margin:auto;width:min(440px,calc(100% - 32px));max-height:calc(100% - 32px);overflow:auto;border-radius:22px;background:var(--paper);color:var(--ink);box-shadow:var(--shadow-lift);font-family:var(--sans)}
+.tz-pop[open]{animation:tzIn .35s var(--ease)}
+.tz-pop::backdrop{background:rgba(25,22,23,.55);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
+@keyframes tzIn{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion: reduce){.tz-pop[open]{animation:none}}
+.tz-in{position:relative;padding:30px 24px 22px}
+.tz-x{position:absolute;top:12px;right:12px;width:36px;height:36px;border-radius:999px;border:none;background:transparent;color:var(--ink);font-size:1.5rem;line-height:1;cursor:pointer;opacity:.55;transition:opacity .2s,background-color .2s}
+.tz-x:hover,.tz-x:focus-visible{opacity:1;background:var(--gold-wash)}
+.tz-k{display:block;font-size:.7rem;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--gold-deep)}
+.tz-pop h3{font-size:1.6rem;margin:10px 40px 8px 0}
+.tz-sub{font-size:.92rem;line-height:1.55;color:var(--slate);margin-bottom:16px}
+.tz-opt{display:flex;align-items:center;gap:14px;text-decoration:none;color:var(--ink);border:1px solid rgba(34,31,32,.14);border-radius:16px;padding:16px 18px;margin-top:10px;transition:border-color .25s,background-color .25s,transform .3s var(--spring)}
+.tz-opt:hover,.tz-opt:focus-visible{border-color:var(--gold-deep);background:var(--gold-wash);transform:translateY(-1px)}
+.tz-opt b{display:block;font-weight:500;font-size:1rem}
+.tz-d{display:block;font-size:.87rem;line-height:1.45;color:var(--slate);margin-top:3px}
+.tz-loc{display:block;font-size:.8rem;color:var(--ink);opacity:.72;margin-top:4px}
+.tz-loc:empty{display:none}
+.tz-arr{margin-left:auto;font-size:1.15rem;color:var(--gold-deep);transition:transform .3s var(--spring)}
+.tz-opt:hover .tz-arr{transform:translateX(4px)}
+.tz-note{font-size:.8rem;color:var(--slate);text-align:center;margin-top:14px}
+html.tz-open{overflow:hidden}
+
 </style>
 <style>
 .bh-window{max-width:1080px;margin:50px auto 0;border-radius:24px;overflow:hidden;box-shadow:0 40px 90px -40px rgba(34,31,32,.55);position:relative}
@@ -1149,7 +1172,7 @@ html.ph-before .lock-cta[data-show~="before"],html.ph-during .lock-cta[data-show
     <div class="bfb-count"><span class="bfb-lbl" data-bf-mini-lbl>Flash sale opens in</span><span class="bfb-clock" data-bf-mini><i><b>0</b>d</i><i><b>00</b>h</i><i><b>00</b>m</i><i><b>00</b>s</i></span></div>
     <span class="bfb-msg">The Inner Journey: <b>$2,633</b> for 24 hours, then $3,097</span>
     <a class="bfb-btn" href="/offer/black-friday/#join" data-show="before" data-ev="ij_bar_waitlist">Join the VIP Waitlist <span aria-hidden="true">&rarr;</span></a>
-    <a class="bfb-btn" href="#checkout-inner-journey" data-show="during" data-ev="checkout_ij_bar">Join for $2,633 <span aria-hidden="true">&rarr;</span></a>
+    <a class="bfb-btn" href="#choose-class-time" data-tz-pick data-show="during" data-ev="checkout_ij_bar">Join for $2,633 <span aria-hidden="true">&rarr;</span></a>
   </div>
 </div>
 
@@ -1160,7 +1183,7 @@ html.ph-before .lock-cta[data-show~="before"],html.ph-during .lock-cta[data-show
       <a class="nav-link" href="#what">What it is</a>
       <a class="nav-link" href="#price">Price</a>
       <a class="nav-link" href="#faq">FAQ</a>
-      <a class="nav-cta" href="#checkout-inner-journey" data-ev="checkout_ij_nav">Join for $2,633</a>
+      <a class="nav-cta" href="#choose-class-time" data-tz-pick data-ev="checkout_ij_nav">Join for $2,633</a>
     </div>
   </div>
 </header>
@@ -1184,7 +1207,7 @@ html.ph-before .lock-cta[data-show~="before"],html.ph-during .lock-cta[data-show
       <p class="bft-note" data-bft-note>Opens at midnight your time, Monday, November 30</p>
     </div>
     <div class="lock-cta reveal d3">
-      <a class="btn btn-primary btn-lock" href="#checkout-inner-journey" data-ev="checkout_ij_hero">Join for $2,633 <span class="arr">&rarr;</span></a>
+      <a class="btn btn-primary btn-lock" href="#choose-class-time" data-tz-pick data-ev="checkout_ij_hero">Join for $2,633 <span class="arr">&rarr;</span></a>
       <p class="lock-sub"><a href="#anthony">Watch Anthony explain it (3 min)</a> <span data-show="before">&middot; <a href="/offer/black-friday/#join" data-ev="ij_hero_waitlist">Get a reminder on Monday</a></span></p>
     </div>
   </div>
@@ -1211,7 +1234,7 @@ html.ph-before .lock-cta[data-show~="before"],html.ph-during .lock-cta[data-show
     </div>
   </div>
   <div class="wrap"><div class="buy-row reveal">
-      <a class="btn btn-primary" href="#checkout-inner-journey" data-ev="checkout_ij_what">Join for $2,633 <span class="arr">&rarr;</span></a>
+      <a class="btn btn-primary" href="#choose-class-time" data-tz-pick data-ev="checkout_ij_what">Join for $2,633 <span class="arr">&rarr;</span></a>
       <p class="buy-note">24-hour flash sale &middot; Monday, November 30 &middot; $3,097 again from midnight</p>
   </div></div>
 </section>
@@ -1246,7 +1269,7 @@ html.ph-before .lock-cta[data-show~="before"],html.ph-during .lock-cta[data-show
         <s>$3,097</s>
         <strong>$2,633</strong>
         <span class="until">Monday, November 30 only</span>
-        <a class="btn btn-primary" href="#checkout-inner-journey" data-ev="checkout_ij_tuition">Join for $2,633 <span class="arr">&rarr;</span></a>
+        <a class="btn btn-primary" href="#choose-class-time" data-tz-pick data-ev="checkout_ij_tuition">Join for $2,633 <span class="arr">&rarr;</span></a>
         <p class="fine">Your place is in the live cohort starting February 16, 2027. Places are held in a small group, so the course is not refundable once it begins.</p>
       </div>
     </div>
@@ -1297,7 +1320,7 @@ html.ph-before .lock-cta[data-show~="before"],html.ph-during .lock-cta[data-show
     </div>
   </div>
   <div class="wrap"><div class="buy-row reveal">
-      <a class="btn btn-primary" href="#checkout-inner-journey" data-ev="checkout_ij_chapters">Join for $2,633 <span class="arr">&rarr;</span></a>
+      <a class="btn btn-primary" href="#choose-class-time" data-tz-pick data-ev="checkout_ij_chapters">Join for $2,633 <span class="arr">&rarr;</span></a>
       <p class="buy-note">24-hour flash sale &middot; Monday, November 30 &middot; $3,097 again from midnight</p>
   </div></div>
 </section>
@@ -1316,7 +1339,7 @@ html.ph-before .lock-cta[data-show~="before"],html.ph-during .lock-cta[data-show
     </div>
   </div>
   <div class="wrap"><div class="buy-row reveal">
-      <a class="btn btn-primary" href="#checkout-inner-journey" data-ev="checkout_ij_week">Join for $2,633 <span class="arr">&rarr;</span></a>
+      <a class="btn btn-primary" href="#choose-class-time" data-tz-pick data-ev="checkout_ij_week">Join for $2,633 <span class="arr">&rarr;</span></a>
       <p class="buy-note">24-hour flash sale &middot; Monday, November 30 &middot; $3,097 again from midnight</p>
   </div></div>
 </section>
@@ -1351,7 +1374,7 @@ html.ph-before .lock-cta[data-show~="before"],html.ph-during .lock-cta[data-show
     </div>
   </div>
   <div class="wrap"><div class="buy-row reveal">
-      <a class="btn btn-primary" href="#checkout-inner-journey" data-ev="checkout_ij_voices">Join for $2,633 <span class="arr">&rarr;</span></a>
+      <a class="btn btn-primary" href="#choose-class-time" data-tz-pick data-ev="checkout_ij_voices">Join for $2,633 <span class="arr">&rarr;</span></a>
       <p class="buy-note">24-hour flash sale &middot; Monday, November 30 &middot; $3,097 again from midnight</p>
   </div></div>
 </section>
@@ -1366,7 +1389,7 @@ html.ph-before .lock-cta[data-show~="before"],html.ph-during .lock-cta[data-show
     <div class="faq-list">
       <details class="reveal"><summary>When does the flash sale end?<span class="pl">+</span></summary><div class="faq-a">At midnight in your own time zone at the end of Monday, November 30, 2026. After that, the price goes back to $3,097. The timer on this page counts down to your local midnight.</div></details>
       <details class="reveal"><summary>How much is it?<span class="pl">+</span></summary><div class="faq-a">$2,633 during the flash sale, instead of $3,097. You save $464.</div></details>
-      <details class="reveal"><summary>When does the course start?<span class="pl">+</span></summary><div class="faq-a">The next live cohort starts on Tuesday, February 16, 2027. You receive your class time and joining details after you book.</div></details>
+      <details class="reveal"><summary>When does the course start?<span class="pl">+</span></summary><div class="faq-a">The next live cohort starts on Tuesday, February 16, 2027. Live classes are on Tuesdays, and you choose your time when you book: 7:00 pm EST (New York) or 5:30 pm UK time (London). Your joining details arrive after you book.</div></details>
       <details class="reveal"><summary>How much time does it take each week?<span class="pl">+</span></summary><div class="faq-a">One 90-minute live class, plus two to three hours of workbook, reflection and breath practice.</div></details>
       <details class="reveal"><summary>What if I miss a class?<span class="pl">+</span></summary><div class="faq-a">Every class is recorded and available in your dashboard.</div></details>
       <details class="reveal"><summary>Do I need breathwork experience?<span class="pl">+</span></summary><div class="faq-a">No. This is a personal development course, not a breathwork training. Breathwork is one of the tools you use, and it starts gently.</div></details>
@@ -1376,7 +1399,7 @@ html.ph-before .lock-cta[data-show~="before"],html.ph-during .lock-cta[data-show
     </div>
   </div>
   <div class="wrap"><div class="buy-row reveal">
-      <a class="btn btn-primary" href="#checkout-inner-journey" data-ev="checkout_ij_faq">Join for $2,633 <span class="arr">&rarr;</span></a>
+      <a class="btn btn-primary" href="#choose-class-time" data-tz-pick data-ev="checkout_ij_faq">Join for $2,633 <span class="arr">&rarr;</span></a>
       <p class="buy-note">24-hour flash sale &middot; Monday, November 30 &middot; $3,097 again from midnight</p>
   </div></div>
 </section>
@@ -1389,7 +1412,7 @@ html.ph-before .lock-cta[data-show~="before"],html.ph-during .lock-cta[data-show
     <h2 class="reveal d1">Uncover your hidden <em>patterns</em>. $2,633 until midnight.</h2>
     <p class="lede reveal d2" style="margin:18px auto 34px">The Inner Journey with Anthony Abbagnano: 15 weeks of live classes in a small group, starting February 16, 2027. The price goes back to $3,097 at midnight your time. Questions? Email us at info@alchemyofbreath.com.</p>
     <div class="lock-cta reveal d3">
-      <a class="btn btn-primary btn-lock" href="#checkout-inner-journey" data-ev="checkout_ij_final">Join for $2,633 <span class="arr">&rarr;</span></a>
+      <a class="btn btn-primary btn-lock" href="#choose-class-time" data-tz-pick data-ev="checkout_ij_final">Join for $2,633 <span class="arr">&rarr;</span></a>
     </div>
   </div>
 </section>
@@ -1407,11 +1430,40 @@ html.ph-before .lock-cta[data-show~="before"],html.ph-during .lock-cta[data-show
   </div>
 </footer>
 
-<a class="pill" id="pill" href="#checkout-inner-journey" data-ev="checkout_ij_pill" aria-label="Join the Inner Journey for $2,633">
+<a class="pill" id="pill" href="#choose-class-time" data-tz-pick data-ev="checkout_ij_pill" aria-label="Join the Inner Journey for $2,633">
   <span class="pill-label">Join for $2,633</span>
   <span class="pill-ring" id="pillRing"><span class="inner"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></span>
 </a>
 
+<dialog class="tz-pop" id="tzPop" aria-labelledby="tzTitle">
+  <div class="tz-in">
+    <form method="dialog"><button class="tz-x" aria-label="Close">&times;</button></form>
+    <span class="tz-k">Inner Journey &middot; T35 &middot; $2,633</span>
+    <h3 id="tzTitle">Choose your class time</h3>
+    <p class="tz-sub">Live classes are every Tuesday on Zoom, starting February 16, 2027. Pick the time that fits your week.</p>
+    <a class="tz-opt" href="https://link.alchemyofbreath.com/payment-link/6aff241d21a48a3872d278fb" data-ev="checkout_ij_us">
+      <span><b>US time zone</b><span class="tz-d">Tuesdays at 7:00 pm EST (New York).</span><span class="tz-loc" data-tz-loc="2027-02-17T00:00:00Z"></span></span>
+      <span class="tz-arr" aria-hidden="true">&rarr;</span>
+    </a>
+    <a class="tz-opt" href="#checkout-inner-journey-uk" data-ev="checkout_ij_uk">
+      <span><b>UK time zone</b><span class="tz-d">Tuesdays at 5:30 pm UK time (London).</span><span class="tz-loc" data-tz-loc="2027-02-16T17:30:00Z"></span></span>
+      <span class="tz-arr" aria-hidden="true">&rarr;</span>
+    </a>
+    <p class="tz-note">Same $2,633 price and the same course, whichever time you choose.</p>
+  </div>
+</dialog>
+<script>
+/* Checkout: choose the US or UK class time before checkout. */
+(function(){
+  var d=document.getElementById('tzPop'); if(!d) return;
+  try{var f=new Intl.DateTimeFormat(undefined,{weekday:'long',hour:'numeric',minute:'2-digit',timeZoneName:'short'});
+    d.querySelectorAll('[data-tz-loc]').forEach(function(el){el.textContent='First call in your time: '+f.format(new Date(el.getAttribute('data-tz-loc')));});}catch(e){}
+  function show(e){e.preventDefault();if(typeof d.showModal==='function'){if(!d.open)d.showModal();}else{d.setAttribute('open','');}document.documentElement.classList.add('tz-open');}
+  document.querySelectorAll('[data-tz-pick]').forEach(function(a){a.addEventListener('click',show);});
+  d.addEventListener('close',function(){document.documentElement.classList.remove('tz-open');});
+  d.addEventListener('click',function(e){if(e.target===d)d.close();});
+})();
+</script>
 <script>
 /* Interactive seven chapters: descent-and-return arc, click a chapter or let it play */
 (function(){
