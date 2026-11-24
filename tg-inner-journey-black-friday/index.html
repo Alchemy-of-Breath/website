@@ -1090,6 +1090,50 @@ html.ph-before .lock-cta[data-show~="before"],html.ph-during .lock-cta[data-show
 .tu-r .until{font-size:.8rem;font-weight:500;letter-spacing:.06em;color:#c8322a;text-transform:uppercase}
 .tu-r .btn{width:100%;justify-content:center;margin-top:8px}
 .tu-r .fine{font-size:.8rem;color:var(--slate);margin:0}
+.jy{max-width:1040px;margin:40px auto 0}
+.jy-stage{position:relative}
+.jy-svg{display:block;width:100%;height:auto;overflow:visible}
+.jy-base{fill:none;stroke:rgba(225,182,104,.28);stroke-width:2;stroke-dasharray:4 7}
+.jy-path{fill:none;stroke:url(#jyg);stroke-width:3.5;stroke-linecap:round;transition:stroke-dashoffset .9s cubic-bezier(.6,0,.2,1)}
+.jy-pulse{fill:#fff;stroke:#D6A652;stroke-width:3;filter:drop-shadow(0 0 8px rgba(225,182,104,.9));transition:cx .9s cubic-bezier(.6,0,.2,1),cy .9s cubic-bezier(.6,0,.2,1)}
+.jy-node{cursor:pointer;outline:none}
+.jy-node .halo{fill:rgba(225,182,104,.16);transform-box:fill-box;transform-origin:center;transform:scale(.6);opacity:0;transition:transform .45s var(--spring),opacity .3s}
+.jy-node .dot{fill:#fff;stroke:rgba(214,166,82,.7);stroke-width:2;transition:fill .3s,stroke .3s}
+.jy-node .num{font-family:var(--serif);font-size:15px;fill:var(--gold-deep);text-anchor:middle;pointer-events:none}
+.jy-node .lbl{font-family:var(--sans);font-size:13px;fill:#5b5557;text-anchor:middle;letter-spacing:.04em;pointer-events:none}
+.jy-node.done .dot{fill:var(--gold-wash)}
+.jy-node.active .dot{fill:url(#jyg);stroke:#D6A652}
+.jy-node.active .num{fill:#1c1a1b}
+.jy-node.active .lbl{fill:var(--ink);font-weight:500}
+.jy-node.active .halo,.jy-node:hover .halo,.jy-node:focus-visible .halo{transform:scale(1);opacity:1}
+.jy-tag{position:absolute;top:4%;font-size:.68rem;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--slate)}
+.jy-tag.down{left:11%}.jy-tag.up{right:11%}
+.jy-tag.down::after{content:" \2198"}.jy-tag.up::before{content:"\2197  "}
+.jy-tabs{display:none;gap:6px;justify-content:center;flex-wrap:wrap;margin:6px 0 14px}
+.jy-tabs button{width:40px;height:40px;border-radius:50%;border:1px solid rgba(225,182,104,.55);background:#fff;font-family:var(--serif);font-size:.95rem;color:var(--gold-deep);cursor:pointer;transition:transform .3s var(--spring)}
+.jy-tabs button[aria-selected="true"]{background:var(--grad-gold);color:var(--ink);border-color:transparent}
+.jy-tabs button:active{transform:scale(.94)}
+.jy-card{display:grid;grid-template-columns:110px 1fr auto;gap:24px;align-items:center;background:#fff;border:1px solid rgba(225,182,104,.45);border-radius:22px;padding:26px 28px;box-shadow:0 30px 70px -40px rgba(34,31,32,.4);margin-top:6px}
+.jy-num{width:96px;height:96px;border-radius:50%;background:var(--grad-gold);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:2.4rem;color:var(--ink);box-shadow:0 0 0 8px rgba(225,182,104,.16)}
+.jy-body{transition:opacity .25s,transform .25s}
+.jy-body.out{opacity:0;transform:translateY(8px)}
+.jy-k{font-size:.7rem;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--slate)}
+.jy-body h3{font-size:1.6rem;margin:6px 0 8px}
+.jy-body p{margin:0 0 10px;font-size:1rem}
+.jy-body ul{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.jy-body li{position:relative;padding-left:20px;font-size:.94rem;line-height:1.5;color:#3d393a}
+.jy-body li::before{content:"";position:absolute;left:0;top:8px;width:8px;height:8px;border-radius:50%;background:var(--grad-gold)}
+.jy-nav{display:flex;gap:8px}
+.jy-nav button{width:44px;height:44px;border-radius:50%;border:1px solid rgba(225,182,104,.55);background:#fff;font-size:1.1rem;color:var(--ink);cursor:pointer;transition:transform .3s var(--spring),background-color .3s}
+.jy-nav button:hover{background-color:var(--gold-wash);transform:translateY(-2px)}
+.jy-nav button:active{transform:scale(.94)}
+.jy-nav button:focus-visible,.jy-tabs button:focus-visible{outline:2px solid var(--gold-deep);outline-offset:3px}
+.jy-bar{height:2px;margin-top:14px;border-radius:2px;background:rgba(225,182,104,.2);overflow:hidden}
+.jy-bar i{display:block;height:100%;background:linear-gradient(90deg,#E1B668,#D6A652);transform-origin:0 50%;transform:scaleX(0)}
+.jy-bar i.run{animation:jyFill 5200ms linear forwards}
+@keyframes jyFill{to{transform:scaleX(1)}}
+@media(max-width:760px){.jy-svg .lbl{display:none}.jy-tag{display:none}.jy-tabs{display:flex}.jy-card{grid-template-columns:1fr;text-align:left;padding:22px}.jy-num{width:64px;height:64px;font-size:1.7rem}.jy-nav{justify-content:flex-end}}
+@media(prefers-reduced-motion:reduce){.jy-path,.jy-pulse,.jy-body{transition:none}.jy-bar{display:none}}
 .ch-list{max-width:820px;margin:40px auto 0;display:grid;gap:10px}
 .ch-row{display:grid;grid-template-columns:52px 1fr;gap:16px;align-items:baseline;background:#fff;border:1px solid rgba(225,182,104,.3);border-radius:14px;padding:16px 20px}
 .ch-row b{font-family:var(--serif);font-weight:400;font-size:1.3rem;color:var(--gold-deep)}
@@ -1221,16 +1265,34 @@ html.ph-before .lock-cta[data-show~="before"],html.ph-during .lock-cta[data-show
     <div class="center">
       <span class="eyebrow reveal">The curriculum</span>
       <h2 class="reveal d1">What will I work through in the <em>seven chapters</em>?</h2>
-      <p class="lede reveal d2" style="margin:16px auto 0">The chapters follow the hero&rsquo;s journey: you look at where your patterns began, work through them, and come back with what you have learned.</p>
+      <p class="lede reveal d2" style="margin:16px auto 0">The chapters follow the hero&rsquo;s journey: down into where your patterns began, then back up with what you have learned. Tap any chapter to see what you work on.</p>
     </div>
-    <div class="ch-list">
-      <div class="ch-row reveal"><b>I</b><p><strong>Opening the Book.</strong> Your story before birth and in your first seven years, where most of your patterns were formed.</p></div>
-      <div class="ch-row reveal"><b>II</b><p><strong>The Call.</strong> What is asking to change in your life, and why you have been putting it off.</p></div>
-      <div class="ch-row reveal"><b>III</b><p><strong>The Inner Child.</strong> Meeting the youngest parts of yourself and what they still need.</p></div>
-      <div class="ch-row reveal"><b>IV</b><p><strong>The Shadow.</strong> The parts of yourself you avoid or hide, and the energy you get back by facing them.</p></div>
-      <div class="ch-row reveal"><b>V</b><p><strong>The Treasure.</strong> The strengths underneath the old patterns.</p></div>
-      <div class="ch-row reveal"><b>VI</b><p><strong>Atonement.</strong> Making peace with your story and integrating what you have found.</p></div>
-      <div class="ch-row reveal"><b>VII</b><p><strong>The Return.</strong> Bringing it into your everyday life, relationships and work.</p></div>
+    <div class="jy reveal" id="jy" aria-label="The seven chapters, step by step">
+      <div class="jy-stage">
+        <svg class="jy-svg" viewBox="0 0 1000 300" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+          <defs><linearGradient id="jyg" x1="0" x2="1"><stop offset="0" stop-color="#E1B668"/><stop offset="1" stop-color="#D6A652"/></linearGradient></defs>
+          <path class="jy-base" d="M40,40 C 260,330 740,330 960,40"/>
+          <path class="jy-path" id="jyPath" d="M40,40 C 260,330 740,330 960,40"/>
+          <circle class="jy-pulse" id="jyPulse" r="7" cx="40" cy="40"/>
+          <g id="jyNodes"></g>
+        </svg>
+        <span class="jy-tag down">The descent</span><span class="jy-tag up">The return</span>
+      </div>
+      <div class="jy-tabs" role="tablist" id="jyTabs"></div>
+      <div class="jy-card" id="jyCard" role="tabpanel" aria-live="polite">
+        <div class="jy-num" id="jyNum">I</div>
+        <div class="jy-body">
+          <span class="jy-k" id="jyK">Chapter I of VII &middot; The descent</span>
+          <h3 id="jyT">Opening the Book</h3>
+          <p id="jyP"></p>
+          <ul id="jyL"></ul>
+        </div>
+        <div class="jy-nav">
+          <button type="button" id="jyPrev" aria-label="Previous chapter">&larr;</button>
+          <button type="button" id="jyNext" aria-label="Next chapter">&rarr;</button>
+        </div>
+      </div>
+      <div class="jy-bar" aria-hidden="true"><i id="jyBar"></i></div>
     </div>
   </div>
   <div class="wrap"><div class="buy-row reveal">
@@ -1349,6 +1411,59 @@ html.ph-before .lock-cta[data-show~="before"],html.ph-during .lock-cta[data-show
   <span class="pill-ring" id="pillRing"><span class="inner"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></span>
 </a>
 
+<script>
+/* Interactive seven chapters: descent-and-return arc, click a chapter or let it play */
+(function(){
+  var root=document.getElementById('jy'); if(!root) return;
+  var C=[
+    ['Opening the Book','Your story before birth and in your first seven years, where most of your patterns were formed.',['Map the key moments of your early years','See where the patterns you live with today began']],
+    ['The Call','What is asking to change in your life, and why you have been putting it off.',['Name the change you keep postponing','Get clear on what is holding you back']],
+    ['The Inner Child','Meeting the youngest parts of yourself and what they still need.',['Reconnect with what you needed as a child','Practice giving yourself that support now']],
+    ['The Shadow','The parts of yourself you avoid or hide, and the energy you get back by facing them.',['Notice what you hide, deny or judge in yourself','Take back the energy those parts cost you']],
+    ['The Treasure','The strengths underneath the old patterns.',['Identify the gifts the old patterns covered up','Start using them on purpose']],
+    ['Atonement','Making peace with your story and integrating what you have found.',['Make peace with past events and people','Pull together what the first five chapters showed you']],
+    ['The Return','Bringing it into your everyday life, relationships and work.',['Apply the changes at home and at work','Leave with practices to keep going after week 15']]
+  ];
+  var R=['I','II','III','IV','V','VI','VII'], short=['Opening','The Call','Inner Child','Shadow','Treasure','Atonement','Return'];
+  var path=document.getElementById('jyPath'), pulse=document.getElementById('jyPulse'), nodes=document.getElementById('jyNodes'), tabs=document.getElementById('jyTabs'),
+      num=document.getElementById('jyNum'), k=document.getElementById('jyK'), t=document.getElementById('jyT'), p=document.getElementById('jyP'), l=document.getElementById('jyL'),
+      body=root.querySelector('.jy-body'), bar=document.getElementById('jyBar'), ns='http://www.w3.org/2000/svg', L=path.getTotalLength(), i=0, user=false, timer=null,
+      reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches, pts=[];
+  path.style.strokeDasharray=L; path.style.strokeDashoffset=L;
+  for(var n=0;n<7;n++){
+    var pt=path.getPointAtLength(L*(n/6)); pts.push(pt);
+    var g=document.createElementNS(ns,'g'); g.setAttribute('class','jy-node'); g.setAttribute('tabindex','0'); g.setAttribute('role','button'); g.setAttribute('aria-label','Chapter '+R[n]+': '+C[n][0]); g.dataset.i=n;
+    var below=n>0&&n<6;
+    g.innerHTML='<circle class="halo" cx="'+pt.x+'" cy="'+pt.y+'" r="30"/><circle class="dot" cx="'+pt.x+'" cy="'+pt.y+'" r="19"/><text class="num" x="'+pt.x+'" y="'+(pt.y+5)+'">'+R[n]+'</text><text class="lbl" x="'+pt.x+'" y="'+(below?pt.y+46:pt.y-32)+'">'+short[n]+'</text>';
+    g.addEventListener('click',function(){user=true;show(+this.dataset.i);});
+    g.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();user=true;show(+this.dataset.i);}});
+    nodes.appendChild(g);
+    var b=document.createElement('button'); b.type='button'; b.setAttribute('role','tab'); b.textContent=R[n]; b.setAttribute('aria-label','Chapter '+R[n]+': '+C[n][0]); b.dataset.i=n;
+    b.addEventListener('click',function(){user=true;show(+this.dataset.i);}); tabs.appendChild(b);
+  }
+  function paint(n){
+    num.textContent=R[n]; k.innerHTML='Chapter '+R[n]+' of VII &middot; '+(n<4?'The descent':'The return'); t.textContent=C[n][0]; p.textContent=C[n][1];
+    l.innerHTML=C[n][2].map(function(x){return '<li>'+x+'</li>';}).join('');
+  }
+  function show(n,first){
+    i=n; path.style.strokeDashoffset=L*(1-n/6); pulse.setAttribute('cx',pts[n].x); pulse.setAttribute('cy',pts[n].y);
+    nodes.querySelectorAll('.jy-node').forEach(function(g,j){g.classList.toggle('active',j===n);g.classList.toggle('done',j<n);});
+    tabs.querySelectorAll('button').forEach(function(b,j){b.setAttribute('aria-selected',j===n?'true':'false');});
+    if(first||reduce){paint(n);}else{body.classList.add('out');setTimeout(function(){paint(n);body.classList.remove('out');},220);}
+    bar.classList.remove('run'); void bar.offsetWidth; if(!user&&!reduce) bar.classList.add('run');
+    try{if(!first&&user&&window.clarity)clarity('event','ij_chapter_'+(n+1));}catch(e){}
+  }
+  document.getElementById('jyPrev').addEventListener('click',function(){user=true;show((i+6)%7);});
+  document.getElementById('jyNext').addEventListener('click',function(){user=true;show((i+1)%7);});
+  show(0,true);
+  if(!reduce){
+    new IntersectionObserver(function(es){es.forEach(function(e){
+      if(e.isIntersecting&&!timer){timer=setInterval(function(){if(!user)show((i+1)%7);else{clearInterval(timer);bar.classList.remove('run');}},5200);bar.classList.remove('run');void bar.offsetWidth;if(!user)bar.classList.add('run');}
+      else if(!e.isIntersecting&&timer){clearInterval(timer);timer=null;}
+    });},{threshold:.4}).observe(root);
+  }
+})();
+</script>
 <script>
 /* Anthony's video: Vimeo's own thumbnail first, player loads on click */
 (function(){
