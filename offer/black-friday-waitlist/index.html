@@ -366,21 +366,21 @@
               <p class="bfw-day-ends" data-ends hidden></p>
             </div>
           </li>
-          <li class="bfw-day" data-day="2026-11-30"
-              data-href="" data-live-label="Explore today&rsquo;s offer" data-soon-label="">
+          <li class="bfw-day" data-day="2026-11-30" data-back
+              data-href="https://alchemyofbreath.com/offer/inner-journey-black-friday/" data-live-label="Explore today&rsquo;s offer" data-soon-label="">
             <div class="bfw-day-date" aria-hidden="true"><small>Monday</small><b>30</b><span>Nov</span></div>
             <div class="bfw-day-body">
               <div class="bfw-day-k"><span class="bfw-pill">Day 4 &middot; 24 hours</span><span class="bfw-day-state" data-state></span></div>
               <h3>Inner Journey</h3>
               <p class="bfw-day-text">A 15 week personal development path, <b>Anthony&rsquo;s life work all in one course</b>.</p>
-              <a class="bfw-day-cta" hidden><span data-cta>Explore today&rsquo;s offer</span> <span class="bfw-arr" aria-hidden="true">&rarr;</span></a>
+              <a class="bfw-day-cta" href="https://alchemyofbreath.com/offer/inner-journey-black-friday/" hidden><span data-cta>Explore today&rsquo;s offer</span> <span class="bfw-arr" aria-hidden="true">&rarr;</span></a>
               <p class="bfw-day-ends" data-ends hidden></p>
             </div>
           </li>
           <li class="bfw-day is-surprise" data-day="2026-12-01" data-surprise
               data-href="https://alchemyofbreath.com/offer/black-friday-last-chance/" data-live-label="See every offer" data-soon-label=""
               data-reveal-title="Last chance" data-reveal-text="If an invitation passed you by this week, every Black Friday offer opens again for one final day."
-              data-reveal-offer="">
+              data-reveal-offer="BreathCamp 2027, the Facilitator Training and the Inner Journey.">
             <div class="bfw-day-date" aria-hidden="true"><small>Tuesday</small><b data-num>?</b><span>Dec</span></div>
             <div class="bfw-day-body">
               <div class="bfw-day-k"><span class="bfw-pill">Day 5 &middot; 24 hours</span><span class="bfw-day-state" data-state></span></div>
@@ -445,8 +445,8 @@
 
 <script>
 /* Black Friday week, on each visitor's own clock, matching the offer pages: every day opens at local midnight
-   and lasts 24 hours (Fri Nov 27 to Tue Dec 1, 2026). BreathCamp and the Facilitator Training
-   (data-back) return on Tuesday, December 1. Monday's Inner Journey tile has no offer page yet, so it shows no button. Preview any moment with ?preview=2026-11-28T10:00 */
+   and lasts 24 hours (Fri Nov 27 to Tue Dec 1, 2026). BreathCamp, the Facilitator Training and the Inner Journey
+   (data-back) return on Tuesday, December 1. A day with an empty data-href shows no button. Preview any moment with ?preview=2026-11-28T10:00 */
 (function(){
   var root=document.getElementById('bfw'); if(!root) return;
   var q=null; try{ q=new URLSearchParams(location.search); }catch(e){}
