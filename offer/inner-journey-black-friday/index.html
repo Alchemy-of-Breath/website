@@ -1163,6 +1163,46 @@ html.tz-open{overflow:hidden}
 .ch-row p{margin:0;font-size:.96rem}
 .ch-row p strong{font-weight:500}
 @media(max-width:760px){.price-steps,.tuition{grid-template-columns:1fr}.ps.now{transform:none}.tu-r{border-left:0;border-top:1px solid rgba(225,182,104,.35)}}
+/* Amy's feedback: hero quote and limited line, reader questions, teacher block, logos, experience, change */
+.bc-hero h1,.bh-limited,.bh-quote blockquote,.lead-big,.xp-quote blockquote,.rq-time h3{text-wrap:balance}
+.bc-hero .ft-price .ft-save{white-space:nowrap}
+.bc-hero .in-meta{margin:8px auto 28px;max-width:34em}
+.bh-limited{margin:24px auto 0;font-family:var(--serif);font-size:1.08rem;line-height:1.45;color:var(--ink);max-width:30em}
+.bc-hero .bh-quote{margin:26px auto 0;font-style:normal;font-size:1rem;max-width:36em}
+.bh-quote blockquote{font-family:var(--serif);font-style:italic;font-size:clamp(1.1rem,1.9vw,1.28rem);line-height:1.45;color:#3a3536}
+.bh-quote figcaption{margin-top:10px;font-family:var(--sans);font-size:.72rem;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--slate)}
+.rq-time{display:grid;grid-template-columns:1.1fr 1fr;gap:44px;align-items:center;margin:50px auto 0;background:#fff;border:1px solid rgba(225,182,104,.35);border-radius:22px;padding:40px 42px;box-shadow:var(--shadow-soft)}
+.rq-time h3{font-size:1.6rem;margin-bottom:12px}
+.rq-time p{font-size:1rem}
+.rq-time p+p{margin-top:12px}
+.rq-facts{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.rq-facts li{background:var(--paper-2);border:1px solid rgba(225,182,104,.3);border-radius:14px;padding:16px 18px}
+.rq-facts b{display:block;font-family:var(--serif);font-weight:400;font-size:1.18rem;line-height:1.25;margin-bottom:4px}
+.rq-facts span{display:block;font-size:.86rem;line-height:1.5;color:#4a4547}
+.rq .qa-grid{margin-top:26px}
+.lead{padding:100px 0}
+.lead-card{display:grid;grid-template-columns:auto 1fr;gap:60px;align-items:center;max-width:1040px;margin:0 auto}
+.lead-photos{display:flex;gap:28px;padding:10px;align-items:flex-start}
+.lead-photos figure{margin:0;width:176px;text-align:center}
+.lead-photos figure:nth-child(2){margin-top:38px}
+.lead-photos figcaption{margin-top:20px;font-family:var(--serif);font-size:1rem;line-height:1.3;color:var(--ink)}
+.lead-photos figcaption span{display:block;margin-top:4px;font-family:var(--sans);font-size:.64rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--slate)}
+.lead-copy .eyebrow{margin-bottom:14px}
+.lead-big{font-family:var(--serif);font-size:clamp(1.2rem,2.2vw,1.45rem);line-height:1.38;margin:14px 0;color:var(--ink)}
+.lead-copy p{font-size:1rem}
+.lead-team{margin-top:12px;color:#4a4547}
+.accr{text-align:center;margin-top:60px}
+.accr .badges-crop{margin:0 auto 14px}
+.accr p{font-size:.92rem;color:#4a4547;max-width:44em;margin:0 auto}
+.xp-quote{max-width:780px;margin:40px auto 0;text-align:center}
+.xp-quote blockquote{font-family:var(--serif);font-style:italic;font-size:clamp(1.1rem,2vw,1.3rem);line-height:1.5;color:#3a3536}
+.xp-quote figcaption{margin-top:12px;font-size:.72rem;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--slate)}
+.change{max-width:760px;margin:26px auto 0}
+.change p{font-size:1.12rem;line-height:1.8}
+.change p+p{margin-top:16px}
+@media(max-width:900px){.rq-time{grid-template-columns:1fr;gap:26px;padding:30px 26px}}
+@media(max-width:860px){.lead-card{grid-template-columns:1fr;gap:40px;text-align:center}.lead-photos{justify-content:center}}
+@media(max-width:560px){.lead{padding:64px 0 68px}.lead-photos{gap:20px}.lead-photos figure{width:132px}.lead-photos figure:nth-child(2){margin-top:26px}.ft-price{gap:10px}.ft-price s{font-size:1.25rem}.rq-facts{grid-template-columns:1fr}.rq-time{padding:26px 20px;margin-top:38px}.rq-time h3{font-size:1.35rem}.accr{margin-top:44px}.change p{font-size:1.04rem}}
 </style>
 </head>
 <body>
@@ -1197,8 +1237,9 @@ html.tz-open{overflow:hidden}
   <div class="wrap bh-in">
     <span class="flash-k reveal">24-hour flash sale &middot; Monday, November 30</span>
     <h1 class="reveal d1">Uncover the hidden <em>patterns</em> that keep repeating</h1>
-    <p class="bh-sub reveal d1" style="margin-bottom:0">The Inner Journey is a 15-week live online personal development course with Anthony Abbagnano, guided by the stages of the hero&rsquo;s journey. Starts February 16, 2027. For 24 hours, it is $2,633. At midnight your time, the price goes back to $3,097.</p>
-    <div class="ft-price reveal d2"><s>$3,097</s><strong>$2,633</strong><span class="ft-save">Save $464</span></div>
+    <p class="bh-sub reveal d1" style="margin-bottom:0">You see the pattern, promise yourself it will be different, and end up in the same place: stuck, and not quite yourself. A weekend can open the door. Lasting change needs more time. The Inner Journey is 15 weeks, live online with Anthony Abbagnano, starting February 16, 2027.</p>
+    <div class="ft-price reveal d2"><s>$3,097</s><strong>$2,633</strong><span class="ft-save">Save $464 (15% off)</span></div>
+    <p class="in-meta reveal d2">For 24 hours on Monday, November 30. At midnight your time, the price goes back to $3,097.</p>
     <div class="bf-timer reveal d2" data-bf-timer aria-live="polite">
       <p class="bft-label" data-bft-label>Flash sale opens in</p>
       <div class="bft-clock" data-bft-clock>
@@ -1210,6 +1251,11 @@ html.tz-open{overflow:hidden}
       <a class="btn btn-primary btn-lock" href="#choose-class-time" data-tz-pick data-ev="checkout_ij_hero">Join for $2,633 <span class="arr">&rarr;</span></a>
       <p class="lock-sub"><a href="#anthony">Watch Anthony explain it (3 min)</a> <span data-show="before">&middot; <a href="/offer/black-friday/#join" data-ev="ij_hero_waitlist">Get a reminder on Monday</a></span></p>
     </div>
+    <p class="bh-limited reveal d3">A small cohort, with limited places.</p>
+    <figure class="bh-quote reveal d3">
+      <blockquote>&ldquo;Starting this work with Anthony was one of the best decisions in my life&hellip; It was deep, healing work. A connection to myself and to the group.&rdquo;</blockquote>
+      <figcaption>Marianna Manderscheid &middot; Graduate</figcaption>
+    </figure>
   </div>
   <div class="wrap">
     <div class="vwrap reveal d2" id="anthony">
@@ -1221,15 +1267,66 @@ html.tz-open{overflow:hidden}
   </div>
 </section>
 
+<!-- READER QUESTIONS -->
+<section class="alt rq" id="questions">
+  <div class="wrap">
+    <div class="center">
+      <span class="eyebrow reveal">Before you decide</span>
+      <h2 class="reveal d1">What you may be <em>asking yourself</em></h2>
+    </div>
+    <div class="rq-time reveal">
+      <div>
+        <h3>How much time will this take each week?</h3>
+        <p>Think of it as time you invest in yourself. One 90-minute live class a week, plus 2 to 3 hours of reflection, workbook and daily breath practice, at times that suit you. The course starts February 16, 2027 and runs for 15 weeks.</p>
+        <p>Most participants find that the time it asks of them becomes time they look forward to.</p>
+      </div>
+      <ul class="rq-facts">
+        <li><b>One live class a week</b><span>90 minutes, on Tuesdays at 5:30 pm UK or 7:00 pm EST</span></li>
+        <li><b>2 to 3 hours</b><span>Reflection, workbook and daily breath practice</span></li>
+        <li><b>15 weeks</b><span>Starting Tuesday, February 16, 2027</span></li>
+        <li><b>Every class recorded</b><span>Catch up whenever life gets in the way</span></li>
+      </ul>
+    </div>
+    <div class="qa-grid three">
+      <div class="qa glow reveal"><h3>Do I need breathwork experience?</h3><p>No. The course starts gently and the breath practices build week by week. Many people join with no experience at all.</p></div>
+      <div class="qa glow reveal d1"><h3>What if I miss a class?</h3><p>Every class is recorded and waiting in your dashboard, so you can catch up and stay with your group.</p></div>
+      <div class="qa glow reveal d2"><h3>Is this only for people who want to become facilitators?</h3><p>No. This is the inner work at the heart of our facilitator training, opened to anyone walking it for themselves. Many people come purely for their own growth.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- TEACHER -->
+<section class="lead" id="teacher">
+  <div class="wrap">
+    <div class="lead-card reveal">
+      <div class="lead-photos">
+        <figure><div class="arch"><img src="https://alchemyofbreath.com/wp-content/uploads/anthony-abbagnano-2-1.jpg" alt="Anthony Abbagnano, founder of Alchemy of Breath" loading="lazy"></div><figcaption>Anthony Abbagnano<span>Your teacher</span></figcaption></figure>
+        <figure><div class="arch"><img src="https://alchemyofbreath.com/wp-content/uploads/amy-rachelle-1.jpg" alt="Amy Rachelle, co-founder of Alchemy of Breath" loading="lazy"></div><figcaption>Amy Rachelle<span>Co-founder</span></figcaption></figure>
+      </div>
+      <div class="lead-copy">
+        <span class="eyebrow">Your teacher</span>
+        <h2>Who will I <em>learn from</em>?</h2>
+        <p class="lead-big">Anthony Abbagnano, founder of Alchemy of Breath, teaches the Inner Journey. He and co-founder Amy Rachelle bring more than 50 years of experience with the breath.</p>
+        <p>The Inner Journey is the heart of that work: the same map Anthony has used to guide thousands of facilitators, now open to anyone who wants to walk it for their own growth.</p>
+        <p class="lead-team">Around the cohort is a team: trainers who studied directly with Anthony, and a support team that holds the group from the first week to the last.</p>
+      </div>
+    </div>
+    <div class="accr reveal">
+      <div class="badges-crop" role="img" aria-label="Accreditation badges: FHT Accredited Course Provider, GPBA Certified Professional Breathwork School and AADP Board Certified"></div>
+      <p>Alchemy of Breath was the first online breathwork school in the world, and is triple accredited by the FHT, the GPBA and the AADP.</p>
+    </div>
+  </div>
+</section>
+
 <!-- WHAT IT IS -->
-<section id="what">
+<section class="alt" id="what">
   <div class="wrap narrow">
     <span class="eyebrow reveal">Sound familiar?</span>
     <h2 class="reveal d1">Why do the same <em>patterns</em> keep coming back?</h2>
     <p class="lede reveal d2" style="margin:16px 0 22px">You recognize a pattern, promise yourself you will do things differently, and then find yourself right back where you started. Maybe it is how you respond to stress, the relationships you find yourself in, or the doubts that stop you from taking the next step. Understanding why you do something does not always mean you know how to change it.</p>
     <p class="answer reveal d2">The Inner Journey is a <strong>15-week personal development pathway</strong> that helps you <strong>uncover your hidden patterns</strong>. In a <strong>small live group</strong>, you join <strong>one 90-minute online class a week</strong> and work through <strong>seven chapters</strong>: where your patterns came from, what they cost you, and how to change them, using breathwork, a workbook and guided reflection.</p>
     <div class="qa-grid">
-      <div class="qa glow reveal"><h3>Do I need breathwork experience?</h3><p>No. The course starts gently and the breath practices build week by week. Many people join with no experience at all.</p></div>
+      <div class="qa glow reveal"><h3>Who will I be with?</h3><p>The same small group for all 15 weeks. You deepen together, and the group becomes part of what holds you. Cohorts are small, so places are limited.</p></div>
       <div class="qa glow reveal d1"><h3>Who is it for?</h3><p>Anyone who keeps meeting the same patterns in their relationships, work or life, and is ready to understand them and change them. Many people take it purely for themselves.</p></div>
     </div>
   </div>
@@ -1240,7 +1337,7 @@ html.tz-open{overflow:hidden}
 </section>
 
 <!-- PRICE -->
-<section class="alt" id="price">
+<section id="price">
   <div class="wrap">
     <div class="center">
       <span class="eyebrow reveal">Flash sale price</span>
@@ -1283,80 +1380,42 @@ html.tz-open{overflow:hidden}
   </div>
 </section>
 
-<!-- CHAPTERS -->
-<section id="chapters">
+<!-- THE EXPERIENCE -->
+<section class="alt" id="experience">
   <div class="wrap">
     <div class="center">
-      <span class="eyebrow reveal">The curriculum</span>
-      <h2 class="reveal d1">What will I work through in the <em>seven chapters</em>?</h2>
-      <p class="lede reveal d2" style="margin:16px auto 0">The chapters follow the hero&rsquo;s journey: down into where your hidden patterns began, then back up with what you have learned. Tap any chapter to see what you work on.</p>
-    </div>
-    <div class="jy reveal" id="jy" aria-label="The seven chapters, step by step">
-      <div class="jy-stage">
-        <svg class="jy-svg" viewBox="0 0 1000 300" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
-          <defs><linearGradient id="jyg" x1="0" x2="1"><stop offset="0" stop-color="#E1B668"/><stop offset="1" stop-color="#D6A652"/></linearGradient></defs>
-          <path class="jy-base" d="M40,40 C 260,330 740,330 960,40"/>
-          <path class="jy-path" id="jyPath" d="M40,40 C 260,330 740,330 960,40"/>
-          <circle class="jy-pulse" id="jyPulse" r="7" cx="40" cy="40"/>
-          <g id="jyNodes"></g>
-        </svg>
-        <span class="jy-tag down">The descent</span><span class="jy-tag up">The return</span>
-      </div>
-      <div class="jy-tabs" role="tablist" id="jyTabs"></div>
-      <div class="jy-card" id="jyCard" role="tabpanel" aria-live="polite">
-        <div class="jy-num" id="jyNum">I</div>
-        <div class="jy-body">
-          <span class="jy-k" id="jyK">Chapter I of VII &middot; The descent</span>
-          <h3 id="jyT">Opening the Book</h3>
-          <p id="jyP"></p>
-          <ul id="jyL"></ul>
-        </div>
-        <div class="jy-nav">
-          <button type="button" id="jyPrev" aria-label="Previous chapter">&larr;</button>
-          <button type="button" id="jyNext" aria-label="Next chapter">&rarr;</button>
-        </div>
-      </div>
-      <div class="jy-bar" aria-hidden="true"><i id="jyBar"></i></div>
-    </div>
-  </div>
-  <div class="wrap"><div class="buy-row reveal">
-      <a class="btn btn-primary" href="#choose-class-time" data-tz-pick data-ev="checkout_ij_chapters">Join for $2,633 <span class="arr">&rarr;</span></a>
-      <p class="buy-note">24-hour flash sale &middot; Monday, November 30 &middot; $3,097 again from midnight</p>
-  </div></div>
-</section>
-
-<!-- A WEEK -->
-<section class="alt">
-  <div class="wrap">
-    <div class="center">
-      <span class="eyebrow reveal">Time and format</span>
-      <h2 class="reveal d1">What does a week look <em>like</em>?</h2>
+      <span class="eyebrow reveal">The experience</span>
+      <h2 class="reveal d1">What does the Inner Journey <em>feel like</em>?</h2>
+      <p class="lede reveal d2" style="margin:16px auto 0">This is not a course you study from the outside. You live it, one week at a time, alongside people doing the same work. You go down into where your patterns began, gently and at your own pace, and you come back with more of yourself.</p>
     </div>
     <div class="qa-grid three">
-      <div class="qa glow reveal"><h3>One live class</h3><p>A 90-minute live online class with your teacher and your group, opening that week&rsquo;s chapter together.</p></div>
-      <div class="qa glow reveal d1"><h3>Two to three hours on your own</h3><p>The workbook, reflection prompts and a short daily breath practice, at times that suit you.</p></div>
-      <div class="qa glow reveal d2"><h3>Recordings if you miss a class</h3><p>Every class is recorded, so you can catch up whenever life gets in the way.</p></div>
+      <div class="qa glow reveal"><h3>Held, not rushed</h3><p>One class a week leaves room to breathe, reflect and let things land. The work is designed to deepen, not overwhelm.</p></div>
+      <div class="qa glow reveal d1"><h3>Seen, not alone</h3><p>You stay with the same small group for all 15 weeks. You hear your own story in other people&rsquo;s, and the group deepens as the work deepens.</p></div>
+      <div class="qa glow reveal d2"><h3>Honest, and safely held</h3><p>Old feelings can surface along the way. The course is trauma-informed, and your teacher and trainers are trained to hold what arises.</p></div>
+    </div>
+    <figure class="xp-quote reveal">
+      <blockquote>&ldquo;Being on the live call was incredibly powerful, just to witness and be with everyone&rsquo;s experiences and what was coming up. There was so much resonance. It creates the sense of connection, that we are not alone in our experiences.&rdquo;</blockquote>
+      <figcaption>Inner Journey participant</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- HOW CAN THIS CHANGE MY LIFE -->
+<section id="change">
+  <div class="wrap">
+    <div class="center">
+      <span class="eyebrow reveal">What changes</span>
+      <h2 class="reveal d1">How can this change <em>my life</em>?</h2>
+    </div>
+    <div class="change reveal d2">
+      <p>Most of us carry patterns we never chose: the same arguments, the same ceiling, the same tightness when life asks more of us. This work meets those patterns where they live, in the body and the breath, so they stop running your life from the background.</p>
+      <p>You learn to speak what needs to be said, to leave overwhelm behind, and to feel at home in yourself again. And you do it inside a community that walks the whole way with you, guided by Anthony and Amy and the trainers they have mentored personally.</p>
     </div>
   </div>
   <div class="wrap"><div class="buy-row reveal">
-      <a class="btn btn-primary" href="#choose-class-time" data-tz-pick data-ev="checkout_ij_week">Join for $2,633 <span class="arr">&rarr;</span></a>
+      <a class="btn btn-primary" href="#choose-class-time" data-tz-pick data-ev="checkout_ij_change">Join for $2,633 <span class="arr">&rarr;</span></a>
       <p class="buy-note">24-hour flash sale &middot; Monday, November 30 &middot; $3,097 again from midnight</p>
   </div></div>
-</section>
-
-<!-- WHO TEACHES -->
-<section>
-  <div class="wrap">
-    <div class="guide">
-      <img class="reveal" src="https://alchemyofbreath.com/wp-content/uploads/anthony-abbagnano-2-1.jpg" alt="Anthony Abbagnano, founder of Alchemy of Breath" loading="lazy">
-      <div class="reveal d1">
-        <span class="eyebrow">Who created it</span>
-        <h2>Anthony <em>Abbagnano</em></h2>
-        <p style="margin-top:16px">Anthony is the founder of Alchemy of Breath and has worked with the breath and personal development for more than 40 years. The Inner Journey puts that work into one course, so anyone can walk it for their own growth.</p>
-        <p>Alchemy of Breath was the first online breathwork school in the world, and is triple accredited by the FHT, the GPBA and the AADP.</p>
-      </div>
-    </div>
-  </div>
 </section>
 
 <!-- VOICES -->
@@ -1410,7 +1469,7 @@ html.tz-open{overflow:hidden}
   <div class="wrap narrow">
     <span class="flash-k reveal">24-hour flash sale &middot; Monday, November 30</span>
     <h2 class="reveal d1">Uncover your hidden <em>patterns</em>. $2,633 until midnight.</h2>
-    <p class="lede reveal d2" style="margin:18px auto 34px">The Inner Journey with Anthony Abbagnano: 15 weeks of live classes in a small group, starting February 16, 2027. The price goes back to $3,097 at midnight your time. Questions? Email us at info@alchemyofbreath.com.</p>
+    <p class="lede reveal d2" style="margin:18px auto 34px">It takes courage to look at your own story, and you will not do it alone. The Inner Journey with Anthony Abbagnano: 15 weeks of live classes in a small cohort with limited places, starting February 16, 2027. The price goes back to $3,097 at midnight your time. Questions? Email us at info@alchemyofbreath.com.</p>
     <div class="lock-cta reveal d3">
       <a class="btn btn-primary btn-lock" href="#choose-class-time" data-tz-pick data-ev="checkout_ij_final">Join for $2,633 <span class="arr">&rarr;</span></a>
     </div>
@@ -1462,59 +1521,6 @@ html.tz-open{overflow:hidden}
   document.querySelectorAll('[data-tz-pick]').forEach(function(a){a.addEventListener('click',show);});
   d.addEventListener('close',function(){document.documentElement.classList.remove('tz-open');});
   d.addEventListener('click',function(e){if(e.target===d)d.close();});
-})();
-</script>
-<script>
-/* Interactive seven chapters: descent-and-return arc, click a chapter or let it play */
-(function(){
-  var root=document.getElementById('jy'); if(!root) return;
-  var C=[
-    ['Opening the Book','Your story before birth and in your first seven years, where most of your patterns were formed.',['Map the key moments of your early years','See where the patterns you live with today began']],
-    ['The Call','What is asking to change in your life, and why you have been putting it off.',['Name the change you keep postponing','Get clear on what is holding you back']],
-    ['The Inner Child','Meeting the youngest parts of yourself and what they still need.',['Reconnect with what you needed as a child','Practice giving yourself that support now']],
-    ['The Shadow','The parts of yourself you avoid or hide, and the energy you get back by facing them.',['Notice what you hide, deny or judge in yourself','Take back the energy those parts cost you']],
-    ['The Treasure','The strengths underneath the old patterns.',['Identify the gifts the old patterns covered up','Start using them on purpose']],
-    ['Atonement','Making peace with your story and integrating what you have found.',['Make peace with past events and people','Pull together what the first five chapters showed you']],
-    ['The Return','Bringing it into your everyday life, relationships and work.',['Apply the changes at home and at work','Leave with practices to keep going after week 15']]
-  ];
-  var R=['I','II','III','IV','V','VI','VII'], short=['Opening','The Call','Inner Child','Shadow','Treasure','Atonement','Return'];
-  var path=document.getElementById('jyPath'), pulse=document.getElementById('jyPulse'), nodes=document.getElementById('jyNodes'), tabs=document.getElementById('jyTabs'),
-      num=document.getElementById('jyNum'), k=document.getElementById('jyK'), t=document.getElementById('jyT'), p=document.getElementById('jyP'), l=document.getElementById('jyL'),
-      body=root.querySelector('.jy-body'), bar=document.getElementById('jyBar'), ns='http://www.w3.org/2000/svg', L=path.getTotalLength(), i=0, user=false, timer=null,
-      reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches, pts=[];
-  path.style.strokeDasharray=L; path.style.strokeDashoffset=L;
-  for(var n=0;n<7;n++){
-    var pt=path.getPointAtLength(L*(n/6)); pts.push(pt);
-    var g=document.createElementNS(ns,'g'); g.setAttribute('class','jy-node'); g.setAttribute('tabindex','0'); g.setAttribute('role','button'); g.setAttribute('aria-label','Chapter '+R[n]+': '+C[n][0]); g.dataset.i=n;
-    var below=n>0&&n<6;
-    g.innerHTML='<circle class="halo" cx="'+pt.x+'" cy="'+pt.y+'" r="30"/><circle class="dot" cx="'+pt.x+'" cy="'+pt.y+'" r="19"/><text class="num" x="'+pt.x+'" y="'+(pt.y+5)+'">'+R[n]+'</text><text class="lbl" x="'+pt.x+'" y="'+(below?pt.y+46:pt.y-32)+'">'+short[n]+'</text>';
-    g.addEventListener('click',function(){user=true;show(+this.dataset.i);});
-    g.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();user=true;show(+this.dataset.i);}});
-    nodes.appendChild(g);
-    var b=document.createElement('button'); b.type='button'; b.setAttribute('role','tab'); b.textContent=R[n]; b.setAttribute('aria-label','Chapter '+R[n]+': '+C[n][0]); b.dataset.i=n;
-    b.addEventListener('click',function(){user=true;show(+this.dataset.i);}); tabs.appendChild(b);
-  }
-  function paint(n){
-    num.textContent=R[n]; k.innerHTML='Chapter '+R[n]+' of VII &middot; '+(n<4?'The descent':'The return'); t.textContent=C[n][0]; p.textContent=C[n][1];
-    l.innerHTML=C[n][2].map(function(x){return '<li>'+x+'</li>';}).join('');
-  }
-  function show(n,first){
-    i=n; path.style.strokeDashoffset=L*(1-n/6); pulse.setAttribute('cx',pts[n].x); pulse.setAttribute('cy',pts[n].y);
-    nodes.querySelectorAll('.jy-node').forEach(function(g,j){g.classList.toggle('active',j===n);g.classList.toggle('done',j<n);});
-    tabs.querySelectorAll('button').forEach(function(b,j){b.setAttribute('aria-selected',j===n?'true':'false');});
-    if(first||reduce){paint(n);}else{body.classList.add('out');setTimeout(function(){paint(n);body.classList.remove('out');},220);}
-    bar.classList.remove('run'); void bar.offsetWidth; if(!user&&!reduce) bar.classList.add('run');
-    try{if(!first&&user&&window.clarity)clarity('event','ij_chapter_'+(n+1));}catch(e){}
-  }
-  document.getElementById('jyPrev').addEventListener('click',function(){user=true;show((i+6)%7);});
-  document.getElementById('jyNext').addEventListener('click',function(){user=true;show((i+1)%7);});
-  show(0,true);
-  if(!reduce){
-    new IntersectionObserver(function(es){es.forEach(function(e){
-      if(e.isIntersecting&&!timer){timer=setInterval(function(){if(!user)show((i+1)%7);else{clearInterval(timer);bar.classList.remove('run');}},5200);bar.classList.remove('run');void bar.offsetWidth;if(!user)bar.classList.add('run');}
-      else if(!e.isIntersecting&&timer){clearInterval(timer);timer=null;}
-    });},{threshold:.4}).observe(root);
-  }
 })();
 </script>
 <script>
