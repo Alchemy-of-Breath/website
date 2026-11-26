@@ -11,7 +11,7 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Alchemy of Breath">
 <meta property="og:title" content="Black Friday: save up to &euro;1,275 on BreathCamp 2027">
-<meta property="og:description" content="What if you gave yourself 7 days? Save up to &euro;1,275 on the June and July 2027 BreathCamps in Tuscany, plus two bonus Quantum Shift recordings. November 27 only.">
+<meta property="og:description" content="Seven days to feel like yourself again. Save up to &euro;1,275 on the June and July 2027 BreathCamps in Tuscany, plus two bonus Quantum Shift recordings. November 27 only.">
 <meta property="og:image" content="https://alchemyofbreath.com/wp-content/uploads/Rectangle-106-900x600.jpg">
 <meta name="theme-color" content="#FBF7EF">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -912,6 +912,41 @@ html{scroll-padding-top:calc(var(--barh) + 70px)}
 .buy-note a{color:var(--ink);text-underline-offset:3px}
 .buy-note a:hover{color:var(--gold-deep)}
 @media(max-width:560px){.buy-btns{flex-direction:column;align-items:stretch;width:100%}}
+
+/* Amy's feedback: price unit under the headline, hero quote, lead teachers, reader questions */
+.ft-price{display:flex;align-items:baseline;justify-content:center;gap:14px;flex-wrap:wrap;margin:26px 0 6px}
+.ft-from{font-size:.74rem;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--slate);align-self:center}
+.ft-price s{font-family:var(--serif);font-size:1.5rem;color:var(--slate);text-decoration-color:#c8322a;text-decoration-thickness:2px}
+.ft-price strong{font-family:var(--serif);font-weight:400;font-size:clamp(3rem,7vw,4.6rem);line-height:1;letter-spacing:-.03em;color:var(--ink)}
+.ft-save{font-size:.78rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:#fff;background:#c8322a;padding:5px 12px;border-radius:999px;align-self:center}
+.bh-price-note{font-size:.92rem;color:#4a4547;max-width:34em;margin:6px auto 0}
+.bc-hero .bh-offer{margin:18px auto 24px}
+.bc-hero h1,.bh-limited,.bh-quote blockquote,.lead-big{text-wrap:balance}
+.bh-limited{margin:4px 0 0;font-family:var(--serif);font-size:1.08rem;line-height:1.45;color:var(--ink);max-width:30em}
+.bc-hero .bh-quote{margin:36px auto 0;font-style:normal;font-size:1rem}
+.bh-quote blockquote{font-family:var(--serif);font-style:italic;font-size:clamp(1.15rem,2.1vw,1.4rem);line-height:1.45;color:#3a3536}
+.bh-quote figcaption{margin-top:10px;font-family:var(--sans);font-size:.72rem;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--slate)}
+.lead{padding:96px 0 100px}
+.lead-card{display:grid;grid-template-columns:auto 1fr;gap:60px;align-items:center;max-width:1040px;margin:0 auto}
+.lead-photos{display:flex;gap:28px;padding:10px}
+.lead-photos .arch{width:176px}
+.lead-photos .arch:nth-child(2){margin-top:38px}
+.lead-copy .eyebrow{margin-bottom:14px}
+.lead-big{font-family:var(--serif);font-size:clamp(1.25rem,2.3vw,1.55rem);line-height:1.35;margin:14px 0;color:var(--ink)}
+.lead-copy p{font-size:1rem}
+.lead-team{margin-top:12px;color:#4a4547}
+.lead-team a{color:var(--ink);text-underline-offset:3px;white-space:nowrap}
+.lead-team a:hover{color:var(--gold-deep)}
+.lead-qs{margin-top:64px}
+.accr{text-align:center;margin-top:60px}
+.accr .badges-crop{margin:0 auto 14px}
+.accr p{font-size:.92rem;color:#4a4547}
+.change{max-width:760px;margin:26px auto 0}
+.change p{font-size:1.12rem;line-height:1.8}
+.change p+p{margin-top:16px}
+.take-h{text-align:center;margin-top:56px;font-size:1.4rem}
+@media(max-width:860px){.lead-card{grid-template-columns:1fr;gap:40px;text-align:center}.lead-photos{justify-content:center}}
+@media(max-width:560px){.lead{padding:64px 0 68px}.lead-photos{gap:20px}.lead-photos .arch{width:132px}.lead-photos .arch:nth-child(2){margin-top:26px}.ft-price{gap:10px}.ft-price s{font-size:1.25rem}.lead-qs{margin-top:44px}.accr{margin-top:44px}.change p{font-size:1.04rem}}
 </style>
 </head>
 <body>
@@ -945,8 +980,10 @@ html{scroll-padding-top:calc(var(--barh) + 70px)}
   <div class="orb t" style="top:120px;right:-220px;width:620px;height:620px"></div>
   <div class="wrap bh-in">
     <span class="bf-label reveal"><i aria-hidden="true"></i>Black Friday &middot; November 27 only</span>
-    <h1 class="reveal d1">What if you gave yourself <em style="white-space:nowrap">7 days?</em></h1>
-    <p class="bh-sub reveal d1" style="margin-bottom:0">Not a vacation full of plans. Not time off spent catching up on everything you put aside. Seven days in Tuscany to slow down, breathe and reconnect with how you actually want to feel.</p>
+    <h1 class="reveal d1">Seven days to feel like <em>yourself</em> again</h1>
+    <p class="bh-sub reveal d1" style="margin-bottom:0">For when you are burned out, when stress has settled into your body, and when you miss being around people who are real with each other. BreathCamp is a week in Tuscany to breathe, rest and let go of what you have been carrying, with a community that walks it with you.</p>
+    <div class="ft-price reveal d2"><span class="ft-from">From</span><s>&euro;2,061</s><strong>&euro;1,752</strong><span class="ft-save">Save up to &euro;1,275</span></div>
+    <p class="bh-price-note reveal d2">15% off every room, all-inclusive. You save between &euro;309 and &euro;1,275, depending on the room you choose.</p>
     <p class="bh-offer reveal d2"><span>June 6 to 12 or July 11 to 17, 2027 &middot; ASHA, Tuscany</span></p>
     <div class="bf-timer reveal d2" data-bf-timer aria-live="polite">
       <p class="bft-label" data-bft-label>Black Friday pricing ends in</p>
@@ -958,7 +995,12 @@ html{scroll-padding-top:calc(var(--barh) + 70px)}
     <div class="buy-row reveal d3" style="margin-top:0">
       <div class="buy-btns"><a class="btn btn-primary" href="https://asha.secure.retreat.guru/program/breathcamp-6-oct-3-oct-9-2027-new-members/?form=1&amp;lang=en" data-checkout="june" data-ev="bc_book_june_hero">Book June 6 to 12 <span class="arr">&rarr;</span></a><a class="btn btn-primary" href="https://asha.secure.retreat.guru/program/breathcamp-1-jul-11-jul-17-2027-new-members/?form=1&amp;lang=en" data-checkout="july" data-ev="bc_book_july_hero">Book July 11 to 17 <span class="arr">&rarr;</span></a></div>
       <p class="buy-note"><a href="#bf-offer">See the offer</a> &middot; <a href="#stay">See rooms and prices</a></p>
+      <p class="bh-limited">Small groups and a limited number of rooms. The earlier you book, the more choice you have.</p>
     </div>
+    <figure class="bh-quote reveal d3">
+      <blockquote>&ldquo;I have attended many retreats, but nothing opened my heart like this.&rdquo;</blockquote>
+      <figcaption>Livia, Copenhagen &middot; BreathCamp guest</figcaption>
+    </figure>
   </div>
   <div class="wrap">
     <div class="bh-window reveal d2">
@@ -976,6 +1018,34 @@ html{scroll-padding-top:calc(var(--barh) + 70px)}
   </div>
 </section>
 
+<!-- LEAD TEACHERS + READER QUESTIONS -->
+<section class="lead" id="guides">
+  <div class="wrap">
+    <div class="lead-card reveal">
+      <div class="lead-photos">
+        <div class="arch"><img src="https://alchemyofbreath.com/wp-content/uploads/anthony-abbagnano-2-1.jpg" alt="Anthony Abbagnano"></div>
+        <div class="arch"><img src="https://alchemyofbreath.com/wp-content/uploads/amy-rachelle-1.jpg" alt="Amy Rachelle"></div>
+      </div>
+      <div class="lead-copy">
+        <span class="eyebrow">Founders and lead teachers</span>
+        <h2>Who is <em>leading</em> it?</h2>
+        <p class="lead-big">Anthony Abbagnano and Amy Rachelle, who bring more than 50 years of experience with the breath.</p>
+        <p>They founded Alchemy of Breath and ASHA, and they guide BreathCamp themselves. That experience matters in a week like this. When something deep begins to move, you are with people who have been there many times and know how to guide you through it with care.</p>
+        <p class="lead-team">Beside them are our master trainers, a full support team, and the wellbeing team on the land. <a href="#team">Meet the team</a></p>
+      </div>
+    </div>
+    <div class="qa-grid three lead-qs">
+      <div class="qa glow reveal"><h3>Is this for me if I am new to breathwork?</h3><p>Yes. You need no experience. Your sessions cover how to breathe, the science of the breath and an inner journey session, so you can start from wherever you are.</p></div>
+      <div class="qa glow reveal d1"><h3>What will a day look like?</h3><p>Morning movement and breath, breathwork sessions and workshops, three vegan meals, and free time to rest, swim or walk the land. Evening events are optional.</p></div>
+      <div class="qa glow reveal d2"><h3>What will I leave with?</h3><p>A calmer body, breath practices to use at home, and a community that has walked the week with you.</p></div>
+    </div>
+    <div class="accr reveal">
+      <div class="badges-crop" role="img" aria-label="Accreditation badges: FHT Accredited Course Provider, GPBA Certified Professional Breathwork School and AADP Board Certified"></div>
+      <p>Alchemy of Breath is a triple accredited breathwork school: FHT, GPBA and AADP.</p>
+    </div>
+  </div>
+</section>
+
 <!-- BLACK FRIDAY OFFER -->
 <section class="bf-offer" id="bf-offer">
   <div class="ff" data-ff="34" aria-hidden="true"></div>
@@ -983,13 +1053,13 @@ html{scroll-padding-top:calc(var(--barh) + 70px)}
     <div class="center">
       <span class="eyebrow reveal">Black Friday &middot; November 27 only</span>
       <h2 class="reveal d1">What is in the <em>Black Friday</em> offer?</h2>
-      <p class="lede reveal d2" style="margin:16px auto 0">15% off the published 2027 new-member price of the June and July BreathCamps. Choose your camp, pick your room at checkout, and your place is reserved straight away.</p>
+      <p class="lede reveal d2" style="margin:16px auto 0">15% off the published 2027 new-member price of the June and July BreathCamps. Choose your camp, pick your room at checkout, and your place is reserved straight away. Groups are small and rooms are limited, so it pays to book early.</p>
     </div>
     <div class="bf-free reveal">
       <span class="bf-free-tag">Bonus with your booking</span>
       <div class="bf-free-body">
-        <h3>Two bonus Quantum Shift recordings</h3>
-        <p><b>Relationships</b> and <b>Beyond Forgiveness</b>, yours when you book BreathCamp on Black Friday. Sent to you after you book.</p>
+        <h3>A gift from Anthony and Amy: two Quantum Shift recordings</h3>
+        <p><b>Relationships</b> and <b>Beyond Forgiveness</b> are yours when you book BreathCamp on Black Friday, so you can begin at home before you arrive in Tuscany. We send them to you after you book.</p>
       </div>
     </div>
     <div class="bf-incl">
@@ -1002,7 +1072,7 @@ html{scroll-padding-top:calc(var(--barh) + 70px)}
         <h3>Included in your booking</h3>
         <ul>
           <li><b>Save up to &euro;1,275</b>, with 15% off your 2027 BreathCamp on every room type</li>
-          <li><b>Two bonus Quantum Shift recordings</b>, Relationships and Beyond Forgiveness, sent to you after you book</li>
+          <li><b>Two Quantum Shift recordings, a gift from Anthony and Amy</b>: Relationships and Beyond Forgiveness, sent to you after you book</li>
           <li><b>7 days and 6 nights at ASHA</b>, with three vegan meals a day and daily breathwork sessions</li>
           <li><b>A 60-minute group integration session</b> after BreathCamp, included for every new member in 2027</li>
           <li><b>Room reserved at checkout</b>, paid in full or with a payment plan</li>
@@ -1029,9 +1099,9 @@ html{scroll-padding-top:calc(var(--barh) + 70px)}
   <div class="wrap narrow">
     <span class="eyebrow reveal">The retreat in one paragraph</span>
     <h2 class="reveal d1">What is <em>BreathCamp</em>?</h2>
-    <p class="answer reveal d2">BreathCamp is a <strong>7-day, 6-night breathwork retreat at ASHA</strong>, built to help a busy, stretched nervous system slow down. It takes place at the Alchemy School of Healing Arts in southern Tuscany, Italy. Each day brings breathwork sessions, movement, workshops and time to rest, swim and explore the land, with <strong>three vegan meals a day</strong>. You are guided by <strong>Anthony Abbagnano, Amy Rachelle and our trainers</strong>, and you stay on site for the whole week, alongside people from around the world.</p>
+    <p class="answer reveal d2">BreathCamp is a <strong>7-day, 6-night breathwork retreat at ASHA</strong>, built to help a busy, stretched nervous system slow down. It takes place at the Alchemy School of Healing Arts in southern Tuscany, Italy. Each day brings breathwork sessions, movement, workshops and time to rest, swim and explore the land, with <strong>three vegan meals a day</strong>. You are guided by <strong>Anthony Abbagnano, Amy Rachelle and our trainers</strong>, and you stay on site for the whole week, in community with people from around the world.</p>
     <div class="qa-grid three">
-      <div class="qa glow reveal"><h3>Do I need breathwork experience?</h3><p>No. Anyone can join as a retreat guest. Your sessions cover how to breathe, the science of the breath and an inner journey session, so you can start from wherever you are.</p></div>
+      <div class="qa glow reveal"><h3>When is it?</h3><p>Two camps in 2027: June 6 to 12 and July 11 to 17. Both run from Sunday to Saturday.</p></div>
       <div class="qa glow reveal d1"><h3>Who else will be there?</h3><p>Retreat guests and Alchemy of Breath facilitators completing their certification share the week. Each group follows a slightly different track.</p></div>
       <div class="qa glow reveal d2"><h3>Is it a training?</h3><p>Not for retreat guests. BreathCamp is a retreat for you. If it sparks something, you can explore our Facilitator Training afterward.</p></div>
     </div>
@@ -1046,17 +1116,21 @@ html{scroll-padding-top:calc(var(--barh) + 70px)}
 <section class="alt">
   <div class="wrap">
     <div class="center">
-      <span class="eyebrow reveal">Nervous system regulation</span>
-      <h2 class="reveal d1">What will I get out of <em>the week</em>?</h2>
-      <p class="lede reveal d2" style="margin:16px auto 0">Most people arrive tired in a way a holiday does not fix. BreathCamp gives your body the conditions to settle, and gives you practices to keep it there.</p>
+      <span class="eyebrow reveal">Why people come</span>
+      <h2 class="reveal d1">How can this change <em>my life</em>?</h2>
     </div>
-    <div class="amen" style="margin-top:44px">
+    <div class="change reveal d2">
+      <p>Most of us carry patterns we never chose: the same arguments, the same ceiling, the same tightness when life asks more of us. This work meets those patterns where they live, in the body and the breath, so they stop running your life from the background.</p>
+      <p>You learn to speak what needs to be said, to leave overwhelm behind, and to feel at home in yourself again. And you do it inside a community that walks the whole way with you, guided by Anthony and Amy and the trainers they have mentored personally.</p>
+    </div>
+    <h3 class="take-h reveal">What you take home from the week</h3>
+    <div class="amen" style="margin-top:26px">
       <div class="am glow reveal"><b>A calmer baseline</b><span>Daily breathwork that helps your nervous system shift out of constant alert, so rest starts to feel like rest again.</span></div>
       <div class="am glow reveal d1"><b>Practices you take home</b><span>Simple breath practices you can use on a hard day at work or before sleep, long after the week ends.</span></div>
-      <div class="am glow reveal d2"><b>Space to feel</b><span>A held, guided space for the stress and emotion you have been carrying, with no need to force anything.</span></div>
+      <div class="am glow reveal d2"><b>Space to feel</b><span>A held, guided space to be honest about the stress and emotion you have been carrying, with no need to force anything.</span></div>
       <div class="am glow reveal"><b>Real rest</b><span>Good sleep, a pool, vegan meals cooked for you, and nothing to organize for seven days.</span></div>
-      <div class="am glow reveal d1"><b>Clearer thinking</b><span>Time away from screens and pressure to hear what you actually want, and return home with more energy to act on it.</span></div>
-      <div class="am glow reveal d2"><b>People who get it</b><span>A small community from around the world, sharing the same week, the same meals and the same practice.</span></div>
+      <div class="am glow reveal d1"><b>Clearer thinking</b><span>Time away from screens and pressure to hear what you actually want, and the courage to act on it when you get home.</span></div>
+      <div class="am glow reveal d2"><b>Real community</b><span>A small group from around the world, sharing the same week, the same meals and the same practice. The connection lasts far beyond the week.</span></div>
     </div>
   </div>
   <div class="wrap"><div class="buy-row reveal">
@@ -1116,7 +1190,7 @@ html{scroll-padding-top:calc(var(--barh) + 70px)}
     <div class="center">
       <span class="eyebrow reveal">ASHA, Tuscany, Italy</span>
       <h2 class="reveal d1">Where will I <em>stay</em>?</h2>
-      <p class="lede reveal d2" style="margin:16px auto 0">ASHA sits on 15 hectares of forest, olive groves and gardens at the edge of a medieval village in southern Tuscany, Italy, about 2.5 hours from Rome. For seven days, this is where you breathe, eat, swim and rest.</p>
+      <p class="lede reveal d2" style="margin:16px auto 0">ASHA sits on 15 hectares of forest, olive groves and gardens at the edge of a medieval village, in the ancient and sacred Etruscan part of southern Tuscany, Italy, about 2.5 hours from Rome. For seven days, this is where you breathe, eat, swim and rest.</p>
     </div>
     <div class="gallery reveal">
       <figure class="g-a"><img src="https://static.wixstatic.com/media/c2dd9b_a6326dee928845669463b102e5053034~mv2.jpg/v1/fill/w_1200,h_800,al_c,q_85,enc_avif,quality_auto/c2dd9b_a6326dee928845669463b102e5053034~mv2.jpg" alt="The main house at ASHA among the trees" loading="lazy"><figcaption>The main house</figcaption></figure>
@@ -1127,10 +1201,13 @@ html{scroll-padding-top:calc(var(--barh) + 70px)}
       <figure class="g-f"><img src="https://alchemyofbreath.com/wp-content/uploads/DSCF5832.jpg" alt="Students holding their certificates at ASHA" loading="lazy"><figcaption>Graduation day</figcaption></figure>
     </div>
     <div class="amen">
+      <div class="am reveal"><b>Rites of Passage</b><span>Rites of Passage sites are marked across the land. Walking them is a path of remembrance and empowerment, a way to honor where you have been and what you are stepping into.</span></div>
+      <div class="am reveal d1"><b>The wellbeing team</b><span>Our wellbeing team on the land offers massage and sound healing, and you can book a private session with Anthony or Amy. Fees apply.</span></div>
+      <div class="am reveal d2"><b>A pool, open all summer</b><span>The pool is open for both the June and July camps. Swim or rest in the gardens between sessions.</span></div>
+      <div class="am reveal"><b>Hiking from the door</b><span>Trails lead straight off the land toward Monte Amiata. Free time is built into every day.</span></div>
+      <div class="am reveal d1"><b>Bagni San Filippo hot springs</b><span>One of several natural hot springs within half an hour of ASHA, for a free afternoon.</span></div>
+      <div class="am reveal d2"><b>Ancient Etruscan land</b><span>This is the ancient, sacred Etruscan part of Tuscany, with Etruscan sites in the hills around us.</span></div>
       <div class="am reveal"><b>Three vegan meals a day</b><span>Home-cooked, seasonal and prepared fresh on site. Dietary needs and allergies are cared for.</span></div>
-      <div class="am reveal d1"><b>A pool and gardens</b><span>Swim, walk or rest between sessions. Free time is built into every day.</span></div>
-      <div class="am reveal d2"><b>Massage and private sessions</b><span>Book massage, sound healing or a private session with Anthony or Amy on site. Fees apply.</span></div>
-      <div class="am reveal"><b>Wild hot springs nearby</b><span>Natural thermal springs, some within half an hour, for your days off the mat.</span></div>
       <div class="am reveal d1"><b>All-inclusive week</b><span>Your room, all meals, the program and use of the pool and facilities for 7 days and 6 nights.</span></div>
       <div class="am reveal d2"><b>About 2.5 hours from Rome</b><span>Fly into Rome Fiumicino, then drive, or take the train and a local taxi.</span></div>
     </div>
@@ -1142,12 +1219,12 @@ html{scroll-padding-top:calc(var(--barh) + 70px)}
 </section>
 
 <!-- FOUNDERS + TEAM -->
-<section>
+<section id="team">
   <div class="wrap">
     <div class="center">
       <span class="eyebrow reveal">Your guides</span>
       <h2 class="reveal d1">Who will guide <em>the week</em>?</h2>
-      <p class="lede reveal d2" style="margin-top:16px">Founders of Alchemy of Breath and of ASHA in Tuscany, together with our trainers.</p>
+      <p class="lede reveal d2" style="margin-top:16px">Founders of Alchemy of Breath and of ASHA in Tuscany, together with our master trainers, a full support team, and the wellbeing team on the land.</p>
     </div>
     <div class="founders">
       <div class="founder reveal">
@@ -1194,7 +1271,7 @@ html{scroll-padding-top:calc(var(--barh) + 70px)}
     <div class="center">
       <span class="eyebrow reveal">Rooms and prices</span>
       <h2 class="reveal d1">Rooms and <em>Black Friday</em> prices</h2>
-      <p class="lede reveal d2" style="margin:16px auto 0">Black Friday prices are 15% below the published 2027 new-member prices. Each covers your accommodation, all meals and the full program for 7 days and 6 nights. Prices are per person unless stated.</p>
+      <p class="lede reveal d2" style="margin:16px auto 0">Black Friday prices are 15% below the published 2027 new-member prices. Each covers your accommodation, all meals and the full program for 7 days and 6 nights. Prices are per person unless stated. Each camp is a small group with a limited number of rooms.</p>
       <p class="rooms-first reveal d2">Be the first to book and get the best choice of rooms.</p>
     </div>
     <div class="rooms">
@@ -1325,7 +1402,7 @@ html{scroll-padding-top:calc(var(--barh) + 70px)}
     <div class="faq-list">
       <details class="reveal"><summary>How long is the Black Friday offer open?<span class="pl">+</span></summary><div class="faq-a">For the whole of Friday, November 27, 2026, until midnight in your own time zone. The timer on this page counts down to your local midnight.</div></details>
       <details class="reveal"><summary>Who can book the Black Friday offer?<span class="pl">+</span></summary><div class="faq-a">New members. Facilitator Training students and graduates have their own BreathCamp pricing and book through their graduate page. The offer cannot be combined with other promotions, price locks or scholarships.</div></details>
-      <details class="reveal"><summary>What are the bonus Quantum Shift recordings?<span class="pl">+</span></summary><div class="faq-a">Two Quantum Shift recordings, Relationships and Beyond Forgiveness. They come with your BreathCamp booking when you book on Black Friday, and are sent to you after you book.</div></details>
+      <details class="reveal"><summary>What are the bonus Quantum Shift recordings?<span class="pl">+</span></summary><div class="faq-a">Two recordings from our Quantum Shift series, Relationships and Beyond Forgiveness, as a gift from Anthony and Amy. They come with your BreathCamp booking when you book on Black Friday, and we send them to you after you book.</div></details>
       <details class="reveal"><summary>When is BreathCamp?<span class="pl">+</span></summary><div class="faq-a">The Black Friday offer covers two 2027 camps: Sunday, June 6 to Saturday, June 12, and Sunday, July 11 to Saturday, July 17.</div></details>
       <details class="reveal"><summary>Do I need breathwork experience?<span class="pl">+</span></summary><div class="faq-a">No. Anyone can join as a retreat guest, and your sessions start with how to breathe and the science of the breath.</div></details>
       <details class="reveal"><summary>What are arrival and departure like?<span class="pl">+</span></summary><div class="faq-a">Check-in is on Sunday from 2:30 pm. That afternoon you tour the property, join an opening ceremony with Anthony and Amy, and have your first breathwork session in the evening. The final session ends around 1:00 pm on Saturday, so plan your travel for after that.</div></details>
@@ -1351,7 +1428,7 @@ html{scroll-padding-top:calc(var(--barh) + 70px)}
   <div class="wrap narrow">
     <span class="eyebrow reveal">Black Friday &middot; November 27 only</span>
     <h2 class="reveal d1">Make space for yourself in <em>2027</em></h2>
-    <p class="lede reveal d2" style="margin:18px auto 34px">Save up to &euro;1,275 on the June and July BreathCamps, plus two bonus Quantum Shift recordings. Questions before you book? Email us at info@alchemyofbreath.com.</p>
+    <p class="lede reveal d2" style="margin:18px auto 34px">It takes courage to give yourself a week. Come and do it in good company. Save up to &euro;1,275 on the June and July BreathCamps, with two Quantum Shift recordings as a gift from Anthony and Amy. Groups are small and rooms are limited. Questions before you book? Email us at info@alchemyofbreath.com.</p>
     <div class="cta-row reveal d3">
       <a class="btn btn-primary" href="https://asha.secure.retreat.guru/program/breathcamp-6-oct-3-oct-9-2027-new-members/?form=1&amp;lang=en" data-checkout="june">Book the June camp <span class="arr">&rarr;</span></a>
       <a class="btn btn-ghost" href="https://asha.secure.retreat.guru/program/breathcamp-1-jul-11-jul-17-2027-new-members/?form=1&amp;lang=en" data-checkout="july">Book the July camp</a>
