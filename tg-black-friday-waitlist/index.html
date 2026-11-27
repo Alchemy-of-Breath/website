@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Black Friday VIP Waitlist | Alchemy of Breath</title>
+<meta name="description" content="Five days, five invitations from Alchemy of Breath, from Friday, November 27, to Tuesday, December 1. Join the Black Friday VIP Waitlist.">
+<meta name="robots" content="index, follow">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Alchemy of Breath">
+<meta property="og:title" content="Five days. Five invitations.">
+<meta property="og:description" content="From Friday, November 27, a new invitation opens each day, for 24 hours only. Join the Black Friday VIP Waitlist.">
+<meta name="theme-color" content="#1c1a1b">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1c1a1b;--ink-2:#262223;--cream:#f4efe6;--muted:rgba(244,239,230,.72);
+  --gold:#E1B668;--gold-deep:#D6A652;--grad-gold:linear-gradient(135deg,#E1B668 0%,#D6A652 100%);
+  --serif:'Marcellus',Georgia,serif;--sans:'Roboto',-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;
+  --spring:cubic-bezier(.34,1.56,.64,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);font-weight:300;font-size:18px;line-height:1.7;color:var(--cream);background:var(--ink);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:6px}
+
+/* background: dark with soft gold orbs and fireflies */
+.bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;
+  background:radial-gradient(60% 50% at 15% 10%,rgba(225,182,104,.16),transparent 70%),radial-gradient(55% 45% at 90% 85%,rgba(225,182,104,.12),transparent 70%),var(--ink)}
+.orb{position:absolute;border-radius:50%;filter:blur(10px);background:radial-gradient(circle,rgba(225,182,104,.28) 0%,rgba(225,182,104,0) 70%);animation:orbFloat 22s ease-in-out infinite}
+.orb.o1{width:620px;height:620px;top:-220px;left:-200px}
+.orb.o2{width:520px;height:520px;bottom:-200px;right:-160px;animation-delay:-8s}
+.orb.o3{width:300px;height:300px;top:40%;left:55%;opacity:.6;animation-delay:-14s}
+@keyframes orbFloat{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(30px,-24px) scale(1.06)}}
+.ff span{position:absolute;width:var(--sz);height:var(--sz);border-radius:50%;background:radial-gradient(circle,#ffe6a8 0%,#e1b668 45%,rgba(225,182,104,0) 72%);box-shadow:0 0 calc(var(--sz)*2) rgba(232,190,110,.75);opacity:0;animation:ffDrift var(--dur) ease-in-out var(--delay) infinite,ffGlow calc(var(--dur)/3) ease-in-out var(--delay) infinite}
+@keyframes ffDrift{0%{transform:translate(0,0)}25%{transform:translate(var(--dx1),var(--dy1))}50%{transform:translate(var(--dx2),var(--dy2))}75%{transform:translate(var(--dx3),var(--dy3))}100%{transform:translate(0,0)}}
+@keyframes ffGlow{0%,100%{opacity:0}40%{opacity:var(--op)}60%{opacity:calc(var(--op)*.6)}}
+
+.page{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column}
+header{padding:26px 28px;display:flex;justify-content:center}
+header img{height:40px;width:auto}
+main{flex:1;width:100%;max-width:1080px;margin:0 auto;padding:30px 24px 70px;text-align:center}
+
+.label{display:inline-flex;align-items:center;gap:10px;font-size:.72rem;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);border:1px solid rgba(225,182,104,.45);padding:8px 16px;border-radius:999px}
+.label i{width:8px;height:8px;border-radius:50%;background:var(--gold);box-shadow:0 0 10px var(--gold)}
+h1{font-family:var(--serif);font-weight:400;font-size:clamp(2.4rem,6vw,4rem);line-height:1.1;letter-spacing:-.03em;color:#fff;margin:22px auto 0;max-width:13em}
+h1 em{color:var(--gold);font-style:italic;white-space:nowrap}
+.sub{font-size:1.1rem;color:var(--muted);max-width:34em;margin:18px auto 0}
+
+.clock-lbl{margin:34px 0 10px;font-size:.74rem;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
+.clock{display:flex;justify-content:center;gap:10px}
+.clock div{min-width:76px;padding:12px 8px 10px;border-radius:14px;background:rgba(255,255,255,.06);border:1px solid rgba(225,182,104,.4)}
+.clock b{display:block;font-family:var(--serif);font-weight:400;font-size:2rem;line-height:1;color:#fff;font-variant-numeric:tabular-nums}
+.clock span{display:block;margin-top:6px;font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.clock-note{font-size:.84rem;color:var(--muted);margin-top:10px}
+.ended .clock{display:none}
+
+.btn{display:inline-flex;align-items:center;gap:12px;text-decoration:none;font-weight:500;font-size:.98rem;letter-spacing:.04em;color:var(--ink);background:var(--grad-gold);padding:18px 36px;border-radius:999px;margin-top:30px;box-shadow:0 14px 36px rgba(214,166,82,.4);position:relative;overflow:hidden;isolation:isolate;transition:transform .3s var(--spring),box-shadow .3s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 18px 44px rgba(214,166,82,.55)}
+.btn:active{transform:translateY(1px) scale(.98)}
+.btn::after{content:"";position:absolute;top:0;bottom:0;left:0;width:45%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.65),transparent);transform:translateX(-160%) skewX(-18deg);animation:sheen 3.6s cubic-bezier(.5,0,.2,1) infinite;z-index:-1}
+@keyframes sheen{0%,55%{transform:translateX(-160%) skewX(-18deg)}100%{transform:translateX(360%) skewX(-18deg)}}
+.btn .arr{transition:transform .3s var(--spring)}
+.btn:hover .arr{transform:translateX(4px)}
+
+
+.form-card{max-width:620px;margin:56px auto 0;background:#fff;color:var(--ink);border-radius:22px;padding:30px 26px 14px;box-shadow:0 30px 80px -30px rgba(0,0,0,.7),0 0 0 1px rgba(225,182,104,.5);scroll-margin-top:30px}
+.form-card h2{font-family:var(--serif);font-weight:400;font-size:1.7rem;color:var(--ink)}
+.form-card p{font-size:.92rem;color:#5B7889;margin:4px 0 14px}
+.form-card iframe{display:block;width:100%;border:none;min-height:560px}
+
+footer{position:relative;z-index:1;text-align:center;padding:26px 20px 34px;font-size:.78rem;color:rgba(244,239,230,.5)}
+footer a{color:rgba(244,239,230,.6);text-decoration:none;margin:0 10px}
+footer a:hover{color:var(--gold)}
+
+@media(max-width:700px){.clock div{min-width:64px}.clock b{font-size:1.6rem}main{padding-top:10px}}
+@media(prefers-reduced-motion:reduce){.orb,.btn::after{animation:none}.ff{display:none}}
+
+/* ===== Black Friday week: flipping window ===== */
+.bfw{max-width:760px;margin:44px auto 0;text-align:left;font-family:'Roboto',-apple-system,'Segoe UI',Helvetica,Arial,sans-serif}
+.bfw-tabs{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.bfw-tab{position:relative;cursor:pointer;border:1px solid rgba(225,182,104,.35);background:rgba(255,255,255,.04);color:rgba(244,239,230,.75);font:500 .72rem/1 'Roboto',sans-serif;letter-spacing:.14em;text-transform:uppercase;padding:9px 12px;border-radius:999px;overflow:hidden;transition:transform .3s cubic-bezier(.34,1.56,.64,1),opacity .3s}
+.bfw-tab::before{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(135deg,#E1B668,#D6A652);opacity:0;transition:opacity .35s;z-index:-1}
+.bfw-tab{isolation:isolate}
+.bfw-tab:hover{transform:translateY(-1px)}
+.bfw-tab:active{transform:scale(.97)}
+.bfw-tab:focus-visible{outline:2px solid #E1B668;outline-offset:3px}
+.bfw-tab[aria-selected="true"]{color:#1c1a1b;border-color:transparent}
+.bfw-tab[aria-selected="true"]::before{opacity:1}
+.bfw-tab .bfw-live{display:inline-block;width:6px;height:6px;border-radius:50%;background:#c8322a;margin-left:6px;vertical-align:1px;box-shadow:0 0 0 0 rgba(200,50,42,.6);animation:bfwPing 1.6s ease-out infinite}
+@keyframes bfwPing{0%{box-shadow:0 0 0 0 rgba(200,50,42,.6)}100%{box-shadow:0 0 0 8px rgba(200,50,42,0)}}
+.bfw-stage{perspective:1400px}
+.bfw-card{position:relative;display:grid;grid-template-columns:150px 1fr;min-height:190px;border-radius:22px;overflow:hidden;background:linear-gradient(135deg,rgba(38,34,35,.96),rgba(28,26,27,.96));border:1px solid rgba(225,182,104,.55);box-shadow:0 30px 70px -30px rgba(0,0,0,.75),0 0 40px -12px rgba(225,182,104,.35);transform-origin:50% 50%;transition:transform .45s cubic-bezier(.6,0,.4,1),opacity .45s}
+.bfw-card.out{transform:rotateX(-88deg);opacity:0}
+.bfw-card.pre{transform:rotateX(88deg);opacity:0;transition:none}
+.bfw-card::after{content:"";position:absolute;top:0;bottom:0;left:0;width:40%;background:linear-gradient(100deg,transparent,rgba(255,236,190,.12),transparent);transform:translateX(-160%) skewX(-18deg);animation:bfwSheen 5s cubic-bezier(.5,0,.2,1) infinite;pointer-events:none}
+@keyframes bfwSheen{0%,60%{transform:translateX(-160%) skewX(-18deg)}100%{transform:translateX(380%) skewX(-18deg)}}
+.bfw-date{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;background:linear-gradient(160deg,#E1B668,#D6A652);color:#1c1a1b;padding:18px 10px}
+.bfw-date small{font:500 .72rem/1 'Roboto',sans-serif;letter-spacing:.2em;text-transform:uppercase}
+.bfw-date b{font:400 3.6rem/1 'Marcellus',Georgia,serif;letter-spacing:-.03em}
+.bfw-date span{font:500 .78rem/1 'Roboto',sans-serif;letter-spacing:.14em;text-transform:uppercase}
+.bfw-body{padding:24px 28px;display:flex;flex-direction:column;justify-content:center;gap:8px}
+.bfw-k{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.bfw-pill{font:500 .66rem/1 'Roboto',sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#E1B668;border:1px solid rgba(225,182,104,.5);padding:5px 10px;border-radius:999px}
+.bfw-state{font:500 .66rem/1 'Roboto',sans-serif;letter-spacing:.14em;text-transform:uppercase;padding:5px 10px;border-radius:999px;background:#c8322a;color:#fff}
+.bfw-state.ended{background:rgba(255,255,255,.12);color:rgba(244,239,230,.7)}
+.bfw-state:empty{display:none}
+.bfw-body h3{font:400 clamp(1.5rem,3vw,2rem)/1.15 'Marcellus',Georgia,serif;color:#fff;margin:2px 0 0;letter-spacing:-.01em}
+.bfw-body p{margin:0;font-size:.98rem;line-height:1.6;color:rgba(244,239,230,.8)}
+.bfw-body p b{color:#fff;font-weight:500}
+.bfw-bar{height:2px;margin-top:14px;border-radius:2px;background:rgba(225,182,104,.18);overflow:hidden}
+.bfw-bar i{display:block;height:100%;width:100%;background:linear-gradient(90deg,#E1B668,#D6A652);transform-origin:0 50%;transform:scaleX(0)}
+.bfw-bar i.run{animation:bfwFill var(--bfw-ms,4800ms) linear forwards}
+@keyframes bfwFill{to{transform:scaleX(1)}}
+.bfw-surprise .bfw-date b{font-size:3rem}
+.bfw-q{display:inline-block;animation:bfwWobble 2.4s ease-in-out infinite}
+@keyframes bfwWobble{0%,100%{transform:rotate(0)}25%{transform:rotate(-8deg)}75%{transform:rotate(8deg)}}
+@media(max-width:560px){.bfw-card{grid-template-columns:96px 1fr;min-height:210px}.bfw-date b{font-size:2.6rem}.bfw-body{padding:18px 18px}.bfw-tab{padding:8px 9px;font-size:.64rem;letter-spacing:.1em}}
+@media(prefers-reduced-motion:reduce){.bfw-card,.bfw-card.out,.bfw-card.pre{transition:none;transform:none;opacity:1}.bfw-card::after,.bfw-q,.bfw-tab .bfw-live{animation:none}.bfw-bar{display:none}}
+</style>
+</head>
+<body>
+<div class="bg" aria-hidden="true">
+  <div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div>
+  <div class="ff" data-ff="40"></div>
+</div>
+
+<div class="page">
+  <header><img src="https://alchemyofbreath.com/wp-content/uploads/AoB-emblem-web-white.png" alt="Alchemy of Breath"></header>
+
+  <main>
+    <span class="label"><i aria-hidden="true"></i>Black Friday VIP Waitlist</span>
+    <h1>Five days. Five <em>invitations.</em></h1>
+    <p class="sub">From Friday, November 27, a new invitation opens each day, for 24 hours only. Join our VIP list and get first access to each exclusive offer.</p>
+
+    <div id="timer" aria-live="polite">
+      <p class="clock-lbl" data-lbl>Black Friday opens in</p>
+      <div class="clock">
+        <div><b data-u="d">00</b><span>days</span></div><div><b data-u="h">00</b><span>hours</span></div><div><b data-u="m">00</b><span>min</span></div><div><b data-u="s">00</b><span>sec</span></div>
+      </div>
+      <p class="clock-note" data-note>Opens at midnight your time, Friday, November 27</p>
+    </div>
+
+    <a class="btn" href="#join" data-ev="waitlist_hero_join">Join the VIP Waitlist <span class="arr" aria-hidden="true">&rarr;</span></a>
+
+    <div class="bfw" data-bfw aria-label="Black Friday week, day by day">
+      <div class="bfw-tabs" role="tablist"></div>
+      <div class="bfw-stage">
+        <div class="bfw-card" role="tabpanel" aria-live="polite">
+          <div class="bfw-date"><small data-f="dow">Friday</small><b data-f="num">27</b><span data-f="mon">Nov</span></div>
+          <div class="bfw-body">
+            <div class="bfw-k"><span class="bfw-pill" data-f="pill">Day 1 &middot; 24 hours</span><span class="bfw-state" data-f="state"></span></div>
+            <h3 data-f="title">BreathCamp 2027</h3>
+            <p data-f="text">Seven days on the land in Tuscany, to slow down and come home to yourself.</p>
+          </div>
+        </div>
+      </div>
+      <div class="bfw-bar" aria-hidden="true"><i></i></div>
+    </div>
+
+    <div class="form-card" id="join">
+      <h2>Join the VIP Waitlist</h2>
+      <p>We will only email you about Black Friday.</p>
+      <iframe
+        src="https://link.alchemyofbreath.com/widget/form/8N8JN6yKbRFFhwSrDV96"
+        style="width:100%;height:100%;border:none;border-radius:3px"
+        id="inline-8N8JN6yKbRFFhwSrDV96"
+        data-layout="{'id':'INLINE'}"
+        data-trigger-type="alwaysShow"
+        data-trigger-value=""
+        data-activation-type="alwaysActivated"
+        data-activation-value=""
+        data-deactivation-type="neverDeactivate"
+        data-deactivation-value=""
+        data-form-name="Black Friday 2027 Waitlist form"
+        data-height="874"
+        data-layout-iframe-id="inline-8N8JN6yKbRFFhwSrDV96"
+        data-form-id="8N8JN6yKbRFFhwSrDV96"
+        title="Black Friday 2027 Waitlist form"></iframe>
+      <script src="https://link.alchemyofbreath.com/js/form_embed.js"></script>
+    </div>
+  </main>
+
+  <footer>
+    <p>All rights reserved &copy; Alchemy of Breath</p>
+    <p style="margin-top:8px"><a href="https://alchemyofbreath.com/waiver-and-release/">Disclaimer</a><a href="https://alchemyofbreath.com/privacy-policy/">Privacy Policy</a><a href="https://alchemyofbreath.com/terms-and-conditions/">Refund Policy</a></p>
+  </footer>
+</div>
+
+<script>
+/* Black Friday week window: one card per day, flips every few seconds. Uses each visitor's own date
+   to mark today as live and earlier days as ended. */
+(function(){
+  var root=document.querySelector('[data-bfw]'); if(!root) return;
+  var D=[
+    {y:2026,m:10,d:27,dow:'Friday',tab:'Fri 27',mon:'Nov',pill:'Day 1 &middot; 24 hours',title:'BreathCamp 2027',text:'Seven days on the land in Tuscany, to slow down and come home to yourself.'},
+    {y:2026,m:10,d:28,dow:'Saturday',tab:'Sat 28',mon:'Nov',pill:'Day 2 &middot; 24 hours',title:'Facilitator Training',text:'For those who feel called to guide others with the breath.'},
+    {y:2026,m:10,d:29,dow:'Sunday',tab:'Sun 29',mon:'Nov',pill:'Day 3 &middot; Free',title:'Breathe the World',text:'A free session to simply breathe together, with a <b>surprise gift</b> for everyone who joins.'},
+    {y:2026,m:10,d:30,dow:'Monday',tab:'Mon 30',mon:'Nov',pill:'Day 4 &middot; 24 hours',title:'ASHA retreats 2027',text:'Time on the land at ASHA, including <b>Intuition with Amy</b>.'},
+    {y:2026,m:11,d:1,dow:'Tuesday',tab:'Tue 1',mon:'Dec',pill:'Day 5 &middot; 24 hours',title:'A surprise',text:'Something special to close the week. Join the VIP Waitlist to be <b>first to know</b>.',surprise:true}
+  ];
+  var MS=4800, tabs=root.querySelector('.bfw-tabs'), card=root.querySelector('.bfw-card'), bar=root.querySelector('.bfw-bar i'),
+      f={}, i=0, timer=null, paused=false, user=false, reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+  card.querySelectorAll('[data-f]').forEach(function(el){f[el.getAttribute('data-f')]=el;});
+  root.style.setProperty('--bfw-ms',MS+'ms');
+  function state(x){var s=new Date(x.y,x.m,x.d).getTime(),e=s+86400000,n=Date.now();return n<s?'':(n<e?'live':'ended');}
+  D.forEach(function(x,k){var b=document.createElement('button');b.type='button';b.className='bfw-tab';b.setAttribute('role','tab');b.innerHTML=x.tab+(state(x)==='live'?'<span class="bfw-live" aria-label="live now"></span>':'');
+    b.addEventListener('click',function(){user=true;go(k);});tabs.appendChild(b);});
+  var tb=tabs.querySelectorAll('.bfw-tab');
+  function paint(k){var x=D[k],st=state(x);
+    f.dow.textContent=x.dow;f.num.innerHTML=x.surprise?'<span class="bfw-q">?</span>':x.d;f.mon.textContent=x.mon;f.pill.innerHTML=x.pill;f.title.textContent=x.title;f.text.innerHTML=x.text;
+    f.state.textContent=st==='live'?'Live now':(st==='ended'?'Ended':'');f.state.className='bfw-state'+(st==='ended'?' ended':'');
+    card.classList.toggle('bfw-surprise',!!x.surprise);
+    tb.forEach(function(t,j){t.setAttribute('aria-selected',j===k?'true':'false');});}
+  function runBar(){if(!bar)return;bar.classList.remove('run');void bar.offsetWidth;if(!paused&&!user&&!reduce)bar.classList.add('run');}
+  function go(k){if(k===i&&card.dataset.ready){runBar();return;}i=k;
+    if(reduce||!card.dataset.ready){paint(k);card.dataset.ready='1';runBar();return;}
+    card.classList.add('out');
+    setTimeout(function(){paint(k);card.classList.remove('out');card.classList.add('pre');void card.offsetWidth;card.classList.remove('pre');runBar();},450);}
+  function loop(){clearInterval(timer);if(reduce)return;timer=setInterval(function(){if(paused||user)return;go((i+1)%D.length);},MS);}
+  root.addEventListener('mouseenter',function(){paused=true;if(bar)bar.style.animationPlayState='paused';});
+  root.addEventListener('mouseleave',function(){paused=false;if(bar)bar.style.animationPlayState='running';});
+  root.addEventListener('focusin',function(){paused=true;});root.addEventListener('focusout',function(){paused=false;});
+  var start=0;D.forEach(function(x,k){if(state(x)==='live')start=k;});
+  go(start);loop();
+})();
+</script>
+<script>
+/* Countdown on each visitor's own clock: Black Friday opens at their local midnight on Friday, November 27, 2026
+   and the week of offers runs through the end of Tuesday, December 1. */
+(function(){
+  var START=new Date(2026,10,27,0,0,0).getTime(), END=new Date(2026,11,2,0,0,0).getTime();
+  var t=document.getElementById('timer'), lbl=t.querySelector('[data-lbl]'), note=t.querySelector('[data-note]');
+  function pad(n){return (n<10?'0':'')+n;}
+  function tick(){
+    var now=Date.now(), live=now>=START&&now<END, over=now>=END;
+    var sec=Math.max(0,Math.floor(((live?END:START)-now)/1000));
+    var v={d:Math.floor(sec/86400),h:Math.floor(sec%86400/3600),m:Math.floor(sec%3600/60),s:sec%60};
+    ['d','h','m','s'].forEach(function(u){t.querySelector('[data-u="'+u+'"]').textContent=pad(v[u]);});
+    lbl.textContent=over?'Black Friday week has ended':(live?'Black Friday week is live. It ends in':'Black Friday opens in');
+    note.textContent=over?'Join the VIP Waitlist to hear about our next offers.':(live?'Check your inbox for today\'s invitation.':'Opens at midnight your time, Friday, November 27');
+    t.classList.toggle('ended',over);
+    if(over) clearInterval(iv);
+  }
+  var iv=setInterval(tick,1000); tick();
+})();
+/* Gold fireflies */
+(function(){
+  if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  function r(a,b){return a+Math.random()*(b-a);}
+  document.querySelectorAll('[data-ff]').forEach(function(box){
+    var n=+box.getAttribute('data-ff'); if(window.innerWidth<560) n=Math.round(n*.6);
+    for(var i=0;i<n;i++){
+      var f=document.createElement('span'), m=60;
+      f.style.left=r(0,100)+'%'; f.style.top=r(0,100)+'%';
+      var st={'--sz':r(2.5,6).toFixed(1)+'px','--dur':r(9,18).toFixed(1)+'s','--delay':(-r(0,18)).toFixed(1)+'s','--op':r(.5,1).toFixed(2),
+        '--dx1':r(-m*2,m*2)+'px','--dy1':r(-m,m)+'px','--dx2':r(-m*2,m*2)+'px','--dy2':r(-m,m)+'px','--dx3':r(-m*2,m*2)+'px','--dy3':r(-m,m)+'px'};
+      for(var k in st) f.style.setProperty(k,st[k]);
+      box.appendChild(f);
+    }
+  });
+})();
+/* Analytics */
+(function(){
+  function ev(n){try{if(window.clarity)clarity('event',n);if(window.fbq)fbq('trackCustom',n);}catch(e){}}
+  try{if(window.clarity)clarity('set','page_version','black-friday-waitlist');}catch(e){}
+  document.querySelectorAll('[data-ev]').forEach(function(a){a.addEventListener('click',function(){ev(a.getAttribute('data-ev'));});});
+})();
+</script>
+<script>
+/* Arriving from another page with #join: keep the form in view while the page and the GHL form finish loading
+   (the form script can reset the scroll). Stops as soon as the visitor scrolls themselves. */
+(function(){
+  if(location.hash!=='#join') return;
+  var el=document.getElementById('join'); if(!el) return;
+  var userMoved=false, t0=Date.now();
+  ['wheel','touchstart','keydown'].forEach(function(e){window.addEventListener(e,function(){userMoved=true;},{passive:true,once:true});});
+  function go(){if(userMoved)return;var top=el.getBoundingClientRect().top;if(Math.abs(top-20)>40)window.scrollTo(0,window.scrollY+top-20);}
+  var iv=setInterval(function(){go();if(Date.now()-t0>6000||userMoved)clearInterval(iv);},250);
+  var f=el.querySelector('iframe'); if(f) f.addEventListener('load',function(){setTimeout(go,100);});
+})();
+</script>
+</body>
+</html>
