@@ -955,7 +955,7 @@ html{scroll-padding-top:calc(var(--barh) + 70px)}
   <div class="bf-bar-in">
     <div class="bfb-count"><span class="bfb-lbl" data-bf-mini-lbl>Black Friday opens in</span><span class="bfb-clock" data-bf-mini><i><b>0</b>d</i><i><b>00</b>h</i><i><b>00</b>m</i><i><b>00</b>s</i></span></div>
     <span class="bfb-msg">Save up to <b>&euro;1,275</b> on BreathCamp 2027</span>
-    <a class="bfb-btn" href="/offer/black-friday/#join" data-waitlist>Join the VIP Waitlist <span aria-hidden="true">&rarr;</span></a>
+    <a class="bfb-btn" href="/offer/black-friday/#join" data-bf-bar-btn><span data-bf-bar-text>Join the VIP Waitlist</span> <span aria-hidden="true">&rarr;</span></a>
   </div>
 </div>
 
@@ -1700,9 +1700,13 @@ html{scroll-padding-top:calc(var(--barh) + 70px)}
   var START=new Date(2026,10,27,0,0,0).getTime(), END=new Date(2026,10,28,0,0,0).getTime();
   var LS=new Date(2026,11,1,0,0,0).getTime(), LE=new Date(2026,11,2,0,0,0).getTime(); /* last chance: Tuesday, December 1, visitor's local day */
   var timers=document.querySelectorAll('[data-bf-timer]'); if(!timers.length) return;
+  var OFF=0; /* preview any moment with ?preview=2026-11-27T10:00 */
+  try{ var pv=new URLSearchParams(location.search).get('preview'), pm=pv&&pv.match(/^(\d{4})-(\d{2})-(\d{2})(?:T(\d{2}):(\d{2}))?$/);
+    if(pm) OFF=new Date(+pm[1],pm[2]-1,+pm[3],+(pm[4]||0),+(pm[5]||0)).getTime()-Date.now(); }catch(e){}
+  var bb=document.querySelector('[data-bf-bar-btn]'), bbText=bb&&bb.querySelector('[data-bf-bar-text]'), bbOpen=null;
   function pad(n){return (n<10?'0':'')+n;}
   function tick(){
-    var now=Date.now(), target, label, note, ended=false;
+    var now=Date.now()+OFF, target, label, note, ended=false;
     if(now>=LS&&now<LE){target=LE;label='Last chance: pricing ends in';note='Back for one last day. Ends at midnight your time, Tuesday, December 1';}
     else if(now<START){target=START;label='Black Friday pricing opens in';note='Opens at midnight your time, Friday, November 27';}
     else if(now<END){target=END;label='Black Friday pricing ends in';note='Ends at midnight your time, Friday, November 27';}
@@ -1719,6 +1723,9 @@ html{scroll-padding-top:calc(var(--barh) + 70px)}
     if(mini){var bs=mini.querySelectorAll('b');bs[0].textContent=v.d;bs[1].textContent=pad(v.h);bs[2].textContent=pad(v.m);bs[3].textContent=pad(v.s);
       ml.textContent=ended?'Black Friday has ended':(now>=LS&&now<LE?'Last chance ends in':(now<START?'Black Friday opens in':'Black Friday ends in'));
       document.getElementById('bfBar').classList.toggle('ended',ended);}
+    /* top bar button: books while the offer is open on the visitor's clock, the VIP Waitlist otherwise */
+    var open=(now>=START&&now<END)||(now>=LS&&now<LE);
+    if(bbText&&open!==bbOpen){bbOpen=open;bb.setAttribute('href',open?'#bf-offer':'/offer/black-friday/#join');bbText.textContent=open?'Book your place':'Join the VIP Waitlist';}
     if(now>=LE) clearInterval(iv);
   }
   var iv=setInterval(tick,1000); tick();

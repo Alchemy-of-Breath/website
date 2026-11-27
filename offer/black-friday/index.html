@@ -67,6 +67,11 @@ h1 em{color:var(--gold);font-style:italic;white-space:nowrap}
 @keyframes sheen{0%,55%{transform:translateX(-160%) skewX(-18deg)}100%{transform:translateX(360%) skewX(-18deg)}}
 .btn .arr{transition:transform .3s var(--spring)}
 .btn:hover .arr{transform:translateX(4px)}
+.btn:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+.alt-join{margin-top:18px;font-size:.92rem;color:var(--muted)}
+.alt-join a{color:var(--gold);text-underline-offset:3px}
+.alt-join a:hover{color:#fff}
+.alt-join a:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
 
 
 .form-card{max-width:620px;margin:56px auto 0;background:#fff;color:var(--ink);border-radius:22px;padding:30px 26px 14px;box-shadow:0 30px 80px -30px rgba(0,0,0,.7),0 0 0 1px rgba(225,182,104,.5);scroll-margin-top:30px}
@@ -120,7 +125,13 @@ footer a:hover{color:var(--gold)}
 .bfw-surprise .bfw-date b{font-size:3rem}
 .bfw-q{display:inline-block;animation:bfwWobble 2.4s ease-in-out infinite}
 @keyframes bfwWobble{0%,100%{transform:rotate(0)}25%{transform:rotate(-8deg)}75%{transform:rotate(8deg)}}
+.bfw-cta{align-self:flex-start;display:inline-flex;align-items:center;gap:8px;margin-top:6px;font:500 .76rem/1 'Roboto',sans-serif;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;color:#1c1a1b;background:linear-gradient(135deg,#E1B668,#D6A652);padding:11px 18px;border-radius:999px;transition:transform .3s cubic-bezier(.34,1.56,.64,1),filter .3s}
+.bfw-cta[hidden]{display:none}
+.bfw-cta:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.bfw-cta:active{transform:translateY(1px) scale(.98)}
+.bfw-cta:focus-visible{outline:2px solid #E1B668;outline-offset:3px}
 @media(max-width:560px){.bfw-card{grid-template-columns:96px 1fr;min-height:210px}.bfw-date b{font-size:2.6rem}.bfw-body{padding:18px 18px}.bfw-tab{padding:8px 9px;font-size:.64rem;letter-spacing:.1em}}
+@media(max-width:560px){.bfw-cta{padding:10px 14px;font-size:.7rem;letter-spacing:.08em}}
 @media(prefers-reduced-motion:reduce){.bfw-card,.bfw-card.out,.bfw-card.pre{transition:none;transform:none;opacity:1}.bfw-card::after,.bfw-q,.bfw-tab .bfw-live{animation:none}.bfw-bar{display:none}}
 </style>
 </head>
@@ -143,10 +154,11 @@ footer a:hover{color:var(--gold)}
       <div class="clock">
         <div><b data-u="d">00</b><span>days</span></div><div><b data-u="h">00</b><span>hours</span></div><div><b data-u="m">00</b><span>min</span></div><div><b data-u="s">00</b><span>sec</span></div>
       </div>
-      <p class="clock-note" data-note>Opens at midnight your time, Friday, November 27</p>
+      <p class="clock-note" data-note data-note-over="Join the VIP Waitlist to hear about our next offers.">Opens at midnight your time, Friday, November 27</p>
     </div>
 
-    <a class="btn" href="#join" data-ev="waitlist_hero_join">Join the VIP Waitlist <span class="arr" aria-hidden="true">&rarr;</span></a>
+    <a class="btn" href="#join" data-ev="waitlist_hero_join" data-bf-main><span data-bf-main-text>Join the VIP Waitlist</span> <span class="arr" aria-hidden="true">&rarr;</span></a>
+    <p class="alt-join" data-bf-alt hidden>Not on the list yet? <a href="#join">Join the VIP Waitlist</a></p>
 
     <div class="bfw" data-bfw aria-label="Black Friday week, day by day">
       <div class="bfw-tabs" role="tablist"></div>
@@ -157,6 +169,7 @@ footer a:hover{color:var(--gold)}
             <div class="bfw-k"><span class="bfw-pill" data-f="pill">Day 1 &middot; 24 hours</span><span class="bfw-state" data-f="state"></span></div>
             <h3 data-f="title">BreathCamp 2027</h3>
             <p data-f="text">Seven days on the land in Tuscany, to slow down and come home to yourself.</p>
+            <a class="bfw-cta" data-f="cta" href="/offer/black-friday/#join" hidden><span data-f="ctatext">Explore today&rsquo;s offer</span> <span aria-hidden="true">&rarr;</span></a>
           </div>
         </div>
       </div>
@@ -193,29 +206,45 @@ footer a:hover{color:var(--gold)}
 </div>
 
 <script>
-/* Black Friday week window: one card per day, flips every few seconds. Uses each visitor's own date
-   to mark today as live and earlier days as ended. */
+/* Black Friday week, on each visitor's own clock: every day opens at their local midnight and lasts 24 hours
+   (Friday, November 27 to Tuesday, December 1, 2026). While a day is live, the main button and that day's card
+   link to its offer. Before the week and after it they lead to the VIP Waitlist. No offer link shows before its day.
+   Preview any moment with ?preview=2026-11-28T10:00 */
 (function(){
-  var root=document.querySelector('[data-bfw]'); if(!root) return;
+  var root=document.querySelector('[data-bfw]'), T=document.getElementById('bfhTimer')||document.getElementById('timer'); if(!root||!T) return;
+  var off=0;
+  try{ var pv=new URLSearchParams(location.search).get('preview'), pm=pv&&pv.match(/^(\d{4})-(\d{2})-(\d{2})(?:T(\d{2}):(\d{2}))?$/);
+    if(pm) off=new Date(+pm[1],pm[2]-1,+pm[3],+(pm[4]||0),+(pm[5]||0)).getTime()-Date.now(); }catch(e){}
+  function now(){ return Date.now()+off; }
   var D=[
-    {y:2026,m:10,d:27,dow:'Friday',tab:'Fri 27',mon:'Nov',pill:'Day 1 &middot; 24 hours',title:'BreathCamp 2027',text:'Seven days on the land in Tuscany, to slow down and come home to yourself.'},
-    {y:2026,m:10,d:28,dow:'Saturday',tab:'Sat 28',mon:'Nov',pill:'Day 2 &middot; 24 hours',title:'Facilitator Training',text:'For those who feel called to guide others with the breath.'},
-    {y:2026,m:10,d:29,dow:'Sunday',tab:'Sun 29',mon:'Nov',pill:'Day 3 &middot; Free',title:'Breathe the World',text:'A free session to simply breathe together, with a <b>surprise gift</b> for everyone who joins.'},
-    {y:2026,m:10,d:30,dow:'Monday',tab:'Mon 30',mon:'Nov',pill:'Day 4 &middot; 24 hours',title:'Inner Journey',text:'A 15 week personal development path, <b>Anthony&rsquo;s life work all in one course</b>.'},
-    {y:2026,m:11,d:1,dow:'Tuesday',tab:'Tue 1',mon:'Dec',pill:'Day 5 &middot; 24 hours',title:'A surprise',text:'Something special to close the week. Join the VIP Waitlist to be <b>first to know</b>.',surprise:true}
+    {y:2026,m:10,d:27,dow:'Friday',tab:'Fri 27',mon:'Nov',month:'November',pill:'Day 1 &middot; 24 hours',title:'BreathCamp 2027',text:'Seven days on the land in Tuscany, to slow down and come home to yourself.',
+      href:'/offer/breathcamp-2027-black-friday/',cta:'Explore today&rsquo;s offer',lbl:'Today&rsquo;s invitation: BreathCamp 2027. It ends in'},
+    {y:2026,m:10,d:28,dow:'Saturday',tab:'Sat 28',mon:'Nov',month:'November',pill:'Day 2 &middot; 24 hours',title:'Facilitator Training',text:'For those who feel called to guide others with the breath.',
+      href:'/offer/facilitator-training-black-friday/',cta:'Explore today&rsquo;s offer',lbl:'Today&rsquo;s invitation: Facilitator Training. It ends in'},
+    {y:2026,m:10,d:29,dow:'Sunday',tab:'Sun 29',mon:'Nov',month:'November',pill:'Day 3 &middot; Free',title:'Breathe the World',text:'A free session to simply breathe together, with a <b>surprise gift</b> for everyone who joins.',
+      href:'/free-breathwork-sessions/',cta:'Join the free session',lbl:'Today&rsquo;s invitation: Breathe the World, free. It ends in'},
+    {y:2026,m:10,d:30,dow:'Monday',tab:'Mon 30',mon:'Nov',month:'November',pill:'Day 4 &middot; 24 hours',title:'Inner Journey',text:'A 15 week personal development path, <b>Anthony&rsquo;s life work all in one course</b>.',
+      href:'/offer/inner-journey-black-friday/',cta:'Explore today&rsquo;s offer',lbl:'Today&rsquo;s invitation: Inner Journey. It ends in'},
+    {y:2026,m:11,d:1,dow:'Tuesday',tab:'Tue 1',mon:'Dec',month:'December',pill:'Day 5 &middot; 24 hours',title:'A surprise',text:'Something special to close the week. Join the VIP Waitlist to be <b>first to know</b>.',surprise:true,
+      rtitle:'Last chance',rtext:'If an invitation passed you by this week, every Black Friday offer opens again for one final day.',
+      href:'/offer/black-friday-last-chance/',cta:'See every offer',lbl:'Today&rsquo;s invitation: one last chance at every offer. It ends in'}
   ];
+  D.forEach(function(x){x.s=new Date(x.y,x.m,x.d).getTime();x.e=new Date(x.y,x.m,x.d+1).getTime();}); /* local midnight to local midnight */
   var MS=4800, tabs=root.querySelector('.bfw-tabs'), card=root.querySelector('.bfw-card'), bar=root.querySelector('.bfw-bar i'),
       f={}, i=0, timer=null, paused=false, user=false, reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
   card.querySelectorAll('[data-f]').forEach(function(el){f[el.getAttribute('data-f')]=el;});
   root.style.setProperty('--bfw-ms',MS+'ms');
-  function state(x){var s=new Date(x.y,x.m,x.d).getTime(),e=s+86400000,n=Date.now();return n<s?'':(n<e?'live':'ended');}
-  D.forEach(function(x,k){var b=document.createElement('button');b.type='button';b.className='bfw-tab';b.setAttribute('role','tab');b.innerHTML=x.tab+(state(x)==='live'?'<span class="bfw-live" aria-label="live now"></span>':'');
+  function state(x){var n=now();return n<x.s?'':(n<x.e?'live':'ended');}
+  D.forEach(function(x,k){var b=document.createElement('button');b.type='button';b.className='bfw-tab';b.setAttribute('role','tab');
     b.addEventListener('click',function(){user=true;go(k);});tabs.appendChild(b);});
   var tb=tabs.querySelectorAll('.bfw-tab');
-  function paint(k){var x=D[k],st=state(x);
-    f.dow.textContent=x.dow;f.num.innerHTML=x.surprise?'<span class="bfw-q">?</span>':x.d;f.mon.textContent=x.mon;f.pill.innerHTML=x.pill;f.title.textContent=x.title;f.text.innerHTML=x.text;
+  function paintTabs(){tb.forEach(function(t,j){t.innerHTML=D[j].tab+(state(D[j])==='live'?'<span class="bfw-live" aria-label="live now"></span>':'');});}
+  function paint(k){var x=D[k],st=state(x),rv=!!x.surprise&&st!=='';
+    f.dow.textContent=x.dow;f.num.innerHTML=x.surprise&&!rv?'<span class="bfw-q">?</span>':x.d;f.mon.textContent=x.mon;f.pill.innerHTML=x.pill;
+    f.title.textContent=rv?x.rtitle:x.title;f.text.innerHTML=rv?x.rtext:x.text;
     f.state.textContent=st==='live'?'Live now':(st==='ended'?'Ended':'');f.state.className='bfw-state'+(st==='ended'?' ended':'');
-    card.classList.toggle('bfw-surprise',!!x.surprise);
+    if(f.cta){f.cta.hidden=st!=='live';if(st==='live'){f.cta.setAttribute('href',x.href);f.ctatext.innerHTML=x.cta;}}
+    card.classList.toggle('bfw-surprise',!!x.surprise&&!rv);
     tb.forEach(function(t,j){t.setAttribute('aria-selected',j===k?'true':'false');});}
   function runBar(){if(!bar)return;bar.classList.remove('run');void bar.offsetWidth;if(!paused&&!user&&!reduce)bar.classList.add('run');}
   function go(k){if(k===i&&card.dataset.ready){runBar();return;}i=k;
@@ -226,29 +255,45 @@ footer a:hover{color:var(--gold)}
   root.addEventListener('mouseenter',function(){paused=true;if(bar)bar.style.animationPlayState='paused';});
   root.addEventListener('mouseleave',function(){paused=false;if(bar)bar.style.animationPlayState='running';});
   root.addEventListener('focusin',function(){paused=true;});root.addEventListener('focusout',function(){paused=false;});
-  var start=0;D.forEach(function(x,k){if(state(x)==='live')start=k;});
-  go(start);loop();
+  /* every card keeps the height of the tallest one, so the page never shifts as the window flips */
+  function fit(){card.style.minHeight='';var max=parseFloat(getComputedStyle(card).minHeight)||0;card.style.minHeight='0px';
+    for(var k=0;k<D.length;k++){paint(k);max=Math.max(max,card.offsetHeight);}
+    paint(i);card.style.minHeight=Math.ceil(max)+'px';}
+  var rz=null;window.addEventListener('resize',function(){clearTimeout(rz);rz=setTimeout(fit,150);});
+  if(document.fonts&&document.fonts.ready&&document.fonts.ready.then)document.fonts.ready.then(fit);
+
+  /* countdown, main button and the waitlist line under it */
+  var lbl=T.querySelector('[data-lbl]'), note=T.querySelector('[data-note]'), U={}, main=document.querySelector('[data-bf-main]'),
+      mainText=main&&main.querySelector('[data-bf-main-text]'), alt=document.querySelector('[data-bf-alt]'),
+      mainHref=main&&main.getAttribute('href'), mainLabel=mainText&&mainText.innerHTML, noteOver=note.getAttribute('data-note-over')||'', key=null, iv=null;
+  ['d','h','m','s'].forEach(function(u){U[u]=T.querySelector('[data-u="'+u+'"]');});
+  var dayBox=U.d.parentNode;
+  function pad(n){return (n<10?'0':'')+n;}
+  function tick(){
+    var n=now(), over=n>=D[D.length-1].e, k=-1; D.forEach(function(x,j){if(n>=x.s&&n<x.e)k=j;});
+    var x=k>=0?D[k]:null, sec=Math.max(0,Math.floor(((x?x.e:D[0].s)-n)/1000));
+    var v={d:Math.floor(sec/86400),h:Math.floor(sec%86400/3600),m:Math.floor(sec%3600/60),s:sec%60};
+    ['d','h','m','s'].forEach(function(u){U[u].textContent=pad(v[u]);});
+    var nk=over?'over':k;
+    if(nk!==key){
+      var first=key===null; key=nk;
+      lbl.innerHTML=over?'Black Friday week has ended':(x?x.lbl:'Black Friday opens in');
+      note.textContent=over?noteOver:(x?'Ends at midnight your time, '+x.dow+', '+x.month+' '+x.d:'Opens at midnight your time, Friday, November 27');
+      dayBox.hidden=!!x;
+      T.classList.toggle('ended',over);
+      if(main&&mainText){main.setAttribute('href',x?x.href:mainHref);mainText.innerHTML=x?x.cta:mainLabel;}
+      if(alt) alt.hidden=!(x&&k<D.length-1);
+      root.classList.toggle('has-live',!!x);
+      paintTabs();
+      if(first){go(x?k:0);fit();loop();}
+      else{fit();if(x&&!user&&k!==i)go(k);}
+    }
+    if(over&&iv){clearInterval(iv);iv=null;}
+  }
+  iv=setInterval(tick,1000); tick();
 })();
 </script>
 <script>
-/* Countdown on each visitor's own clock: Black Friday opens at their local midnight on Friday, November 27, 2026
-   and the week of offers runs through the end of Tuesday, December 1. */
-(function(){
-  var START=new Date(2026,10,27,0,0,0).getTime(), END=new Date(2026,11,2,0,0,0).getTime();
-  var t=document.getElementById('timer'), lbl=t.querySelector('[data-lbl]'), note=t.querySelector('[data-note]');
-  function pad(n){return (n<10?'0':'')+n;}
-  function tick(){
-    var now=Date.now(), live=now>=START&&now<END, over=now>=END;
-    var sec=Math.max(0,Math.floor(((live?END:START)-now)/1000));
-    var v={d:Math.floor(sec/86400),h:Math.floor(sec%86400/3600),m:Math.floor(sec%3600/60),s:sec%60};
-    ['d','h','m','s'].forEach(function(u){t.querySelector('[data-u="'+u+'"]').textContent=pad(v[u]);});
-    lbl.textContent=over?'Black Friday week has ended':(live?'Black Friday week is live. It ends in':'Black Friday opens in');
-    note.textContent=over?'Join the VIP Waitlist to hear about our next offers.':(live?'Check your inbox for today\'s invitation.':'Opens at midnight your time, Friday, November 27');
-    t.classList.toggle('ended',over);
-    if(over) clearInterval(iv);
-  }
-  var iv=setInterval(tick,1000); tick();
-})();
 /* Gold fireflies */
 (function(){
   if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches) return;
