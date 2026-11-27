@@ -1028,6 +1028,14 @@ html.ph-before .lock-cta[data-show~="before"],html.ph-during .lock-cta[data-show
 .tz-opt:hover .tz-arr{transform:translateX(4px)}
 .tz-note{font-size:.8rem;color:var(--slate);text-align:center;margin-top:14px}
 html.tz-open{overflow:hidden}
+/* Checkout follows each visitor's own day: open on Monday, November 30 and Tuesday, December 1.
+   Outside those days each "Join" button gives way to the VIP Waitlist (before) or an email link (after). */
+[data-co-alt]{display:none}
+html.ph-before [data-tz-pick]:not(.pill),html.ph-after [data-tz-pick]:not(.pill){display:none!important}
+html.ph-before [data-co-alt~="before"],html.ph-after [data-co-alt~="after"]{display:inline-flex}
+html.ph-after .pill{display:none}
+.buy-state{margin:0;font-size:.95rem;font-weight:500;color:var(--ink)}
+.buy-state:empty{display:none}
 
 </style>
 <style>
@@ -1204,6 +1212,12 @@ html.tz-open{overflow:hidden}
 @media(max-width:860px){.lead-card{grid-template-columns:1fr;gap:40px;text-align:center}.lead-photos{justify-content:center}}
 @media(max-width:560px){.lead{padding:64px 0 68px}.lead-photos{gap:20px}.lead-photos figure{width:132px}.lead-photos figure:nth-child(2){margin-top:26px}.ft-price{gap:10px}.ft-price s{font-size:1.25rem}.rq-facts{grid-template-columns:1fr}.rq-time{padding:26px 20px;margin-top:38px}.rq-time h3{font-size:1.35rem}.accr{margin-top:44px}.change p{font-size:1.04rem}}
 </style>
+<script>
+/* Phase before first paint, so checkout buttons never flash outside their days. The countdown script keeps it current. */
+(function(){var n=Date.now();try{var m=(new URLSearchParams(location.search).get('preview')||'').match(/^(\d{4})-(\d{2})-(\d{2})(?:T(\d{2}):(\d{2}))?$/);if(m)n=new Date(+m[1],m[2]-1,+m[3],+(m[4]||0),+(m[5]||0)).getTime();}catch(e){}
+  var S=new Date(2026,10,30).getTime(),LE=new Date(2026,11,2).getTime();
+  document.documentElement.className+=' ph-'+(n<S?'before':(n<LE?'during':'after'));})();
+</script>
 </head>
 <body>
 <div class="bf-bar" id="bfBar" role="region" aria-label="Flash sale">
@@ -1223,7 +1237,7 @@ html.tz-open{overflow:hidden}
       <a class="nav-link" href="#what">What it is</a>
       <a class="nav-link" href="#price">Price</a>
       <a class="nav-link" href="#faq">FAQ</a>
-      <a class="nav-cta" href="#choose-class-time" data-tz-pick data-ev="checkout_ij_nav">Join for $2,633</a>
+      <a class="nav-cta" href="#choose-class-time" data-tz-pick data-ev="checkout_ij_nav">Join for $2,633</a><a class="nav-cta" href="/offer/black-friday/#join" data-co-alt="before" data-ev="ij_nav_waitlist">Join the VIP Waitlist</a><a class="nav-cta" href="mailto:info@alchemyofbreath.com" data-co-alt="after" data-ev="ij_nav_email">Email us</a>
     </div>
   </div>
 </header>
@@ -1249,7 +1263,8 @@ html.tz-open{overflow:hidden}
     </div>
     <div class="lock-cta reveal d3">
       <a class="btn btn-primary btn-lock" href="#choose-class-time" data-tz-pick data-ev="checkout_ij_hero">Join for $2,633 <span class="arr">&rarr;</span></a>
-      <p class="lock-sub"><a href="#anthony">Watch Anthony explain it (3 min)</a> <span data-show="before">&middot; <a href="/offer/black-friday/#join" data-ev="ij_hero_waitlist">Get a reminder on Monday</a></span></p>
+      <a class="btn btn-primary btn-lock" href="/offer/black-friday/#join" data-co-alt="before" data-ev="ij_hero_waitlist">Join the VIP Waitlist <span class="arr">&rarr;</span></a><a class="btn btn-primary btn-lock" href="mailto:info@alchemyofbreath.com" data-co-alt="after" data-ev="ij_hero_email">Email us <span class="arr">&rarr;</span></a>
+      <p class="lock-sub"><a href="#anthony">Watch Anthony explain it (3 min)</a></p>
     </div>
     <p class="bh-limited reveal d3">A small cohort, with limited places.</p>
     <figure class="bh-quote reveal d3">
@@ -1332,6 +1347,8 @@ html.tz-open{overflow:hidden}
   </div>
   <div class="wrap"><div class="buy-row reveal">
       <a class="btn btn-primary" href="#choose-class-time" data-tz-pick data-ev="checkout_ij_what">Join for $2,633 <span class="arr">&rarr;</span></a>
+      <a class="btn btn-primary" href="/offer/black-friday/#join" data-co-alt="before" data-ev="ij_what_waitlist">Join the VIP Waitlist <span class="arr">&rarr;</span></a><a class="btn btn-primary" href="mailto:info@alchemyofbreath.com" data-co-alt="after" data-ev="ij_what_email">Email us about the Inner Journey <span class="arr">&rarr;</span></a>
+      <p class="buy-state" data-co-state></p>
       <p class="buy-note">24-hour flash sale &middot; Monday, November 30 &middot; $3,097 again from midnight</p>
   </div></div>
 </section>
@@ -1367,6 +1384,7 @@ html.tz-open{overflow:hidden}
         <strong>$2,633</strong>
         <span class="until">Monday, November 30 only</span>
         <a class="btn btn-primary" href="#choose-class-time" data-tz-pick data-ev="checkout_ij_tuition">Join for $2,633 <span class="arr">&rarr;</span></a>
+        <a class="btn btn-primary" href="/offer/black-friday/#join" data-co-alt="before" data-ev="ij_tuition_waitlist">Join the VIP Waitlist <span class="arr">&rarr;</span></a><a class="btn btn-primary" href="mailto:info@alchemyofbreath.com" data-co-alt="after" data-ev="ij_tuition_email">Email us <span class="arr">&rarr;</span></a>
         <p class="fine">Your place is in the live cohort starting February 16, 2027. Places are held in a small group, so the course is not refundable once it begins.</p>
       </div>
     </div>
@@ -1414,6 +1432,8 @@ html.tz-open{overflow:hidden}
   </div>
   <div class="wrap"><div class="buy-row reveal">
       <a class="btn btn-primary" href="#choose-class-time" data-tz-pick data-ev="checkout_ij_change">Join for $2,633 <span class="arr">&rarr;</span></a>
+      <a class="btn btn-primary" href="/offer/black-friday/#join" data-co-alt="before" data-ev="ij_change_waitlist">Join the VIP Waitlist <span class="arr">&rarr;</span></a><a class="btn btn-primary" href="mailto:info@alchemyofbreath.com" data-co-alt="after" data-ev="ij_change_email">Email us about the Inner Journey <span class="arr">&rarr;</span></a>
+      <p class="buy-state" data-co-state></p>
       <p class="buy-note">24-hour flash sale &middot; Monday, November 30 &middot; $3,097 again from midnight</p>
   </div></div>
 </section>
@@ -1434,6 +1454,8 @@ html.tz-open{overflow:hidden}
   </div>
   <div class="wrap"><div class="buy-row reveal">
       <a class="btn btn-primary" href="#choose-class-time" data-tz-pick data-ev="checkout_ij_voices">Join for $2,633 <span class="arr">&rarr;</span></a>
+      <a class="btn btn-primary" href="/offer/black-friday/#join" data-co-alt="before" data-ev="ij_voices_waitlist">Join the VIP Waitlist <span class="arr">&rarr;</span></a><a class="btn btn-primary" href="mailto:info@alchemyofbreath.com" data-co-alt="after" data-ev="ij_voices_email">Email us about the Inner Journey <span class="arr">&rarr;</span></a>
+      <p class="buy-state" data-co-state></p>
       <p class="buy-note">24-hour flash sale &middot; Monday, November 30 &middot; $3,097 again from midnight</p>
   </div></div>
 </section>
@@ -1459,6 +1481,8 @@ html.tz-open{overflow:hidden}
   </div>
   <div class="wrap"><div class="buy-row reveal">
       <a class="btn btn-primary" href="#choose-class-time" data-tz-pick data-ev="checkout_ij_faq">Join for $2,633 <span class="arr">&rarr;</span></a>
+      <a class="btn btn-primary" href="/offer/black-friday/#join" data-co-alt="before" data-ev="ij_faq_waitlist">Join the VIP Waitlist <span class="arr">&rarr;</span></a><a class="btn btn-primary" href="mailto:info@alchemyofbreath.com" data-co-alt="after" data-ev="ij_faq_email">Email us about the Inner Journey <span class="arr">&rarr;</span></a>
+      <p class="buy-state" data-co-state></p>
       <p class="buy-note">24-hour flash sale &middot; Monday, November 30 &middot; $3,097 again from midnight</p>
   </div></div>
 </section>
@@ -1472,6 +1496,8 @@ html.tz-open{overflow:hidden}
     <p class="lede reveal d2" style="margin:18px auto 34px">It takes courage to look at your own story, and you will not do it alone. The Inner Journey with Anthony Abbagnano: 15 weeks of live classes in a small cohort with limited places, starting February 16, 2027. The price goes back to $3,097 at midnight your time. Questions? Email us at info@alchemyofbreath.com.</p>
     <div class="lock-cta reveal d3">
       <a class="btn btn-primary btn-lock" href="#choose-class-time" data-tz-pick data-ev="checkout_ij_final">Join for $2,633 <span class="arr">&rarr;</span></a>
+      <a class="btn btn-primary btn-lock" href="/offer/black-friday/#join" data-co-alt="before" data-ev="ij_final_waitlist">Join the VIP Waitlist <span class="arr">&rarr;</span></a><a class="btn btn-primary btn-lock" href="mailto:info@alchemyofbreath.com" data-co-alt="after" data-ev="ij_final_email">Email us <span class="arr">&rarr;</span></a>
+      <p class="buy-state" data-co-state></p>
     </div>
   </div>
 </section>
@@ -1517,7 +1543,7 @@ html.tz-open{overflow:hidden}
   var d=document.getElementById('tzPop'); if(!d) return;
   try{var f=new Intl.DateTimeFormat(undefined,{weekday:'long',hour:'numeric',minute:'2-digit',timeZoneName:'short'});
     d.querySelectorAll('[data-tz-loc]').forEach(function(el){el.textContent='First call in your time: '+f.format(new Date(el.getAttribute('data-tz-loc')));});}catch(e){}
-  function show(e){e.preventDefault();if(typeof d.showModal==='function'){if(!d.open)d.showModal();}else{d.setAttribute('open','');}document.documentElement.classList.add('tz-open');}
+  function show(e){if(!document.documentElement.classList.contains('ph-during'))return;e.preventDefault();if(typeof d.showModal==='function'){if(!d.open)d.showModal();}else{d.setAttribute('open','');}document.documentElement.classList.add('tz-open');}
   document.querySelectorAll('[data-tz-pick]').forEach(function(a){a.addEventListener('click',show);});
   d.addEventListener('close',function(){document.documentElement.classList.remove('tz-open');});
   d.addEventListener('click',function(e){if(e.target===d)d.close();});
@@ -1543,18 +1569,31 @@ html.tz-open{overflow:hidden}
 (function(){
   var START=new Date(2026,10,30,0,0,0).getTime(), END=new Date(2026,11,1,0,0,0).getTime();
   var LS=new Date(2026,11,1,0,0,0).getTime(), LE=new Date(2026,11,2,0,0,0).getTime(); /* last chance: Tuesday, December 1, visitor's local day */
+  var OFF=0; /* preview any moment with ?preview=2026-11-30T10:00 */
+  try{ var pv=new URLSearchParams(location.search).get('preview'), pm=pv&&pv.match(/^(\d{4})-(\d{2})-(\d{2})(?:T(\d{2}):(\d{2}))?$/);
+    if(pm) OFF=new Date(+pm[1],pm[2]-1,+pm[3],+(pm[4]||0),+(pm[5]||0)).getTime()-Date.now(); }catch(e){}
   var QA=Date.UTC(2026,10,28,17,0,0); /* 9:00 am Pacific (PST, UTC-8) */
   var html=document.documentElement, timers=document.querySelectorAll('[data-bf-timer]');
   function pad(n){return (n<10?'0':'')+n;}
   try{var ql=document.querySelector('[data-qa-local]');if(ql){ql.textContent='Monday, November 30, at 9:00 am Pacific. That is '+new Intl.DateTimeFormat(undefined,{weekday:'long',hour:'numeric',minute:'2-digit',timeZoneName:'short'}).format(new Date(QA))+' where you are.';}}catch(e){}
-  var phase='';
+  var phase='', states=document.querySelectorAll('[data-co-state]'), coKey=null, pill=document.getElementById('pill'),
+      STATE={before:'The flash sale opens at midnight your time on Monday, November 30.',during:'',
+        last:'Back for one last day. The flash sale closes at midnight your time on Tuesday, December 1.',after:'The flash sale has ended.'};
   function tick(){
-    var now=Date.now(), last=now>=LS&&now<LE, ph=last?'during':(now<START?'before':(now<END?'during':'after'));
-    if(ph!==phase){html.classList.remove('ph-before','ph-during','ph-after');html.classList.add('ph-'+ph);phase=ph;}
+    var now=Date.now()+OFF, last=now>=LS&&now<LE, ph=last?'during':(now<START?'before':(now<END?'during':'after'));
+    if(ph!==phase){html.classList.remove('ph-before','ph-during','ph-after');html.classList.add('ph-'+ph);phase=ph;
+      if(ph!=='during'){var pop=document.getElementById('tzPop');if(pop&&pop.open)pop.close();}
+      /* the floating button: checkout while the sale is open, the VIP Waitlist before it (hidden after, see the styles) */
+      if(pill){var on=ph==='during', pl=pill.querySelector('.pill-label');pill.setAttribute('href',on?'#choose-class-time':'/offer/black-friday/#join');
+        pill.setAttribute('data-ev',on?'checkout_ij_pill':'ij_pill_waitlist');pill.setAttribute('aria-label',on?'Join the Inner Journey for $2,633':'Join the VIP Waitlist');
+        if(pl)pl.textContent=on?'Join for $2,633':'Join the VIP Waitlist';}}
+    /* "Join" buttons show only in the "during" phase (see the styles for [data-tz-pick] and [data-co-alt]) */
+    var ck=last?'last':ph;
+    if(ck!==coKey){coKey=ck;states.forEach(function(el){el.textContent=STATE[ck];});}
     var target=ph==='before'?START:(last?LE:END), sec=Math.max(0,Math.floor((target-now)/1000));
     var v={d:Math.floor(sec/86400),h:Math.floor(sec%86400/3600),m:Math.floor(sec%3600/60),s:sec%60};
     var label=ph==='before'?'Flash sale opens in':(ph==='during'?'Price goes up in':'The flash sale has ended');
-    var note=ph==='before'?'Opens at midnight your time, Monday, November 30':(ph==='during'?'At midnight your time, the price goes back to $3,097':'Book a call with a Success Advisor to hear about the next cohort.');
+    var note=ph==='before'?'Opens at midnight your time, Monday, November 30':(ph==='during'?'At midnight your time, the price goes back to $3,097':'Email us at info@alchemyofbreath.com to hear about the next cohort.');
     if(last){label='Last chance: price goes up in';note='Back for one last day. At midnight your time, the price goes back to $3,097';}
     else if(ph==='after'&&now<LS){note='Back for one last day on Tuesday, December 1.';}
     timers.forEach(function(t){
