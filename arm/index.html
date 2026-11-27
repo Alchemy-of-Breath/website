@@ -130,7 +130,7 @@
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth;overflow-x:clip}
-body{font-family:var(--sans);font-weight:300;font-size:18px;line-height:1.7;color:var(--ink);background:var(--paper);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body{font-family:var(--sans);font-weight:300;font-size:18px;line-height:1.7;color:var(--ink);background:var(--paper);-webkit-font-smoothing:antialiased;overflow-x:hidden;overflow-x:clip}
 ::selection{background:var(--gold-wash);color:var(--ink)}
 img{max-width:100%;height:auto;display:block}
 a{color:var(--ink)}
@@ -481,7 +481,14 @@ main p em,main li em{color:var(--gold-text)}
 
 /* holding page: header + Coming 2027 stamp only */
 .hero-hold{min-height:100vh;min-height:100svh;display:flex;align-items:center;padding:150px 0 110px}
-.hero-hold .wrap{width:100%}
+.hero-hold .wrap{width:100%;position:relative;z-index:1}
+/* background video: stays in view while the section scrolls, covers the screen, faded */
+.hero-hold{position:relative;overflow:hidden;overflow:clip;--bgv-opacity:.26}
+.hero-bgv{position:absolute;inset:0;z-index:0;pointer-events:none;opacity:0;transition:opacity 1.6s ease}
+.hero-bgv.is-on{opacity:var(--bgv-opacity)}
+.hero-bgv-in{position:sticky;top:0;height:100vh;height:100lvh;overflow:hidden}
+.hero-bgv iframe{position:absolute;top:50%;left:50%;width:max(100vw,177.78vh);height:max(100vh,56.25vw);transform:translate(-50%,-50%);border:0;pointer-events:none}
+@media(prefers-reduced-motion:reduce){.hero-bgv{display:none}}
 .hero-hold .hero-sub{max-width:34em}
 .hero-hold .hero-sub + .hero-sub{margin-top:16px}
 .hero-hold .vid-frame{margin-top:56px}
@@ -707,6 +714,10 @@ main p em,main li em{color:var(--gold-text)}
 
   <!-- HERO — holding page until the 2027 cohort opens -->
   <section class="hero hero-hold">
+    <!-- Background video: the Vimeo film, muted and looping, faded behind the text.
+         The player is added by the "ARM background video" script once the page has loaded,
+         and only shows once it is really playing. Opacity is set by --bgv-opacity below. -->
+    <div class="hero-bgv" id="heroBgv" aria-hidden="true" data-src="https://player.vimeo.com/video/1199846965?h=9f23deedcd&amp;background=1&amp;autoplay=1&amp;loop=1&amp;muted=1&amp;autopause=0&amp;dnt=1"><div class="hero-bgv-in"></div></div>
     <div class="wrap">
       <span class="eyebrow reveal" style="justify-content:center">Coach Certification &middot; ASHA, Tuscany</span>
       <h1 class="reveal d1">Alchemy Regulation <em>Method</em></h1>
@@ -743,11 +754,6 @@ main p em,main li em{color:var(--gold-text)}
         <p>We&rsquo;ll email you first when the 2027 Alchemy Regulation Method cohort opens, with your waitlist discount.</p>
       </div>
     </div>
-      </div>
-      <div class="vid-frame reveal d3">
-        <iframe src="https://player.vimeo.com/video/1199846965?h=9f23deedcd&amp;autopause=0&amp;loop=0&amp;muted=0&amp;title=0&amp;portrait=0&amp;byline=0"
-                title="Alchemy Regulation Method" loading="lazy"
-                allow="autoplay; fullscreen; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
       </div>
       <div class="hero-actions reveal d3">
         <a class="btn btn-ghost" href="https://go.alchemyofbreath.com/book-842709">Ask about 2027 &middot; book a call</a>
@@ -904,6 +910,36 @@ main p em,main li em{color:var(--gold-text)}
       h.setAttribute('aria-expanded',on?'true':'false');
     });
   });
+})();
+</script>
+<script>
+/* ARM background video. Adds the Vimeo player after the page has loaded (so it never slows the first paint),
+   and fades it in only once it reports that it is playing. If autoplay is blocked, or the visitor has
+   asked for reduced motion, the page simply keeps its plain paper background. */
+(function(){
+  var box=document.getElementById('heroBgv'); if(!box) return;
+  if(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var ORIGIN='https://player.vimeo.com', frame=null;
+  function post(msg){ try{ frame.contentWindow.postMessage(JSON.stringify(msg),ORIGIN); }catch(e){} }
+  window.addEventListener('message',function(e){
+    if(e.origin!==ORIGIN || !frame || e.source!==frame.contentWindow) return;
+    var d=e.data; if(typeof d==='string'){ try{ d=JSON.parse(d); }catch(x){ return; } }
+    if(!d) return;
+    if(d.event==='ready'){ post({method:'addEventListener',value:'playProgress'}); post({method:'addEventListener',value:'play'}); }
+    else if(d.event==='play' || (d.event==='playProgress' && d.data && d.data.seconds>0)){ box.classList.add('is-on'); }
+  });
+  function start(){
+    if(frame) return;
+    frame=document.createElement('iframe');
+    frame.src=box.getAttribute('data-src');
+    frame.title='';
+    frame.tabIndex=-1;
+    frame.setAttribute('allow','autoplay; fullscreen');
+    frame.setAttribute('referrerpolicy','strict-origin-when-cross-origin');
+    box.firstElementChild.appendChild(frame);
+  }
+  if(document.readyState==='complete') setTimeout(start,300);
+  else window.addEventListener('load',function(){ setTimeout(start,300); });
 })();
 </script>
 <script>(function(){if(window.self!==window.top){var st=document.createElement('style');st.textContent='.cv{content-visibility:visible !important}';document.head.appendChild(st);}function reportHeight(){var h=document.documentElement.scrollHeight;window.parent.postMessage({type:'aob-embed-resize',height:h},'*');}window.addEventListener('load',reportHeight);window.addEventListener('resize',reportHeight);var mo=new MutationObserver(reportHeight);mo.observe(document.body,{childList:true,subtree:true,attributes:true});setInterval(reportHeight,800);})();</script>
