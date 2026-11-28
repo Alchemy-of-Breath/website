@@ -209,6 +209,7 @@ footer a:hover{color:var(--gold)}
 /* Black Friday week, on each visitor's own clock: every day opens at their local midnight and lasts 24 hours
    (Friday, November 27 to Tuesday, December 1, 2026). While a day is live, the main button and that day's card
    link to its offer. Before the week and after it they lead to the VIP Waitlist. No offer link shows before its day.
+   A day marked keep:true (BreathCamp, whose booking stays open) keeps its card button after its day, until the week ends.
    Preview any moment with ?preview=2026-11-28T10:00 */
 (function(){
   var root=document.querySelector('[data-bfw]'), T=document.getElementById('bfhTimer')||document.getElementById('timer'); if(!root||!T) return;
@@ -218,7 +219,7 @@ footer a:hover{color:var(--gold)}
   function now(){ return Date.now()+off; }
   var D=[
     {y:2026,m:10,d:27,dow:'Friday',tab:'Fri 27',mon:'Nov',month:'November',pill:'Day 1 &middot; 24 hours',title:'BreathCamp 2027',text:'Seven days on the land in Tuscany, to slow down and come home to yourself.',
-      href:'/offer/breathcamp-2027-black-friday/',cta:'Explore today&rsquo;s offer',lbl:'Today&rsquo;s invitation: BreathCamp 2027. It ends in'},
+      href:'/offer/breathcamp-2027-black-friday/',cta:'Explore today&rsquo;s offer',keep:true,cta2:'See the offer',lbl:'Today&rsquo;s invitation: BreathCamp 2027. It ends in'},
     {y:2026,m:10,d:28,dow:'Saturday',tab:'Sat 28',mon:'Nov',month:'November',pill:'Day 2 &middot; 24 hours',title:'Facilitator Training',text:'For those who feel called to guide others with the breath.',
       href:'/offer/facilitator-training-black-friday/',cta:'Explore today&rsquo;s offer',lbl:'Today&rsquo;s invitation: Facilitator Training. It ends in'},
     {y:2026,m:10,d:29,dow:'Sunday',tab:'Sun 29',mon:'Nov',month:'November',pill:'Day 3 &middot; Free',title:'Breathe the World',text:'A free session to simply breathe together, with a <b>surprise gift</b> for everyone who joins.',
@@ -242,8 +243,9 @@ footer a:hover{color:var(--gold)}
   function paint(k){var x=D[k],st=state(x),rv=!!x.surprise&&st!=='';
     f.dow.textContent=x.dow;f.num.innerHTML=x.surprise&&!rv?'<span class="bfw-q">?</span>':x.d;f.mon.textContent=x.mon;f.pill.innerHTML=x.pill;
     f.title.textContent=rv?x.rtitle:x.title;f.text.innerHTML=rv?x.rtext:x.text;
-    f.state.textContent=st==='live'?'Live now':(st==='ended'?'Ended':'');f.state.className='bfw-state'+(st==='ended'?' ended':'');
-    if(f.cta){f.cta.hidden=st!=='live';if(st==='live'){f.cta.setAttribute('href',x.href);f.ctatext.innerHTML=x.cta;}}
+    var kept=!!x.keep&&st==='ended'&&now()<D[D.length-1].e, open=st==='live'||kept; /* kept: its day is over, its offer is still bookable */
+    f.state.textContent=st==='live'?'Live now':(st==='ended'&&!kept?'Ended':'');f.state.className='bfw-state'+(st==='ended'?' ended':'');
+    if(f.cta){f.cta.hidden=!open;if(open){f.cta.setAttribute('href',x.href);f.ctatext.innerHTML=kept?x.cta2:x.cta;}}
     card.classList.toggle('bfw-surprise',!!x.surprise&&!rv);
     tb.forEach(function(t,j){t.setAttribute('aria-selected',j===k?'true':'false');});}
   function runBar(){if(!bar)return;bar.classList.remove('run');void bar.offsetWidth;if(!paused&&!user&&!reduce)bar.classList.add('run');}
